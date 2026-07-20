@@ -1,0 +1,26 @@
+{
+  "name": "@verttex/env",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/api.ts",
+  "exports": {
+    "./api": "./src/api.ts",
+    "./manager": "./src/manager.ts",
+    "./storefront": "./src/storefront.ts"
+  },
+  "scripts": {
+    "build": "echo 'No build is required for this package'",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@verttex/tsconfig": "workspace:*",
+    "@verttex/eslint-config": "workspace:*",
+    "@types/node": "^22.10.7"
+  },
+  "dependencies": {
+    "@t3-oss/env-core": "^0.11.1",
+    "@t3-oss/env-nextjs": "^0.11.1",
+    "zod": "^3.24.1"
+  }
+}

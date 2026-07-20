@@ -1,0 +1,10 @@
+{
+  "extends": "@verttex/tsconfig/library.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}
