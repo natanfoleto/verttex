@@ -8,6 +8,6 @@ export default defineConfig({
   datasource: {
     url:
       process.env.DATABASE_URL ||
-      "postgresql://verttex:verttex_dev_password@localhost:5433/verttex_db?schema=public",
+      "postgresql://verttex:verttex_dev_password@localhost:5432/verttex_db?schema=public",
   },
 });

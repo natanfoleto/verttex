@@ -12,8 +12,8 @@ Last updated: 2026-07-21
 |---:|---|---|---|---|---|
 | 001 | Foundation | `completed` | critical | None | [`completed/001-foundation.md`](./completed/001-foundation.md) |
 | 002 | Data Modeling | `completed` | critical | 001 | [`completed/002-data-modeling.md`](./completed/002-data-modeling.md) |
-| 003 | User Authentication | `planned` | critical | 002 | [`planned/003-user-authentication.md`](./planned/003-user-authentication.md) |
-| 004 | Customer Authentication | `planned` | critical | 002 | [`planned/004-customer-authentication.md`](./planned/004-customer-authentication.md) |
+| 003 | User Authentication | `completed` | critical | 002 | [`completed/003-user-authentication.md`](./completed/003-user-authentication.md) |
+| 004 | Customer Authentication | `completed` | critical | 002 | [`completed/004-customer-authentication.md`](./completed/004-customer-authentication.md) |
 | 005 | Roles and Permissions | `planned` | critical | 002, 003 | [`planned/005-roles-and-permissions.md`](./planned/005-roles-and-permissions.md) |
 | 006 | Stores Management | `planned` | high | 002, 003, 005 | [`planned/006-stores-management.md`](./planned/006-stores-management.md) |
 | 007 | Manager UI | `planned` | high | 003, 005, 006 | [`planned/007-manager-ui.md`](./planned/007-manager-ui.md) |
@@ -25,8 +25,8 @@ Last updated: 2026-07-21
 
 | Status | Count |
 |---|---|
-| `completed` | 2 |
-| `planned` | 6 |
+| `completed` | 4 |
+| `planned` | 4 |
 | `active` | 0 |
 | `blocked` | 0 |
 | `archived` | 0 |
