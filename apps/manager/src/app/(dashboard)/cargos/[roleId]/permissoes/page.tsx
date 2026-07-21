@@ -174,7 +174,6 @@ export default function RolePermissionsPage({
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => togglePermission(perm.id)}
-                        className="h-5 w-5 cursor-pointer rounded border-zinc-700 bg-zinc-950 text-emerald-600 transition-colors focus:ring-emerald-500 focus:ring-offset-zinc-900"
                       />
                     </label>
                   )

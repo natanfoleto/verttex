@@ -29,7 +29,7 @@ export async function apiClient<T = any>(
   const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(options.body ? { 'Content-Type': 'application/json' } : {}),
     ...(options.headers as Record<string, string>),
   }
 

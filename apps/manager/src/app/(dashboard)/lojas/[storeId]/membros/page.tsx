@@ -132,7 +132,6 @@ export default function StoreMembersPage({
               type="checkbox"
               checked={isOwner}
               onChange={(e) => setIsOwner(e.target.checked)}
-              className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 text-emerald-600 focus:ring-emerald-500"
             />
             <span>Proprietário</span>
           </label>
