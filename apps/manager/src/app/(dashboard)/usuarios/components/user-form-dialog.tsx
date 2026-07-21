@@ -9,9 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { NativeSelect } from '@/components/ui/native-select'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
+import { userQueryKeys } from '../../../../lib/query-keys'
 
 export interface UserItem {
   id: string
@@ -95,8 +97,8 @@ export function UserFormDialog({
         })
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users-list'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: userQueryKeys.all })
       onOpenChange(false)
     },
     onError: (err: unknown) => {
@@ -201,13 +203,13 @@ export function UserFormDialog({
             >
               Cargo / Perfil de Acesso *
             </label>
-            <select
+            <NativeSelect
               id="user-roleId"
               name="roleId"
               required
               value={roleId}
               onChange={(e) => setRoleId(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
+              wrapperClassName="mt-1"
             >
               <option value="" disabled>
                 Selecione um cargo...
@@ -217,7 +219,7 @@ export function UserFormDialog({
                   {r.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
           {isEditing && (
@@ -228,16 +230,16 @@ export function UserFormDialog({
               >
                 Status
               </label>
-              <select
+              <NativeSelect
                 id="user-status"
                 name="status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
+                wrapperClassName="mt-1"
               >
                 <option value="active">Ativo</option>
                 <option value="inactive">Inativo</option>
-              </select>
+              </NativeSelect>
             </div>
           )}
 

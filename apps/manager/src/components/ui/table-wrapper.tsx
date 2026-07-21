@@ -7,6 +7,8 @@ import {
   RiSearchLine,
 } from 'react-icons/ri'
 
+import { DataTableSkeleton } from '../skeletons/data-table-skeleton'
+
 interface MetaData {
   page: number
   perPage: number
@@ -93,14 +95,7 @@ export function TableWrapper({
       {/* Table Container */}
       <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40 shadow-sm">
         {isLoading ? (
-          <div className="space-y-4 p-8">
-            <div className="h-6 w-1/4 animate-pulse rounded bg-zinc-800/60" />
-            <div className="space-y-3 pt-2">
-              <div className="h-10 animate-pulse rounded bg-zinc-800/40" />
-              <div className="h-10 animate-pulse rounded bg-zinc-800/40" />
-              <div className="h-10 animate-pulse rounded bg-zinc-800/40" />
-            </div>
-          </div>
+          <DataTableSkeleton columns={5} rows={6} />
         ) : isError ? (
           <div className="space-y-3 p-12 text-center">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-rose-800/50 bg-rose-950/60 text-rose-400">

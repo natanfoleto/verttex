@@ -72,15 +72,22 @@ export default function LoginPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
-              E-mail corporativo
-            </label>
+            <div>
+              <label
+                htmlFor="email"
+                className="text-xs font-semibold tracking-wider text-zinc-300 uppercase"
+              >
+                E-mail corporativo
+              </label>
+            </div>
             <div className="relative">
               <RiMailLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
                 {...register('email')}
+                id="email"
+                name="email"
                 type="email"
                 placeholder="seu.email@verttex.com.br"
                 className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
@@ -95,7 +102,10 @@ export default function LoginPage() {
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
+              <label
+                htmlFor="password"
+                className="text-xs font-semibold tracking-wider text-zinc-300 uppercase"
+              >
                 Senha de acesso
               </label>
               <Link
@@ -109,6 +119,8 @@ export default function LoginPage() {
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
                 {...register('password')}
+                id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"

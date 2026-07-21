@@ -9,9 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { NativeSelect } from '@/components/ui/native-select'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
+import { storeQueryKeys } from '../../../../lib/query-keys'
+import { sanitizeSlug } from '../../../../lib/slug'
 
 export interface StoreItem {
   id: string
@@ -38,6 +41,7 @@ export function StoreFormDialog({
 
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
   const [description, setDescription] = useState('')
   const [status, setStatus] = useState('active')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -48,11 +52,13 @@ export function StoreFormDialog({
       setSlug(storeToEdit.slug)
       setDescription(storeToEdit.description || '')
       setStatus(storeToEdit.status)
+      setIsSlugManuallyEdited(true)
     } else {
       setName('')
       setSlug('')
       setDescription('')
       setStatus('active')
+      setIsSlugManuallyEdited(false)
     }
     setErrorMessage(null)
   }, [storeToEdit, open])
@@ -60,6 +66,8 @@ export function StoreFormDialog({
   const mutation = useMutation({
     mutationFn: async () => {
       setErrorMessage(null)
+      const finalSlug = sanitizeSlug(slug || name)
+
       if (isEditing && storeToEdit) {
         return apiClient(`/stores/${storeToEdit.id}`, {
           method: 'PATCH',
@@ -74,14 +82,14 @@ export function StoreFormDialog({
           method: 'POST',
           body: JSON.stringify({
             name,
-            slug,
+            slug: finalSlug,
             description: description || undefined,
           }),
         })
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stores-list'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: storeQueryKeys.all })
       onOpenChange(false)
     },
     onError: (err: unknown) => {
@@ -92,6 +100,18 @@ export function StoreFormDialog({
       }
     },
   })
+
+  const handleNameChange = (val: string) => {
+    setName(val)
+    if (!isEditing && !isSlugManuallyEdited) {
+      setSlug(sanitizeSlug(val))
+    }
+  }
+
+  const handleSlugChange = (val: string) => {
+    setIsSlugManuallyEdited(true)
+    setSlug(sanitizeSlug(val))
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -133,19 +153,7 @@ export function StoreFormDialog({
               type="text"
               required
               value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                if (!isEditing && !slug) {
-                  setSlug(
-                    e.target.value
-                      .toLowerCase()
-                      .normalize('NFD')
-                      .replace(/[\u0300-\u036f]/g, '')
-                      .replace(/[^a-z0-9]+/g, '-')
-                      .replace(/^-+|-+$/g, '')
-                  )
-                }
-              }}
+              onChange={(e) => handleNameChange(e.target.value)}
               placeholder="Ex: Queijaria Alvorada"
               className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
             />
@@ -165,7 +173,7 @@ export function StoreFormDialog({
                 type="text"
                 required
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                onChange={(e) => handleSlugChange(e.target.value)}
                 placeholder="ex: queijaria-alvorada"
                 className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 font-mono text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
               />
@@ -198,18 +206,18 @@ export function StoreFormDialog({
               >
                 Status
               </label>
-              <select
+              <NativeSelect
                 id="store-status"
                 name="status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
+                wrapperClassName="mt-1"
               >
                 <option value="draft">Rascunho (Draft)</option>
                 <option value="active">Ativa (Active)</option>
                 <option value="inactive">Inativa (Inactive)</option>
                 <option value="suspended">Suspensa (Suspended)</option>
-              </select>
+              </NativeSelect>
             </div>
           )}
 

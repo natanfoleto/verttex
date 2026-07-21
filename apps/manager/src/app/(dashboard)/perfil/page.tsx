@@ -335,9 +335,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-3">
-              <span className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+              <p className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
                 Permissões Ativas
-              </span>
+              </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {user?.role?.key === 'admin' ? (
                   <div className="col-span-full flex items-center space-x-2 rounded-xl border border-emerald-800/60 bg-emerald-950/40 p-3 text-xs font-medium text-emerald-300">

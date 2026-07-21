@@ -6,6 +6,7 @@ import { RiAddLine, RiEditLine, RiShieldUserLine } from 'react-icons/ri'
 
 import { TableWrapper } from '../../../components/ui/table-wrapper'
 import { apiClient } from '../../../lib/api-client'
+import { userQueryKeys } from '../../../lib/query-keys'
 import { UserFormDialog, UserItem } from './components/user-form-dialog'
 
 export default function UsersListPage() {
@@ -15,9 +16,8 @@ export default function UsersListPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UserItem | null>(null)
 
-  // Load Users List
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['users-list', page, search],
+    queryKey: userQueryKeys.list({ page, search }),
     queryFn: () =>
       apiClient(
         `/users?page=${page}&perPage=10&search=${encodeURIComponent(search)}`
@@ -33,6 +33,8 @@ export default function UsersListPage() {
     setEditingUser(user)
     setIsDialogOpen(true)
   }
+
+  const hasActiveFilters = Boolean(search)
 
   return (
     <div className="space-y-6 font-sans text-zinc-100">
@@ -55,6 +57,16 @@ export default function UsersListPage() {
         isLoading={isLoading}
         isError={isError}
         isEmpty={!data?.data || data.data.length === 0}
+        emptyTitle={
+          hasActiveFilters
+            ? 'Nenhum usuário encontrado para a busca'
+            : 'Nenhum usuário cadastrado'
+        }
+        emptyDescription={
+          hasActiveFilters
+            ? 'Tente buscar com outro nome ou endereço de e-mail.'
+            : 'Clique em "Novo Usuário" para cadastrar o primeiro gestor.'
+        }
         meta={data?.meta}
         onPageChange={setPage}
       >
@@ -117,7 +129,6 @@ export default function UsersListPage() {
         </table>
       </TableWrapper>
 
-      {/* User Form Dialog Component */}
       <UserFormDialog
         open={isDialogOpen}
         onOpenChange={(open) => {

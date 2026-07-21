@@ -9,9 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { NativeSelect } from '@/components/ui/native-select'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
+import { roleQueryKeys } from '../../../../lib/query-keys'
+import { sanitizeSlug } from '../../../../lib/slug'
 
 export interface RoleItem {
   id: string
@@ -38,6 +41,7 @@ export function RoleFormDialog({
 
   const [name, setName] = useState('')
   const [key, setKey] = useState('')
+  const [isKeyManuallyEdited, setIsKeyManuallyEdited] = useState(false)
   const [description, setDescription] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -48,11 +52,13 @@ export function RoleFormDialog({
       setKey(roleToEdit.key)
       setDescription(roleToEdit.description || '')
       setIsActive(roleToEdit.isActive)
+      setIsKeyManuallyEdited(true)
     } else {
       setName('')
       setKey('')
       setDescription('')
       setIsActive(true)
+      setIsKeyManuallyEdited(false)
     }
     setErrorMessage(null)
   }, [roleToEdit, open])
@@ -60,6 +66,8 @@ export function RoleFormDialog({
   const mutation = useMutation({
     mutationFn: async () => {
       setErrorMessage(null)
+      const finalKey = sanitizeSlug(key || name).replace(/-/g, '_')
+
       if (isEditing && roleToEdit) {
         return apiClient(`/roles/${roleToEdit.id}`, {
           method: 'PATCH',
@@ -74,14 +82,14 @@ export function RoleFormDialog({
           method: 'POST',
           body: JSON.stringify({
             name,
-            key,
+            key: finalKey,
             description: description || undefined,
           }),
         })
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles-list'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: roleQueryKeys.all })
       onOpenChange(false)
     },
     onError: (err: unknown) => {
@@ -92,6 +100,18 @@ export function RoleFormDialog({
       }
     },
   })
+
+  const handleNameChange = (val: string) => {
+    setName(val)
+    if (!isEditing && !isKeyManuallyEdited) {
+      setKey(sanitizeSlug(val).replace(/-/g, '_'))
+    }
+  }
+
+  const handleKeyChange = (val: string) => {
+    setIsKeyManuallyEdited(true)
+    setKey(sanitizeSlug(val).replace(/-/g, '_'))
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -131,7 +151,7 @@ export function RoleFormDialog({
               type="text"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value)}
               placeholder="Ex: Gerente de Loja"
               className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
             />
@@ -151,7 +171,7 @@ export function RoleFormDialog({
                 type="text"
                 required
                 value={key}
-                onChange={(e) => setKey(e.target.value)}
+                onChange={(e) => handleKeyChange(e.target.value)}
                 placeholder="Ex: store_manager"
                 className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 font-mono text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
               />
@@ -184,16 +204,16 @@ export function RoleFormDialog({
               >
                 Status
               </label>
-              <select
+              <NativeSelect
                 id="role-status"
                 name="status"
                 value={isActive ? 'active' : 'inactive'}
                 onChange={(e) => setIsActive(e.target.value === 'active')}
-                className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
+                wrapperClassName="mt-1"
               >
                 <option value="active">Ativo</option>
                 <option value="inactive">Inativo</option>
-              </select>
+              </NativeSelect>
             </div>
           )}
 

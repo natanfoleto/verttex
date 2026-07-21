@@ -232,7 +232,37 @@ Every feature screen must implement:
 - **Native Selects (`NativeSelect`)**:
   - `appearance-none` to strip default browser arrows.
   - Enclosed in a `relative` container.
-  - Custom `RiArrowDownSLine` icon positioned absolutely at `right-3 top-1/2 -translate-y-1/2 pointer-events-none`.
+  - Custom `RiChevronDownLine` icon positioned absolutely at `right-3 top-1/2 -translate-y-1/2 pointer-events-none`.
+  - Mandatory `pr-10` padding right so option text never overlaps the chevron.
+- **shadcn `Select` (`SelectTrigger`)**:
+  - Padding horizontal strictly set to `px-3`.
+
+### 10.5 Slug Generation Standard (`sanitizeSlug`)
+
+- **Location**: `src/lib/slug.ts`.
+- **Rules**:
+  1. `normalize('NFD')` + remove diacritics (`[\u0300-\u036f]`).
+  2. Lowercase and trim spaces.
+  3. Remove non-alphanumeric chars except spaces and hyphens (`[^a-z0-9\s-]`).
+  4. Replace spaces with single hyphens (`\s+` -> `-`).
+  5. Condense hyphens (`-+` -> `-`) and strip leading/trailing hyphens.
+- **Form Auto-Sync Behavior**: Automatically populates `slug` field from `name` field input UNTIL the user manually edits `slug`. Once manually edited, auto-sync pauses to preserve custom input, but sanitization is still applied.
+
+### 10.6 React Query Reactivity & Query Keys Standard
+
+- **Location**: `src/lib/query-keys.ts`.
+- **Rule**: Never use ad-hoc string arrays or `window.location.reload()`. Use query key factories:
+  - `storeQueryKeys.all`, `storeQueryKeys.list(filters)`, `storeQueryKeys.detail(id)`.
+  - `userQueryKeys.all`, `userQueryKeys.list(filters)`, `userQueryKeys.detail(id)`.
+  - `roleQueryKeys.all`, `roleQueryKeys.list(filters)`, `roleQueryKeys.detail(id)`.
+- **Invalidation Policy**: Mutations MUST call `await queryClient.invalidateQueries({ queryKey: entityKeys.all })` on success to ensure real-time UI updates without page reloads.
+
+### 10.7 Skeleton Loadings & Empty States
+
+- **Table Skeleton**: Use `DataTableSkeleton` (`src/components/skeletons/data-table-skeleton.tsx`) during list loading states. Never show generic spinners for tabular data.
+- **Differentiated Empty States**:
+  - When no records exist at all: `"Nenhum [item] cadastrado"`.
+  - When search/filter is active: `"Nenhum [item] encontrado para os filtros selecionados"`.
   - Right padding `pr-10` on the `<select>` element.
 - **Radix/shadcn Selects (`Select`)**:
   - `SelectTrigger` uses horizontal padding `px-3` to ensure proper text and icon alignment without clipping.

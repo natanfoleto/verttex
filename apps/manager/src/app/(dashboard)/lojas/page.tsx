@@ -9,8 +9,10 @@ import {
   RiUserSharedLine,
 } from 'react-icons/ri'
 
+import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '../../../components/ui/table-wrapper'
 import { apiClient } from '../../../lib/api-client'
+import { storeQueryKeys } from '../../../lib/query-keys'
 import { StoreFormDialog, StoreItem } from './components/store-form-dialog'
 
 export default function StoresListPage() {
@@ -21,11 +23,11 @@ export default function StoresListPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingStore, setEditingStore] = useState<StoreItem | null>(null)
 
-  // Load Stores List
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['stores-list', page, search, statusFilter],
+    queryKey: storeQueryKeys.list({ page, search, status: statusFilter }),
     queryFn: () => {
-      let url = `/stores?page=${page}&perPage=10&search=${encodeURIComponent(search)}`
+      let url = `/stores?page=${page}&perPage=10`
+      if (search) url += `&search=${encodeURIComponent(search)}`
       if (statusFilter) url += `&status=${statusFilter}`
       return apiClient(url)
     },
@@ -40,6 +42,8 @@ export default function StoresListPage() {
     setEditingStore(store)
     setIsDialogOpen(true)
   }
+
+  const hasActiveFilters = Boolean(search || statusFilter)
 
   return (
     <div className="space-y-6 font-sans text-zinc-100">
@@ -60,21 +64,31 @@ export default function StoresListPage() {
         onSearchChange={setSearch}
         searchPlaceholder="Buscar por nome ou slug..."
         filters={
-          <select
+          <NativeSelect
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-300 focus:border-zinc-600 focus:outline-none"
+            wrapperClassName="w-48"
           >
             <option value="">Todos os status</option>
             <option value="draft">Rascunho (Draft)</option>
             <option value="active">Ativa (Active)</option>
             <option value="inactive">Inativa (Inactive)</option>
             <option value="suspended">Suspensa (Suspended)</option>
-          </select>
+          </NativeSelect>
         }
         isLoading={isLoading}
         isError={isError}
         isEmpty={!data?.data || data.data.length === 0}
+        emptyTitle={
+          hasActiveFilters
+            ? 'Nenhuma loja encontrada para os filtros selecionados'
+            : 'Nenhuma loja cadastrada'
+        }
+        emptyDescription={
+          hasActiveFilters
+            ? 'Tente remover a busca ou trocar o filtro de status.'
+            : 'Clique em "Nova Loja" para cadastrar o primeiro parceiro.'
+        }
         meta={data?.meta}
         onPageChange={setPage}
       >
@@ -154,7 +168,6 @@ export default function StoresListPage() {
         </table>
       </TableWrapper>
 
-      {/* Store Form Dialog Component */}
       <StoreFormDialog
         open={isDialogOpen}
         onOpenChange={(open) => {

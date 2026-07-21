@@ -51,5 +51,14 @@ export async function apiClient<T = any>(
     )
   }
 
-  return data?.data !== undefined ? data.data : data
+  if (data && typeof data === 'object') {
+    if (data.meta !== undefined) {
+      return data
+    }
+    if (data.data !== undefined) {
+      return data.data
+    }
+  }
+
+  return data
 }

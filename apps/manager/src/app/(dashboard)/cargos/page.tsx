@@ -6,6 +6,7 @@ import { RiAddLine, RiEditLine, RiShieldLine } from 'react-icons/ri'
 
 import { TableWrapper } from '../../../components/ui/table-wrapper'
 import { apiClient } from '../../../lib/api-client'
+import { roleQueryKeys } from '../../../lib/query-keys'
 import { RoleFormDialog, RoleItem } from './components/role-form-dialog'
 
 export default function RolesListPage() {
@@ -17,7 +18,7 @@ export default function RolesListPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['roles-list'],
+    queryKey: roleQueryKeys.all,
     queryFn: () => apiClient('/roles'),
   })
 
@@ -49,6 +50,8 @@ export default function RolesListPage() {
         isLoading={isLoading}
         isError={isError}
         isEmpty={!roles || roles.length === 0}
+        emptyTitle="Nenhum cargo cadastrado"
+        emptyDescription="Clique em 'Novo Cargo' para definir a primeira regra de acesso do sistema."
       >
         <table className="w-full border-collapse text-left text-sm">
           <thead>
@@ -119,7 +122,6 @@ export default function RolesListPage() {
         </table>
       </TableWrapper>
 
-      {/* Role Form Dialog Component */}
       <RoleFormDialog
         open={isDialogOpen}
         onOpenChange={(open) => {
