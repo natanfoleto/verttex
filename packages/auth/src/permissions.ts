@@ -48,6 +48,8 @@ export const PERMISSION_MAP: Record<
 
   'sales.read': { action: 'read', subject: 'Sale' },
   'reports.read': { action: 'read', subject: 'Report' },
+
+  'audit.read': { action: 'read', subject: 'AuditLog' },
 }
 
 export function parsePermissionKey(

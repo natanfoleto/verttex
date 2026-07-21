@@ -42,3 +42,19 @@ export const roleQueryKeys = {
   details: () => [...roleQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...roleQueryKeys.details(), id] as const,
 }
+
+export interface AuditFilters {
+  search?: string
+  userId?: string
+  action?: string
+  entity?: string
+  page?: number
+  perPage?: number
+}
+
+export const auditQueryKeys = {
+  all: ['audit'] as const,
+  lists: () => [...auditQueryKeys.all, 'list'] as const,
+  list: (filters: AuditFilters) =>
+    [...auditQueryKeys.lists(), filters] as const,
+}

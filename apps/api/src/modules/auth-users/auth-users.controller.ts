@@ -1,5 +1,6 @@
 import { FastifyReply } from 'fastify'
 import { FastifyZodRequest } from '../../@types/fastify'
+import { prisma } from '../../infrastructure/database/prisma'
 import { AuthUsersService } from './auth-users.service'
 import {
   LoginBody,
@@ -16,40 +17,59 @@ export async function loginController(
   request: FastifyZodRequest<{ Body: LoginBody }>,
   reply: FastifyReply
 ) {
-  const result = await authUsersService.login(
-    request.server,
-    request.body,
-    request.ip,
-    request.headers['user-agent']
-  )
+  try {
+    const result = await authUsersService.login(
+      request.server,
+      request.body,
+      request.ip,
+      request.headers['user-agent']
+    )
 
-  reply
-    .setCookie('user_access_token', result.accessToken, {
-      path: '/',
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      maxAge: 15 * 60, // 15 minutes
-    })
-    .setCookie('user_refresh_token', result.refreshToken, {
-      path: '/auth/users',
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    })
+    reply
+      .setCookie('user_access_token', result.accessToken, {
+        path: '/',
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'lax',
+        maxAge: 15 * 60, // 15 minutes
+      })
+      .setCookie('user_refresh_token', result.refreshToken, {
+        path: '/auth/users',
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+      })
 
-  return reply.send({
-    success: true,
-    data: result,
-  })
+    return reply.send({
+      success: true,
+      data: result,
+    })
+  } catch (err) {
+    // Record LOGIN_FAILED for failed login attempts (don't expose whether email exists)
+    await prisma.auditLog.create({
+      data: {
+        userId: null,
+        action: 'LOGIN_FAILED',
+        entity: 'User',
+        entityId: null,
+        newValues: { attemptedEmail: request.body.email },
+        ipAddress: request.ip,
+        userAgent: request.headers['user-agent'] ?? null,
+      },
+    }).catch(() => {}) // best-effort, never throw
+    throw err
+  }
 }
 
 export async function logoutController(
   request: FastifyZodRequest,
   reply: FastifyReply
 ) {
-  await authUsersService.logout(request.userPayload?.sessionId)
+  await authUsersService.logout(
+    request.userPayload?.id,
+    request.userPayload?.sessionId
+  )
 
   reply
     .clearCookie('user_access_token', { path: '/' })

@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import { logAudit } from '../../shared/utils/audit'
 import {
   hashPassword,
   verifyPassword,
@@ -72,6 +73,18 @@ export class AuthUsersService {
       { expiresIn: '15m' }
     )
 
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'LOGIN',
+        entity: 'User',
+        entityId: user.id,
+        newValues: { email: user.email, role: user.role.key },
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+      },
+    })
+
     return {
       accessToken,
       refreshToken: rawRefreshToken,
@@ -87,13 +100,27 @@ export class AuthUsersService {
     }
   }
 
-  async logout(sessionId?: string) {
+  async logout(userId?: string, sessionId?: string) {
     if (!sessionId) return
+
+    const session = await prisma.userSession.findUnique({
+      where: { id: sessionId },
+    })
 
     await prisma.userSession.updateMany({
       where: { id: sessionId, revokedAt: null },
       data: { revokedAt: new Date() },
     })
+
+    if (userId) {
+      await logAudit({
+        userId,
+        action: 'LOGOUT',
+        entity: 'User',
+        entityId: userId,
+        oldValues: session ? { sessionId: session.id, ipAddress: session.ipAddress } : null,
+      })
+    }
   }
 
   async refresh(
@@ -232,6 +259,13 @@ export class AuthUsersService {
       }),
     ])
 
+    await logAudit({
+      userId: resetToken.userId,
+      action: 'PASSWORD_RESET',
+      entity: 'User',
+      entityId: resetToken.userId,
+    })
+
     return { message: 'Senha redefinida com sucesso!' }
   }
 
@@ -263,6 +297,13 @@ export class AuthUsersService {
         data: { revokedAt: new Date() },
       }),
     ])
+
+    await logAudit({
+      userId,
+      action: 'PASSWORD_CHANGE',
+      entity: 'User',
+      entityId: userId,
+    })
 
     return { message: 'Senha alterada com sucesso!' }
   }

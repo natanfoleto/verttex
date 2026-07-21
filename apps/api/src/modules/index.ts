@@ -7,6 +7,7 @@ import { rolesRoutes } from './roles/roles.routes'
 import { permissionsRoutes } from './permissions/permissions.routes'
 import { usersRoutes } from './users/users.routes'
 import { storesRoutes } from './stores/stores.routes'
+import { auditRoutes } from './audit/audit.routes'
 
 export async function registerModules(app: FastifyInstance) {
   await app.register(healthRoutes)
@@ -17,4 +18,6 @@ export async function registerModules(app: FastifyInstance) {
   await app.register(permissionsRoutes)
   await app.register(usersRoutes)
   await app.register(storesRoutes)
+  await app.register(auditRoutes)
 }
+

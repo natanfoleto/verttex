@@ -73,8 +73,9 @@ export async function deleteStoreController(
   request: FastifyZodRequest,
   reply: FastifyReply
 ) {
+  const userPayload = request.userPayload!
   const params = request.params as StoreParams
-  const result = await storesService.deleteStore(params.storeId)
+  const result = await storesService.deleteStore(params.storeId, userPayload.id)
   return reply.send({
     success: true,
     data: result,

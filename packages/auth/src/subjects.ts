@@ -21,6 +21,7 @@ export const subjectSchema = z.union([
   z.literal('Inventory'),
   z.literal('Sale'),
   z.literal('Report'),
+  z.literal('AuditLog'),
   z.literal('all'),
 ])
 

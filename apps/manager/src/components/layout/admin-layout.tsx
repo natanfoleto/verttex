@@ -30,6 +30,7 @@ import {
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiDashboardLine,
+  RiHistoryLine,
   RiLogoutBoxRLine,
   RiMenuLine,
   RiShieldLine,
@@ -129,6 +130,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       icon: RiStoreLine,
       show: ability.can('read', 'Store'),
     },
+    {
+      label: 'Logs de Auditoria',
+      href: '/auditoria',
+      icon: RiHistoryLine,
+      show: ability.can('read', 'AuditLog'),
+    },
   ]
 
   // Filter items based on permissions
@@ -150,6 +157,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     if (pathname.startsWith('/cargos')) return 'Cargos e Permissões'
     if (pathname.startsWith('/lojas')) return 'Lojas Parceiras'
     if (pathname.startsWith('/perfil')) return 'Meu Perfil'
+    if (pathname.startsWith('/auditoria')) return 'Logs de Auditoria'
     return 'Painel Manager'
   }
 

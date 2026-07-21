@@ -1,6 +1,7 @@
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { hashPassword } from '../../shared/utils/crypto'
+import { logAudit } from '../../shared/utils/audit'
 import {
   UserQuery,
   CreateUserBody,
@@ -90,7 +91,7 @@ export class UsersService {
 
     const passwordHash = await hashPassword(data.password)
 
-    return prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         name: data.name,
         email,
@@ -110,6 +111,16 @@ export class UsersService {
         updatedAt: true,
       },
     })
+
+    await logAudit({
+      userId: null,
+      action: 'CREATE',
+      entity: 'User',
+      entityId: user.id,
+      newValues: user,
+    })
+
+    return user
   }
 
   async getUser(userId: string) {
@@ -149,16 +160,16 @@ export class UsersService {
   }
 
   async updateUser(userId: string, data: UpdateUserBody) {
-    const user = await prisma.user.findUnique({
+    const previousUser = await prisma.user.findUnique({
       where: { id: userId },
       include: { role: true },
     })
 
-    if (!user) {
+    if (!previousUser) {
       throw new AppError('NOT_FOUND', 'Usuário não encontrado', 404)
     }
 
-    if (data.email && data.email.toLowerCase().trim() !== user.email) {
+    if (data.email && data.email.toLowerCase().trim() !== previousUser.email) {
       const email = data.email.toLowerCase().trim()
       const existing = await prisma.user.findUnique({ where: { email } })
       if (existing) {
@@ -166,7 +177,7 @@ export class UsersService {
       }
     }
 
-    if (data.roleId && data.roleId !== user.roleId) {
+    if (data.roleId && data.roleId !== previousUser.roleId) {
       const role = await prisma.role.findUnique({ where: { id: data.roleId } })
       if (!role) {
         throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
@@ -174,11 +185,11 @@ export class UsersService {
     }
 
     // Check last admin protection if deactivating
-    if (data.status && data.status !== 'active' && user.role.key === 'admin') {
+    if (data.status && data.status !== 'active' && previousUser.role.key === 'admin') {
       await this.ensureNotLastAdmin(userId)
     }
 
-    return prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         name: data.name,
@@ -198,6 +209,31 @@ export class UsersService {
         updatedAt: true,
       },
     })
+
+    const action = data.status && data.status !== previousUser.status ? 'STATUS_CHANGE' : 'UPDATE'
+
+    await logAudit({
+      userId: null,
+      action,
+      entity: 'User',
+      entityId: userId,
+      oldValues: {
+        name: previousUser.name,
+        email: previousUser.email,
+        phone: previousUser.phone,
+        status: previousUser.status,
+        roleId: previousUser.roleId,
+      },
+      newValues: {
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        status: updatedUser.status,
+        roleId: updatedUser.roleId,
+      },
+    })
+
+    return updatedUser
   }
 
   async deleteUser(userId: string) {
@@ -217,6 +253,20 @@ export class UsersService {
     await prisma.user.update({
       where: { id: userId },
       data: { status: 'inactive' },
+    })
+
+    await logAudit({
+      userId: null,
+      action: 'DELETE',
+      entity: 'User',
+      entityId: userId,
+      oldValues: {
+        name: user.name,
+        email: user.email,
+        status: user.status,
+        roleId: user.roleId,
+      },
+      newValues: { status: 'inactive' },
     })
 
     return { message: 'Usuário desativado com sucesso' }
@@ -263,6 +313,8 @@ export class UsersService {
       throw new AppError('NOT_FOUND', 'Usuário não encontrado', 404)
     }
 
+    const previousPermissions = await this.getUserPermissions(userId)
+
     await prisma.$transaction(async (tx) => {
       await tx.userPermission.deleteMany({
         where: { userId },
@@ -279,7 +331,24 @@ export class UsersService {
       }
     })
 
-    return this.getUserPermissions(userId)
+    const newPermissions = await this.getUserPermissions(userId)
+
+    await logAudit({
+      userId: null,
+      action: 'PERMISSION_CHANGE',
+      entity: 'User',
+      entityId: userId,
+      oldValues: previousPermissions.map((p) => ({
+        permissionKey: p.permission.key,
+        effect: p.effect,
+      })),
+      newValues: newPermissions.map((p) => ({
+        permissionKey: p.permission.key,
+        effect: p.effect,
+      })),
+    })
+
+    return newPermissions
   }
 
   private async ensureNotLastAdmin(userId: string) {

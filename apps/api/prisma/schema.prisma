@@ -19,6 +19,7 @@ model User {
   stores              StoreUser[]
   sessions            UserSession[]
   passwordResetTokens UserPasswordResetToken[]
+  auditLogs           AuditLog[]
   emailVerifiedAt     DateTime?
   lastLoginAt         DateTime?
   createdAt           DateTime                 @default(now())
@@ -183,16 +184,23 @@ model CustomerPasswordResetToken {
 }
 
 model AuditLog {
-  id               String   @id @default(cuid())
-  actorUserId      String?
-  actorCustomerId String?
-  action           String
-  subject          String
-  subjectId        String?
-  metadata         Json?
-  ipAddress        String?
-  userAgent        String?
-  createdAt        DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
 
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([action])
+  @@index([createdAt])
   @@map("audit_logs")
 }

@@ -1,5 +1,6 @@
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import { logAudit } from '../../shared/utils/audit'
 import { CreateRoleBody, UpdateRoleBody } from './roles.schemas'
 
 export class RolesService {
@@ -28,7 +29,7 @@ export class RolesService {
       throw new AppError('CONFLICT', 'Já existe um cargo com esta chave', 409)
     }
 
-    return prisma.role.create({
+    const role = await prisma.role.create({
       data: {
         key: data.key,
         name: data.name,
@@ -36,6 +37,16 @@ export class RolesService {
         isSystem: false,
       },
     })
+
+    await logAudit({
+      userId: null,
+      action: 'CREATE',
+      entity: 'Role',
+      entityId: role.id,
+      newValues: { key: role.key, name: role.name, description: role.description },
+    })
+
+    return role
   }
 
   async getRole(roleId: string) {
@@ -61,15 +72,15 @@ export class RolesService {
   }
 
   async updateRole(roleId: string, data: UpdateRoleBody) {
-    const role = await prisma.role.findUnique({
+    const previousRole = await prisma.role.findUnique({
       where: { id: roleId },
     })
 
-    if (!role) {
+    if (!previousRole) {
       throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
-    return prisma.role.update({
+    const updatedRole = await prisma.role.update({
       where: { id: roleId },
       data: {
         name: data.name,
@@ -77,6 +88,25 @@ export class RolesService {
         isActive: data.isActive,
       },
     })
+
+    await logAudit({
+      userId: null,
+      action: 'UPDATE',
+      entity: 'Role',
+      entityId: roleId,
+      oldValues: {
+        name: previousRole.name,
+        description: previousRole.description,
+        isActive: previousRole.isActive,
+      },
+      newValues: {
+        name: updatedRole.name,
+        description: updatedRole.description,
+        isActive: updatedRole.isActive,
+      },
+    })
+
+    return updatedRole
   }
 
   async deleteRole(roleId: string) {
@@ -111,6 +141,14 @@ export class RolesService {
       where: { id: roleId },
     })
 
+    await logAudit({
+      userId: null,
+      action: 'DELETE',
+      entity: 'Role',
+      entityId: roleId,
+      oldValues: { key: role.key, name: role.name },
+    })
+
     return { message: 'Cargo excluído com sucesso' }
   }
 
@@ -142,6 +180,8 @@ export class RolesService {
       throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
+    const previousPermissions = await this.getRolePermissions(roleId)
+
     await prisma.$transaction(async (tx) => {
       await tx.rolePermission.deleteMany({
         where: { roleId },
@@ -157,6 +197,18 @@ export class RolesService {
       }
     })
 
-    return this.getRolePermissions(roleId)
+    const newPermissions = await this.getRolePermissions(roleId)
+
+    await logAudit({
+      userId: null,
+      action: 'PERMISSION_CHANGE',
+      entity: 'Role',
+      entityId: roleId,
+      oldValues: previousPermissions.map((p) => ({ key: p.key })),
+      newValues: newPermissions.map((p) => ({ key: p.key })),
+    })
+
+    return newPermissions
   }
 }
+

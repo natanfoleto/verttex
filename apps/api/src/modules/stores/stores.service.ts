@@ -1,6 +1,7 @@
 import { AuthenticatedUserPayload } from '../../@types/fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import { logAudit } from '../../shared/utils/audit'
 import { normalizeSlug, isSlugReserved } from './reserved-slugs'
 import {
   StoreQuery,
@@ -60,6 +61,14 @@ export class StoresService {
           isOwner: true,
           isActive: true,
         },
+      })
+
+      await logAudit({
+        userId: userPayload.id,
+        action: 'CREATE',
+        entity: 'Store',
+        entityId: store.id,
+        newValues: store,
       })
 
       return store
@@ -157,11 +166,11 @@ export class StoresService {
     userPayload: AuthenticatedUserPayload,
     data: UpdateStoreBody
   ) {
-    const store = await prisma.store.findUnique({
+    const previousStore = await prisma.store.findUnique({
       where: { id: storeId },
     })
 
-    if (!store) {
+    if (!previousStore) {
       throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
@@ -170,7 +179,7 @@ export class StoresService {
     if (data.slug) {
       newSlug = normalizeSlug(data.slug)
 
-      if (newSlug !== store.slug) {
+      if (newSlug !== previousStore.slug) {
         if (isSlugReserved(newSlug)) {
           throw new AppError(
             'CONFLICT',
@@ -201,7 +210,7 @@ export class StoresService {
       )
     }
 
-    return prisma.store.update({
+    const updatedStore = await prisma.store.update({
       where: { id: storeId },
       data: {
         name: data.name,
@@ -217,9 +226,38 @@ export class StoresService {
         status: data.status,
       },
     })
+
+    const action = data.status && data.status !== previousStore.status ? 'STATUS_CHANGE' : 'UPDATE'
+
+    await logAudit({
+      userId: userPayload.id,
+      action,
+      entity: 'Store',
+      entityId: storeId,
+      oldValues: {
+        name: previousStore.name,
+        slug: previousStore.slug,
+        description: previousStore.description,
+        status: previousStore.status,
+        logoUrl: previousStore.logoUrl,
+        coverUrl: previousStore.coverUrl,
+        customDomain: previousStore.customDomain,
+      },
+      newValues: {
+        name: updatedStore.name,
+        slug: updatedStore.slug,
+        description: updatedStore.description,
+        status: updatedStore.status,
+        logoUrl: updatedStore.logoUrl,
+        coverUrl: updatedStore.coverUrl,
+        customDomain: updatedStore.customDomain,
+      },
+    })
+
+    return updatedStore
   }
 
-  async deleteStore(storeId: string) {
+  async deleteStore(storeId: string, userId?: string) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
     })
@@ -231,6 +269,19 @@ export class StoresService {
     await prisma.store.update({
       where: { id: storeId },
       data: { status: 'inactive' },
+    })
+
+    await logAudit({
+      userId: userId ?? null,
+      action: 'DELETE',
+      entity: 'Store',
+      entityId: storeId,
+      oldValues: {
+        name: store.name,
+        slug: store.slug,
+        status: store.status,
+      },
+      newValues: { status: 'inactive' },
     })
 
     return { message: 'Loja desativada com sucesso' }
@@ -312,6 +363,14 @@ export class StoresService {
       },
     })
 
+    await logAudit({
+      userId: null,
+      action: 'MEMBER_ADD',
+      entity: 'Store',
+      entityId: storeId,
+      newValues: { userId: data.userId, isOwner: data.isOwner ?? false },
+    })
+
     return member
   }
 
@@ -336,6 +395,14 @@ export class StoresService {
           userId,
         },
       },
+    })
+
+    await logAudit({
+      userId: null,
+      action: 'MEMBER_REMOVE',
+      entity: 'Store',
+      entityId: storeId,
+      oldValues: { userId, isOwner: storeUser.isOwner },
     })
 
     return { message: 'Membro removido da loja com sucesso' }

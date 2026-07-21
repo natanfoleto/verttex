@@ -12,8 +12,19 @@ Always read files in the following order before editing:
 4. `.ai/BACKEND_API.md` / `.ai/FRONTEND_UI.md` (depending on domain)
 5. `.ai/BUSINESS_RULES.md` (for domain-specific constraints)
 6. `.ai/PERMISSIONS.md` (for authorization questions)
+7. `.ai/audit-rules.md` (for any feature that writes to the database)
 
 ## 2. Strict Architectural Policies
+
+### 🔴 Permanent Audit Rule (Mandatory — No Exceptions)
+
+> **Every new implementation must be analyzed from an audit perspective.**
+>
+> Every action performed by a user and every automatic action performed by the system that creates, changes, removes, publishes, archives, restores, approves, rejects, authenticates, imports, exports, or modifies the state of any resource **must generate an audit record** via `logAudit()` in `apps/api/src/shared/utils/audit.ts`.
+>
+> **No future feature that changes system state may be considered complete without its corresponding audit implementation.**
+
+See `.ai/audit-rules.md` for the full audit documentation, action taxonomy, entity standards, checklist, and coverage matrix.
 
 ### Package dependency rules
 
