@@ -61,7 +61,7 @@ Or run individual applications:
 ```bash
 pnpm --filter @verttex/api dev
 pnpm --filter @verttex/manager dev
-pnpm --filter @verttex/storefront dev
+pnpm --filter @verttex/marketplace dev
 ```
 
 For more scripts and helper guidelines, consult [.ai/WORKFLOWS.md](file:///Users/natanfoleto/Desktop/prefeitura/temp/verttex/.ai/WORKFLOWS.md).

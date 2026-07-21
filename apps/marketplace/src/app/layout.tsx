@@ -6,7 +6,7 @@ import * as React from 'react'
 import { QueryProvider } from '../providers/query-provider'
 
 export const metadata: Metadata = {
-  title: 'Verttex Storefront',
+  title: 'Verttex Marketplace',
   description:
     'Conectamos você ao melhor dos cantos onde a internet não alcança',
 }

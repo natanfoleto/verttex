@@ -1,10 +1,10 @@
-import { storefrontEnv } from '@verttex/env/storefront'
+import { marketplaceEnv } from '@verttex/env/marketplace'
 
 export async function fetchApi<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const baseUrl = storefrontEnv.NEXT_PUBLIC_API_URL
+  const baseUrl = marketplaceEnv.NEXT_PUBLIC_API_URL
   const response = await fetch(`${baseUrl}${path}`, {
     ...options,
     headers: {

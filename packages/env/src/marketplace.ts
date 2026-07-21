@@ -12,4 +12,4 @@ export const env = createEnv({
   emptyStringAsUndefined: true,
 });
 export type Env = typeof env;
-export { env as storefrontEnv };
+export { env as marketplaceEnv };

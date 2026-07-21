@@ -12,9 +12,9 @@ graph TD
   manager --> env[@verttex/env]
   manager --> types[@verttex/types]
 
-  storefront[apps/storefront] --> ui
-  storefront --> env
-  storefront --> types
+  marketplace[apps/marketplace] --> ui[@verttex/ui]
+  marketplace --> env[@verttex/env]
+  marketplace --> types[@verttex/types]
 
   api[apps/api] --> env
   api --> types
@@ -29,7 +29,7 @@ graph TD
 1.  **Apps**:
     - `apps/api`: Fastify monoto-modular backend application serving API requests.
     - `apps/manager`: Next.js admin portal UI.
-    - `apps/storefront`: Next.js customer marketplace platform.
+    - `apps/marketplace`: Next.js customer marketplace platform.
 2.  **Shared Workspace Packages**:
     - `packages/auth`: CASL definitions for client and server actions.
     - `packages/env`: Type-safe validation engine for environment variables.

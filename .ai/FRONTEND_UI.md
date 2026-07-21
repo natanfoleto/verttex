@@ -4,7 +4,7 @@ This document details the front-end layout structure, Next.js routing patterns, 
 
 ## 1. Directory Layout
 
-Applications `apps/manager` and `apps/storefront` are Next.js App Router projects:
+Applications `apps/manager` and `apps/marketplace` are Next.js App Router projects:
 
 - `src/app/`: Core layout, routing paths, metadata configs.
 - `src/features/`: Domain specific components, hooks, schemas.

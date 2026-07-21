@@ -12,7 +12,7 @@ Verttex aims to bridge the gap between regional/artisanal producers and online c
 
 - Artisanal and regional products cataloging.
 - Multi-tenant manager dashboards for producers.
-- Storefront shopping cart, orders, and payment integrations.
+- Marketplace shopping cart, orders, and payment integrations.
 - Postgres-based domain entities.
 
 ## 3. Strict Rules & Constraints (For AI Agents)

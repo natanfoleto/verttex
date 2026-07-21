@@ -8,7 +8,7 @@ The workspace is structured as a pnpm workspaces monorepo using Turborepo:
 
 - `apps/api`: Fastify backend API.
 - `apps/manager`: Next.js App Router administrative front-end.
-- `apps/storefront`: Next.js App Router consumer front-end.
+- `apps/marketplace`: Next.js App Router consumer front-end.
 - `packages/auth`: CASL-based rule system.
 - `packages/env`: Zod environment variables check wrapper.
 - `packages/types`: Shared Zod request/response/error contracts.
@@ -34,7 +34,7 @@ The workspace is structured as a pnpm workspaces monorepo using Turborepo:
 ## 4. Specific Decisions for Verttex
 
 - **Monolith Modular API**: Domains under `apps/api/src/modules/` contain all files needed (schemas, routes, controllers) in a flat layout to prevent layers bloat.
-- **Env entrypoints**: Expose environment configuration for individual scopes `@verttex/env/api`, `@verttex/env/manager`, and `@verttex/env/storefront` to cleanly divide server-side and client-side definitions.
+- **Env entrypoints**: Expose environment configuration for individual scopes `@verttex/env/api`, `@verttex/env/manager`, and `@verttex/env/marketplace` to cleanly divide server-side and client-side definitions.
 
 ## 5. Risks and Observations
 

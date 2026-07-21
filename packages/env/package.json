@@ -7,7 +7,7 @@
   "exports": {
     "./api": "./src/api.ts",
     "./manager": "./src/manager.ts",
-    "./storefront": "./src/storefront.ts"
+    "./marketplace": "./src/marketplace.ts"
   },
   "scripts": {
     "build": "echo 'No build is required for this package'",

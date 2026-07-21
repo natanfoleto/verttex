@@ -16,7 +16,7 @@ This guide outlines common tasks and terminal commands to run within the monorep
   ```bash
   pnpm --filter @verttex/api dev
   pnpm --filter @verttex/manager dev
-  pnpm --filter @verttex/storefront dev
+  pnpm --filter @verttex/marketplace dev
   ```
 
 ## 2. Code Quality Tasks
