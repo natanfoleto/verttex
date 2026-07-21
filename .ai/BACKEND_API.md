@@ -88,12 +88,12 @@ The API has two distinct authentication contexts. Tokens are **not interchangeab
 
 ## 4. Middlewares
 
-| Middleware | Description |
-|---|---|
-| `authenticateUser` | Validates management user JWT and populates `request.user` |
-| `authenticateCustomer` | Validates customer JWT and populates `request.customer` |
-| `requirePermission(action, subject)` | Validates functional permission via CASL ability |
-| `requireStoreAccess(storeIdParam)` | Validates that the authenticated user is linked to the requested store |
+| Middleware                           | Description                                                            |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| `authenticateUser`                   | Validates management user JWT and populates `request.user`             |
+| `authenticateCustomer`               | Validates customer JWT and populates `request.customer`                |
+| `requirePermission(action, subject)` | Validates functional permission via CASL ability                       |
+| `requireStoreAccess(storeIdParam)`   | Validates that the authenticated user is linked to the requested store |
 
 Authorization is always **double-validated**: frontend for UX, backend for security.
 
@@ -103,90 +103,90 @@ Authorization is always **double-validated**: frontend for UX, backend for secur
 
 ### 5.1 Authentication — Management Users
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/auth/users/login` | Public | Authenticate a management user |
-| POST | `/auth/users/logout` | User | Revoke the current session |
-| POST | `/auth/users/refresh` | Public | Rotate refresh token |
-| POST | `/auth/users/forgot-password` | Public | Request password reset email |
-| POST | `/auth/users/reset-password` | Public | Reset password via token |
-| POST | `/auth/users/change-password` | User | Change own password |
-| GET | `/auth/users/me` | User | Return authenticated user data |
+| Method | Path                          | Auth   | Description                    |
+| ------ | ----------------------------- | ------ | ------------------------------ |
+| POST   | `/auth/users/login`           | Public | Authenticate a management user |
+| POST   | `/auth/users/logout`          | User   | Revoke the current session     |
+| POST   | `/auth/users/refresh`         | Public | Rotate refresh token           |
+| POST   | `/auth/users/forgot-password` | Public | Request password reset email   |
+| POST   | `/auth/users/reset-password`  | Public | Reset password via token       |
+| POST   | `/auth/users/change-password` | User   | Change own password            |
+| GET    | `/auth/users/me`              | User   | Return authenticated user data |
 
 ### 5.2 Authentication — Customer Buyers
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/auth/customers/register` | Public | Create a customer account |
-| POST | `/auth/customers/login` | Public | Authenticate a customer |
-| POST | `/auth/customers/logout` | Customer | Revoke the current session |
-| POST | `/auth/customers/refresh` | Public | Rotate refresh token |
-| POST | `/auth/customers/forgot-password` | Public | Request password reset email |
-| POST | `/auth/customers/reset-password` | Public | Reset password via token |
-| POST | `/auth/customers/change-password` | Customer | Change own password |
-| GET | `/auth/customers/me` | Customer | Return authenticated customer data |
+| Method | Path                              | Auth     | Description                        |
+| ------ | --------------------------------- | -------- | ---------------------------------- |
+| POST   | `/auth/customers/register`        | Public   | Create a customer account          |
+| POST   | `/auth/customers/login`           | Public   | Authenticate a customer            |
+| POST   | `/auth/customers/logout`          | Customer | Revoke the current session         |
+| POST   | `/auth/customers/refresh`         | Public   | Rotate refresh token               |
+| POST   | `/auth/customers/forgot-password` | Public   | Request password reset email       |
+| POST   | `/auth/customers/reset-password`  | Public   | Reset password via token           |
+| POST   | `/auth/customers/change-password` | Customer | Change own password                |
+| GET    | `/auth/customers/me`              | Customer | Return authenticated customer data |
 
 ### 5.3 Users
 
-| Method | Path | Auth | Permission | Description |
-|---|---|---|---|---|
-| GET | `/users` | User | `users.read` | List management users |
-| POST | `/users` | User | `users.create` | Create a user |
-| GET | `/users/:userId` | User | `users.read` | Get a user |
-| PATCH | `/users/:userId` | User | `users.update` | Update a user |
-| DELETE | `/users/:userId` | User | `users.delete` | Deactivate a user |
-| GET | `/users/:userId/stores` | User | `users.read` | List stores linked to a user |
-| GET | `/users/:userId/permissions` | User | `permissions.read` | Get user individual permissions |
-| PUT | `/users/:userId/permissions` | User | `permissions.manage` | Set user individual permissions |
+| Method | Path                         | Auth | Permission           | Description                     |
+| ------ | ---------------------------- | ---- | -------------------- | ------------------------------- |
+| GET    | `/users`                     | User | `users.read`         | List management users           |
+| POST   | `/users`                     | User | `users.create`       | Create a user                   |
+| GET    | `/users/:userId`             | User | `users.read`         | Get a user                      |
+| PATCH  | `/users/:userId`             | User | `users.update`       | Update a user                   |
+| DELETE | `/users/:userId`             | User | `users.delete`       | Deactivate a user               |
+| GET    | `/users/:userId/stores`      | User | `users.read`         | List stores linked to a user    |
+| GET    | `/users/:userId/permissions` | User | `permissions.read`   | Get user individual permissions |
+| PUT    | `/users/:userId/permissions` | User | `permissions.manage` | Set user individual permissions |
 
 ### 5.4 Roles
 
-| Method | Path | Auth | Permission | Description |
-|---|---|---|---|---|
-| GET | `/roles` | User | `roles.read` | List all roles |
-| POST | `/roles` | User | `roles.create` | Create a new role |
-| GET | `/roles/:roleId` | User | `roles.read` | Get a role |
-| PATCH | `/roles/:roleId` | User | `roles.update` | Update a role |
-| DELETE | `/roles/:roleId` | User | `roles.delete` | Delete a non-system role |
-| GET | `/roles/:roleId/permissions` | User | `permissions.read` | Get role default permissions |
-| PUT | `/roles/:roleId/permissions` | User | `permissions.manage` | Set role default permissions |
+| Method | Path                         | Auth | Permission           | Description                  |
+| ------ | ---------------------------- | ---- | -------------------- | ---------------------------- |
+| GET    | `/roles`                     | User | `roles.read`         | List all roles               |
+| POST   | `/roles`                     | User | `roles.create`       | Create a new role            |
+| GET    | `/roles/:roleId`             | User | `roles.read`         | Get a role                   |
+| PATCH  | `/roles/:roleId`             | User | `roles.update`       | Update a role                |
+| DELETE | `/roles/:roleId`             | User | `roles.delete`       | Delete a non-system role     |
+| GET    | `/roles/:roleId/permissions` | User | `permissions.read`   | Get role default permissions |
+| PUT    | `/roles/:roleId/permissions` | User | `permissions.manage` | Set role default permissions |
 
 ### 5.5 Permissions
 
-| Method | Path | Auth | Permission | Description |
-|---|---|---|---|---|
-| GET | `/permissions` | User | `permissions.read` | List all available permissions |
+| Method | Path           | Auth | Permission         | Description                    |
+| ------ | -------------- | ---- | ------------------ | ------------------------------ |
+| GET    | `/permissions` | User | `permissions.read` | List all available permissions |
 
 ### 5.6 Stores
 
-| Method | Path | Auth | Permission | Description |
-|---|---|---|---|---|
-| GET | `/stores` | User | `stores.read` | List stores (scoped by access) |
-| POST | `/stores` | User | `stores.create` | Create a store |
-| GET | `/stores/:storeId` | User | `stores.read` + store access | Get a store |
-| PATCH | `/stores/:storeId` | User | `stores.update` + store access | Update a store |
-| DELETE | `/stores/:storeId` | User | `stores.delete` | Deactivate a store |
+| Method | Path               | Auth | Permission                     | Description                    |
+| ------ | ------------------ | ---- | ------------------------------ | ------------------------------ |
+| GET    | `/stores`          | User | `stores.read`                  | List stores (scoped by access) |
+| POST   | `/stores`          | User | `stores.create`                | Create a store                 |
+| GET    | `/stores/:storeId` | User | `stores.read` + store access   | Get a store                    |
+| PATCH  | `/stores/:storeId` | User | `stores.update` + store access | Update a store                 |
+| DELETE | `/stores/:storeId` | User | `stores.delete`                | Deactivate a store             |
 
 ### 5.7 Store Members
 
-| Method | Path | Auth | Permission | Description |
-|---|---|---|---|---|
-| GET | `/stores/:storeId/users` | User | `stores.manage-members` + store access | List store members |
-| POST | `/stores/:storeId/users` | User | `stores.manage-members` | Link a user to a store |
-| DELETE | `/stores/:storeId/users/:userId` | User | `stores.manage-members` | Remove a user from a store |
+| Method | Path                             | Auth | Permission                             | Description                |
+| ------ | -------------------------------- | ---- | -------------------------------------- | -------------------------- |
+| GET    | `/stores/:storeId/users`         | User | `stores.manage-members` + store access | List store members         |
+| POST   | `/stores/:storeId/users`         | User | `stores.manage-members`                | Link a user to a store     |
+| DELETE | `/stores/:storeId/users/:userId` | User | `stores.manage-members`                | Remove a user from a store |
 
 ### 5.8 Customer Profile
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/customer/profile` | Customer | Return own profile |
-| PATCH | `/customer/profile` | Customer | Update own profile |
+| Method | Path                | Auth     | Description        |
+| ------ | ------------------- | -------- | ------------------ |
+| GET    | `/customer/profile` | Customer | Return own profile |
+| PATCH  | `/customer/profile` | Customer | Update own profile |
 
 ### 5.9 Health
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/health` | Public | Return API liveness status |
+| Method | Path      | Auth   | Description                |
+| ------ | --------- | ------ | -------------------------- |
+| GET    | `/health` | Public | Return API liveness status |
 
 ---
 

@@ -50,10 +50,12 @@ The frontend uses CASL abilities (from `@verttex/auth`) to control the user expe
 ### 5.2 Route Guards
 
 Management routes in `apps/manager` must:
+
 1. Check if the user is authenticated (redirect to `/login` otherwise)
 2. Check if the user has the required permission (redirect to `/acesso-negado` otherwise)
 
 Customer routes in `apps/marketplace` must:
+
 1. Check if the customer is authenticated (redirect to `/login` otherwise)
 
 ### 5.3 Authorization Components
@@ -77,6 +79,7 @@ Use composable authorization primitives:
 ### 5.4 Access Denied Page
 
 A dedicated `/acesso-negado` page must be shown when:
+
 - The user is authenticated but lacks the required permission
 - A store-scoped resource is accessed by a user without store access
 
@@ -86,50 +89,50 @@ A dedicated `/acesso-negado` page must be shown when:
 
 ### 6.1 Authentication
 
-| Route | Auth | Description |
-|---|---|---|
-| `/login` | Public | Login form |
-| `/esqueci-minha-senha` | Public | Request password reset |
-| `/redefinir-senha` | Public | Reset password via token |
-| `/alterar-senha` | Authenticated | Change own password |
-| `/sessao-expirada` | Public | Expired session message |
-| `/acesso-negado` | Public | Access denied screen |
+| Route                  | Auth          | Description              |
+| ---------------------- | ------------- | ------------------------ |
+| `/login`               | Public        | Login form               |
+| `/esqueci-minha-senha` | Public        | Request password reset   |
+| `/redefinir-senha`     | Public        | Reset password via token |
+| `/alterar-senha`       | Authenticated | Change own password      |
+| `/sessao-expirada`     | Public        | Expired session message  |
+| `/acesso-negado`       | Public        | Access denied screen     |
 
 ### 6.2 Users
 
-| Route | Permission | Description |
-|---|---|---|
-| `/usuarios` | `users.read` | User listing |
-| `/usuarios/novo` | `users.create` | Create user form |
-| `/usuarios/:userId` | `users.read` | User detail/view |
-| `/usuarios/:userId/editar` | `users.update` | Edit user |
+| Route                          | Permission         | Description            |
+| ------------------------------ | ------------------ | ---------------------- |
+| `/usuarios`                    | `users.read`       | User listing           |
+| `/usuarios/novo`               | `users.create`     | Create user form       |
+| `/usuarios/:userId`            | `users.read`       | User detail/view       |
+| `/usuarios/:userId/editar`     | `users.update`     | Edit user              |
 | `/usuarios/:userId/permissoes` | `permissions.read` | Individual permissions |
-| `/usuarios/:userId/lojas` | `users.read` | Linked stores |
+| `/usuarios/:userId/lojas`      | `users.read`       | Linked stores          |
 
 ### 6.3 Roles
 
-| Route | Permission | Description |
-|---|---|---|
-| `/cargos` | `roles.read` | Role listing |
-| `/cargos/novo` | `roles.create` | Create role |
-| `/cargos/:roleId` | `roles.read` | Role detail |
-| `/cargos/:roleId/editar` | `roles.update` | Edit role |
+| Route                        | Permission           | Description                |
+| ---------------------------- | -------------------- | -------------------------- |
+| `/cargos`                    | `roles.read`         | Role listing               |
+| `/cargos/novo`               | `roles.create`       | Create role                |
+| `/cargos/:roleId`            | `roles.read`         | Role detail                |
+| `/cargos/:roleId/editar`     | `roles.update`       | Edit role                  |
 | `/cargos/:roleId/permissoes` | `permissions.manage` | Configure role permissions |
 
 ### 6.4 Stores
 
-| Route | Permission | Description |
-|---|---|---|
-| `/lojas` | `stores.read` | Store listing |
-| `/lojas/nova` | `stores.create` | Create store |
-| `/lojas/:storeId` | `stores.read` | Store detail |
-| `/lojas/:storeId/editar` | `stores.update` | Edit store |
+| Route                     | Permission              | Description        |
+| ------------------------- | ----------------------- | ------------------ |
+| `/lojas`                  | `stores.read`           | Store listing      |
+| `/lojas/nova`             | `stores.create`         | Create store       |
+| `/lojas/:storeId`         | `stores.read`           | Store detail       |
+| `/lojas/:storeId/editar`  | `stores.update`         | Edit store         |
 | `/lojas/:storeId/membros` | `stores.manage-members` | Manage store users |
 
 ### 6.5 Authenticated User Profile
 
-| Route | Auth | Description |
-|---|---|---|
+| Route     | Auth          | Description               |
+| --------- | ------------- | ------------------------- |
 | `/perfil` | Authenticated | View and edit own profile |
 
 ---
@@ -138,14 +141,14 @@ A dedicated `/acesso-negado` page must be shown when:
 
 ### 7.1 Customer Authentication
 
-| Route | Auth | Description |
-|---|---|---|
-| `/cadastro` | Public | Customer registration |
-| `/login` | Public | Customer login |
-| `/esqueci-minha-senha` | Public | Request password reset |
-| `/redefinir-senha` | Public | Reset password via token |
-| `/perfil` | Customer | Basic profile |
-| `/perfil/alterar-senha` | Customer | Change password |
+| Route                   | Auth     | Description              |
+| ----------------------- | -------- | ------------------------ |
+| `/cadastro`             | Public   | Customer registration    |
+| `/login`                | Public   | Customer login           |
+| `/esqueci-minha-senha`  | Public   | Request password reset   |
+| `/redefinir-senha`      | Public   | Reset password via token |
+| `/perfil`               | Customer | Basic profile            |
+| `/perfil/alterar-senha` | Customer | Change password          |
 
 ### 7.2 Public Pages (planned, not implemented in Phase 1)
 

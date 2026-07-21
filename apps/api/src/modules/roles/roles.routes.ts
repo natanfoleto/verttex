@@ -93,7 +93,10 @@ export async function rolesRoutes(app: FastifyInstance) {
   typedApp.get(
     "/roles/:roleId/permissions",
     {
-      preHandler: [app.authenticateUser, requirePermission("read", "Permission")],
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("read", "Permission"),
+      ],
       schema: {
         tags: ["Roles & Permissions"],
         summary: "Listar permissões atribuídas a um cargo",
@@ -107,7 +110,10 @@ export async function rolesRoutes(app: FastifyInstance) {
   typedApp.put(
     "/roles/:roleId/permissions",
     {
-      preHandler: [app.authenticateUser, requirePermission("manage", "Permission")],
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("manage", "Permission"),
+      ],
       schema: {
         tags: ["Roles & Permissions"],
         summary: "Atualizar permissões atribuídas a um cargo",

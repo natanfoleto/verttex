@@ -70,40 +70,50 @@ Customers are buyers who use `apps/marketplace`. Unlike management users, custom
 ## API Routes
 
 ### `POST /auth/customers/register`
+
 - Authentication: public
 - Body: `{ name, email, phone?, password }`
 
 ### `POST /auth/customers/login`
+
 - Authentication: public
 - Body: `{ email, password }`
 
 ### `POST /auth/customers/logout`
+
 - Authentication: customer
 - Action: revoke current session, clear cookies
 
 ### `POST /auth/customers/refresh`
+
 - Authentication: public (reads refresh cookie)
 
 ### `POST /auth/customers/forgot-password`
+
 - Authentication: public
 - Body: `{ email }`
 
 ### `POST /auth/customers/reset-password`
+
 - Authentication: public
 - Body: `{ token, newPassword }`
 
 ### `POST /auth/customers/change-password`
+
 - Authentication: customer
 - Body: `{ currentPassword, newPassword }`
 
 ### `GET /auth/customers/me`
+
 - Authentication: customer
 - Response: authenticated customer data
 
 ### `GET /customer/profile`
+
 - Authentication: customer
 
 ### `PATCH /customer/profile`
+
 - Authentication: customer
 - Body: `{ name?, phone? }`
 

@@ -78,42 +78,51 @@ List must be centralized (e.g., `src/modules/stores/reserved-slugs.ts`).
 ## API Routes
 
 ### `POST /stores`
+
 - Auth: user
 - Permission: `stores.create`
 - Body: `{ name, slug, description?, logoUrl?, coverUrl?, customDomain? }`
 
 ### `GET /stores`
+
 - Auth: user
 - Permission: `stores.read`
 - Scoped: admin sees all; employee TBD; supplier sees only linked stores
 
 ### `GET /stores/:storeId`
+
 - Auth: user
 - Permission: `stores.read` + store access
 
 ### `PATCH /stores/:storeId`
+
 - Auth: user
 - Permission: `stores.update` + store access
 
 ### `DELETE /stores/:storeId`
+
 - Auth: user
 - Permission: `stores.delete`
 - Action: sets status to `inactive` (soft delete)
 
 ### `GET /stores/:storeId/users`
+
 - Auth: user
 - Permission: `stores.manage-members` + store access
 
 ### `POST /stores/:storeId/users`
+
 - Auth: user
 - Permission: `stores.manage-members`
 - Body: `{ userId }`
 
 ### `DELETE /stores/:storeId/users/:userId`
+
 - Auth: user
 - Permission: `stores.manage-members`
 
 ### `GET /users/:userId/stores`
+
 - Auth: user
 - Permission: `users.read`
 

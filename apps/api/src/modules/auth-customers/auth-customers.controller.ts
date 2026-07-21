@@ -213,7 +213,10 @@ export async function updateCustomerProfileController(
 ) {
   const customerId = request.customerPayload!.id;
   const body = request.body as UpdateCustomerProfileBody;
-  const profile = await authCustomersService.updateCustomerProfile(customerId, body);
+  const profile = await authCustomersService.updateCustomerProfile(
+    customerId,
+    body,
+  );
 
   return reply.send({
     success: true,

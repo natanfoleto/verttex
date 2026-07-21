@@ -68,32 +68,39 @@ Management users access `apps/manager`. They are created only by admins — no p
 ## API Routes
 
 ### `POST /auth/users/login`
+
 - Authentication: public
 - Body: `{ email, password }`
 - Response: sets `httpOnly` cookies for access + refresh tokens, returns user data
 
 ### `POST /auth/users/logout`
+
 - Authentication: user
 - Action: revoke current session, clear cookies
 
 ### `POST /auth/users/refresh`
+
 - Authentication: public (reads refresh cookie)
 - Action: rotate refresh token, issue new access token
 
 ### `POST /auth/users/forgot-password`
+
 - Authentication: public
 - Body: `{ email }`
 - Response: generic message regardless of email existence
 
 ### `POST /auth/users/reset-password`
+
 - Authentication: public
 - Body: `{ token, newPassword }`
 
 ### `POST /auth/users/change-password`
+
 - Authentication: user
 - Body: `{ currentPassword, newPassword }`
 
 ### `GET /auth/users/me`
+
 - Authentication: user
 - Response: authenticated user data with role and combined permissions
 

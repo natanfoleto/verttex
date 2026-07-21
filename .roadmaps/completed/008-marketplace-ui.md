@@ -2,11 +2,11 @@
 
 ## Metadata
 
-- Status: `planned`
+- Status: `completed`
 - Priority: high
 - Created at: 2026-07-21
-- Started at:
-- Completed at:
+- Started at: 2026-07-21
+- Completed at: 2026-07-21
 - Dependencies: `004-customer-authentication`
 - Related roadmaps: 004
 
@@ -29,19 +29,19 @@ The marketplace currently has only a placeholder page. This roadmap implements P
 
 ### Customer Auth Screens
 
-| Route | Auth | Description |
-|---|---|---|
-| `/cadastro` | Public | Customer registration form |
-| `/login` | Public | Customer login form |
-| `/esqueci-minha-senha` | Public | Request password reset |
-| `/redefinir-senha` | Public | Reset password via token |
+| Route                  | Auth   | Description                |
+| ---------------------- | ------ | -------------------------- |
+| `/cadastro`            | Public | Customer registration form |
+| `/login`               | Public | Customer login form        |
+| `/esqueci-minha-senha` | Public | Request password reset     |
+| `/redefinir-senha`     | Public | Reset password via token   |
 
 ### Customer Profile
 
-| Route | Auth | Description |
-|---|---|---|
-| `/perfil` | Customer | View basic profile |
-| `/perfil/alterar-senha` | Customer | Change password |
+| Route                   | Auth     | Description        |
+| ----------------------- | -------- | ------------------ |
+| `/perfil`               | Customer | View basic profile |
+| `/perfil/alterar-senha` | Customer | Change password    |
 
 ### Routing Skeleton (structure only, no content)
 
@@ -80,58 +80,58 @@ These routes must have folder structure created with a simple placeholder page c
 
 ### Step 1 — Auth setup
 
-- [ ] Implement `useCustomer()` hook (fetch `/auth/customers/me`)
-- [ ] Implement `useCustomerLogout()` mutation
-- [ ] Implement session expiry detection
+- [x] Implement `useCustomer()` hook (fetch `/auth/customers/me`)
+- [x] Implement `useCustomerLogout()` mutation
+- [x] Implement session expiry detection
 
 ### Step 2 — Auth screens
 
-- [ ] Registration form (`name`, `email`, `phone?`, `password`, `confirmPassword`)
-- [ ] Login form (`email`, `password`)
-- [ ] Forgot password form
-- [ ] Reset password form
+- [x] Registration form (`name`, `email`, `phone?`, `password`, `confirmPassword`)
+- [x] Login form (`email`, `password`)
+- [x] Forgot password form
+- [x] Reset password form
 
 ### Step 3 — Route guard
 
-- [ ] Implement `CustomerAuthGuard` for protected customer routes
+- [x] Implement `CustomerAuthGuard` for protected customer routes
 
 ### Step 4 — Profile screens
 
-- [ ] Profile view (name, email, phone)
-- [ ] Edit profile form
-- [ ] Change password form
+- [x] Profile view (name, email, phone)
+- [x] Edit profile form
+- [x] Change password form
 
 ### Step 5 — Routing skeleton
 
-- [ ] Create `app/lojas/page.tsx` (placeholder: "Em breve")
-- [ ] Create `app/lojas/[storeSlug]/page.tsx` (placeholder)
-- [ ] Create `app/lojas/[storeSlug]/produtos/page.tsx` (placeholder)
-- [ ] Create `app/produtos/page.tsx` (placeholder)
-- [ ] Create `app/categorias/[categorySlug]/page.tsx` (placeholder)
+- [x] Create `app/lojas/page.tsx` (placeholder: "Em breve")
+- [x] Create `app/lojas/[storeSlug]/page.tsx` (placeholder)
+- [x] Create `app/lojas/[storeSlug]/produtos/page.tsx` (placeholder)
+- [x] Create `app/produtos/page.tsx` (placeholder)
+- [x] Create `app/categorias/[categorySlug]/page.tsx` (placeholder)
 
 ### Step 6 — Validate
 
-- [ ] `pnpm typecheck` and `pnpm build` pass
-- [ ] All auth screens work end-to-end
-- [ ] Profile screens work for authenticated customers
+- [x] `pnpm typecheck` and `pnpm build` pass
+- [x] All auth screens work end-to-end
+- [x] Profile screens work for authenticated customers
 
 ## Tests
 
-- [ ] Registration with valid data creates account
-- [ ] Registration with duplicate email shows error
-- [ ] Login with valid credentials succeeds
-- [ ] Login with invalid credentials shows error
-- [ ] Forgot/reset password flow works
-- [ ] Profile requires authentication
-- [ ] Logout clears session and redirects
+- [x] Registration with valid data creates account
+- [x] Registration with duplicate email shows error
+- [x] Login with valid credentials succeeds
+- [x] Login with invalid credentials shows error
+- [x] Forgot/reset password flow works
+- [x] Profile requires authentication
+- [x] Logout clears session and redirects
 
 ## Acceptance Criteria
 
-- [ ] All customer auth flows work end-to-end
-- [ ] Profile is accessible only to authenticated customers
-- [ ] Routing skeleton created for future public pages
-- [ ] All states (loading, error, auth-required) implemented
-- [ ] `pnpm typecheck` and `pnpm build` pass
+- [x] All customer auth flows work end-to-end
+- [x] Profile is accessible only to authenticated customers
+- [x] Routing skeleton created for future public pages
+- [x] All states (loading, error, auth-required) implemented
+- [x] `pnpm typecheck` and `pnpm build` pass
 
 ## Pending Decisions
 
@@ -140,8 +140,10 @@ These routes must have folder structure created with a simple placeholder page c
 
 ## Progress
 
-Not started.
+Completed: Roadmap 008 (Marketplace UI) implemented and verified.
 
 ## Change Log
 
 - 2026-07-21: Roadmap created
+- 2026-07-21: Roadmap activated
+- 2026-07-21: Roadmap completed

@@ -41,4 +41,6 @@ export type UserParams = z.infer<typeof userParamsSchema>;
 export type UserQuery = z.infer<typeof userQuerySchema>;
 export type CreateUserBody = z.infer<typeof createUserBodySchema>;
 export type UpdateUserBody = z.infer<typeof updateUserBodySchema>;
-export type UpdateUserPermissionsBody = z.infer<typeof updateUserPermissionsBodySchema>;
+export type UpdateUserPermissionsBody = z.infer<
+  typeof updateUserPermissionsBodySchema
+>;

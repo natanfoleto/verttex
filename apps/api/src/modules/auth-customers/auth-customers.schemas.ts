@@ -18,12 +18,16 @@ export const customerForgotPasswordBodySchema = z.object({
 
 export const customerResetPasswordBodySchema = z.object({
   token: z.string().min(1, "O token é obrigatório"),
-  newPassword: z.string().min(6, "A nova senha deve ter no mínimo 6 caracteres"),
+  newPassword: z
+    .string()
+    .min(6, "A nova senha deve ter no mínimo 6 caracteres"),
 });
 
 export const customerChangePasswordBodySchema = z.object({
   currentPassword: z.string().min(1, "A senha atual é obrigatória"),
-  newPassword: z.string().min(6, "A nova senha deve ter no mínimo 6 caracteres"),
+  newPassword: z
+    .string()
+    .min(6, "A nova senha deve ter no mínimo 6 caracteres"),
 });
 
 export const updateCustomerProfileBodySchema = z.object({
@@ -33,7 +37,15 @@ export const updateCustomerProfileBodySchema = z.object({
 
 export type CustomerRegisterBody = z.infer<typeof customerRegisterBodySchema>;
 export type CustomerLoginBody = z.infer<typeof customerLoginBodySchema>;
-export type CustomerForgotPasswordBody = z.infer<typeof customerForgotPasswordBodySchema>;
-export type CustomerResetPasswordBody = z.infer<typeof customerResetPasswordBodySchema>;
-export type CustomerChangePasswordBody = z.infer<typeof customerChangePasswordBodySchema>;
-export type UpdateCustomerProfileBody = z.infer<typeof updateCustomerProfileBodySchema>;
+export type CustomerForgotPasswordBody = z.infer<
+  typeof customerForgotPasswordBodySchema
+>;
+export type CustomerResetPasswordBody = z.infer<
+  typeof customerResetPasswordBodySchema
+>;
+export type CustomerChangePasswordBody = z.infer<
+  typeof customerChangePasswordBodySchema
+>;
+export type UpdateCustomerProfileBody = z.infer<
+  typeof updateCustomerProfileBodySchema
+>;

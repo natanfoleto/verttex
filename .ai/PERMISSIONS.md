@@ -18,61 +18,61 @@ Examples: `users.read`, `stores.create`, `permissions.manage`
 
 ### Users
 
-| Permission | Description |
-|---|---|
-| `users.read` | View user list and user details |
-| `users.create` | Create new management users |
-| `users.update` | Edit user data |
-| `users.delete` | Deactivate users |
+| Permission     | Description                     |
+| -------------- | ------------------------------- |
+| `users.read`   | View user list and user details |
+| `users.create` | Create new management users     |
+| `users.update` | Edit user data                  |
+| `users.delete` | Deactivate users                |
 
 ### Roles
 
-| Permission | Description |
-|---|---|
-| `roles.read` | View role list and role details |
-| `roles.create` | Create new roles |
-| `roles.update` | Edit role data |
-| `roles.delete` | Delete non-system roles |
+| Permission     | Description                     |
+| -------------- | ------------------------------- |
+| `roles.read`   | View role list and role details |
+| `roles.create` | Create new roles                |
+| `roles.update` | Edit role data                  |
+| `roles.delete` | Delete non-system roles         |
 
 ### Permissions
 
-| Permission | Description |
-|---|---|
-| `permissions.read` | View available permissions and their assignment |
-| `permissions.manage` | Configure role permissions and user overrides |
+| Permission           | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `permissions.read`   | View available permissions and their assignment |
+| `permissions.manage` | Configure role permissions and user overrides   |
 
 ### Stores
 
-| Permission | Description |
-|---|---|
-| `stores.read` | View store list and store details |
-| `stores.create` | Create new stores |
-| `stores.update` | Edit store data |
-| `stores.delete` | Deactivate stores |
-| `stores.manage-members` | Link/unlink users to stores |
+| Permission              | Description                       |
+| ----------------------- | --------------------------------- |
+| `stores.read`           | View store list and store details |
+| `stores.create`         | Create new stores                 |
+| `stores.update`         | Edit store data                   |
+| `stores.delete`         | Deactivate stores                 |
+| `stores.manage-members` | Link/unlink users to stores       |
 
 ### Products (future)
 
-| Permission | Description |
-|---|---|
-| `products.read` | View products |
+| Permission        | Description     |
+| ----------------- | --------------- |
+| `products.read`   | View products   |
 | `products.create` | Create products |
-| `products.update` | Edit products |
+| `products.update` | Edit products   |
 | `products.delete` | Delete products |
 
 ### Inventory (future)
 
-| Permission | Description |
-|---|---|
-| `inventory.read` | View inventory |
+| Permission         | Description             |
+| ------------------ | ----------------------- |
+| `inventory.read`   | View inventory          |
 | `inventory.update` | Update inventory levels |
 
 ### Sales & Reports (future)
 
-| Permission | Description |
-|---|---|
-| `sales.read` | View sales data |
-| `reports.read` | View reports |
+| Permission     | Description     |
+| -------------- | --------------- |
+| `sales.read`   | View sales data |
+| `reports.read` | View reports    |
 
 ---
 
@@ -161,11 +161,11 @@ Functional permission (e.g., stores.read) AND store-level access (user is linked
 
 ### Scope by Role
 
-| Role | Store Scope |
-|---|---|
-| `admin` | Global — all stores |
+| Role       | Store Scope                                     |
+| ---------- | ----------------------------------------------- |
+| `admin`    | Global — all stores                             |
 | `employee` | TBD — global or store-linked (pending decision) |
-| `supplier` | Limited — linked stores only |
+| `supplier` | Limited — linked stores only                    |
 
 ### StoreUser
 
@@ -186,9 +186,11 @@ StoreUser
 ## 6. Default Permissions by Role (Initial Seed)
 
 ### admin
+
 - All permissions (via CASL `manage all`)
 
 ### employee (suggested, pending confirmation)
+
 - `stores.read`
 - `stores.update`
 - `users.read`
@@ -197,6 +199,7 @@ StoreUser
 - `reports.read`
 
 ### supplier (suggested, pending confirmation)
+
 - `stores.read`
 - `inventory.read`
 - `sales.read`

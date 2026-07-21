@@ -32,7 +32,10 @@ export class AuthUsersService {
       throw new AppError("UNAUTHORIZED", "E-mail ou senha inválidos", 401);
     }
 
-    const isPasswordValid = await verifyPassword(body.password, user.passwordHash);
+    const isPasswordValid = await verifyPassword(
+      body.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new AppError("UNAUTHORIZED", "E-mail ou senha inválidos", 401);
     }
@@ -159,7 +162,8 @@ export class AuthUsersService {
 
     // Security practice: Always return generic message whether user exists or not
     const genericResponse = {
-      message: "Se existir uma conta associada ao e-mail informado, enviaremos as instruções de recuperação.",
+      message:
+        "Se existir uma conta associada ao e-mail informado, enviaremos as instruções de recuperação.",
     };
 
     if (!user || user.status !== "active") {
@@ -203,7 +207,11 @@ export class AuthUsersService {
       resetToken.expiresAt < new Date() ||
       resetToken.user.status !== "active"
     ) {
-      throw new AppError("UNAUTHORIZED", "Token de recuperação inválido ou expirado", 400);
+      throw new AppError(
+        "UNAUTHORIZED",
+        "Token de recuperação inválido ou expirado",
+        400,
+      );
     }
 
     const newPasswordHash = await hashPassword(body.newPassword);
@@ -234,7 +242,10 @@ export class AuthUsersService {
       throw new AppError("NOT_FOUND", "Usuário não encontrado", 404);
     }
 
-    const isCurrentValid = await verifyPassword(body.currentPassword, user.passwordHash);
+    const isCurrentValid = await verifyPassword(
+      body.currentPassword,
+      user.passwordHash,
+    );
     if (!isCurrentValid) {
       throw new AppError("VALIDATION_ERROR", "Senha atual incorreta", 400);
     }

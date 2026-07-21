@@ -11,12 +11,16 @@ export const forgotPasswordBodySchema = z.object({
 
 export const resetPasswordBodySchema = z.object({
   token: z.string().min(1, "O token é obrigatório"),
-  newPassword: z.string().min(6, "A nova senha deve ter no mínimo 6 caracteres"),
+  newPassword: z
+    .string()
+    .min(6, "A nova senha deve ter no mínimo 6 caracteres"),
 });
 
 export const changePasswordBodySchema = z.object({
   currentPassword: z.string().min(1, "A senha atual é obrigatória"),
-  newPassword: z.string().min(6, "A nova senha deve ter no mínimo 6 caracteres"),
+  newPassword: z
+    .string()
+    .min(6, "A nova senha deve ter no mínimo 6 caracteres"),
 });
 
 export const userProfileSchema = z.object({

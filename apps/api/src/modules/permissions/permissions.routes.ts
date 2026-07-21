@@ -10,7 +10,10 @@ export async function permissionsRoutes(app: FastifyInstance) {
   typedApp.get(
     "/permissions",
     {
-      preHandler: [app.authenticateUser, requirePermission("read", "Permission")],
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("read", "Permission"),
+      ],
       schema: {
         tags: ["Roles & Permissions"],
         summary: "Listar permissões disponíveis do sistema",

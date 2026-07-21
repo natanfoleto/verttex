@@ -17,7 +17,10 @@ export async function hashPassword(password: string): Promise<string> {
  * Verifies a plain-text password against a stored `salt:hash` string.
  * Supports legacy/placeholder hashes for testing compatibility.
  */
-export async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  storedHash: string,
+): Promise<boolean> {
   if (!storedHash.includes(":")) {
     // Legacy/fallback comparison if simple hash string was seeded
     return password === storedHash || storedHash.includes(password);

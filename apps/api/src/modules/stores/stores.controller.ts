@@ -58,7 +58,11 @@ export async function updateStoreController(
   const userPayload = request.userPayload!;
   const params = request.params as StoreParams;
   const body = request.body as UpdateStoreBody;
-  const store = await storesService.updateStore(params.storeId, userPayload, body);
+  const store = await storesService.updateStore(
+    params.storeId,
+    userPayload,
+    body,
+  );
   return reply.send({
     success: true,
     data: store,

@@ -23,4 +23,6 @@ export const updateRolePermissionsBodySchema = z.object({
 export type RoleParams = z.infer<typeof roleParamsSchema>;
 export type CreateRoleBody = z.infer<typeof createRoleBodySchema>;
 export type UpdateRoleBody = z.infer<typeof updateRoleBodySchema>;
-export type UpdateRolePermissionsBody = z.infer<typeof updateRolePermissionsBodySchema>;
+export type UpdateRolePermissionsBody = z.infer<
+  typeof updateRolePermissionsBodySchema
+>;

@@ -85,6 +85,7 @@ CustomerPasswordResetToken
 ```
 
 Optional entities to consider:
+
 ```
 UserEmailVerificationToken
 CustomerEmailVerificationToken
@@ -107,6 +108,7 @@ AuditLog
 ## 6. Authorization Architecture (`@verttex/auth`)
 
 The `@verttex/auth` package concentrates:
+
 - CASL `Actions`, `Subjects`, and `AppAbility` type
 - Role definitions (persisted in DB, seeded initially)
 - Permission names (`resource.action` pattern)

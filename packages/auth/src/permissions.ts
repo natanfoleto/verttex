@@ -15,7 +15,10 @@ export interface UserToken {
   permissions?: UserPermissionOverride[];
 }
 
-export const PERMISSION_MAP: Record<string, { action: Action; subject: Subject }> = {
+export const PERMISSION_MAP: Record<
+  string,
+  { action: Action; subject: Subject }
+> = {
   "users.read": { action: "read", subject: "User" },
   "users.create": { action: "create", subject: "User" },
   "users.update": { action: "update", subject: "User" },
@@ -47,20 +50,23 @@ export const PERMISSION_MAP: Record<string, { action: Action; subject: Subject }
   "reports.read": { action: "read", subject: "Report" },
 };
 
-export function parsePermissionKey(key: string): { action: Action; subject: Subject } | null {
+export function parsePermissionKey(
+  key: string,
+): { action: Action; subject: Subject } | null {
   if (PERMISSION_MAP[key]) {
     return PERMISSION_MAP[key];
   }
   const [resource, act] = key.split(".");
   if (!resource || !act) return null;
 
-  const subjectName = (resource.charAt(0).toUpperCase() + resource.slice(1)) as Subject;
+  const subjectName = (resource.charAt(0).toUpperCase() +
+    resource.slice(1)) as Subject;
   return { action: act as Action, subject: subjectName };
 }
 
 export function buildUserAbilities(
   user: UserToken,
-  builder: AbilityBuilder<AppAbility>
+  builder: AbilityBuilder<AppAbility>,
 ): void {
   const { can, cannot } = builder;
 

@@ -65,7 +65,10 @@ export class AuthCustomersService {
       throw new AppError("UNAUTHORIZED", "E-mail ou senha inválidos", 401);
     }
 
-    const isPasswordValid = await verifyPassword(body.password, customer.passwordHash);
+    const isPasswordValid = await verifyPassword(
+      body.password,
+      customer.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new AppError("UNAUTHORIZED", "E-mail ou senha inválidos", 401);
     }
@@ -189,7 +192,8 @@ export class AuthCustomersService {
     const customer = await prisma.customer.findUnique({ where: { email } });
 
     const genericResponse = {
-      message: "Se existir uma conta associada ao e-mail informado, enviaremos as instruções de recuperação.",
+      message:
+        "Se existir uma conta associada ao e-mail informado, enviaremos as instruções de recuperação.",
     };
 
     if (!customer || customer.status !== "active") {
@@ -213,7 +217,9 @@ export class AuthCustomersService {
       },
     });
 
-    console.log(`🔑 [DEV CUSTOMER RESET TOKEN] Email: ${email} | Token: ${rawToken}`);
+    console.log(
+      `🔑 [DEV CUSTOMER RESET TOKEN] Email: ${email} | Token: ${rawToken}`,
+    );
 
     return genericResponse;
   }
@@ -232,7 +238,11 @@ export class AuthCustomersService {
       resetToken.expiresAt < new Date() ||
       resetToken.customer.status !== "active"
     ) {
-      throw new AppError("UNAUTHORIZED", "Token de recuperação inválido ou expirado", 400);
+      throw new AppError(
+        "UNAUTHORIZED",
+        "Token de recuperação inválido ou expirado",
+        400,
+      );
     }
 
     const newPasswordHash = await hashPassword(body.newPassword);
@@ -256,13 +266,18 @@ export class AuthCustomersService {
   }
 
   async changePassword(customerId: string, body: CustomerChangePasswordBody) {
-    const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+    const customer = await prisma.customer.findUnique({
+      where: { id: customerId },
+    });
 
     if (!customer) {
       throw new AppError("NOT_FOUND", "Cliente não encontrado", 404);
     }
 
-    const isCurrentValid = await verifyPassword(body.currentPassword, customer.passwordHash);
+    const isCurrentValid = await verifyPassword(
+      body.currentPassword,
+      customer.passwordHash,
+    );
     if (!isCurrentValid) {
       throw new AppError("VALIDATION_ERROR", "Senha atual incorreta", 400);
     }
@@ -303,7 +318,10 @@ export class AuthCustomersService {
     };
   }
 
-  async updateCustomerProfile(customerId: string, body: UpdateCustomerProfileBody) {
+  async updateCustomerProfile(
+    customerId: string,
+    body: UpdateCustomerProfileBody,
+  ) {
     const customer = await prisma.customer.findUnique({
       where: { id: customerId },
     });

@@ -21,7 +21,10 @@ export const createStoreBodySchema = z.object({
 });
 
 export const updateStoreBodySchema = z.object({
-  name: z.string().min(2, "O nome da loja deve ter no mínimo 2 caracteres").optional(),
+  name: z
+    .string()
+    .min(2, "O nome da loja deve ter no mínimo 2 caracteres")
+    .optional(),
   slug: z.string().min(2, "O slug deve ter no mínimo 2 caracteres").optional(),
   description: z.string().optional(),
   logoUrl: z.string().url("URL do logo inválida").optional().or(z.literal("")),

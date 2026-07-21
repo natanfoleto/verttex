@@ -44,11 +44,11 @@ The system has **two distinct authentication contexts** that must remain separat
 
 The system starts with three roles, persisted in the database and created by seed:
 
-| Key | Name | Description |
-|---|---|---|
-| `admin` | Administrator | Full access to the platform |
-| `employee` | Employee | Assists in managing supplier stores |
-| `supplier` | Supplier | Responsible for one or more partner stores |
+| Key        | Name          | Description                                |
+| ---------- | ------------- | ------------------------------------------ |
+| `admin`    | Administrator | Full access to the platform                |
+| `employee` | Employee      | Assists in managing supplier stores        |
+| `supplier` | Supplier      | Responsible for one or more partner stores |
 
 Roles are **not rigid enums** in code. The system must support new roles in the future (e.g., `manager`, `operator`, `stockist`, `analyst`).
 
@@ -82,6 +82,7 @@ Roles are **not rigid enums** in code. The system must support new roles in the 
 Roles provide default permissions, but each user can have individual exceptions.
 
 Effective access is determined by:
+
 1. Role default permissions
 2. Explicit user-level grant (allow)
 3. Explicit user-level denial (deny)
@@ -116,10 +117,12 @@ Authorization is composed of: **Functional permission + Store scope**
 ## 5. User–Store Relationship
 
 The relationship between users and stores is many-to-many:
+
 - A store can have multiple users
 - A user can be linked to multiple stores
 
 The role and the store link are **different concepts**:
+
 - Role determines **what** the user can do
 - Store link determines **where** they can do it
 
@@ -129,12 +132,12 @@ The role and the store link are **different concepts**:
 
 ### 6.1 Store Status
 
-| Status | Description |
-|---|---|
-| `draft` | Created but not yet published |
-| `active` | Published and available |
-| `inactive` | Deactivated voluntarily or not operational |
-| `suspended` | Blocked by admin |
+| Status      | Description                                |
+| ----------- | ------------------------------------------ |
+| `draft`     | Created but not yet published              |
+| `active`    | Published and available                    |
+| `inactive`  | Deactivated voluntarily or not operational |
+| `suspended` | Blocked by admin                           |
 
 ### 6.2 Store Slug
 

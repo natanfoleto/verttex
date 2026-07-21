@@ -254,10 +254,7 @@ export class UsersService {
     });
   }
 
-  async updateUserPermissions(
-    userId: string,
-    body: UpdateUserPermissionsBody,
-  ) {
+  async updateUserPermissions(userId: string, body: UpdateUserPermissionsBody) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });

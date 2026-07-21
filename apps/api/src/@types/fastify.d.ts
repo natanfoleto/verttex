@@ -41,8 +41,14 @@ export type FastifyZodRequest<
 declare module "fastify" {
   interface FastifyInstance {
     verifyUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-    authenticateUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-    authenticateCustomer(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+    authenticateUser(
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ): Promise<void>;
+    authenticateCustomer(
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ): Promise<void>;
   }
   interface FastifyRequest {
     userPayload?: AuthenticatedUserPayload;

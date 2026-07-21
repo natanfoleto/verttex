@@ -10,10 +10,10 @@ This folder contains the planning documents and implementation history for the V
 
 It is **separate** from `.ai/` by design:
 
-| Folder | Responsibility |
-|---|---|
-| `.ai/` | Permanent project documentation: architecture, rules, patterns, conventions |
-| `.roadmaps/` | Implementation history: phases, scope, progress, blockers, decisions |
+| Folder       | Responsibility                                                              |
+| ------------ | --------------------------------------------------------------------------- |
+| `.ai/`       | Permanent project documentation: architecture, rules, patterns, conventions |
+| `.roadmaps/` | Implementation history: phases, scope, progress, blockers, decisions        |
 
 ---
 
@@ -42,6 +42,7 @@ Files use sequential three-digit numbering:
 ```
 
 Rules:
+
 - Lowercase letters
 - English technical names
 - Hyphens between words
@@ -52,15 +53,15 @@ Rules:
 
 ## Status Values
 
-| Status | Description |
-|---|---|
-| `draft` | Document still being written |
-| `planned` | Ready to start, but not yet in progress |
-| `active` | Currently being developed |
-| `blocked` | Waiting on a dependency, decision, or technical problem |
-| `completed` | Done and validated |
-| `cancelled` | Stopped with no planned restart |
-| `archived` | Kept for history only |
+| Status      | Description                                             |
+| ----------- | ------------------------------------------------------- |
+| `draft`     | Document still being written                            |
+| `planned`   | Ready to start, but not yet in progress                 |
+| `active`    | Currently being developed                               |
+| `blocked`   | Waiting on a dependency, decision, or technical problem |
+| `completed` | Done and validated                                      |
+| `cancelled` | Stopped with no planned restart                         |
+| `archived`  | Kept for history only                                   |
 
 The status inside the document must match the folder it is located in.  
 Exception: a `blocked` roadmap may remain in `active/` as long as the blocker is clearly documented.
@@ -95,25 +96,45 @@ Exception: a `blocked` roadmap may remain in `active/` as long as the blocker is
 - Related roadmaps:
 
 ## Objective
+
 ## Context
+
 ## Expected outcome
+
 ## Scope
+
 ## Out of scope
+
 ## Business rules
+
 ## Architecture decisions
+
 ## Database changes
+
 ## API routes
+
 ## Frontend screens
+
 ## Components and packages
+
 ## Authentication and authorization
+
 ## Permissions involved
+
 ## Implementation steps
+
 ## Tests
+
 ## Acceptance criteria
+
 ## Risks
+
 ## Blockers
+
 ## Pending decisions
+
 ## Progress
+
 ## Change log
 ```
 
@@ -133,6 +154,7 @@ low      — planned but not urgent
 ## Updating the Index
 
 Update `INDEX.md` whenever a roadmap:
+
 - Is created
 - Changes status
 - Is started, completed, blocked, cancelled, or archived

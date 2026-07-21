@@ -19,7 +19,11 @@ export function requireStoreAccess(storeIdParam: string = "storeId") {
     const storeId = params[storeIdParam];
 
     if (!storeId) {
-      throw new AppError("VALIDATION_ERROR", "Identificador da loja não informado", 400);
+      throw new AppError(
+        "VALIDATION_ERROR",
+        "Identificador da loja não informado",
+        400,
+      );
     }
 
     const storeUser = await prisma.storeUser.findUnique({
@@ -32,7 +36,11 @@ export function requireStoreAccess(storeIdParam: string = "storeId") {
     });
 
     if (!storeUser || !storeUser.isActive) {
-      throw new AppError("FORBIDDEN", "Você não possui acesso a esta loja", 403);
+      throw new AppError(
+        "FORBIDDEN",
+        "Você não possui acesso a esta loja",
+        403,
+      );
     }
   };
 }

@@ -110,7 +110,10 @@ export async function usersRoutes(app: FastifyInstance) {
   typedApp.get(
     "/users/:userId/permissions",
     {
-      preHandler: [app.authenticateUser, requirePermission("read", "Permission")],
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("read", "Permission"),
+      ],
       schema: {
         tags: ["Users Management"],
         summary: "Consultar exceções individuais de permissões do usuário",
@@ -124,7 +127,10 @@ export async function usersRoutes(app: FastifyInstance) {
   typedApp.put(
     "/users/:userId/permissions",
     {
-      preHandler: [app.authenticateUser, requirePermission("manage", "Permission")],
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("manage", "Permission"),
+      ],
       schema: {
         tags: ["Users Management"],
         summary: "Definir exceções individuais de permissões do usuário",

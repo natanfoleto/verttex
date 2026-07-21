@@ -41,7 +41,11 @@ export const authPlugin = fp(async (app) => {
         }>(token);
 
         if (decoded.actorType !== "user") {
-          throw new AppError("UNAUTHORIZED", "Token inválido para este contexto", 401);
+          throw new AppError(
+            "UNAUTHORIZED",
+            "Token inválido para este contexto",
+            401,
+          );
         }
 
         const session = await prisma.userSession.findUnique({
@@ -70,7 +74,11 @@ export const authPlugin = fp(async (app) => {
           session.expiresAt < new Date() ||
           session.user.status !== "active"
         ) {
-          throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
+          throw new AppError(
+            "UNAUTHORIZED",
+            "Sessão inválida ou expirada",
+            401,
+          );
         }
 
         const rolePermissions = session.user.role.permissions.map(
@@ -123,7 +131,11 @@ export const authPlugin = fp(async (app) => {
         }>(token);
 
         if (decoded.actorType !== "customer") {
-          throw new AppError("UNAUTHORIZED", "Token inválido para este contexto", 401);
+          throw new AppError(
+            "UNAUTHORIZED",
+            "Token inválido para este contexto",
+            401,
+          );
         }
 
         const session = await prisma.customerSession.findUnique({
@@ -137,7 +149,11 @@ export const authPlugin = fp(async (app) => {
           session.expiresAt < new Date() ||
           session.customer.status !== "active"
         ) {
-          throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
+          throw new AppError(
+            "UNAUTHORIZED",
+            "Sessão inválida ou expirada",
+            401,
+          );
         }
 
         request.customerPayload = {

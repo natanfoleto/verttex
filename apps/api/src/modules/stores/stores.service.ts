@@ -10,7 +10,10 @@ import {
 } from "./stores.schemas";
 
 export class StoresService {
-  async createStore(userPayload: AuthenticatedUserPayload, data: CreateStoreBody) {
+  async createStore(
+    userPayload: AuthenticatedUserPayload,
+    data: CreateStoreBody,
+  ) {
     const slug = normalizeSlug(data.slug);
 
     if (!slug) {
@@ -30,7 +33,11 @@ export class StoresService {
     });
 
     if (existingStore) {
-      throw new AppError("CONFLICT", "Este slug já está em uso por outra loja", 409);
+      throw new AppError(
+        "CONFLICT",
+        "Este slug já está em uso por outra loja",
+        409,
+      );
     }
 
     return prisma.$transaction(async (tx) => {
@@ -177,7 +184,11 @@ export class StoresService {
         });
 
         if (existing) {
-          throw new AppError("CONFLICT", "Este slug já está em uso por outra loja", 409);
+          throw new AppError(
+            "CONFLICT",
+            "Este slug já está em uso por outra loja",
+            409,
+          );
         }
       }
     }
@@ -197,9 +208,12 @@ export class StoresService {
         slug: newSlug,
         description: data.description,
         logoUrl: data.logoUrl !== undefined ? data.logoUrl || null : undefined,
-        coverUrl: data.coverUrl !== undefined ? data.coverUrl || null : undefined,
+        coverUrl:
+          data.coverUrl !== undefined ? data.coverUrl || null : undefined,
         customDomain:
-          data.customDomain !== undefined ? data.customDomain || null : undefined,
+          data.customDomain !== undefined
+            ? data.customDomain || null
+            : undefined,
         status: data.status,
       },
     });

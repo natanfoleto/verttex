@@ -594,7 +594,7 @@ Não ordenar imports manualmente de forma conflitante com o ESLint.
 - Entry points públicos de packages devem usar barrel re-exports:
 
 ```ts
-export * from './...'
+export * from "./...";
 ```
 
 - Não usar default exports arbitrários.
@@ -640,9 +640,9 @@ Schema conceitual:
 
 ```ts
 type ApiSuccess<T> = {
-  success: true
-  data: T
-}
+  success: true;
+  data: T;
+};
 ```
 
 ## 11.2 Resposta de sucesso sem conteúdo relevante
@@ -667,9 +667,7 @@ Não misturar aleatoriamente endpoints que retornam `{ message }`, `{ data }`, o
 ```json
 {
   "success": true,
-  "data": [
-    {}
-  ]
+  "data": [{}]
 }
 ```
 
@@ -680,9 +678,7 @@ Use inicialmente paginação por página e limite como único padrão oficial.
 ```json
 {
   "success": true,
-  "data": [
-    {}
-  ],
+  "data": [{}],
   "meta": {
     "page": 1,
     "perPage": 20,
@@ -698,19 +694,19 @@ Schema conceitual:
 
 ```ts
 type PaginationMeta = {
-  page: number
-  perPage: number
-  total: number
-  totalPages: number
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-}
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
 
 type ApiPaginatedSuccess<T> = {
-  success: true
-  data: T[]
-  meta: PaginationMeta
-}
+  success: true;
+  data: T[];
+  meta: PaginationMeta;
+};
 ```
 
 Não implementar paginação por cursor nesta etapa. Se for necessária futuramente, crie um contrato separado e documentado, sem alterar silenciosamente o contrato atual.
@@ -725,9 +721,7 @@ Não implementar paginação por cursor nesta etapa. Se for necessária futurame
     "message": "Os dados enviados são inválidos",
     "details": null,
     "fieldErrors": {
-      "email": [
-        "Informe um e-mail válido"
-      ]
+      "email": ["Informe um e-mail válido"]
     },
     "requestId": "req_123"
   }
@@ -738,15 +732,15 @@ Schema conceitual:
 
 ```ts
 type ApiError = {
-  success: false
+  success: false;
   error: {
-    code: string
-    message: string
-    details?: unknown
-    fieldErrors?: Record<string, string[]>
-    requestId: string
-  }
-}
+    code: string;
+    message: string;
+    details?: unknown;
+    fieldErrors?: Record<string, string[]>;
+    requestId: string;
+  };
+};
 ```
 
 Regras:

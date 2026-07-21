@@ -92,7 +92,11 @@ export class RolesService {
     }
 
     if (role.isSystem) {
-      throw new AppError("FORBIDDEN", "Cargos do sistema não podem ser excluídos", 403);
+      throw new AppError(
+        "FORBIDDEN",
+        "Cargos do sistema não podem ser excluídos",
+        403,
+      );
     }
 
     if (role._count.users > 0) {
