@@ -11,7 +11,7 @@ Last updated: 2026-07-21
 | Nº | Roadmap | Status | Priority | Dependencies | File |
 |---:|---|---|---|---|---|
 | 001 | Foundation | `completed` | critical | None | [`completed/001-foundation.md`](./completed/001-foundation.md) |
-| 002 | Data Modeling | `planned` | critical | 001 | [`planned/002-data-modeling.md`](./planned/002-data-modeling.md) |
+| 002 | Data Modeling | `completed` | critical | 001 | [`completed/002-data-modeling.md`](./completed/002-data-modeling.md) |
 | 003 | User Authentication | `planned` | critical | 002 | [`planned/003-user-authentication.md`](./planned/003-user-authentication.md) |
 | 004 | Customer Authentication | `planned` | critical | 002 | [`planned/004-customer-authentication.md`](./planned/004-customer-authentication.md) |
 | 005 | Roles and Permissions | `planned` | critical | 002, 003 | [`planned/005-roles-and-permissions.md`](./planned/005-roles-and-permissions.md) |
@@ -25,8 +25,8 @@ Last updated: 2026-07-21
 
 | Status | Count |
 |---|---|
-| `completed` | 1 |
-| `planned` | 7 |
+| `completed` | 2 |
+| `planned` | 6 |
 | `active` | 0 |
 | `blocked` | 0 |
 | `archived` | 0 |

@@ -15,6 +15,7 @@
     "clean": "turbo clean",
     "db:generate": "pnpm --filter @verttex/api db:generate",
     "db:migrate": "pnpm --filter @verttex/api db:migrate",
+    "db:seed": "pnpm --filter @verttex/api db:seed",
     "db:studio": "pnpm --filter @verttex/api db:studio"
   },
   "devDependencies": {

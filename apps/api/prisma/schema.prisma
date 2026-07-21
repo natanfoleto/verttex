@@ -5,3 +5,194 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id                  String                   @id @default(cuid())
+  name                String
+  email               String                   @unique
+  phone               String?
+  passwordHash        String
+  status              String                   @default("active") // active, inactive, suspended
+  roleId              String
+  role                Role                     @relation(fields: [roleId], references: [id])
+  permissions         UserPermission[]
+  stores              StoreUser[]
+  sessions            UserSession[]
+  passwordResetTokens UserPasswordResetToken[]
+  emailVerifiedAt     DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  @@map("users")
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  key         String           @unique // admin, employee, supplier
+  name        String
+  description String?
+  isSystem    Boolean          @default(false)
+  isActive    Boolean          @default(true)
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("roles")
+}
+
+model Permission {
+  id            String           @id @default(cuid())
+  key           String           @unique // e.g. "users.read", "stores.create"
+  module        String // e.g. "users", "roles", "stores"
+  description   String?
+  roles         RolePermission[]
+  userOverrides UserPermission[]
+  createdAt     DateTime         @default(now())
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserPermission {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  effect       String     // allow, deny
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([userId, permissionId])
+  @@map("user_permissions")
+}
+
+model Store {
+  id           String      @id @default(cuid())
+  name         String
+  slug         String      @unique
+  description  String?
+  logoUrl      String?
+  coverUrl     String?
+  customDomain String?
+  status       String      @default("draft") // draft, active, inactive, suspended
+  users        StoreUser[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("stores")
+}
+
+model StoreUser {
+  id        String   @id @default(cuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isOwner   Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, userId])
+  @@map("store_users")
+}
+
+model Customer {
+  id                  String                       @id @default(cuid())
+  name                String
+  email               String                       @unique
+  phone               String?
+  passwordHash        String
+  status              String                       @default("active") // active, inactive, suspended
+  sessions            CustomerSession[]
+  passwordResetTokens CustomerPasswordResetToken[]
+  emailVerifiedAt     DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+
+  @@map("customers")
+}
+
+model UserSession {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash String    @unique
+  userAgent        String?
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("user_sessions")
+}
+
+model CustomerSession {
+  id               String    @id @default(cuid())
+  customerId       String
+  customer         Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  refreshTokenHash String    @unique
+  userAgent        String?
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("customer_sessions")
+}
+
+model UserPasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@map("user_password_reset_tokens")
+}
+
+model CustomerPasswordResetToken {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@map("customer_password_reset_tokens")
+}
+
+model AuditLog {
+  id               String   @id @default(cuid())
+  actorUserId      String?
+  actorCustomerId String?
+  action           String
+  subject          String
+  subjectId        String?
+  metadata         Json?
+  ipAddress        String?
+  userAgent        String?
+  createdAt        DateTime @default(now())
+
+  @@map("audit_logs")
+}
