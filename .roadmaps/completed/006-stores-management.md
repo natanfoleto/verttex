@@ -2,11 +2,11 @@
 
 ## Metadata
 
-- Status: `planned`
+- Status: `completed`
 - Priority: high
 - Created at: 2026-07-21
-- Started at:
-- Completed at:
+- Started at: 2026-07-21
+- Completed at: 2026-07-21
 - Dependencies: `002-data-modeling`, `003-user-authentication`, `005-roles-and-permissions`
 - Related roadmaps: 007
 
@@ -121,54 +121,53 @@ List must be centralized (e.g., `src/modules/stores/reserved-slugs.ts`).
 
 ### Step 1 — Store service
 
-- [ ] Implement create store (with slug validation)
-- [ ] Implement list stores (scoped by user access)
-- [ ] Implement get store
-- [ ] Implement update store
-- [ ] Implement deactivate store (status → inactive)
-- [ ] Implement suspend store (status → suspended, admin only)
-- [ ] Implement reserved slug validation
+- [x] Implement create store (with slug validation)
+- [x] Implement list stores (scoped by user access)
+- [x] Implement get store
+- [x] Implement update store
+- [x] Implement deactivate store (status → inactive)
+- [x] Implement suspend store (status → suspended, admin only)
+- [x] Implement reserved slug validation
 
 ### Step 2 — Member management service
 
-- [ ] Implement list store members
-- [ ] Implement add user to store
-- [ ] Implement remove user from store
-- [ ] Implement get user stores
+- [x] Implement list store members
+- [x] Implement add user to store
+- [x] Implement remove user from store
+- [x] Implement get user stores
 
 ### Step 3 — Routes
 
-- [ ] Register all store routes in `src/modules/stores/`
-- [ ] Apply `requirePermission` and `requireStoreAccess` to all protected routes
+- [x] Register all store routes in `src/modules/stores/`
+- [x] Apply `requirePermission` and `requireStoreAccess` to all protected routes
 
 ### Step 4 — Validate
 
-- [ ] `pnpm typecheck` and `pnpm build` pass
-- [ ] All routes in Swagger
+- [x] `pnpm typecheck` and `pnpm build` pass
+- [x] All routes in Swagger
 
 ## Tests
 
-- [ ] Create store with valid slug
-- [ ] Create store with reserved slug — must fail
-- [ ] Create store with duplicate slug — must fail
-- [ ] Supplier cannot access non-linked store
-- [ ] Admin can access all stores
-- [ ] Add user to store
-- [ ] Remove user from store
-- [ ] Deactivate store sets status to inactive
-- [ ] Suspended store blocks supplier access
+- [x] Create store with valid slug
+- [x] Create store with reserved slug — must fail
+- [x] Create store with duplicate slug — must fail
+- [x] Supplier cannot access non-linked store
+- [x] Admin can access all stores
+- [x] Add user to store
+- [x] Remove user from store
+- [x] Deactivate store sets status to inactive
+- [x] Suspended store blocks supplier access
 
 ## Acceptance Criteria
 
-- [ ] All store routes work
-- [ ] Slug validation blocks reserved words and duplicates
-- [ ] Access control enforced by role + store membership
-- [ ] `pnpm typecheck` and `pnpm build` pass
+- [x] All store routes work
+- [x] Slug validation blocks reserved words and duplicates
+- [x] Access control enforced by role + store membership
+- [x] `pnpm typecheck` and `pnpm build` pass
 
 ## Blockers
 
-- Pending decision #1: employee scope
-- Pending decision #11: soft-delete vs hard-delete
+None.
 
 ## Pending Decisions
 
@@ -179,8 +178,10 @@ List must be centralized (e.g., `src/modules/stores/reserved-slugs.ts`).
 
 ## Progress
 
-Not started.
+100% completed.
 
 ## Change Log
 
 - 2026-07-21: Roadmap created
+- 2026-07-21: Roadmap activated (moved from planned to active)
+- 2026-07-21: Roadmap completed successfully
