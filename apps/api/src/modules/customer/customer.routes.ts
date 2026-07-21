@@ -1,38 +1,38 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import {
   getCustomerProfileController,
   updateCustomerProfileController,
-} from "../auth-customers/auth-customers.controller";
-import { updateCustomerProfileBodySchema } from "../auth-customers/auth-customers.schemas";
+} from '../auth-customers/auth-customers.controller'
+import { updateCustomerProfileBodySchema } from '../auth-customers/auth-customers.schemas'
 
 export async function customerRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   typedApp.get(
-    "/profile",
+    '/profile',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Customer Profile"],
-        summary: "Consultar perfil do cliente autenticado",
+        tags: ['Customer Profile'],
+        summary: 'Consultar perfil do cliente autenticado',
         security: [{ bearerAuth: [] }],
       },
     },
-    getCustomerProfileController,
-  );
+    getCustomerProfileController
+  )
 
   typedApp.patch(
-    "/profile",
+    '/profile',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Customer Profile"],
-        summary: "Atualizar perfil do cliente autenticado",
+        tags: ['Customer Profile'],
+        summary: 'Atualizar perfil do cliente autenticado',
         security: [{ bearerAuth: [] }],
         body: updateCustomerProfileBodySchema,
       },
     },
-    updateCustomerProfileController,
-  );
+    updateCustomerProfileController
+  )
 }

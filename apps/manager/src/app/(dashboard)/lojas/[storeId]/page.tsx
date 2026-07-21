@@ -32,7 +32,7 @@ export default function StoreDetailPage({
   if (isLoading) {
     return (
       <div className="p-8 text-center text-zinc-400">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100 mx-auto" />
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
     )
   }
@@ -46,21 +46,21 @@ export default function StoreDetailPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link
             href="/lojas"
-            className="p-2 rounded-xl border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
           >
             <RiArrowLeftLine className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
               {store.name}
             </h1>
-            <p className="text-sm font-mono text-zinc-400">
+            <p className="font-mono text-sm text-zinc-400">
               verttexloja.com.br/{store.slug}
             </p>
           </div>
@@ -69,14 +69,14 @@ export default function StoreDetailPage({
         <div className="flex items-center space-x-3">
           <Link
             href={`/lojas/${storeId}/membros`}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl border border-zinc-800 text-zinc-300 hover:bg-zinc-800 text-sm font-medium transition-colors"
+            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
           >
             <RiUserSharedLine className="h-4 w-4" />
             <span>Membros</span>
           </Link>
           <Link
             href={`/lojas/${storeId}/editar`}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-md transition-colors"
+            className="inline-flex items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
           >
             <RiEditLine className="h-4 w-4" />
             <span>Editar</span>
@@ -84,25 +84,25 @@ export default function StoreDetailPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
         {/* Info Card */}
-        <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 space-y-4">
+        <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
           <h2 className="text-base font-semibold text-zinc-200">
             Informações da Loja
           </h2>
 
           <div className="space-y-3 text-sm">
             <div>
-              <span className="text-xs text-zinc-500 block">Status Atual</span>
+              <span className="block text-xs text-zinc-500">Status Atual</span>
               <span
-                className={`inline-flex items-center mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                   store.status === 'active'
-                    ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                    ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                     : store.status === 'draft'
-                      ? 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                      ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                       : store.status === 'suspended'
-                        ? 'bg-rose-950 text-rose-400 border-rose-800'
-                        : 'bg-amber-950 text-amber-400 border-amber-800'
+                        ? 'border-rose-800 bg-rose-950 text-rose-400'
+                        : 'border-amber-800 bg-amber-950 text-amber-400'
                 }`}
               >
                 {store.status === 'active'
@@ -116,19 +116,19 @@ export default function StoreDetailPage({
             </div>
 
             <div>
-              <span className="text-xs text-zinc-500 block">Descrição</span>
-              <p className="text-zinc-300 mt-0.5">
+              <span className="block text-xs text-zinc-500">Descrição</span>
+              <p className="mt-0.5 text-zinc-300">
                 {store.description || 'Sem descrição cadastrada'}
               </p>
             </div>
 
             <div>
-              <span className="text-xs text-zinc-500 block">
+              <span className="block text-xs text-zinc-500">
                 Domínio Próprio
               </span>
-              <div className="flex items-center space-x-2 mt-0.5">
+              <div className="mt-0.5 flex items-center space-x-2">
                 <RiGlobalLine className="h-4 w-4 text-zinc-500" />
-                <span className="text-zinc-300 font-mono text-xs">
+                <span className="font-mono text-xs text-zinc-300">
                   {store.customDomain || 'Nenhum cadastrado'}
                 </span>
               </div>
@@ -137,7 +137,7 @@ export default function StoreDetailPage({
         </div>
 
         {/* Store Members Summary */}
-        <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 space-y-4">
+        <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-zinc-200">
               Membros Vinculados ({store.users?.length || 0})
@@ -153,7 +153,7 @@ export default function StoreDetailPage({
                 }) => (
                   <div
                     key={su.user.id}
-                    className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 flex items-center justify-between text-sm"
+                    className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-3 text-sm"
                   >
                     <div className="flex flex-col">
                       <span className="font-medium text-zinc-200">
@@ -164,7 +164,7 @@ export default function StoreDetailPage({
                       </span>
                     </div>
                     {su.isOwner && (
-                      <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                      <span className="rounded border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 uppercase">
                         Proprietário
                       </span>
                     )}

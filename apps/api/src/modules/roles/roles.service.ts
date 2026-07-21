@@ -1,11 +1,11 @@
-import { prisma } from "../../infrastructure/database/prisma";
-import { AppError } from "../../shared/errors/app-error";
-import { CreateRoleBody, UpdateRoleBody } from "./roles.schemas";
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { CreateRoleBody, UpdateRoleBody } from './roles.schemas'
 
 export class RolesService {
   async listRoles() {
     return prisma.role.findMany({
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: 'asc' },
       include: {
         permissions: {
           include: {
@@ -16,16 +16,16 @@ export class RolesService {
           select: { users: true },
         },
       },
-    });
+    })
   }
 
   async createRole(data: CreateRoleBody) {
     const existing = await prisma.role.findUnique({
       where: { key: data.key },
-    });
+    })
 
     if (existing) {
-      throw new AppError("CONFLICT", "Já existe um cargo com esta chave", 409);
+      throw new AppError('CONFLICT', 'Já existe um cargo com esta chave', 409)
     }
 
     return prisma.role.create({
@@ -35,7 +35,7 @@ export class RolesService {
         description: data.description,
         isSystem: false,
       },
-    });
+    })
   }
 
   async getRole(roleId: string) {
@@ -51,22 +51,22 @@ export class RolesService {
           select: { users: true },
         },
       },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
-    return role;
+    return role
   }
 
   async updateRole(roleId: string, data: UpdateRoleBody) {
     const role = await prisma.role.findUnique({
       where: { id: roleId },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
     return prisma.role.update({
@@ -76,7 +76,7 @@ export class RolesService {
         description: data.description,
         isActive: data.isActive,
       },
-    });
+    })
   }
 
   async deleteRole(roleId: string) {
@@ -85,33 +85,33 @@ export class RolesService {
       include: {
         _count: { select: { users: true } },
       },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
     if (role.isSystem) {
       throw new AppError(
-        "FORBIDDEN",
-        "Cargos do sistema não podem ser excluídos",
-        403,
-      );
+        'FORBIDDEN',
+        'Cargos do sistema não podem ser excluídos',
+        403
+      )
     }
 
     if (role._count.users > 0) {
       throw new AppError(
-        "CONFLICT",
-        "Não é possível excluir um cargo vinculado a usuários ativos",
-        400,
-      );
+        'CONFLICT',
+        'Não é possível excluir um cargo vinculado a usuários ativos',
+        400
+      )
     }
 
     await prisma.role.delete({
       where: { id: roleId },
-    });
+    })
 
-    return { message: "Cargo excluído com sucesso" };
+    return { message: 'Cargo excluído com sucesso' }
   }
 
   async getRolePermissions(roleId: string) {
@@ -124,28 +124,28 @@ export class RolesService {
           },
         },
       },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
-    return role.permissions.map((rp) => rp.permission);
+    return role.permissions.map((rp) => rp.permission)
   }
 
   async updateRolePermissions(roleId: string, permissionIds: string[]) {
     const role = await prisma.role.findUnique({
       where: { id: roleId },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
     await prisma.$transaction(async (tx) => {
       await tx.rolePermission.deleteMany({
         where: { roleId },
-      });
+      })
 
       if (permissionIds.length > 0) {
         await tx.rolePermission.createMany({
@@ -153,10 +153,10 @@ export class RolesService {
             roleId,
             permissionId,
           })),
-        });
+        })
       }
-    });
+    })
 
-    return this.getRolePermissions(roleId);
+    return this.getRolePermissions(roleId)
   }
 }

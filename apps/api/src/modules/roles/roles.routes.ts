@@ -1,6 +1,6 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
-import { requirePermission } from "../../shared/middlewares/require-permission";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { requirePermission } from '../../shared/middlewares/require-permission'
 import {
   listRolesController,
   createRoleController,
@@ -9,119 +9,119 @@ import {
   deleteRoleController,
   getRolePermissionsController,
   updateRolePermissionsController,
-} from "./roles.controller";
+} from './roles.controller'
 import {
   roleParamsSchema,
   createRoleBodySchema,
   updateRoleBodySchema,
   updateRolePermissionsBodySchema,
-} from "./roles.schemas";
+} from './roles.schemas'
 
 export async function rolesRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   typedApp.get(
-    "/roles",
+    '/roles',
     {
-      preHandler: [app.authenticateUser, requirePermission("read", "Role")],
+      preHandler: [app.authenticateUser, requirePermission('read', 'Role')],
       schema: {
-        tags: ["Roles & Permissions"],
-        summary: "Listar cargos do sistema",
+        tags: ['Roles & Permissions'],
+        summary: 'Listar cargos do sistema',
         security: [{ bearerAuth: [] }],
       },
     },
-    listRolesController,
-  );
+    listRolesController
+  )
 
   typedApp.post(
-    "/roles",
+    '/roles',
     {
-      preHandler: [app.authenticateUser, requirePermission("create", "Role")],
+      preHandler: [app.authenticateUser, requirePermission('create', 'Role')],
       schema: {
-        tags: ["Roles & Permissions"],
-        summary: "Criar novo cargo",
+        tags: ['Roles & Permissions'],
+        summary: 'Criar novo cargo',
         security: [{ bearerAuth: [] }],
         body: createRoleBodySchema,
       },
     },
-    createRoleController,
-  );
+    createRoleController
+  )
 
   typedApp.get(
-    "/roles/:roleId",
+    '/roles/:roleId',
     {
-      preHandler: [app.authenticateUser, requirePermission("read", "Role")],
+      preHandler: [app.authenticateUser, requirePermission('read', 'Role')],
       schema: {
-        tags: ["Roles & Permissions"],
-        summary: "Consultar detalhes de um cargo",
+        tags: ['Roles & Permissions'],
+        summary: 'Consultar detalhes de um cargo',
         security: [{ bearerAuth: [] }],
         params: roleParamsSchema,
       },
     },
-    getRoleController,
-  );
+    getRoleController
+  )
 
   typedApp.patch(
-    "/roles/:roleId",
+    '/roles/:roleId',
     {
-      preHandler: [app.authenticateUser, requirePermission("update", "Role")],
+      preHandler: [app.authenticateUser, requirePermission('update', 'Role')],
       schema: {
-        tags: ["Roles & Permissions"],
-        summary: "Atualizar dados de um cargo",
+        tags: ['Roles & Permissions'],
+        summary: 'Atualizar dados de um cargo',
         security: [{ bearerAuth: [] }],
         params: roleParamsSchema,
         body: updateRoleBodySchema,
       },
     },
-    updateRoleController,
-  );
+    updateRoleController
+  )
 
   typedApp.delete(
-    "/roles/:roleId",
+    '/roles/:roleId',
     {
-      preHandler: [app.authenticateUser, requirePermission("delete", "Role")],
+      preHandler: [app.authenticateUser, requirePermission('delete', 'Role')],
       schema: {
-        tags: ["Roles & Permissions"],
-        summary: "Excluir um cargo (somente cargos não-sistema)",
+        tags: ['Roles & Permissions'],
+        summary: 'Excluir um cargo (somente cargos não-sistema)',
         security: [{ bearerAuth: [] }],
         params: roleParamsSchema,
       },
     },
-    deleteRoleController,
-  );
+    deleteRoleController
+  )
 
   typedApp.get(
-    "/roles/:roleId/permissions",
+    '/roles/:roleId/permissions',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("read", "Permission"),
+        requirePermission('read', 'Permission'),
       ],
       schema: {
-        tags: ["Roles & Permissions"],
-        summary: "Listar permissões atribuídas a um cargo",
+        tags: ['Roles & Permissions'],
+        summary: 'Listar permissões atribuídas a um cargo',
         security: [{ bearerAuth: [] }],
         params: roleParamsSchema,
       },
     },
-    getRolePermissionsController,
-  );
+    getRolePermissionsController
+  )
 
   typedApp.put(
-    "/roles/:roleId/permissions",
+    '/roles/:roleId/permissions',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("manage", "Permission"),
+        requirePermission('manage', 'Permission'),
       ],
       schema: {
-        tags: ["Roles & Permissions"],
-        summary: "Atualizar permissões atribuídas a um cargo",
+        tags: ['Roles & Permissions'],
+        summary: 'Atualizar permissões atribuídas a um cargo',
         security: [{ bearerAuth: [] }],
         params: roleParamsSchema,
         body: updateRolePermissionsBodySchema,
       },
     },
-    updateRolePermissionsController,
-  );
+    updateRolePermissionsController
+  )
 }

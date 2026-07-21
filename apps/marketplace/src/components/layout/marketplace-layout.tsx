@@ -9,7 +9,7 @@ interface MarketplaceLayoutProps {
 
 export function MarketplaceLayout({ children }: MarketplaceLayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen bg-stone-950 text-stone-100 antialiased font-sans">
+    <div className="flex min-h-screen flex-col bg-stone-950 font-sans text-stone-100 antialiased">
       <MarketplaceHeader />
       <main className="flex-1">{children}</main>
       <MarketplaceFooter />

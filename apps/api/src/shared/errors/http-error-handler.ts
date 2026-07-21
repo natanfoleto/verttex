@@ -1,29 +1,29 @@
-import { FastifyInstance } from "fastify";
-import { ZodError } from "zod";
-import { AppError } from "./app-error";
-import { requestContextStorage } from "../../plugins/request-context";
+import { FastifyInstance } from 'fastify'
+import { ZodError } from 'zod'
+import { AppError } from './app-error'
+import { requestContextStorage } from '../../plugins/request-context'
 
-type FastifyErrorHandler = FastifyInstance["errorHandler"];
+type FastifyErrorHandler = FastifyInstance['errorHandler']
 
 export const httpErrorHandler: FastifyErrorHandler = (
   error,
   request,
-  reply,
+  reply
 ) => {
-  const store = requestContextStorage.getStore();
-  const requestId = store?.requestId || "req_unknown";
+  const store = requestContextStorage.getStore()
+  const requestId = store?.requestId || 'req_unknown'
 
   if (error instanceof ZodError) {
-    request.log.warn({ err: error }, "Validation error");
+    request.log.warn({ err: error }, 'Validation error')
     return reply.status(400).send({
       success: false,
       error: {
-        code: "VALIDATION_ERROR",
-        message: "Os dados enviados são inválidos",
+        code: 'VALIDATION_ERROR',
+        message: 'Os dados enviados são inválidos',
         fieldErrors: error.flatten().fieldErrors,
         requestId,
       },
-    });
+    })
   }
 
   if (error instanceof AppError) {
@@ -36,17 +36,17 @@ export const httpErrorHandler: FastifyErrorHandler = (
         fieldErrors: error.fieldErrors,
         requestId,
       },
-    });
+    })
   }
 
-  request.log.error({ err: error }, "Internal server error");
+  request.log.error({ err: error }, 'Internal server error')
 
   return reply.status(500).send({
     success: false,
     error: {
-      code: "INTERNAL_ERROR",
-      message: "Internal server error",
+      code: 'INTERNAL_ERROR',
+      message: 'Internal server error',
       requestId,
     },
-  });
-};
+  })
+}

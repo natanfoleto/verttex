@@ -32,7 +32,7 @@ export default function UserDetailPage({
   if (isLoading) {
     return (
       <div className="p-8 text-center text-zinc-400">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100 mx-auto" />
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
     )
   }
@@ -46,18 +46,18 @@ export default function UserDetailPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link
             href="/usuarios"
-            className="p-2 rounded-xl border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
           >
             <RiArrowLeftLine className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
               {user.name}
             </h1>
             <p className="text-sm text-zinc-400">{user.email}</p>
@@ -67,14 +67,14 @@ export default function UserDetailPage({
         <div className="flex items-center space-x-3">
           <Link
             href={`/usuarios/${userId}/permissoes`}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl border border-zinc-800 text-zinc-300 hover:bg-zinc-800 text-sm font-medium transition-colors"
+            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
           >
             <RiShieldUserLine className="h-4 w-4" />
             <span>Permissões</span>
           </Link>
           <Link
             href={`/usuarios/${userId}/editar`}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-md transition-colors"
+            className="inline-flex items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
           >
             <RiEditLine className="h-4 w-4" />
             <span>Editar</span>
@@ -83,20 +83,20 @@ export default function UserDetailPage({
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
         {/* User Card */}
-        <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 space-y-4">
+        <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
           <h2 className="text-base font-semibold text-zinc-200">
             Informações Gerais
           </h2>
           <div className="space-y-3 text-sm">
             <div>
-              <span className="text-xs text-zinc-500 block">Status</span>
+              <span className="block text-xs text-zinc-500">Status</span>
               <span
-                className={`inline-flex items-center mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                   user.status === 'active'
-                    ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                    : 'bg-rose-950 text-rose-400 border-rose-800'
+                    ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                    : 'border-rose-800 bg-rose-950 text-rose-400'
                 }`}
               >
                 {user.status === 'active' ? 'Ativo' : 'Inativo'}
@@ -104,21 +104,21 @@ export default function UserDetailPage({
             </div>
 
             <div>
-              <span className="text-xs text-zinc-500 block">Cargo</span>
+              <span className="block text-xs text-zinc-500">Cargo</span>
               <span className="font-medium text-zinc-200">
                 {user.role?.name} ({user.role?.key})
               </span>
             </div>
 
             <div>
-              <span className="text-xs text-zinc-500 block">Telefone</span>
+              <span className="block text-xs text-zinc-500">Telefone</span>
               <span className="text-zinc-300">
                 {user.phone || 'Não informado'}
               </span>
             </div>
 
             <div>
-              <span className="text-xs text-zinc-500 block">Cadastrado em</span>
+              <span className="block text-xs text-zinc-500">Cadastrado em</span>
               <span className="text-zinc-400">
                 {new Date(user.createdAt).toLocaleDateString('pt-BR')}
               </span>
@@ -127,7 +127,7 @@ export default function UserDetailPage({
         </div>
 
         {/* Linked Stores Card */}
-        <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 space-y-4">
+        <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-zinc-200">
               Lojas Vinculadas
@@ -141,12 +141,12 @@ export default function UserDetailPage({
                 (su: { store: { id: string; name: string; slug: string } }) => (
                   <div
                     key={su.store.id}
-                    className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 flex items-center justify-between"
+                    className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-3"
                   >
-                    <span className="font-medium text-sm text-zinc-200">
+                    <span className="text-sm font-medium text-zinc-200">
                       {su.store.name}
                     </span>
-                    <span className="text-xs text-zinc-400 font-mono">
+                    <span className="font-mono text-xs text-zinc-400">
                       /{su.store.slug}
                     </span>
                   </div>

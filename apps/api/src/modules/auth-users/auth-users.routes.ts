@@ -1,5 +1,5 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import {
   loginController,
   logoutController,
@@ -8,101 +8,101 @@ import {
   resetPasswordController,
   changePasswordController,
   meController,
-} from "./auth-users.controller";
+} from './auth-users.controller'
 import {
   loginBodySchema,
   forgotPasswordBodySchema,
   resetPasswordBodySchema,
   changePasswordBodySchema,
-} from "./auth-users.schemas";
+} from './auth-users.schemas'
 
 export async function authUsersRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   typedApp.post(
-    "/login",
+    '/login',
     {
       schema: {
-        tags: ["Auth — Management Users"],
-        summary: "Autenticar usuário gestor",
+        tags: ['Auth — Management Users'],
+        summary: 'Autenticar usuário gestor',
         body: loginBodySchema,
       },
     },
-    loginController,
-  );
+    loginController
+  )
 
   typedApp.post(
-    "/logout",
+    '/logout',
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ["Auth — Management Users"],
-        summary: "Encerrar sessão do usuário gestor",
+        tags: ['Auth — Management Users'],
+        summary: 'Encerrar sessão do usuário gestor',
         security: [{ bearerAuth: [] }],
       },
     },
-    logoutController,
-  );
+    logoutController
+  )
 
   typedApp.post(
-    "/refresh",
+    '/refresh',
     {
       schema: {
-        tags: ["Auth — Management Users"],
-        summary: "Renovar token de acesso do usuário gestor",
+        tags: ['Auth — Management Users'],
+        summary: 'Renovar token de acesso do usuário gestor',
       },
     },
-    refreshController,
-  );
+    refreshController
+  )
 
   typedApp.post(
-    "/forgot-password",
+    '/forgot-password',
     {
       schema: {
-        tags: ["Auth — Management Users"],
-        summary: "Solicitar recuperação de senha do usuário gestor",
+        tags: ['Auth — Management Users'],
+        summary: 'Solicitar recuperação de senha do usuário gestor',
         body: forgotPasswordBodySchema,
       },
     },
-    forgotPasswordController,
-  );
+    forgotPasswordController
+  )
 
   typedApp.post(
-    "/reset-password",
+    '/reset-password',
     {
       schema: {
-        tags: ["Auth — Management Users"],
-        summary: "Redefinir senha do usuário gestor via token",
+        tags: ['Auth — Management Users'],
+        summary: 'Redefinir senha do usuário gestor via token',
         body: resetPasswordBodySchema,
       },
     },
-    resetPasswordController,
-  );
+    resetPasswordController
+  )
 
   typedApp.post(
-    "/change-password",
+    '/change-password',
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ["Auth — Management Users"],
-        summary: "Alterar própria senha do usuário gestor",
+        tags: ['Auth — Management Users'],
+        summary: 'Alterar própria senha do usuário gestor',
         security: [{ bearerAuth: [] }],
         body: changePasswordBodySchema,
       },
     },
-    changePasswordController,
-  );
+    changePasswordController
+  )
 
   typedApp.get(
-    "/me",
+    '/me',
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ["Auth — Management Users"],
-        summary: "Retornar dados do usuário gestor autenticado",
+        tags: ['Auth — Management Users'],
+        summary: 'Retornar dados do usuário gestor autenticado',
         security: [{ bearerAuth: [] }],
       },
     },
-    meController,
-  );
+    meController
+  )
 }

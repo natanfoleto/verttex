@@ -32,7 +32,7 @@ export default function UsersListPage() {
       actionButton={
         <Link
           href="/usuarios/novo"
-          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-md shadow-emerald-950 transition-colors"
+          className="inline-flex items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-emerald-950 transition-colors hover:bg-emerald-500"
         >
           <RiAddLine className="h-4 w-4" />
           <span>Novo Usuário</span>
@@ -47,14 +47,14 @@ export default function UsersListPage() {
       meta={data?.meta}
       onPageChange={setPage}
     >
-      <table className="w-full text-left border-collapse text-sm">
+      <table className="w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-zinc-800 bg-zinc-950/60 text-xs text-zinc-400 uppercase tracking-wider">
-            <th className="py-3.5 px-6 font-semibold">Nome</th>
-            <th className="py-3.5 px-6 font-semibold">E-mail</th>
-            <th className="py-3.5 px-6 font-semibold">Cargo</th>
-            <th className="py-3.5 px-6 font-semibold">Status</th>
-            <th className="py-3.5 px-6 font-semibold text-right">Ações</th>
+          <tr className="border-b border-zinc-800 bg-zinc-950/60 text-xs tracking-wider text-zinc-400 uppercase">
+            <th className="px-6 py-3.5 font-semibold">Nome</th>
+            <th className="px-6 py-3.5 font-semibold">E-mail</th>
+            <th className="px-6 py-3.5 font-semibold">Cargo</th>
+            <th className="px-6 py-3.5 font-semibold">Status</th>
+            <th className="px-6 py-3.5 text-right font-semibold">Ações</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
@@ -69,46 +69,46 @@ export default function UsersListPage() {
             }) => (
               <tr
                 key={user.id}
-                className="hover:bg-zinc-800/30 transition-colors"
+                className="transition-colors hover:bg-zinc-800/30"
               >
-                <td className="py-4 px-6 font-medium text-zinc-100">
+                <td className="px-6 py-4 font-medium text-zinc-100">
                   {user.name}
                 </td>
-                <td className="py-4 px-6 text-zinc-400">{user.email}</td>
-                <td className="py-4 px-6">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+                <td className="px-6 py-4 text-zinc-400">{user.email}</td>
+                <td className="px-6 py-4">
+                  <span className="inline-flex items-center rounded-full border border-zinc-700 bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-300">
                     {user.role?.name || user.roleId}
                   </span>
                 </td>
-                <td className="py-4 px-6">
+                <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                       user.status === 'active'
-                        ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                        : 'bg-rose-950 text-rose-400 border-rose-800'
+                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                        : 'border-rose-800 bg-rose-950 text-rose-400'
                     }`}
                   >
                     {user.status === 'active' ? 'Ativo' : 'Inativo'}
                   </span>
                 </td>
-                <td className="py-4 px-6 text-right space-x-2">
+                <td className="space-x-2 px-6 py-4 text-right">
                   <Link
                     href={`/usuarios/${user.id}`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                     title="Ver detalhes"
                   >
                     <RiEyeLine className="h-4 w-4" />
                   </Link>
                   <Link
                     href={`/usuarios/${user.id}/editar`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                     title="Editar"
                   >
                     <RiEditLine className="h-4 w-4" />
                   </Link>
                   <Link
                     href={`/usuarios/${user.id}/permissoes`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-emerald-400"
                     title="Permissões individuais"
                   >
                     <RiShieldUserLine className="h-4 w-4" />

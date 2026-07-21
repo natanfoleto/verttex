@@ -50,7 +50,7 @@ export default function UserPermissionsPage({
   if (isLoadingUser || isLoadingPerms) {
     return (
       <div className="p-8 text-center text-zinc-400">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100 mx-auto" />
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
     )
   }
@@ -94,16 +94,16 @@ export default function UserPermissionsPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center space-x-4">
         <Link
           href={`/usuarios/${userId}`}
-          className="p-2 rounded-xl border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+          className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
         >
           <RiArrowLeftLine className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
             Exceções de Permissão — {user?.name}
           </h1>
           <p className="text-sm text-zinc-400">
@@ -114,14 +114,14 @@ export default function UserPermissionsPage({
       </div>
 
       {feedbackMessage && (
-        <div className="rounded-xl bg-emerald-950/60 border border-emerald-800/80 p-4 text-sm text-emerald-300">
+        <div className="rounded-xl border border-emerald-800/80 bg-emerald-950/60 p-4 text-sm text-emerald-300">
           {feedbackMessage}
         </div>
       )}
 
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 bg-zinc-950/60 flex items-center justify-between">
-          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+      <div className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40">
+        <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/60 p-4">
+          <span className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
             Permissões do Sistema
           </span>
           <span className="text-xs text-zinc-500">
@@ -143,29 +143,29 @@ export default function UserPermissionsPage({
               return (
                 <div
                   key={perm.id}
-                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-zinc-800/20 transition-colors"
+                  className="flex flex-col justify-between gap-4 p-4 transition-colors hover:bg-zinc-800/20 sm:flex-row sm:items-center"
                 >
                   <div>
                     <div className="flex items-center space-x-2">
                       <span className="font-mono text-sm font-semibold text-zinc-200">
                         {perm.key}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                      <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
                         {perm.module}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="mt-1 text-xs text-zinc-400">
                       {perm.description}
                     </p>
                   </div>
 
                   {/* State selector buttons */}
-                  <div className="flex items-center space-x-1.5 shrink-0">
+                  <div className="flex shrink-0 items-center space-x-1.5">
                     <button
                       onClick={() => handleToggleOverride(perm.id, 'allow')}
-                      className={`inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                      className={`inline-flex cursor-pointer items-center space-x-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                         currentEffect === 'allow'
-                          ? 'bg-emerald-950 text-emerald-300 border-emerald-700 font-semibold'
+                          ? 'border-emerald-700 bg-emerald-950 font-semibold text-emerald-300'
                           : 'border-zinc-800 text-zinc-400 hover:bg-zinc-800'
                       }`}
                     >
@@ -175,9 +175,9 @@ export default function UserPermissionsPage({
 
                     <button
                       onClick={() => handleToggleOverride(perm.id, 'deny')}
-                      className={`inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                      className={`inline-flex cursor-pointer items-center space-x-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                         currentEffect === 'deny'
-                          ? 'bg-rose-950 text-rose-300 border-rose-700 font-semibold'
+                          ? 'border-rose-700 bg-rose-950 font-semibold text-rose-300'
                           : 'border-zinc-800 text-zinc-400 hover:bg-zinc-800'
                       }`}
                     >
@@ -187,9 +187,9 @@ export default function UserPermissionsPage({
 
                     <button
                       onClick={() => handleToggleOverride(perm.id, 'inherit')}
-                      className={`inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                      className={`inline-flex cursor-pointer items-center space-x-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                         !currentEffect
-                          ? 'bg-zinc-800 text-zinc-200 border-zinc-700 font-semibold'
+                          ? 'border-zinc-700 bg-zinc-800 font-semibold text-zinc-200'
                           : 'border-zinc-800 text-zinc-500 hover:bg-zinc-800'
                       }`}
                       title="Herdar permissão do cargo"

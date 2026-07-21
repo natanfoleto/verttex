@@ -99,7 +99,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           effect: (up.effect as 'allow' | 'deny') || 'allow',
         }
       })
-      .filter((p): p is { permissionKey: string; effect: 'allow' | 'deny' } => p !== null)
+      .filter(
+        (p): p is { permissionKey: string; effect: 'allow' | 'deny' } =>
+          p !== null,
+      )
 
     const userToken: UserToken = {
       id: user.id,

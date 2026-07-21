@@ -27,7 +27,7 @@ export default function RoleDetailPage({
   if (isLoading) {
     return (
       <div className="p-8 text-center text-zinc-400">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100 mx-auto" />
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
     )
   }
@@ -41,25 +41,25 @@ export default function RoleDetailPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link
             href="/cargos"
-            className="p-2 rounded-xl border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
           >
             <RiArrowLeftLine className="h-5 w-5" />
           </Link>
           <div>
             <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">
+              <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
                 {role.name}
               </h1>
-              <span className="font-mono text-xs text-zinc-400 px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700">
+              <span className="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 font-mono text-xs text-zinc-400">
                 {role.key}
               </span>
             </div>
-            <p className="text-sm text-zinc-400 mt-1">
+            <p className="mt-1 text-sm text-zinc-400">
               {role.description || 'Sem descrição informada'}
             </p>
           </div>
@@ -68,7 +68,7 @@ export default function RoleDetailPage({
         <div className="flex items-center space-x-3">
           <Link
             href={`/cargos/${roleId}/permissoes`}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl border border-zinc-800 text-zinc-300 hover:bg-zinc-800 text-sm font-medium transition-colors"
+            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
           >
             <RiShieldLine className="h-4 w-4" />
             <span>Configurar Permissões</span>
@@ -76,7 +76,7 @@ export default function RoleDetailPage({
           {!role.isSystem && (
             <Link
               href={`/cargos/${roleId}/editar`}
-              className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-md transition-colors"
+              className="inline-flex items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
             >
               <RiEditLine className="h-4 w-4" />
               <span>Editar</span>
@@ -86,13 +86,13 @@ export default function RoleDetailPage({
       </div>
 
       {/* Permissions assigned */}
-      <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 space-y-4">
+      <div className="w-full space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
         <h2 className="text-base font-semibold text-zinc-200">
           Permissões Concedidas ({role.rolePermissions?.length || 0})
         </h2>
 
         {role.rolePermissions && role.rolePermissions.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             {role.rolePermissions.map(
               (rp: {
                 permission: {
@@ -104,7 +104,7 @@ export default function RoleDetailPage({
               }) => (
                 <div
                   key={rp.permission.id}
-                  className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 flex items-center justify-between"
+                  className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-3"
                 >
                   <div className="flex flex-col">
                     <span className="font-mono text-xs font-semibold text-emerald-400">
@@ -114,7 +114,7 @@ export default function RoleDetailPage({
                       {rp.permission.description}
                     </span>
                   </div>
-                  <span className="text-[10px] uppercase font-semibold text-zinc-500 px-2 py-0.5 rounded bg-zinc-900">
+                  <span className="rounded bg-zinc-900 px-2 py-0.5 text-[10px] font-semibold text-zinc-500 uppercase">
                     {rp.permission.module}
                   </span>
                 </div>

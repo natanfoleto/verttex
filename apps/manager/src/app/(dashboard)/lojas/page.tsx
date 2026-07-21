@@ -34,7 +34,7 @@ export default function StoresListPage() {
       actionButton={
         <Link
           href="/lojas/nova"
-          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-md shadow-emerald-950 transition-colors"
+          className="inline-flex items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-emerald-950 transition-colors hover:bg-emerald-500"
         >
           <RiAddLine className="h-4 w-4" />
           <span>Nova Loja</span>
@@ -47,7 +47,7 @@ export default function StoresListPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-300 focus:outline-none focus:border-zinc-600"
+          className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-300 focus:border-zinc-600 focus:outline-none"
         >
           <option value="">Todos os status</option>
           <option value="draft">Rascunho (Draft)</option>
@@ -62,14 +62,14 @@ export default function StoresListPage() {
       meta={data?.meta}
       onPageChange={setPage}
     >
-      <table className="w-full text-left border-collapse text-sm">
+      <table className="w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-zinc-800 bg-zinc-950/60 text-xs text-zinc-400 uppercase tracking-wider">
-            <th className="py-3.5 px-6 font-semibold">Nome da Loja</th>
-            <th className="py-3.5 px-6 font-semibold">Slug (URL)</th>
-            <th className="py-3.5 px-6 font-semibold">Membros</th>
-            <th className="py-3.5 px-6 font-semibold">Status</th>
-            <th className="py-3.5 px-6 font-semibold text-right">Ações</th>
+          <tr className="border-b border-zinc-800 bg-zinc-950/60 text-xs tracking-wider text-zinc-400 uppercase">
+            <th className="px-6 py-3.5 font-semibold">Nome da Loja</th>
+            <th className="px-6 py-3.5 font-semibold">Slug (URL)</th>
+            <th className="px-6 py-3.5 font-semibold">Membros</th>
+            <th className="px-6 py-3.5 font-semibold">Status</th>
+            <th className="px-6 py-3.5 text-right font-semibold">Ações</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
@@ -83,27 +83,27 @@ export default function StoresListPage() {
             }) => (
               <tr
                 key={store.id}
-                className="hover:bg-zinc-800/30 transition-colors"
+                className="transition-colors hover:bg-zinc-800/30"
               >
-                <td className="py-4 px-6 font-medium text-zinc-100">
+                <td className="px-6 py-4 font-medium text-zinc-100">
                   {store.name}
                 </td>
-                <td className="py-4 px-6 font-mono text-xs text-zinc-400">
+                <td className="px-6 py-4 font-mono text-xs text-zinc-400">
                   verttexloja.com.br/{store.slug}
                 </td>
-                <td className="py-4 px-6 text-zinc-400">
+                <td className="px-6 py-4 text-zinc-400">
                   {store._count?.users ?? 0} membros
                 </td>
-                <td className="py-4 px-6">
+                <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                       store.status === 'active'
-                        ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                         : store.status === 'draft'
-                          ? 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                          ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                           : store.status === 'suspended'
-                            ? 'bg-rose-950 text-rose-400 border-rose-800'
-                            : 'bg-amber-950 text-amber-400 border-amber-800'
+                            ? 'border-rose-800 bg-rose-950 text-rose-400'
+                            : 'border-amber-800 bg-amber-950 text-amber-400'
                     }`}
                   >
                     {store.status === 'active'
@@ -115,24 +115,24 @@ export default function StoresListPage() {
                           : 'Inativa'}
                   </span>
                 </td>
-                <td className="py-4 px-6 text-right space-x-2">
+                <td className="space-x-2 px-6 py-4 text-right">
                   <Link
                     href={`/lojas/${store.id}`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                     title="Ver detalhes"
                   >
                     <RiEyeLine className="h-4 w-4" />
                   </Link>
                   <Link
                     href={`/lojas/${store.id}/editar`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                     title="Editar"
                   >
                     <RiEditLine className="h-4 w-4" />
                   </Link>
                   <Link
                     href={`/lojas/${store.id}/membros`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-emerald-400"
                     title="Gerenciar membros"
                   >
                     <RiUserSharedLine className="h-4 w-4" />

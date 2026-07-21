@@ -74,7 +74,7 @@ export default function RolePermissionsPage({
   if (isLoadingRole || isLoadingPerms) {
     return (
       <div className="p-8 text-center text-zinc-400">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100 mx-auto" />
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
     )
   }
@@ -100,17 +100,17 @@ export default function RolePermissionsPage({
   )
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link
             href={`/cargos/${roleId}`}
-            className="p-2 rounded-xl border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
           >
             <RiArrowLeftLine className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
               Permissões do Cargo — {role?.name}
             </h1>
             <p className="text-sm text-zinc-400">
@@ -123,32 +123,32 @@ export default function RolePermissionsPage({
         <button
           onClick={handleSave}
           disabled={updateRolePermissionsMutation.isPending}
-          className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-md disabled:opacity-50 transition-colors flex items-center space-x-2"
+          className="flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-emerald-500 disabled:opacity-50"
         >
           <RiCheckLine className="h-4 w-4" />
           <span>
             {updateRolePermissionsMutation.isPending
-              ? 'Salvação...'
+              ? 'Salvando...'
               : 'Salvar Permissões'}
           </span>
         </button>
       </div>
 
       {feedbackMessage && (
-        <div className="rounded-xl bg-emerald-950/60 border border-emerald-800/80 p-4 text-sm text-emerald-300">
+        <div className="rounded-xl border border-emerald-800/80 bg-emerald-950/60 p-4 text-sm text-emerald-300">
           {feedbackMessage}
         </div>
       )}
 
       {/* Modules List */}
-      <div className="space-y-6">
+      <div className="w-full space-y-6">
         {Array.from(permissionsByModule.entries()).map(
           ([moduleName, perms]) => (
             <div
               key={moduleName}
-              className="rounded-2xl border border-zinc-800 bg-zinc-900/40 overflow-hidden"
+              className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40"
             >
-              <div className="p-4 border-b border-zinc-800 bg-zinc-950/60 font-semibold text-sm text-zinc-200 uppercase tracking-wider">
+              <div className="border-b border-zinc-800 bg-zinc-950/60 p-4 text-sm font-semibold tracking-wider text-zinc-200 uppercase">
                 Módulo: {moduleName}
               </div>
 
@@ -159,13 +159,13 @@ export default function RolePermissionsPage({
                   return (
                     <label
                       key={perm.id}
-                      className="p-4 flex items-center justify-between cursor-pointer hover:bg-zinc-800/30 transition-colors"
+                      className="flex cursor-pointer items-center justify-between p-4 transition-colors hover:bg-zinc-800/30"
                     >
                       <div>
                         <div className="font-mono text-sm font-semibold text-zinc-200">
                           {perm.key}
                         </div>
-                        <p className="text-xs text-zinc-400 mt-0.5">
+                        <p className="mt-0.5 text-xs text-zinc-400">
                           {perm.description}
                         </p>
                       </div>
@@ -174,7 +174,7 @@ export default function RolePermissionsPage({
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => togglePermission(perm.id)}
-                        className="h-5 w-5 rounded border-zinc-700 bg-zinc-950 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-zinc-900 transition-colors cursor-pointer"
+                        className="h-5 w-5 cursor-pointer rounded border-zinc-700 bg-zinc-950 text-emerald-600 transition-colors focus:ring-emerald-500 focus:ring-offset-zinc-900"
                       />
                     </label>
                   )

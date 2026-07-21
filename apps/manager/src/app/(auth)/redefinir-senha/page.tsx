@@ -66,9 +66,9 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 text-zinc-100 antialiased font-sans">
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 font-sans text-zinc-100 antialiased">
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-8 shadow-xl backdrop-blur-sm">
-        <div className="text-center space-y-3">
+        <div className="space-y-3 text-center">
           <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Redefinir Senha
           </h2>
@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
         </div>
 
         {serverError && (
-          <div className="rounded-xl bg-rose-950/50 border border-rose-800/80 p-4 text-sm text-rose-300 text-center">
+          <div className="rounded-xl border border-rose-800/80 bg-rose-950/50 p-4 text-center text-sm text-rose-300">
             {serverError}
           </div>
         )}
@@ -87,40 +87,40 @@ export default function ResetPasswordPage() {
           <input type="hidden" {...register('token')} />
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
               Nova Senha
             </label>
             <div className="relative">
-              <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
+              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
                 {...register('newPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full pl-11 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
               />
             </div>
             {errors.newPassword && (
-              <p className="text-xs text-rose-400 mt-1">
+              <p className="mt-1 text-xs text-rose-400">
                 {errors.newPassword.message}
               </p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
               Confirmar Nova Senha
             </label>
             <div className="relative">
-              <RiLockPasswordLine className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
+              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
                 {...register('confirmPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full pl-11 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
               />
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-rose-400 mt-1">
+              <p className="mt-1 text-xs text-rose-400">
                 {errors.confirmPassword.message}
               </p>
             )}
@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-md disabled:opacity-50 transition-colors flex items-center justify-center"
+            className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-emerald-500 disabled:opacity-50"
           >
             {isLoading ? (
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -138,7 +138,7 @@ export default function ResetPasswordPage() {
             )}
           </button>
 
-          <div className="text-center pt-2">
+          <div className="pt-2 text-center">
             <Link
               href="/login"
               className="text-xs text-zinc-400 hover:text-zinc-200"

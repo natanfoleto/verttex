@@ -8,19 +8,19 @@ import {
 
 export function MarketplaceFooter() {
   return (
-    <footer className="bg-amber-950 text-amber-200 border-t border-amber-900/60 pt-16 pb-12 antialiased font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <footer className="border-t border-amber-900/60 bg-amber-950 pt-16 pb-12 font-sans text-amber-200 antialiased">
+      <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
         {/* Value Proposition Badges */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-amber-900/50">
+        <div className="grid grid-cols-1 gap-8 border-b border-amber-900/50 pb-12 md:grid-cols-3">
           <div className="flex items-start space-x-4">
-            <div className="p-3 rounded-2xl bg-amber-900/50 border border-amber-800/60 text-amber-400 shrink-0">
+            <div className="shrink-0 rounded-2xl border border-amber-800/60 bg-amber-900/50 p-3 text-amber-400">
               <RiMapPinLine className="h-6 w-6" />
             </div>
             <div>
-              <h4 className="font-bold text-white text-base">
+              <h4 className="text-base font-bold text-white">
                 Origem & Produtores
               </h4>
-              <p className="text-xs text-amber-300/70 mt-1 leading-relaxed">
+              <p className="mt-1 text-xs leading-relaxed text-amber-300/70">
                 Produtos selecionados diretamente de pequenos produtores da
                 nossa região.
               </p>
@@ -28,14 +28,14 @@ export function MarketplaceFooter() {
           </div>
 
           <div className="flex items-start space-x-4">
-            <div className="p-3 rounded-2xl bg-amber-900/50 border border-amber-800/60 text-amber-400 shrink-0">
+            <div className="shrink-0 rounded-2xl border border-amber-800/60 bg-amber-900/50 p-3 text-amber-400">
               <RiShieldCheckLine className="h-6 w-6" />
             </div>
             <div>
-              <h4 className="font-bold text-white text-base">
+              <h4 className="text-base font-bold text-white">
                 Compra Garantida
               </h4>
-              <p className="text-xs text-amber-300/70 mt-1 leading-relaxed">
+              <p className="mt-1 text-xs leading-relaxed text-amber-300/70">
                 A Verttex assegura o pagamento e o suporte de ponta a ponta do
                 seu pedido.
               </p>
@@ -43,12 +43,12 @@ export function MarketplaceFooter() {
           </div>
 
           <div className="flex items-start space-x-4">
-            <div className="p-3 rounded-2xl bg-amber-900/50 border border-amber-800/60 text-amber-400 shrink-0">
+            <div className="shrink-0 rounded-2xl border border-amber-800/60 bg-amber-900/50 p-3 text-amber-400">
               <RiTruckLine className="h-6 w-6" />
             </div>
             <div>
-              <h4 className="font-bold text-white text-base">Entrega Direta</h4>
-              <p className="text-xs text-amber-300/70 mt-1 leading-relaxed">
+              <h4 className="text-base font-bold text-white">Entrega Direta</h4>
+              <p className="mt-1 text-xs leading-relaxed text-amber-300/70">
                 Logística regional cuidada para manter a frescura e qualidade
                 dos alimentos.
               </p>
@@ -57,31 +57,31 @@ export function MarketplaceFooter() {
         </div>
 
         {/* Footer Navigation Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 rounded-lg bg-amber-600 flex items-center justify-center font-bold text-lg text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 text-lg font-bold text-white">
                 V
               </div>
-              <span className="font-bold text-lg text-white font-serif">
+              <span className="font-serif text-lg font-bold text-white">
                 Verttex
               </span>
             </div>
-            <p className="text-xs text-amber-300/70 leading-relaxed">
+            <p className="text-xs leading-relaxed text-amber-300/70">
               Valorizamos os produtores locais e conectamos quem produz com quem
               aprecia a verdadeira qualidade artesanal.
             </p>
           </div>
 
           <div>
-            <h5 className="font-bold text-white text-xs uppercase tracking-wider mb-4">
+            <h5 className="mb-4 text-xs font-bold tracking-wider text-white uppercase">
               Navegação
             </h5>
             <ul className="space-y-2.5 text-xs text-amber-300/80">
               <li>
                 <Link
                   href="/lojas"
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-white"
                 >
                   Produtores Parceiros
                 </Link>
@@ -89,7 +89,7 @@ export function MarketplaceFooter() {
               <li>
                 <Link
                   href="/produtos"
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-white"
                 >
                   Todos os Produtos
                 </Link>
@@ -97,7 +97,7 @@ export function MarketplaceFooter() {
               <li>
                 <Link
                   href="/cadastro"
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-white"
                 >
                   Criar Conta de Cliente
                 </Link>
@@ -106,22 +106,22 @@ export function MarketplaceFooter() {
           </div>
 
           <div>
-            <h5 className="font-bold text-white text-xs uppercase tracking-wider mb-4">
+            <h5 className="mb-4 text-xs font-bold tracking-wider text-white uppercase">
               Para Produtores
             </h5>
             <ul className="space-y-2.5 text-xs text-amber-300/80">
               <li>
-                <span className="hover:text-white transition-colors">
+                <span className="transition-colors hover:text-white">
                   Como vender na Verttex
                 </span>
               </li>
               <li>
-                <span className="hover:text-white transition-colors">
+                <span className="transition-colors hover:text-white">
                   Painel de Gestão (Manager)
                 </span>
               </li>
               <li>
-                <span className="hover:text-white transition-colors">
+                <span className="transition-colors hover:text-white">
                   Políticas de Qualidade
                 </span>
               </li>
@@ -129,10 +129,10 @@ export function MarketplaceFooter() {
           </div>
 
           <div>
-            <h5 className="font-bold text-white text-xs uppercase tracking-wider mb-4">
+            <h5 className="mb-4 text-xs font-bold tracking-wider text-white uppercase">
               Atendimento & Suporte
             </h5>
-            <p className="text-xs text-amber-300/70 leading-relaxed">
+            <p className="text-xs leading-relaxed text-amber-300/70">
               Segunda a Sexta das 8h às 18h
               <br />
               suporte@verttexloja.com.br
@@ -141,14 +141,14 @@ export function MarketplaceFooter() {
         </div>
 
         {/* Bottom Copyright */}
-        <div className="pt-8 border-t border-amber-900/40 flex flex-col sm:flex-row items-center justify-between text-xs text-amber-400/60 gap-4">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-amber-900/40 pt-8 text-xs text-amber-400/60 sm:flex-row">
           <p>
             © {new Date().getFullYear()} Verttex Mercado Regional. Todos os
             direitos reservados.
           </p>
           <div className="flex items-center space-x-1">
             <span>Desenvolvido com</span>
-            <RiHeartLine className="h-3.5 w-3.5 text-rose-400 inline" />
+            <RiHeartLine className="inline h-3.5 w-3.5 text-rose-400" />
             <span>para nossa comunidade.</span>
           </div>
         </div>

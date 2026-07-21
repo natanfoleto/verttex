@@ -1,43 +1,43 @@
-import { AuthenticatedUserPayload } from "../../@types/fastify";
-import { prisma } from "../../infrastructure/database/prisma";
-import { AppError } from "../../shared/errors/app-error";
-import { normalizeSlug, isSlugReserved } from "./reserved-slugs";
+import { AuthenticatedUserPayload } from '../../@types/fastify'
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { normalizeSlug, isSlugReserved } from './reserved-slugs'
 import {
   StoreQuery,
   CreateStoreBody,
   UpdateStoreBody,
   AddStoreMemberBody,
-} from "./stores.schemas";
+} from './stores.schemas'
 
 export class StoresService {
   async createStore(
     userPayload: AuthenticatedUserPayload,
-    data: CreateStoreBody,
+    data: CreateStoreBody
   ) {
-    const slug = normalizeSlug(data.slug);
+    const slug = normalizeSlug(data.slug)
 
     if (!slug) {
-      throw new AppError("VALIDATION_ERROR", "Slug inválido", 400);
+      throw new AppError('VALIDATION_ERROR', 'Slug inválido', 400)
     }
 
     if (isSlugReserved(slug)) {
       throw new AppError(
-        "CONFLICT",
-        "Este slug é uma palavra reservada do sistema e não pode ser utilizado",
-        409,
-      );
+        'CONFLICT',
+        'Este slug é uma palavra reservada do sistema e não pode ser utilizado',
+        409
+      )
     }
 
     const existingStore = await prisma.store.findUnique({
       where: { slug },
-    });
+    })
 
     if (existingStore) {
       throw new AppError(
-        "CONFLICT",
-        "Este slug já está em uso por outra loja",
-        409,
-      );
+        'CONFLICT',
+        'Este slug já está em uso por outra loja',
+        409
+      )
     }
 
     return prisma.$transaction(async (tx) => {
@@ -49,9 +49,9 @@ export class StoresService {
           logoUrl: data.logoUrl || null,
           coverUrl: data.coverUrl || null,
           customDomain: data.customDomain || null,
-          status: "draft",
+          status: 'draft',
         },
-      });
+      })
 
       await tx.storeUser.create({
         data: {
@@ -60,39 +60,39 @@ export class StoresService {
           isOwner: true,
           isActive: true,
         },
-      });
+      })
 
-      return store;
-    });
+      return store
+    })
   }
 
   async listStores(userPayload: AuthenticatedUserPayload, query: StoreQuery) {
-    const page = Math.max(1, query.page || 1);
-    const perPage = Math.max(1, Math.min(100, query.perPage || 20));
-    const skip = (page - 1) * perPage;
+    const page = Math.max(1, query.page || 1)
+    const perPage = Math.max(1, Math.min(100, query.perPage || 20))
+    const skip = (page - 1) * perPage
 
-    const where: any = {};
+    const where: any = {}
 
     if (query.search) {
-      const search = query.search.trim();
+      const search = query.search.trim()
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { slug: { contains: search, mode: "insensitive" } },
-      ];
+        { name: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ]
     }
 
     if (query.status) {
-      where.status = query.status;
+      where.status = query.status
     }
 
     // Scoped access: non-admin users only see linked stores
-    if (userPayload.role !== "admin") {
+    if (userPayload.role !== 'admin') {
       where.users = {
         some: {
           userId: userPayload.id,
           isActive: true,
         },
-      };
+      }
     }
 
     const [total, stores] = await Promise.all([
@@ -101,16 +101,16 @@ export class StoresService {
         where,
         skip,
         take: perPage,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         include: {
           _count: {
             select: { users: true },
           },
         },
       }),
-    ]);
+    ])
 
-    const totalPages = Math.ceil(total / perPage);
+    const totalPages = Math.ceil(total / perPage)
 
     return {
       data: stores,
@@ -122,7 +122,7 @@ export class StoresService {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
-    };
+    }
   }
 
   async getStore(storeId: string) {
@@ -143,62 +143,62 @@ export class StoresService {
           },
         },
       },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
-    return store;
+    return store
   }
 
   async updateStore(
     storeId: string,
     userPayload: AuthenticatedUserPayload,
-    data: UpdateStoreBody,
+    data: UpdateStoreBody
   ) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
-    let newSlug: string | undefined;
+    let newSlug: string | undefined
 
     if (data.slug) {
-      newSlug = normalizeSlug(data.slug);
+      newSlug = normalizeSlug(data.slug)
 
       if (newSlug !== store.slug) {
         if (isSlugReserved(newSlug)) {
           throw new AppError(
-            "CONFLICT",
-            "Este slug é uma palavra reservada do sistema e não pode ser utilizado",
-            409,
-          );
+            'CONFLICT',
+            'Este slug é uma palavra reservada do sistema e não pode ser utilizado',
+            409
+          )
         }
 
         const existing = await prisma.store.findUnique({
           where: { slug: newSlug },
-        });
+        })
 
         if (existing) {
           throw new AppError(
-            "CONFLICT",
-            "Este slug já está em uso por outra loja",
-            409,
-          );
+            'CONFLICT',
+            'Este slug já está em uso por outra loja',
+            409
+          )
         }
       }
     }
 
-    if (data.status === "suspended" && userPayload.role !== "admin") {
+    if (data.status === 'suspended' && userPayload.role !== 'admin') {
       throw new AppError(
-        "FORBIDDEN",
-        "Apenas administradores podem suspender uma loja",
-        403,
-      );
+        'FORBIDDEN',
+        'Apenas administradores podem suspender uma loja',
+        403
+      )
     }
 
     return prisma.store.update({
@@ -216,33 +216,33 @@ export class StoresService {
             : undefined,
         status: data.status,
       },
-    });
+    })
   }
 
   async deleteStore(storeId: string) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
     await prisma.store.update({
       where: { id: storeId },
-      data: { status: "inactive" },
-    });
+      data: { status: 'inactive' },
+    })
 
-    return { message: "Loja desativada com sucesso" };
+    return { message: 'Loja desativada com sucesso' }
   }
 
   async listStoreMembers(storeId: string) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
     const members = await prisma.storeUser.findMany({
@@ -259,27 +259,27 @@ export class StoresService {
           },
         },
       },
-      orderBy: { createdAt: "asc" },
-    });
+      orderBy: { createdAt: 'asc' },
+    })
 
-    return members;
+    return members
   }
 
   async addStoreMember(storeId: string, data: AddStoreMemberBody) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
     const user = await prisma.user.findUnique({
       where: { id: data.userId },
-    });
+    })
 
     if (!user) {
-      throw new AppError("NOT_FOUND", "Usuário não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Usuário não encontrado', 404)
     }
 
     const member = await prisma.storeUser.upsert({
@@ -310,9 +310,9 @@ export class StoresService {
           },
         },
       },
-    });
+    })
 
-    return member;
+    return member
   }
 
   async removeStoreMember(storeId: string, userId: string) {
@@ -323,10 +323,10 @@ export class StoresService {
           userId,
         },
       },
-    });
+    })
 
     if (!storeUser) {
-      throw new AppError("NOT_FOUND", "Membro não encontrado nesta loja", 404);
+      throw new AppError('NOT_FOUND', 'Membro não encontrado nesta loja', 404)
     }
 
     await prisma.storeUser.delete({
@@ -336,8 +336,8 @@ export class StoresService {
           userId,
         },
       },
-    });
+    })
 
-    return { message: "Membro removido da loja com sucesso" };
+    return { message: 'Membro removido da loja com sucesso' }
   }
 }

@@ -1,6 +1,6 @@
-import "./load-env";
-import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod";
+import './load-env'
+import { createEnv } from '@t3-oss/env-core'
+import { z } from 'zod'
 
 export const env = createEnv({
   server: {
@@ -26,6 +26,6 @@ export const env = createEnv({
     R2_BUCKET_NAME: process.env.R2_BUCKET_NAME,
   },
   emptyStringAsUndefined: true,
-});
-export type Env = typeof env;
-export { env as apiEnv };
+})
+export type Env = typeof env
+export { env as apiEnv }

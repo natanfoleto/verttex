@@ -184,3 +184,78 @@ Every feature screen must implement:
 - **Empty state**: Illustrated empty feedback when no data exists
 - **Error state**: User-friendly error message with retry option
 - **Access denied state**: Clear message and navigation option back to a safe page
+
+---
+
+## 10. UI Standards & Shared Components (`@verttex/ui`)
+
+### 10.1 Full-Width Page Container Layout
+
+- All pages in `apps/manager` must occupy 100% of the available content area width (`w-full flex-1`).
+- Avoid restrictive `max-w-*` wrappers on page containers, dashboards, tables, and form sections.
+- Maintain consistent internal padding (`p-6 lg:p-8`).
+
+### 10.2 Modal & Dialog Standard (shadcn/ui Primitives)
+
+- Use standard modal primitives exported from `@verttex/ui`:
+  - `Dialog`: For standard form modals and popups (`DialogHeader`, `DialogContent`, `DialogFooter`, `DialogTitle`, `DialogDescription`).
+  - `Sheet`: For extensive forms, side-drawer panels, or mobile navigation (`SheetContent`, `SheetHeader`, `SheetTitle`).
+  - `AlertDialog`: For critical or destructive confirmation prompts (`AlertDialogAction`, `AlertDialogCancel`).
+- Modals must standardize titles, descriptions, scrollable body area, cancel/save buttons, loading states, and automatic closure on success.
+
+### 10.3 Top Header & User Profile Menu
+
+- The text `"Gestão Monorepo"` must **not** be used in top headers.
+- The top header must display the current page title / breadcrumbs on the left and the authenticated user's profile dropdown on the right.
+- The user profile trigger includes the user avatar/initials, name, role badge, and a `RiArrowDownSLine` icon.
+- Clicking the trigger opens a `DropdownMenu` (`@verttex/ui`) with options for:
+  - **Meu perfil** (`/perfil`)
+  - **Alterar senha** (`/perfil#senha`)
+  - **Encerrar sessão** (styled with rose/destructive highlight)
+
+### 10.4 Select Standardization
+
+- **Native Selects (`NativeSelect`)**:
+  - `appearance-none` to strip default browser arrows.
+  - Enclosed in a `relative` container.
+  - Custom `RiArrowDownSLine` icon positioned absolutely at `right-3 top-1/2 -translate-y-1/2 pointer-events-none`.
+  - Right padding `pr-10` on the `<select>` element.
+- **Radix/shadcn Selects (`Select`)**:
+  - `SelectTrigger` uses horizontal padding `px-3` to ensure proper text and icon alignment without clipping.
+
+### 10.5 Collapsible Sidebar & Submenu Architecture
+
+- Sidebar supports two width states: Expanded (`w-64`) and Collapsed (`w-16`).
+- Toggled via a dedicated header button (`RiMenuFoldLine` / `RiMenuUnfoldLine`) and persisted in `localStorage` (`verttex:sidebar-collapsed`).
+- When collapsed, menu items display icon-only buttons with floating `Tooltip` overlays on hover.
+- Navigation structure supports submenus (`children` array on `NavItem`):
+  ```ts
+  interface NavItem {
+    label: string;
+    href?: string;
+    icon: IconType;
+    show?: boolean;
+    children?: {
+      label: string;
+      href: string;
+      icon?: IconType;
+      show?: boolean;
+    }[];
+  }
+  ```
+- Active route highlighting applies automatically to both parent and child routes.
+- Mobile screens (< `lg`) render the sidebar inside a slide-over `Sheet` drawer.
+
+### 10.6 Category Tabs (`Tabs`)
+
+- When a page contains extensive information divided by categories, use `Tabs` (`TabsList`, `TabsTrigger`, `TabsContent`) from `@verttex/ui`.
+
+### 10.7 Vertical Profile Page Layout
+
+- Profile sections are organized vertically in sequence or tabbed sections:
+  1. Dados Pessoais
+  2. Segurança & Credenciais
+  3. Cargo & Direitos de Acesso
+  4. Lojas Vinculadas
+  5. Sessões Ativas
+- Cards take 100% available width without horizontal side-by-side splitting.

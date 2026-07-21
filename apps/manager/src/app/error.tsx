@@ -18,7 +18,7 @@ export default function ErrorPage({
       <h2 className="text-2xl font-bold">Algo deu errado!</h2>
       <button
         onClick={() => reset()}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium cursor-pointer"
+        className="bg-primary text-primary-foreground cursor-pointer rounded-md px-4 py-2 text-sm font-medium"
       >
         Tentar novamente
       </button>

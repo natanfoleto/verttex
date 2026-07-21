@@ -1,160 +1,160 @@
-import { FastifyReply } from "fastify";
-import { FastifyZodRequest } from "../../@types/fastify";
-import { AuthUsersService } from "./auth-users.service";
+import { FastifyReply } from 'fastify'
+import { FastifyZodRequest } from '../../@types/fastify'
+import { AuthUsersService } from './auth-users.service'
 import {
   LoginBody,
   ForgotPasswordBody,
   ResetPasswordBody,
   ChangePasswordBody,
-} from "./auth-users.schemas";
-import { AppError } from "../../shared/errors/app-error";
+} from './auth-users.schemas'
+import { AppError } from '../../shared/errors/app-error'
 
-const authUsersService = new AuthUsersService();
-const isProduction = process.env.NODE_ENV === "production";
+const authUsersService = new AuthUsersService()
+const isProduction = process.env.NODE_ENV === 'production'
 
 export async function loginController(
   request: FastifyZodRequest<{ Body: LoginBody }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const result = await authUsersService.login(
     request.server,
     request.body,
     request.ip,
-    request.headers["user-agent"],
-  );
+    request.headers['user-agent']
+  )
 
   reply
-    .setCookie("user_access_token", result.accessToken, {
-      path: "/",
+    .setCookie('user_access_token', result.accessToken, {
+      path: '/',
       httpOnly: true,
       secure: isProduction,
-      sameSite: "lax",
+      sameSite: 'lax',
       maxAge: 15 * 60, // 15 minutes
     })
-    .setCookie("user_refresh_token", result.refreshToken, {
-      path: "/auth/users",
+    .setCookie('user_refresh_token', result.refreshToken, {
+      path: '/auth/users',
       httpOnly: true,
       secure: isProduction,
-      sameSite: "lax",
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60, // 7 days
-    });
+    })
 
   return reply.send({
     success: true,
     data: result,
-  });
+  })
 }
 
 export async function logoutController(
   request: FastifyZodRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
-  await authUsersService.logout(request.userPayload?.sessionId);
+  await authUsersService.logout(request.userPayload?.sessionId)
 
   reply
-    .clearCookie("user_access_token", { path: "/" })
-    .clearCookie("user_refresh_token", { path: "/auth/users" });
+    .clearCookie('user_access_token', { path: '/' })
+    .clearCookie('user_refresh_token', { path: '/auth/users' })
 
   return reply.send({
     success: true,
-    data: { message: "Desconectado com sucesso!" },
-  });
+    data: { message: 'Desconectado com sucesso!' },
+  })
 }
 
 export async function refreshController(
   request: FastifyZodRequest<{ Body?: { refreshToken?: string } }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   const refreshToken =
-    request.cookies.user_refresh_token || request.body?.refreshToken;
+    request.cookies.user_refresh_token || request.body?.refreshToken
 
   if (!refreshToken) {
-    throw new AppError("UNAUTHORIZED", "Refresh token ausente", 401);
+    throw new AppError('UNAUTHORIZED', 'Refresh token ausente', 401)
   }
 
   const result = await authUsersService.refresh(
     request.server,
     refreshToken,
     request.ip,
-    request.headers["user-agent"],
-  );
+    request.headers['user-agent']
+  )
 
   reply
-    .setCookie("user_access_token", result.accessToken, {
-      path: "/",
+    .setCookie('user_access_token', result.accessToken, {
+      path: '/',
       httpOnly: true,
       secure: isProduction,
-      sameSite: "lax",
+      sameSite: 'lax',
       maxAge: 15 * 60,
     })
-    .setCookie("user_refresh_token", result.refreshToken, {
-      path: "/auth/users",
+    .setCookie('user_refresh_token', result.refreshToken, {
+      path: '/auth/users',
       httpOnly: true,
       secure: isProduction,
-      sameSite: "lax",
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60,
-    });
+    })
 
   return reply.send({
     success: true,
     data: result,
-  });
+  })
 }
 
 export async function forgotPasswordController(
   request: FastifyZodRequest<{ Body: ForgotPasswordBody }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
-  const result = await authUsersService.forgotPassword(request.body);
+  const result = await authUsersService.forgotPassword(request.body)
   return reply.send({
     success: true,
     data: result,
-  });
+  })
 }
 
 export async function resetPasswordController(
   request: FastifyZodRequest<{ Body: ResetPasswordBody }>,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
-  const result = await authUsersService.resetPassword(request.body);
+  const result = await authUsersService.resetPassword(request.body)
 
   reply
-    .clearCookie("user_access_token", { path: "/" })
-    .clearCookie("user_refresh_token", { path: "/auth/users" });
+    .clearCookie('user_access_token', { path: '/' })
+    .clearCookie('user_refresh_token', { path: '/auth/users' })
 
   return reply.send({
     success: true,
     data: result,
-  });
+  })
 }
 
 export async function changePasswordController(
   request: FastifyZodRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
-  const userId = request.userPayload!.id;
-  const body = request.body as ChangePasswordBody;
-  const result = await authUsersService.changePassword(userId, body);
+  const userId = request.userPayload!.id
+  const body = request.body as ChangePasswordBody
+  const result = await authUsersService.changePassword(userId, body)
 
   reply
-    .clearCookie("user_access_token", { path: "/" })
-    .clearCookie("user_refresh_token", { path: "/auth/users" });
+    .clearCookie('user_access_token', { path: '/' })
+    .clearCookie('user_refresh_token', { path: '/auth/users' })
 
   return reply.send({
     success: true,
     data: result,
-  });
+  })
 }
 
 export async function meController(
   request: FastifyZodRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
-  const userId = request.userPayload!.id;
-  const profile = await authUsersService.getUserProfile(userId);
+  const userId = request.userPayload!.id
+  const profile = await authUsersService.getUserProfile(userId)
 
   return reply.send({
     success: true,
     data: profile,
-  });
+  })
 }

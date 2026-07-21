@@ -56,13 +56,13 @@ export function TableWrapper({
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+      <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
             {title}
           </h1>
           {description && (
-            <p className="text-sm text-zinc-400 mt-1">{description}</p>
+            <p className="mt-1 text-sm text-zinc-400">{description}</p>
           )}
         </div>
         {actionButton && <div>{actionButton}</div>}
@@ -70,16 +70,16 @@ export function TableWrapper({
 
       {/* Control Bar (Search + Filters) */}
       {(onSearchChange || filters) && (
-        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
+        <div className="flex flex-col items-stretch justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 sm:flex-row sm:items-center">
           {onSearchChange ? (
-            <div className="relative flex-1 max-w-md">
-              <RiSearchLine className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <div className="relative max-w-md flex-1">
+              <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500" />
               <input
                 type="text"
                 value={searchValue || ''}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full pl-10 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-colors"
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-2 pr-4 pl-10 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
               />
             </div>
           ) : (
@@ -91,34 +91,34 @@ export function TableWrapper({
       )}
 
       {/* Table Container */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 overflow-hidden shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40 shadow-sm">
         {isLoading ? (
-          <div className="p-8 space-y-4">
-            <div className="h-6 bg-zinc-800/60 rounded animate-pulse w-1/4" />
+          <div className="space-y-4 p-8">
+            <div className="h-6 w-1/4 animate-pulse rounded bg-zinc-800/60" />
             <div className="space-y-3 pt-2">
-              <div className="h-10 bg-zinc-800/40 rounded animate-pulse" />
-              <div className="h-10 bg-zinc-800/40 rounded animate-pulse" />
-              <div className="h-10 bg-zinc-800/40 rounded animate-pulse" />
+              <div className="h-10 animate-pulse rounded bg-zinc-800/40" />
+              <div className="h-10 animate-pulse rounded bg-zinc-800/40" />
+              <div className="h-10 animate-pulse rounded bg-zinc-800/40" />
             </div>
           </div>
         ) : isError ? (
-          <div className="p-12 text-center space-y-3">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-rose-950/60 text-rose-400 border border-rose-800/50">
+          <div className="space-y-3 p-12 text-center">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-rose-800/50 bg-rose-950/60 text-rose-400">
               !
             </div>
             <h3 className="text-base font-semibold text-zinc-200">
               Erro de carregamento
             </h3>
-            <p className="text-sm text-zinc-400 max-w-sm mx-auto">
+            <p className="mx-auto max-w-sm text-sm text-zinc-400">
               {errorMessage}
             </p>
           </div>
         ) : isEmpty ? (
-          <div className="p-12 text-center space-y-3">
+          <div className="space-y-3 p-12 text-center">
             <h3 className="text-base font-semibold text-zinc-300">
               {emptyTitle}
             </h3>
-            <p className="text-sm text-zinc-500 max-w-sm mx-auto">
+            <p className="mx-auto max-w-sm text-sm text-zinc-500">
               {emptyDescription}
             </p>
           </div>
@@ -128,7 +128,7 @@ export function TableWrapper({
 
         {/* Pagination Controls */}
         {meta && meta.totalPages > 1 && onPageChange && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-800/80 bg-zinc-900/60 text-sm text-zinc-400">
+          <div className="flex items-center justify-between border-t border-zinc-800/80 bg-zinc-900/60 px-6 py-4 text-sm text-zinc-400">
             <div>
               Mostrando página{' '}
               <span className="font-semibold text-zinc-200">{meta.page}</span>{' '}
@@ -142,18 +142,18 @@ export function TableWrapper({
               <button
                 disabled={!meta.hasPreviousPage}
                 onClick={() => onPageChange(meta.page - 1)}
-                className="inline-flex items-center px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-medium text-zinc-300 hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <RiArrowLeftSLine className="h-4 w-4 mr-1" />
+                <RiArrowLeftSLine className="mr-1 h-4 w-4" />
                 Anterior
               </button>
               <button
                 disabled={!meta.hasNextPage}
                 onClick={() => onPageChange(meta.page + 1)}
-                className="inline-flex items-center px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-medium text-zinc-300 hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Próxima
-                <RiArrowRightSLine className="h-4 w-4 ml-1" />
+                <RiArrowRightSLine className="ml-1 h-4 w-4" />
               </button>
             </div>
           </div>

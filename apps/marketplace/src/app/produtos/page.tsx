@@ -3,22 +3,22 @@ import { RiShoppingBag3Line } from 'react-icons/ri'
 
 export default function ProductsListingPlaceholderPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-6 antialiased font-sans">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-900/40 border border-amber-800/60 text-amber-400 shadow-xl">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-24 text-center font-sans antialiased">
+      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl border border-amber-800/60 bg-amber-900/40 text-amber-400 shadow-xl">
         <RiShoppingBag3Line className="h-10 w-10" />
       </div>
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-white font-serif tracking-tight">
+        <h1 className="font-serif text-3xl font-bold tracking-tight text-white">
           Catálogo Global de Produtos — Em Breve
         </h1>
-        <p className="text-sm text-amber-300/80 max-w-md mx-auto leading-relaxed">
+        <p className="mx-auto max-w-md text-sm leading-relaxed text-amber-300/80">
           Estamos preparando a vitrine de produtos artesanais e regionais. Em
           breve você poderá navegar e comprar com facilidade.
         </p>
       </div>
       <Link
         href="/"
-        className="inline-flex items-center px-6 py-3 rounded-full bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors shadow-md shadow-amber-950"
+        className="inline-flex items-center rounded-full bg-amber-600 px-6 py-3 text-xs font-semibold text-white shadow-md shadow-amber-950 transition-colors hover:bg-amber-500"
       >
         Voltar à Página Inicial
       </Link>

@@ -24,7 +24,7 @@ export default function RolesListPage() {
       actionButton={
         <Link
           href="/cargos/novo"
-          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-md shadow-emerald-950 transition-colors"
+          className="inline-flex items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-emerald-950 transition-colors hover:bg-emerald-500"
         >
           <RiAddLine className="h-4 w-4" />
           <span>Novo Cargo</span>
@@ -34,14 +34,14 @@ export default function RolesListPage() {
       isError={isError}
       isEmpty={!roles || roles.length === 0}
     >
-      <table className="w-full text-left border-collapse text-sm">
+      <table className="w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-zinc-800 bg-zinc-950/60 text-xs text-zinc-400 uppercase tracking-wider">
-            <th className="py-3.5 px-6 font-semibold">Cargo</th>
-            <th className="py-3.5 px-6 font-semibold">Identificador (Key)</th>
-            <th className="py-3.5 px-6 font-semibold">Tipo</th>
-            <th className="py-3.5 px-6 font-semibold">Status</th>
-            <th className="py-3.5 px-6 font-semibold text-right">Ações</th>
+          <tr className="border-b border-zinc-800 bg-zinc-950/60 text-xs tracking-wider text-zinc-400 uppercase">
+            <th className="px-6 py-3.5 font-semibold">Cargo</th>
+            <th className="px-6 py-3.5 font-semibold">Identificador (Key)</th>
+            <th className="px-6 py-3.5 font-semibold">Tipo</th>
+            <th className="px-6 py-3.5 font-semibold">Status</th>
+            <th className="px-6 py-3.5 text-right font-semibold">Ações</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
@@ -55,40 +55,40 @@ export default function RolesListPage() {
             }) => (
               <tr
                 key={role.id}
-                className="hover:bg-zinc-800/30 transition-colors"
+                className="transition-colors hover:bg-zinc-800/30"
               >
-                <td className="py-4 px-6 font-medium text-zinc-100">
+                <td className="px-6 py-4 font-medium text-zinc-100">
                   {role.name}
                 </td>
-                <td className="py-4 px-6 font-mono text-xs text-zinc-400">
+                <td className="px-6 py-4 font-mono text-xs text-zinc-400">
                   {role.key}
                 </td>
-                <td className="py-4 px-6">
+                <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                       role.isSystem
-                        ? 'bg-purple-950 text-purple-300 border-purple-800'
-                        : 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                        ? 'border-purple-800 bg-purple-950 text-purple-300'
+                        : 'border-zinc-700 bg-zinc-800 text-zinc-300'
                     }`}
                   >
                     {role.isSystem ? 'Sistema' : 'Customizado'}
                   </span>
                 </td>
-                <td className="py-4 px-6">
+                <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                       role.isActive
-                        ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                        : 'bg-rose-950 text-rose-400 border-rose-800'
+                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                        : 'border-rose-800 bg-rose-950 text-rose-400'
                     }`}
                   >
                     {role.isActive ? 'Ativo' : 'Inativo'}
                   </span>
                 </td>
-                <td className="py-4 px-6 text-right space-x-2">
+                <td className="space-x-2 px-6 py-4 text-right">
                   <Link
                     href={`/cargos/${role.id}`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                     title="Ver detalhes"
                   >
                     <RiEyeLine className="h-4 w-4" />
@@ -96,7 +96,7 @@ export default function RolesListPage() {
                   {!role.isSystem && (
                     <Link
                       href={`/cargos/${role.id}/editar`}
-                      className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                      className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                       title="Editar"
                     >
                       <RiEditLine className="h-4 w-4" />
@@ -104,7 +104,7 @@ export default function RolesListPage() {
                   )}
                   <Link
                     href={`/cargos/${role.id}/permissoes`}
-                    className="inline-flex items-center p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-purple-400 hover:bg-zinc-800 transition-colors"
+                    className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-purple-400"
                     title="Configurar permissões"
                   >
                     <RiShieldLine className="h-4 w-4" />

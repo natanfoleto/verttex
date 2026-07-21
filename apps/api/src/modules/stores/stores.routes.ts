@@ -1,7 +1,7 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
-import { requirePermission } from "../../shared/middlewares/require-permission";
-import { requireStoreAccess } from "../../shared/middlewares/require-store-access";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { requirePermission } from '../../shared/middlewares/require-permission'
+import { requireStoreAccess } from '../../shared/middlewares/require-store-access'
 import {
   createStoreController,
   listStoresController,
@@ -11,7 +11,7 @@ import {
   listStoreMembersController,
   addStoreMemberController,
   removeStoreMemberController,
-} from "./stores.controller";
+} from './stores.controller'
 import {
   storeParamsSchema,
   storeQuerySchema,
@@ -19,146 +19,146 @@ import {
   updateStoreBodySchema,
   addStoreMemberBodySchema,
   storeMemberParamsSchema,
-} from "./stores.schemas";
+} from './stores.schemas'
 
 export async function storesRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   typedApp.get(
-    "/stores",
+    '/stores',
     {
-      preHandler: [app.authenticateUser, requirePermission("read", "Store")],
+      preHandler: [app.authenticateUser, requirePermission('read', 'Store')],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Listar lojas parceiras (escopadas por permissão e vinculo)",
+        tags: ['Stores Management'],
+        summary: 'Listar lojas parceiras (escopadas por permissão e vinculo)',
         security: [{ bearerAuth: [] }],
         querystring: storeQuerySchema,
       },
     },
-    listStoresController,
-  );
+    listStoresController
+  )
 
   typedApp.post(
-    "/stores",
+    '/stores',
     {
-      preHandler: [app.authenticateUser, requirePermission("create", "Store")],
+      preHandler: [app.authenticateUser, requirePermission('create', 'Store')],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Criar nova loja parceira",
+        tags: ['Stores Management'],
+        summary: 'Criar nova loja parceira',
         security: [{ bearerAuth: [] }],
         body: createStoreBodySchema,
       },
     },
-    createStoreController,
-  );
+    createStoreController
+  )
 
   typedApp.get(
-    "/stores/:storeId",
+    '/stores/:storeId',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("read", "Store"),
-        requireStoreAccess("storeId"),
+        requirePermission('read', 'Store'),
+        requireStoreAccess('storeId'),
       ],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Consultar detalhes de uma loja parceira",
+        tags: ['Stores Management'],
+        summary: 'Consultar detalhes de uma loja parceira',
         security: [{ bearerAuth: [] }],
         params: storeParamsSchema,
       },
     },
-    getStoreController,
-  );
+    getStoreController
+  )
 
   typedApp.patch(
-    "/stores/:storeId",
+    '/stores/:storeId',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("update", "Store"),
-        requireStoreAccess("storeId"),
+        requirePermission('update', 'Store'),
+        requireStoreAccess('storeId'),
       ],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Atualizar dados de uma loja parceira",
+        tags: ['Stores Management'],
+        summary: 'Atualizar dados de uma loja parceira',
         security: [{ bearerAuth: [] }],
         params: storeParamsSchema,
         body: updateStoreBodySchema,
       },
     },
-    updateStoreController,
-  );
+    updateStoreController
+  )
 
   typedApp.delete(
-    "/stores/:storeId",
+    '/stores/:storeId',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("delete", "Store"),
-        requireStoreAccess("storeId"),
+        requirePermission('delete', 'Store'),
+        requireStoreAccess('storeId'),
       ],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Desativar uma loja parceira (soft delete)",
+        tags: ['Stores Management'],
+        summary: 'Desativar uma loja parceira (soft delete)',
         security: [{ bearerAuth: [] }],
         params: storeParamsSchema,
       },
     },
-    deleteStoreController,
-  );
+    deleteStoreController
+  )
 
   typedApp.get(
-    "/stores/:storeId/users",
+    '/stores/:storeId/users',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("manage-members", "Store"),
-        requireStoreAccess("storeId"),
+        requirePermission('manage-members', 'Store'),
+        requireStoreAccess('storeId'),
       ],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Listar usuários/membros vinculados a uma loja",
+        tags: ['Stores Management'],
+        summary: 'Listar usuários/membros vinculados a uma loja',
         security: [{ bearerAuth: [] }],
         params: storeParamsSchema,
       },
     },
-    listStoreMembersController,
-  );
+    listStoreMembersController
+  )
 
   typedApp.post(
-    "/stores/:storeId/users",
+    '/stores/:storeId/users',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("manage-members", "Store"),
-        requireStoreAccess("storeId"),
+        requirePermission('manage-members', 'Store'),
+        requireStoreAccess('storeId'),
       ],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Vincular um usuário/membro a uma loja",
+        tags: ['Stores Management'],
+        summary: 'Vincular um usuário/membro a uma loja',
         security: [{ bearerAuth: [] }],
         params: storeParamsSchema,
         body: addStoreMemberBodySchema,
       },
     },
-    addStoreMemberController,
-  );
+    addStoreMemberController
+  )
 
   typedApp.delete(
-    "/stores/:storeId/users/:userId",
+    '/stores/:storeId/users/:userId',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("manage-members", "Store"),
-        requireStoreAccess("storeId"),
+        requirePermission('manage-members', 'Store'),
+        requireStoreAccess('storeId'),
       ],
       schema: {
-        tags: ["Stores Management"],
-        summary: "Desvincular um usuário/membro de uma loja",
+        tags: ['Stores Management'],
+        summary: 'Desvincular um usuário/membro de uma loja',
         security: [{ bearerAuth: [] }],
         params: storeMemberParamsSchema,
       },
     },
-    removeStoreMemberController,
-  );
+    removeStoreMemberController
+  )
 }

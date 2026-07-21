@@ -1,5 +1,5 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import {
   registerCustomerController,
   loginCustomerController,
@@ -9,114 +9,114 @@ import {
   resetPasswordCustomerController,
   changePasswordCustomerController,
   meCustomerController,
-} from "./auth-customers.controller";
+} from './auth-customers.controller'
 import {
   customerRegisterBodySchema,
   customerLoginBodySchema,
   customerForgotPasswordBodySchema,
   customerResetPasswordBodySchema,
   customerChangePasswordBodySchema,
-} from "./auth-customers.schemas";
+} from './auth-customers.schemas'
 
 export async function authCustomersRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   typedApp.post(
-    "/register",
+    '/register',
     {
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Criar conta de cliente comprador",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Criar conta de cliente comprador',
         body: customerRegisterBodySchema,
       },
     },
-    registerCustomerController,
-  );
+    registerCustomerController
+  )
 
   typedApp.post(
-    "/login",
+    '/login',
     {
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Autenticar cliente comprador",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Autenticar cliente comprador',
         body: customerLoginBodySchema,
       },
     },
-    loginCustomerController,
-  );
+    loginCustomerController
+  )
 
   typedApp.post(
-    "/logout",
+    '/logout',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Encerrar sessão do cliente comprador",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Encerrar sessão do cliente comprador',
         security: [{ bearerAuth: [] }],
       },
     },
-    logoutCustomerController,
-  );
+    logoutCustomerController
+  )
 
   typedApp.post(
-    "/refresh",
+    '/refresh',
     {
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Renovar token de acesso do cliente comprador",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Renovar token de acesso do cliente comprador',
       },
     },
-    refreshCustomerController,
-  );
+    refreshCustomerController
+  )
 
   typedApp.post(
-    "/forgot-password",
+    '/forgot-password',
     {
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Solicitar recuperação de senha do cliente",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Solicitar recuperação de senha do cliente',
         body: customerForgotPasswordBodySchema,
       },
     },
-    forgotPasswordCustomerController,
-  );
+    forgotPasswordCustomerController
+  )
 
   typedApp.post(
-    "/reset-password",
+    '/reset-password',
     {
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Redefinir senha do cliente via token",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Redefinir senha do cliente via token',
         body: customerResetPasswordBodySchema,
       },
     },
-    resetPasswordCustomerController,
-  );
+    resetPasswordCustomerController
+  )
 
   typedApp.post(
-    "/change-password",
+    '/change-password',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Alterar própria senha do cliente",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Alterar própria senha do cliente',
         security: [{ bearerAuth: [] }],
         body: customerChangePasswordBodySchema,
       },
     },
-    changePasswordCustomerController,
-  );
+    changePasswordCustomerController
+  )
 
   typedApp.get(
-    "/me",
+    '/me',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Auth — Marketplace Customers"],
-        summary: "Retornar dados do cliente autenticado",
+        tags: ['Auth — Marketplace Customers'],
+        summary: 'Retornar dados do cliente autenticado',
         security: [{ bearerAuth: [] }],
       },
     },
-    meCustomerController,
-  );
+    meCustomerController
+  )
 }
