@@ -150,7 +150,7 @@ export default function UserDetailPage({
                       /{su.store.slug}
                     </span>
                   </div>
-                ),
+                )
               )}
             </div>
           ) : (

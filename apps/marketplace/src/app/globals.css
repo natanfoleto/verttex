@@ -1,1 +1,12 @@
-@import "@verttex/ui/src/styles/globals.css";
+@import "tailwindcss";
+
+@layer base {
+  * {
+    border-color: var(--color-stone-200, #e7e5e4);
+  }
+  body {
+    background-color: var(--color-stone-50, #fafaf9);
+    color: var(--color-stone-900, #1c1917);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}

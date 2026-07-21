@@ -35,8 +35,8 @@ export default function RolePermissionsPage({
     if (role?.rolePermissions) {
       const initialSet = new Set<string>(
         role.rolePermissions.map(
-          (rp: { permissionId: string }) => rp.permissionId,
-        ),
+          (rp: { permissionId: string }) => rp.permissionId
+        )
       )
       setSelectedPermissionIds(initialSet)
     }
@@ -96,7 +96,7 @@ export default function RolePermissionsPage({
         permissionsByModule.set(mod, [])
       }
       permissionsByModule.get(mod)!.push(perm)
-    },
+    }
   )
 
   return (
@@ -181,7 +181,7 @@ export default function RolePermissionsPage({
                 })}
               </div>
             </div>
-          ),
+          )
         )}
       </div>
     </div>

@@ -2,7 +2,6 @@
   "compilerOptions": {
     "paths": {
       "@verttex/types": ["./packages/types/src/index.ts"],
-      "@verttex/ui": ["./packages/ui/src/index.ts"],
       "@verttex/auth": ["./packages/auth/src/index.ts"],
       "@verttex/env/*": ["./packages/env/src/*"]
     }

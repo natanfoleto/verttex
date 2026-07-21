@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@verttex/ui'
+} from '@/components/ui/dialog'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'

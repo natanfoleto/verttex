@@ -34,7 +34,7 @@ export default function UserPermissionsPage({
 
   const updatePermissionsMutation = useMutation({
     mutationFn: (
-      overrides: Array<{ permissionId: string; effect: 'allow' | 'deny' }>,
+      overrides: Array<{ permissionId: string; effect: 'allow' | 'deny' }>
     ) =>
       apiClient(`/users/${userId}/permissions`, {
         method: 'PUT',
@@ -60,12 +60,12 @@ export default function UserPermissionsPage({
   user?.permissions?.forEach(
     (up: { permissionId: string; effect: 'allow' | 'deny' }) => {
       currentOverridesMap.set(up.permissionId, up.effect)
-    },
+    }
   )
 
   const handleToggleOverride = (
     permissionId: string,
-    effect: 'allow' | 'deny' | 'inherit',
+    effect: 'allow' | 'deny' | 'inherit'
   ) => {
     const newOverrides: Array<{
       permissionId: string
@@ -87,7 +87,7 @@ export default function UserPermissionsPage({
         if (currentEffect) {
           newOverrides.push({ permissionId: perm.id, effect: currentEffect })
         }
-      },
+      }
     )
 
     updatePermissionsMutation.mutate(newOverrides)
@@ -200,7 +200,7 @@ export default function UserPermissionsPage({
                   </div>
                 </div>
               )
-            },
+            }
           )}
         </div>
       </div>

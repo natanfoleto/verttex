@@ -28,7 +28,7 @@ interface CustomerAuthContextType {
 }
 
 const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(
-  undefined,
+  undefined
 )
 
 export function CustomerAuthProvider({ children }: { children: ReactNode }) {
@@ -85,7 +85,7 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       refetchCustomer: refetch,
       logout,
     }),
-    [customer, isLoading, isError, refetch, logout],
+    [customer, isLoading, isError, refetch, logout]
   )
 
   return (
@@ -99,7 +99,7 @@ export function useCustomer() {
   const context = useContext(CustomerAuthContext)
   if (!context) {
     throw new Error(
-      'useCustomer deve ser usado dentro de um CustomerAuthProvider',
+      'useCustomer deve ser usado dentro de um CustomerAuthProvider'
     )
   }
   return context

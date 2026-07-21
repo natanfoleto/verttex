@@ -15,7 +15,7 @@ export class ApiError extends Error {
     public code: string,
     message: string,
     public status: number,
-    public fieldErrors?: Record<string, string[]>,
+    public fieldErrors?: Record<string, string[]>
   ) {
     super(message)
     this.name = 'ApiError'
@@ -24,7 +24,7 @@ export class ApiError extends Error {
 
 export async function apiClient<T = any>(
   endpoint: string,
-  options: RequestInit = {},
+  options: RequestInit = {}
 ): Promise<T> {
   const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`
 
@@ -47,7 +47,7 @@ export async function apiClient<T = any>(
       errorData?.code || 'HTTP_ERROR',
       errorData?.message || 'Ocorreu um erro ao processar a requisição',
       response.status,
-      errorData?.fieldErrors,
+      errorData?.fieldErrors
     )
   }
 

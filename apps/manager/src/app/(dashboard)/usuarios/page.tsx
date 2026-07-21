@@ -20,7 +20,7 @@ export default function UsersListPage() {
     queryKey: ['users-list', page, search],
     queryFn: () =>
       apiClient(
-        `/users?page=${page}&perPage=10&search=${encodeURIComponent(search)}`,
+        `/users?page=${page}&perPage=10&search=${encodeURIComponent(search)}`
       ),
   })
 

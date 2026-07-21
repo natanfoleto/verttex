@@ -187,26 +187,31 @@ Every feature screen must implement:
 
 ---
 
-## 10. UI Standards & Shared Components (`@verttex/ui`)
+## 10. UI Architecture & Independent Frontend Component Standards
 
-### 10.1 Full-Width Page Container Layout
+### 10.1 Independent Frontend shadcn/ui Architecture
 
-- All pages in `apps/manager` must occupy 100% of the available content area width (`w-full flex-1`).
-- Avoid restrictive `max-w-*` wrappers on page containers, dashboards, tables, and form sections.
-- Maintain consistent internal padding (`p-6 lg:p-8`).
+> **MANDATORY POLICY**: Always install and configure shadcn components directly within the frontend application (`apps/manager` or `apps/marketplace`) that uses them. Do NOT install components prematurely without active usage, and do NOT add basic shadcn components to a shared package. The legacy `@verttex/ui` shared package has been completely removed to avoid tight coupling and broken Radix UI imports.
+
+- **Frontend Component Locations**:
+  - `apps/manager`: `src/components/ui/` (`dialog.tsx`, `dropdown-menu.tsx`, `button.tsx`, `input.tsx`, `label.tsx`, `select.tsx`, `table.tsx`, `tabs.tsx`, `sheet.tsx`, `tooltip.tsx`, `native-select.tsx`).
+  - `apps/marketplace`: `src/components/ui/` (`dialog.tsx`, `dropdown-menu.tsx`, `button.tsx`, `product-card.tsx`, `store-card.tsx`, etc.).
+- **Import Pattern Standard**:
+  - Manager: `import { Button } from '@/components/ui/button'`
+  - Marketplace: `import { Button } from '@/components/ui/button'`
+- **Customization Rule**: Do NOT rewrite or alter standard shadcn base component logic unless technically justified. Use Radix UI primitives and utility classes (`cn` helper via `clsx` + `tailwind-merge`).
 
 ### 10.2 Modal & Dialog Standard (shadcn/ui Primitives)
 
-- **Form Display Standard**: All creation and editing forms for entities (`Cargos`, `Usuários`, `Lojas`) must be displayed inside `Dialog` modals (`@verttex/ui`) directly on their listing pages, instead of using separate page routes (`/novo`, `/[id]/editar`). All legacy `/novo` and `/editar` subfolder routes must be completely removed.
+- **Form Display Standard**: All creation and editing forms for entities (`Cargos`, `Usuários`, `Lojas`) must be displayed inside `Dialog` modals directly on their listing pages, instead of using separate page routes (`/novo`, `/[id]/editar`). All legacy `/novo` and `/editar` subfolder routes must be completely removed.
 - **Standalone Dialog Component Architecture**:
   - Form dialog modals must be isolated in standalone component files located inside a `components/` subdirectory adjacent to the target page (e.g., `app/(dashboard)/cargos/components/role-form-dialog.tsx`, `app/(dashboard)/usuarios/components/user-form-dialog.tsx`, `app/(dashboard)/lojas/components/store-form-dialog.tsx`).
   - The main listing page (`page.tsx`) controls simple boolean / item state (`isDialogOpen`, `editingItem`), rendering the action button with `onClick={openCreateModal}` and mounting the standalone dialog component (`<EntityFormDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} itemToEdit={editingItem} />`).
-  - This guarantees clean separation of concerns, eliminates route conflict bugs, and keeps `page.tsx` lightweight.
-- Use standard modal primitives exported from `@verttex/ui`:
+- **Standard Modal Primitives**:
   - `Dialog`: For standard form modals and popups (`DialogHeader`, `DialogContent`, `DialogFooter`, `DialogTitle`, `DialogDescription`).
   - `Sheet`: For extensive forms, side-drawer panels, or mobile navigation (`SheetContent`, `SheetHeader`, `SheetTitle`).
   - `AlertDialog`: For critical or destructive confirmation prompts (`AlertDialogAction`, `AlertDialogCancel`).
-- **z-Index Layering Hierarchy**: Overlay backdrops must strictly set `z-[200]` and modal/drawer contents must set `z-[210]`. This ensures modal dialogs and sheets render completely above all app headers (`z-40`), sidebars (`z-30`), and dropdown menus (`z-[100]`), preventing the backdrop from hiding modal forms or placing action buttons in a second layer.
+- **Centering & Layering Standard**: Overlay backdrops use `fixed inset-0 z-50 bg-black/80 backdrop-blur-xs` and modal contents use `fixed z-50 top-1/2 left-1/2` with `style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}` to ensure bulletproof viewport centering regardless of Tailwind v4 transform layer resets.
 - Modals must standardize titles, descriptions, scrollable body area, cancel/save buttons, loading states, error alerts, and automatic query invalidation + closure on success.
 
 ### 10.3 Top Header & User Profile Menu

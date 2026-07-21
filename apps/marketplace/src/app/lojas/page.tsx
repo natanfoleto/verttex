@@ -69,7 +69,7 @@ export default function StoresListingPage() {
     (store) =>
       store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (store.city &&
-        store.city.toLowerCase().includes(searchQuery.toLowerCase())),
+        store.city.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   return (

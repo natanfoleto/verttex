@@ -169,7 +169,7 @@ export default function StoreDetailPage({
                       </span>
                     )}
                   </div>
-                ),
+                )
               )}
             </div>
           ) : (

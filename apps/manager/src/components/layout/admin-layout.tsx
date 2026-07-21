@@ -7,16 +7,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+} from '@/components/ui/sheet'
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@verttex/ui'
+} from '@/components/ui/tooltip'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
@@ -133,7 +137,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     if (item.show === false) return false
     if (item.children) {
       const visibleChildren = item.children.filter(
-        (child) => child.show !== false,
+        (child) => child.show !== false
       )
       return visibleChildren.length > 0
     }
@@ -159,7 +163,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           item.children?.filter((child) => child.show !== false) || []
 
         const isChildActive = visibleChildren.some((child) =>
-          pathname.startsWith(child.href),
+          pathname.startsWith(child.href)
         )
         const isActive =
           item.href === '/'

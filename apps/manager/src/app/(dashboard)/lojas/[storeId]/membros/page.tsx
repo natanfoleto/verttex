@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { NativeSelect } from '@verttex/ui'
+import { NativeSelect } from '@/components/ui/native-select'
 import Link from 'next/link'
 import { use, useState } from 'react'
 import { RiArrowLeftLine, RiDeleteBinLine, RiUserAddLine } from 'react-icons/ri'
@@ -123,7 +123,7 @@ export default function StoreMembersPage({
                 <option key={user.id} value={user.id}>
                   {user.name} ({user.email})
                 </option>
-              ),
+              )
             )}
           </NativeSelect>
 
@@ -189,7 +189,7 @@ export default function StoreMembersPage({
                     <RiDeleteBinLine className="h-4 w-4" />
                   </button>
                 </div>
-              ),
+              )
             )
           ) : (
             <div className="p-8 text-center text-sm text-zinc-500">

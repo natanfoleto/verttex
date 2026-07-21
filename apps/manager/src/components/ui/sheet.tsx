@@ -1,12 +1,18 @@
+'use client'
+
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { RiCloseLine } from 'react-icons/ri'
-import { cn } from '../utils'
+
+import { cn } from '@/lib/utils'
 
 const Sheet = DialogPrimitive.Root
+
 const SheetTrigger = DialogPrimitive.Trigger
+
 const SheetClose = DialogPrimitive.Close
+
 const SheetPortal = DialogPrimitive.Portal
 
 const SheetOverlay = React.forwardRef<
@@ -15,7 +21,7 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     className={cn(
-      'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[200] bg-black/80 backdrop-blur-xs',
+      'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80 backdrop-blur-xs',
       className
     )}
     {...props}
@@ -25,7 +31,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const sheetVariants = cva(
-  'fixed z-[210] gap-4 bg-zinc-900 border-zinc-800 p-6 shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 text-zinc-100',
+  'fixed z-50 gap-4 bg-zinc-900 border-zinc-800 p-6 shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 text-zinc-100',
   {
     variants: {
       side: {

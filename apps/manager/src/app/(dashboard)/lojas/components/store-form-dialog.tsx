@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@verttex/ui'
+} from '@/components/ui/dialog'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
@@ -142,7 +142,7 @@ export function StoreFormDialog({
                       .normalize('NFD')
                       .replace(/[\u0300-\u036f]/g, '')
                       .replace(/[^a-z0-9]+/g, '-')
-                      .replace(/^-+|-+$/g, ''),
+                      .replace(/^-+|-+$/g, '')
                   )
                 }
               }}
