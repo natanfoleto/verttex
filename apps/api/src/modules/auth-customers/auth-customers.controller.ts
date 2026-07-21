@@ -1,4 +1,5 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyReply } from "fastify";
+import { FastifyZodRequest } from "../../@types/fastify";
 import { AuthCustomersService } from "./auth-customers.service";
 import {
   CustomerRegisterBody,
@@ -14,7 +15,7 @@ const authCustomersService = new AuthCustomersService();
 const isProduction = process.env.NODE_ENV === "production";
 
 export async function registerCustomerController(
-  request: FastifyRequest<{ Body: CustomerRegisterBody }>,
+  request: FastifyZodRequest<{ Body: CustomerRegisterBody }>,
   reply: FastifyReply,
 ) {
   const result = await authCustomersService.register(
@@ -47,7 +48,7 @@ export async function registerCustomerController(
 }
 
 export async function loginCustomerController(
-  request: FastifyRequest<{ Body: CustomerLoginBody }>,
+  request: FastifyZodRequest<{ Body: CustomerLoginBody }>,
   reply: FastifyReply,
 ) {
   const result = await authCustomersService.login(
@@ -80,7 +81,7 @@ export async function loginCustomerController(
 }
 
 export async function logoutCustomerController(
-  request: FastifyRequest,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   await authCustomersService.logout(request.customerPayload?.sessionId);
@@ -96,7 +97,7 @@ export async function logoutCustomerController(
 }
 
 export async function refreshCustomerController(
-  request: FastifyRequest<{ Body?: { refreshToken?: string } }>,
+  request: FastifyZodRequest<{ Body?: { refreshToken?: string } }>,
   reply: FastifyReply,
 ) {
   const refreshToken =
@@ -136,7 +137,7 @@ export async function refreshCustomerController(
 }
 
 export async function forgotPasswordCustomerController(
-  request: FastifyRequest<{ Body: CustomerForgotPasswordBody }>,
+  request: FastifyZodRequest<{ Body: CustomerForgotPasswordBody }>,
   reply: FastifyReply,
 ) {
   const result = await authCustomersService.forgotPassword(request.body);
@@ -147,7 +148,7 @@ export async function forgotPasswordCustomerController(
 }
 
 export async function resetPasswordCustomerController(
-  request: FastifyRequest<{ Body: CustomerResetPasswordBody }>,
+  request: FastifyZodRequest<{ Body: CustomerResetPasswordBody }>,
   reply: FastifyReply,
 ) {
   const result = await authCustomersService.resetPassword(request.body);
@@ -163,11 +164,12 @@ export async function resetPasswordCustomerController(
 }
 
 export async function changePasswordCustomerController(
-  request: FastifyRequest<{ Body: CustomerChangePasswordBody }>,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = request.customerPayload!.id;
-  const result = await authCustomersService.changePassword(customerId, request.body);
+  const body = request.body as CustomerChangePasswordBody;
+  const result = await authCustomersService.changePassword(customerId, body);
 
   reply
     .clearCookie("customer_access_token", { path: "/" })
@@ -180,7 +182,7 @@ export async function changePasswordCustomerController(
 }
 
 export async function meCustomerController(
-  request: FastifyRequest,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = request.customerPayload!.id;
@@ -193,7 +195,7 @@ export async function meCustomerController(
 }
 
 export async function getCustomerProfileController(
-  request: FastifyRequest,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = request.customerPayload!.id;
@@ -206,11 +208,12 @@ export async function getCustomerProfileController(
 }
 
 export async function updateCustomerProfileController(
-  request: FastifyRequest<{ Body: UpdateCustomerProfileBody }>,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = request.customerPayload!.id;
-  const profile = await authCustomersService.updateCustomerProfile(customerId, request.body);
+  const body = request.body as UpdateCustomerProfileBody;
+  const profile = await authCustomersService.updateCustomerProfile(customerId, body);
 
   return reply.send({
     success: true,

@@ -1,5 +1,13 @@
 import { defineAbilityFor } from "@verttex/auth";
-import { FastifyRequest, FastifyReply } from "fastify";
+import {
+  FastifyRequest,
+  FastifyReply,
+  RawServerDefault,
+  IncomingMessage,
+  FastifySchema,
+  RouteGenericInterface,
+} from "fastify";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 
 export interface AuthenticatedUserPayload {
   id: string;
@@ -16,6 +24,17 @@ export interface AuthenticatedCustomerPayload {
   email: string;
   sessionId: string;
 }
+
+export type FastifyZodRequest<
+  RouteGeneric extends RouteGenericInterface = RouteGenericInterface,
+  SchemaCompiler extends FastifySchema = FastifySchema,
+> = FastifyRequest<
+  RouteGeneric,
+  RawServerDefault,
+  IncomingMessage,
+  SchemaCompiler,
+  ZodTypeProvider
+>;
 
 declare module "fastify" {
   interface FastifyInstance {

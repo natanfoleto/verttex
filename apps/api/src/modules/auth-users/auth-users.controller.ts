@@ -1,4 +1,5 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyReply } from "fastify";
+import { FastifyZodRequest } from "../../@types/fastify";
 import { AuthUsersService } from "./auth-users.service";
 import {
   LoginBody,
@@ -12,7 +13,7 @@ const authUsersService = new AuthUsersService();
 const isProduction = process.env.NODE_ENV === "production";
 
 export async function loginController(
-  request: FastifyRequest<{ Body: LoginBody }>,
+  request: FastifyZodRequest<{ Body: LoginBody }>,
   reply: FastifyReply,
 ) {
   const result = await authUsersService.login(
@@ -45,7 +46,7 @@ export async function loginController(
 }
 
 export async function logoutController(
-  request: FastifyRequest,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   await authUsersService.logout(request.userPayload?.sessionId);
@@ -61,7 +62,7 @@ export async function logoutController(
 }
 
 export async function refreshController(
-  request: FastifyRequest<{ Body?: { refreshToken?: string } }>,
+  request: FastifyZodRequest<{ Body?: { refreshToken?: string } }>,
   reply: FastifyReply,
 ) {
   const refreshToken =
@@ -101,7 +102,7 @@ export async function refreshController(
 }
 
 export async function forgotPasswordController(
-  request: FastifyRequest<{ Body: ForgotPasswordBody }>,
+  request: FastifyZodRequest<{ Body: ForgotPasswordBody }>,
   reply: FastifyReply,
 ) {
   const result = await authUsersService.forgotPassword(request.body);
@@ -112,7 +113,7 @@ export async function forgotPasswordController(
 }
 
 export async function resetPasswordController(
-  request: FastifyRequest<{ Body: ResetPasswordBody }>,
+  request: FastifyZodRequest<{ Body: ResetPasswordBody }>,
   reply: FastifyReply,
 ) {
   const result = await authUsersService.resetPassword(request.body);
@@ -128,11 +129,12 @@ export async function resetPasswordController(
 }
 
 export async function changePasswordController(
-  request: FastifyRequest<{ Body: ChangePasswordBody }>,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const userId = request.userPayload!.id;
-  const result = await authUsersService.changePassword(userId, request.body);
+  const body = request.body as ChangePasswordBody;
+  const result = await authUsersService.changePassword(userId, body);
 
   reply
     .clearCookie("user_access_token", { path: "/" })
@@ -145,7 +147,7 @@ export async function changePasswordController(
 }
 
 export async function meController(
-  request: FastifyRequest,
+  request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const userId = request.userPayload!.id;

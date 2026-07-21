@@ -1,8 +1,9 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply } from "fastify";
+import { FastifyZodRequest } from "../../@types/fastify";
 import { formatSuccessResponse } from "../../shared/http/response";
 
 export async function getHealthHandler(
-  _request: FastifyRequest,
+  _request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   return reply.send(
