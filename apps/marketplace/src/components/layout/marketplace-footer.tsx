@@ -1,155 +1,97 @@
 import Link from 'next/link'
-import {
-  RiHeartLine,
-  RiMapPinLine,
-  RiShieldCheckLine,
-  RiTruckLine,
-} from 'react-icons/ri'
+import { RiBankCardLine, RiShieldCheckLine, RiTruckLine } from 'react-icons/ri'
 
 export function MarketplaceFooter() {
   return (
-    <footer className="border-t border-amber-900/60 bg-amber-950 pt-16 pb-12 font-sans text-amber-200 antialiased">
-      <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
-        {/* Value Proposition Badges */}
-        <div className="grid grid-cols-1 gap-8 border-b border-amber-900/50 pb-12 md:grid-cols-3">
-          <div className="flex items-start space-x-4">
-            <div className="shrink-0 rounded-2xl border border-amber-800/60 bg-amber-900/50 p-3 text-amber-400">
-              <RiMapPinLine className="h-6 w-6" />
+    <footer className="border-t border-stone-200 bg-white font-sans text-stone-700 antialiased">
+      {/* Top Value Proposition Section (Mercado Livre Style) */}
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:divide-x md:divide-stone-200">
+          {/* Card 1: Payment */}
+          <div className="flex flex-col items-center space-y-2 px-4 text-center">
+            <div className="flex h-12 w-12 items-center justify-center text-emerald-800">
+              <RiBankCardLine className="h-8 w-8 text-emerald-800" />
             </div>
-            <div>
-              <h4 className="text-base font-bold text-white">
-                Origem & Produtores
-              </h4>
-              <p className="mt-1 text-xs leading-relaxed text-amber-300/70">
-                Produtos selecionados diretamente de pequenos produtores da
-                nossa região.
-              </p>
-            </div>
+            <h4 className="text-sm font-bold text-stone-900">
+              Escolha como pagar
+            </h4>
+            <p className="max-w-xs text-xs leading-relaxed text-stone-500">
+              Pague com Pix, cartão de crédito ou boleto. Processamento seguro
+              garantido pela tecnologia Verttex.
+            </p>
+            <span className="cursor-pointer pt-1 text-xs font-semibold text-emerald-800 hover:underline">
+              Como pagar com Verttex
+            </span>
           </div>
 
-          <div className="flex items-start space-x-4">
-            <div className="shrink-0 rounded-2xl border border-amber-800/60 bg-amber-900/50 p-3 text-amber-400">
-              <RiShieldCheckLine className="h-6 w-6" />
+          {/* Card 2: Delivery */}
+          <div className="flex flex-col items-center space-y-2 px-4 text-center">
+            <div className="flex h-12 w-12 items-center justify-center text-emerald-800">
+              <RiTruckLine className="h-8 w-8 text-emerald-800" />
             </div>
-            <div>
-              <h4 className="text-base font-bold text-white">
-                Compra Garantida
-              </h4>
-              <p className="mt-1 text-xs leading-relaxed text-amber-300/70">
-                A Verttex assegura o pagamento e o suporte de ponta a ponta do
-                seu pedido.
-              </p>
-            </div>
+            <h4 className="text-sm font-bold text-stone-900">
+              Frete e entrega na sua região
+            </h4>
+            <p className="max-w-xs text-xs leading-relaxed text-stone-500">
+              Logística regional dedicada para preservar o frescor e a qualidade
+              dos alimentos artesanais.
+            </p>
+            <span className="cursor-pointer pt-1 text-xs font-semibold text-emerald-800 hover:underline">
+              Conheça as opções de entrega
+            </span>
           </div>
 
-          <div className="flex items-start space-x-4">
-            <div className="shrink-0 rounded-2xl border border-amber-800/60 bg-amber-900/50 p-3 text-amber-400">
-              <RiTruckLine className="h-6 w-6" />
+          {/* Card 3: Security */}
+          <div className="flex flex-col items-center space-y-2 px-4 text-center">
+            <div className="flex h-12 w-12 items-center justify-center text-emerald-800">
+              <RiShieldCheckLine className="h-8 w-8 text-emerald-800" />
             </div>
-            <div>
-              <h4 className="text-base font-bold text-white">Entrega Direta</h4>
-              <p className="mt-1 text-xs leading-relaxed text-amber-300/70">
-                Logística regional cuidada para manter a frescura e qualidade
-                dos alimentos.
-              </p>
-            </div>
+            <h4 className="text-sm font-bold text-stone-900">
+              Segurança, do início ao fim
+            </h4>
+            <p className="max-w-xs text-xs leading-relaxed text-stone-500">
+              Sua compra 100% protegida. Do produtor credenciado direto para a
+              sua mesa.
+            </p>
+            <span className="cursor-pointer pt-1 text-xs font-semibold text-emerald-800 hover:underline">
+              Como te protegemos
+            </span>
           </div>
         </div>
+      </div>
 
-        {/* Footer Navigation Columns */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          <div className="space-y-4 md:col-span-1">
-            <div className="flex items-center space-x-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 text-lg font-bold text-white">
-                V
-              </div>
-              <span className="font-serif text-lg font-bold text-white">
-                Verttex
-              </span>
-            </div>
-            <p className="text-xs leading-relaxed text-amber-300/70">
-              Valorizamos os produtores locais e conectamos quem produz com quem
-              aprecia a verdadeira qualidade artesanal.
+      {/* Bottom Compact Links & Copyright Section */}
+      <div className="border-t border-stone-200 bg-stone-50 py-8">
+        <div className="mx-auto max-w-7xl space-y-4 px-4 text-center sm:px-6 lg:px-8">
+          {/* Navigation Links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-stone-600">
+            <Link href="/lojas" className="hover:text-stone-900">
+              Produtores Parceiros
+            </Link>
+            <Link href="/produtos" className="hover:text-stone-900">
+              Todos os Produtos
+            </Link>
+            <span className="cursor-pointer hover:text-stone-900">
+              Termos e condições
+            </span>
+            <span className="cursor-pointer hover:text-stone-900">
+              Como cuidamos da sua privacidade
+            </span>
+            <span className="cursor-pointer hover:text-stone-900">
+              Contato & Suporte
+            </span>
+          </div>
+
+          {/* Legal / Copyright Info */}
+          <div className="space-y-1 text-[11px] text-stone-400">
+            <p>
+              Copyright © {new Date().getFullYear()} Verttex Mercado Regional
+              Ltda. Todos os direitos reservados.
             </p>
-          </div>
-
-          <div>
-            <h5 className="mb-4 text-xs font-bold tracking-wider text-white uppercase">
-              Navegação
-            </h5>
-            <ul className="space-y-2.5 text-xs text-amber-300/80">
-              <li>
-                <Link
-                  href="/lojas"
-                  className="transition-colors hover:text-white"
-                >
-                  Produtores Parceiros
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/produtos"
-                  className="transition-colors hover:text-white"
-                >
-                  Todos os Produtos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/cadastro"
-                  className="transition-colors hover:text-white"
-                >
-                  Criar Conta de Cliente
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 className="mb-4 text-xs font-bold tracking-wider text-white uppercase">
-              Para Produtores
-            </h5>
-            <ul className="space-y-2.5 text-xs text-amber-300/80">
-              <li>
-                <span className="transition-colors hover:text-white">
-                  Como vender na Verttex
-                </span>
-              </li>
-              <li>
-                <span className="transition-colors hover:text-white">
-                  Painel de Gestão (Manager)
-                </span>
-              </li>
-              <li>
-                <span className="transition-colors hover:text-white">
-                  Políticas de Qualidade
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 className="mb-4 text-xs font-bold tracking-wider text-white uppercase">
-              Atendimento & Suporte
-            </h5>
-            <p className="text-xs leading-relaxed text-amber-300/70">
-              Segunda a Sexta das 8h às 18h
-              <br />
-              suporte@verttexloja.com.br
+            <p>
+              CNPJ n.º 00.000.000/0001-00 / Serra Gaúcha, RS - Brasil — Empresa
+              do grupo Verttex.
             </p>
-          </div>
-        </div>
-
-        {/* Bottom Copyright */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-amber-900/40 pt-8 text-xs text-amber-400/60 sm:flex-row">
-          <p>
-            © {new Date().getFullYear()} Verttex Mercado Regional. Todos os
-            direitos reservados.
-          </p>
-          <div className="flex items-center space-x-1">
-            <span>Desenvolvido com</span>
-            <RiHeartLine className="inline h-3.5 w-3.5 text-rose-400" />
-            <span>para nossa comunidade.</span>
           </div>
         </div>
       </div>

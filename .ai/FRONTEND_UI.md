@@ -197,18 +197,27 @@ Every feature screen must implement:
 
 ### 10.2 Modal & Dialog Standard (shadcn/ui Primitives)
 
+- **Form Display Standard**: All creation and editing forms for entities (`Cargos`, `Usuários`, `Lojas`) must be displayed inside `Dialog` modals (`@verttex/ui`) directly on their listing pages, instead of using separate page routes (`/novo`, `/[id]/editar`). All legacy `/novo` and `/editar` subfolder routes must be completely removed.
+- **Standalone Dialog Component Architecture**:
+  - Form dialog modals must be isolated in standalone component files located inside a `components/` subdirectory adjacent to the target page (e.g., `app/(dashboard)/cargos/components/role-form-dialog.tsx`, `app/(dashboard)/usuarios/components/user-form-dialog.tsx`, `app/(dashboard)/lojas/components/store-form-dialog.tsx`).
+  - The main listing page (`page.tsx`) controls simple boolean / item state (`isDialogOpen`, `editingItem`), rendering the action button with `onClick={openCreateModal}` and mounting the standalone dialog component (`<EntityFormDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} itemToEdit={editingItem} />`).
+  - This guarantees clean separation of concerns, eliminates route conflict bugs, and keeps `page.tsx` lightweight.
 - Use standard modal primitives exported from `@verttex/ui`:
   - `Dialog`: For standard form modals and popups (`DialogHeader`, `DialogContent`, `DialogFooter`, `DialogTitle`, `DialogDescription`).
   - `Sheet`: For extensive forms, side-drawer panels, or mobile navigation (`SheetContent`, `SheetHeader`, `SheetTitle`).
   - `AlertDialog`: For critical or destructive confirmation prompts (`AlertDialogAction`, `AlertDialogCancel`).
-- Modals must standardize titles, descriptions, scrollable body area, cancel/save buttons, loading states, and automatic closure on success.
+- **z-Index Layering Hierarchy**: Overlay backdrops must strictly set `z-[200]` and modal/drawer contents must set `z-[210]`. This ensures modal dialogs and sheets render completely above all app headers (`z-40`), sidebars (`z-30`), and dropdown menus (`z-[100]`), preventing the backdrop from hiding modal forms or placing action buttons in a second layer.
+- Modals must standardize titles, descriptions, scrollable body area, cancel/save buttons, loading states, error alerts, and automatic query invalidation + closure on success.
 
 ### 10.3 Top Header & User Profile Menu
 
 - The text `"Gestão Monorepo"` must **not** be used in top headers.
 - The top header must display the current page title / breadcrumbs on the left and the authenticated user's profile dropdown on the right.
-- The user profile trigger includes the user avatar/initials, name, role badge, and a `RiArrowDownSLine` icon.
-- Clicking the trigger opens a `DropdownMenu` (`@verttex/ui`) with options for:
+- **Profile Trigger Button**: Clean inline trigger without outer box border and without hover background color (`cursor-pointer` only). Encloses circle avatar, user name, role badge, and chevron.
+- **Dropdown Menu Header**:
+  - Displays user name and email in original mixed/lowercase formatting (`normal-case`). Never force `UPPERCASE`.
+  - Expanded dropdown menu width (`w-64`) with single-line non-wrapping text (`whitespace-nowrap`) for the user name.
+- **Dropdown Options**:
   - **Meu perfil** (`/perfil`)
   - **Alterar senha** (`/perfil#senha`)
   - **Encerrar sessão** (styled with rose/destructive highlight)
@@ -225,9 +234,10 @@ Every feature screen must implement:
 
 ### 10.5 Collapsible Sidebar & Submenu Architecture
 
-- Sidebar supports two width states: Expanded (`w-64`) and Collapsed (`w-16`).
-- Toggled via a dedicated header button (`RiMenuFoldLine` / `RiMenuUnfoldLine`) and persisted in `localStorage` (`verttex:sidebar-collapsed`).
-- When collapsed, menu items display icon-only buttons with floating `Tooltip` overlays on hover.
+- Sidebar supports two width states: Expanded (`w-72`) and Collapsed (`w-16`).
+- Menu items and submenus must strictly render on a single line (`whitespace-nowrap`). Labels never break into two lines.
+- Toggled via dedicated header arrows (`RiArrowLeftSLine` `<` when expanded / `RiArrowRightSLine` `>` when collapsed) and persisted in `localStorage` (`verttex:sidebar-collapsed`).
+- When collapsed, the logo is hidden completely, leaving only the centered collapse arrow button. Menu items render as icon-only buttons with floating `Tooltip` overlays on hover.
 - Navigation structure supports submenus (`children` array on `NavItem`):
   ```ts
   interface NavItem {
@@ -259,3 +269,50 @@ Every feature screen must implement:
   4. Lojas Vinculadas
   5. Sessões Ativas
 - Cards take 100% available width without horizontal side-by-side splitting.
+
+---
+
+## 11. Marketplace Visual Identity & Design System (`apps/marketplace`)
+
+### 11.1 Identity Concept
+The Verttex Marketplace connects regional consumers with artisan producers, farm-to-table food makers, and authentic local products. The visual language balances:
+- **Artesanal + Moderno**
+- **Humano + Tecnológico**
+- **Regional + Profissional**
+- **Bonito + Funcional**
+
+### 11.2 Palette & Color Tokens
+- **Brand Primary**: Emerald (`#065f46` / `emerald-800`) — represents freshness, regional origin, and trust.
+- **Brand Secondary / Origin Highlights**: Warm Amber/Terracotta (`#b45309` / `amber-700`, `bg-amber-50`, `border-amber-200`) — represents craft, passion, and local heritage.
+- **Background Neutral**: Warm Off-White (`#faf8f5` / `stone-50`).
+- **Surface Neutral**: Pure White (`#ffffff` / `bg-white`) with subtle borders (`border-stone-200/80`) and soft shadows (`shadow-xs` / `shadow-sm`).
+- **Text Neutral**: Deep Charcoal (`#1c1917` / `stone-900`) for headers, Muted Gray (`#78716c` / `stone-500`) for metadata.
+- **Feedback States**: Success (`emerald-700`), Alert (`amber-600`), Error (`rose-600`).
+
+### 11.3 Core Component Standards
+- **Border Radius Scale**: Moderated border radius across all marketplace components (`rounded-xl` for cards/containers, `rounded-lg` for inputs, buttons, and inner elements, `rounded-full` for badges and avatar circles). Avoid overly rounded `rounded-3xl` radii.
+- **Micro-Interactions**: Clean color transitions (`hover:border-emerald-300`, `hover:bg-emerald-700`) without intrusive `scale-105`/`scale-110` transform shifts.
+- **Header (`MarketplaceHeader`) — Double-Tier Architecture**:
+  - **Tier 1 (Announcement Bar)**: Slim dark utility bar (`bg-stone-900 text-stone-200 text-xs py-1.5`).
+  - **Tier 2 (Main Header Row)**: Brand logo, wide global search input (center), and customer account / wishlist buttons (`rounded-lg`).
+  - **Tier 3 (Secondary Sub-Header Bar)**: Secondary navigation bar (`bg-stone-50/90 border-t border-stone-200/80`) featuring hover dropdown submenus (*"Todas as Categorias"*, *"Queijos Artesanais"*, *"Vinhos & Bebidas"*, *"Produtores & Lojas"*, *"Ofertas Regionais"*). Hovering any menu item displays a clean floating dropdown (`rounded-lg bg-white border border-stone-200 shadow-xl p-2`).
+- **Footer (`MarketplaceFooter`) — Mercado Livre Style**:
+  - **Top Value Props**: Clean white section with 3 centered value columns (`Escolha como pagar`, `Frete e entrega na sua região`, `Segurança, do início ao fim`) with clean icons (`RiBankCardLine`, `RiTruckLine`, `RiShieldCheckLine`) and action links.
+  - **Bottom Compact Bar**: Light gray background (`bg-stone-50`) featuring inline navigation links, copyright notice (`Copyright © 2026 Verttex Mercado Regional Ltda.`), and CNPJ / location info.
+- **Product Card (`ProductCard`)**:
+  - Image container (4:3 aspect ratio, rounded corners `rounded-xl`).
+  - Badges on image overlay (`Selo de Origem`, `Produtor Local`, `Mais Vendido`, discount badge).
+  - Store link, product title (2-line clamp), rating stars, formatted prices (bold current + line-through original price).
+  - CTA button ("Ver Loja").
+- **Store Card (`StoreCard`)**:
+  - Cover header image preview, overlapping store logo avatar.
+  - Location badge (`Serra Gaúcha, RS`), bio snippet, total products count badge.
+  - Action button ("Visitar Loja").
+- **Category Components (`CategoryCircleCard`, `CategoryPill`)**:
+  - Circular category cards with high-impact images for home page exploration.
+  - Pill badges with item counts for catalog filtering.
+- **Filter Sidebar (`FilterSidebar`)**:
+  - Category list accordion with counts, sorting selector, active filter chips with quick remove buttons.
+- **Empty States & Skeletons (`EmptyState`, `SkeletonLoader`)**:
+  - Clean illustrated empty states and pulse loading skeletons for grids.
+

@@ -1,27 +1,129 @@
-import Link from 'next/link'
-import { RiStore2Line } from 'react-icons/ri'
+'use client'
 
-export default function StoresListingPlaceholderPage() {
+import Link from 'next/link'
+import { useState } from 'react'
+import { RiSearchLine, RiStore2Line } from 'react-icons/ri'
+
+import { EmptyState } from '../../components/ui/empty-state'
+import { StoreCard, StoreCardProps } from '../../components/ui/store-card'
+
+const STORES_DATA: StoreCardProps[] = [
+  {
+    id: 's1',
+    name: 'Queijaria Alvorada',
+    slug: 'queijaria-alvorada',
+    description:
+      'Tradição familiar na produção de queijos artesanais de leite cru com maturação especial na Serra Gaúcha.',
+    city: 'Farroupilha',
+    state: 'RS',
+    productsCount: 14,
+    isVerified: true,
+    coverUrl:
+      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 's2',
+    name: 'Vinícola Família Rossi',
+    slug: 'vinicola-familia-rossi',
+    description:
+      'Vinhos coloniais de pequena escala produzidos artesanalmente nos vales da serra gaúcha.',
+    city: 'Bento Gonçalves',
+    state: 'RS',
+    productsCount: 22,
+    isVerified: true,
+    coverUrl:
+      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 's3',
+    name: 'Apiário Vale Verde',
+    slug: 'apiario-vale-verde',
+    description:
+      'Mel de florada nativa e produtos apícolas 100% puros e sem aditivos Químicos.',
+    city: 'Gramado',
+    state: 'RS',
+    productsCount: 9,
+    isVerified: true,
+    coverUrl:
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 's4',
+    name: 'Embutidos Tradição',
+    slug: 'embutidos-tradicao',
+    description:
+      'Salames, lombos e embutidos suínos curados e defumados em lenha de macieira.',
+    city: 'Caxias do Sul',
+    state: 'RS',
+    productsCount: 12,
+    isVerified: true,
+    coverUrl:
+      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
+  },
+]
+
+export default function StoresListingPage() {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredStores = STORES_DATA.filter(
+    (store) =>
+      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (store.city &&
+        store.city.toLowerCase().includes(searchQuery.toLowerCase())),
+  )
+
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-24 text-center font-sans antialiased">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl border border-amber-800/60 bg-amber-900/40 text-amber-400 shadow-xl">
-        <RiStore2Line className="h-10 w-10" />
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans text-stone-900 sm:px-6 lg:px-8">
+      {/* Breadcrumb & Title */}
+      <div className="space-y-2 border-b border-stone-200 pb-6">
+        <div className="flex items-center space-x-2 text-xs text-stone-500">
+          <Link href="/" className="hover:text-emerald-800">
+            Início
+          </Link>
+          <span>/</span>
+          <span className="font-semibold text-stone-800">Produtores</span>
+        </div>
+
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-stone-900">
+              Produtores & Lojas Parceiras
+            </h1>
+            <p className="mt-1 text-xs text-stone-500">
+              Conheça as histórias, métodos de produção e origens de nossos
+              parceiros regionais.
+            </p>
+          </div>
+
+          <div className="relative w-full max-w-xs">
+            <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar por nome ou cidade..."
+              className="w-full rounded-lg border border-stone-200 bg-white py-2.5 pr-4 pl-10 text-xs text-stone-900 shadow-xs focus:border-emerald-600 focus:outline-none"
+            />
+          </div>
+        </div>
       </div>
-      <div className="space-y-2">
-        <h1 className="font-serif text-3xl font-bold tracking-tight text-white">
-          Produtores Parceiros — Em Breve
-        </h1>
-        <p className="mx-auto max-w-md text-sm leading-relaxed text-amber-300/80">
-          Em breve você poderá explorar a lista completa de produtores regionais
-          e conhecer a história por trás de cada produto artesanal.
-        </p>
-      </div>
-      <Link
-        href="/"
-        className="inline-flex items-center rounded-full bg-amber-600 px-6 py-3 text-xs font-semibold text-white shadow-md shadow-amber-950 transition-colors hover:bg-amber-500"
-      >
-        Voltar à Página Inicial
-      </Link>
+
+      {/* Stores Grid */}
+      {filteredStores.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredStores.map((store) => (
+            <StoreCard key={store.id} {...store} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={RiStore2Line}
+          title="Nenhum produtor encontrado"
+          description="Não encontramos produtores correspondentes à sua pesquisa. Tente buscar com outros termos."
+          actionLabel="Limpar Pesquisa"
+          onActionClick={() => setSearchQuery('')}
+        />
+      )}
     </div>
   )
 }

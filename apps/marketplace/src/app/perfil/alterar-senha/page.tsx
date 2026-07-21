@@ -67,95 +67,95 @@ export default function CustomerChangePasswordPage() {
 
   return (
     <CustomerAuthGuard>
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-12 font-sans antialiased">
+      <div className="mx-auto max-w-2xl space-y-6 px-4 py-12 font-sans text-stone-900 antialiased">
         <div className="flex items-center space-x-4">
           <Link
             href="/perfil"
-            className="rounded-xl border border-amber-900/60 p-2 text-amber-300 transition-colors hover:bg-amber-900/40 hover:text-white"
+            className="rounded-lg border border-stone-200 p-2.5 text-stone-600 transition-colors hover:bg-stone-100"
           >
             <RiArrowLeftLine className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="font-serif text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-2xl font-extrabold tracking-tight text-stone-900">
               Alterar Senha
             </h1>
-            <p className="text-xs text-amber-300/80">
-              Atualize sua senha de acesso à conta Verttex
+            <p className="text-xs text-stone-500">
+              Atualize sua senha de acesso à conta Verttex.
             </p>
           </div>
         </div>
 
         {successMessage && (
-          <div className="rounded-2xl border border-emerald-800/60 bg-emerald-950/60 p-4 text-xs text-emerald-300">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800">
             {successMessage}
           </div>
         )}
 
         {errorMessage && (
-          <div className="rounded-2xl border border-rose-800/60 bg-rose-950/60 p-4 text-xs text-rose-300">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-700">
             {errorMessage}
           </div>
         )}
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 rounded-3xl border border-amber-900/40 bg-amber-950/40 p-6 backdrop-blur-md"
+          className="space-y-4 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-sm"
         >
           <div className="space-y-1">
-            <label className="text-[11px] font-bold tracking-wider text-amber-200/90 uppercase">
+            <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
               Senha Atual
             </label>
             <div className="relative">
-              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-amber-500/60" />
+              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <input
                 {...register('currentPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-amber-800/60 bg-amber-950/80 py-2.5 pr-4 pl-10 text-xs text-white placeholder-amber-500/40 transition-colors focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
               />
             </div>
             {errors.currentPassword && (
-              <p className="mt-1 text-xs text-rose-400">
+              <p className="mt-1 text-xs text-rose-600">
                 {errors.currentPassword.message}
               </p>
             )}
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11px] font-bold tracking-wider text-amber-200/90 uppercase">
+            <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
               Nova Senha
             </label>
             <div className="relative">
-              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-amber-500/60" />
+              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <input
                 {...register('newPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-amber-800/60 bg-amber-950/80 py-2.5 pr-4 pl-10 text-xs text-white placeholder-amber-500/40 transition-colors focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
               />
             </div>
             {errors.newPassword && (
-              <p className="mt-1 text-xs text-rose-400">
+              <p className="mt-1 text-xs text-rose-600">
                 {errors.newPassword.message}
               </p>
             )}
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11px] font-bold tracking-wider text-amber-200/90 uppercase">
+            <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
               Confirmar Nova Senha
             </label>
             <div className="relative">
-              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-amber-500/60" />
+              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <input
                 {...register('confirmPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-amber-800/60 bg-amber-950/80 py-2.5 pr-4 pl-10 text-xs text-white placeholder-amber-500/40 transition-colors focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
               />
             </div>
             {errors.confirmPassword && (
-              <p className="mt-1 text-xs text-rose-400">
+              <p className="mt-1 text-xs text-rose-600">
                 {errors.confirmPassword.message}
               </p>
             )}
@@ -164,7 +164,7 @@ export default function CustomerChangePasswordPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-2 flex w-full items-center justify-center rounded-xl bg-amber-600 px-4 py-3 text-xs font-semibold text-white shadow-md shadow-amber-950 transition-colors hover:bg-amber-500 disabled:opacity-50"
+            className="mt-2 flex w-full cursor-pointer items-center justify-center rounded-lg bg-emerald-800 px-4 py-3 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 disabled:opacity-50"
           >
             {isLoading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

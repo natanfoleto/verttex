@@ -23,13 +23,12 @@ import { ReactNode, useEffect, useState } from 'react'
 import { IconType } from 'react-icons'
 import {
   RiArrowDownSLine,
+  RiArrowLeftSLine,
   RiArrowRightSLine,
   RiDashboardLine,
   RiLockPasswordLine,
   RiLogoutBoxRLine,
-  RiMenuFoldLine,
   RiMenuLine,
-  RiMenuUnfoldLine,
   RiShieldLine,
   RiStoreLine,
   RiUser3Line,
@@ -215,7 +214,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <div className="flex items-center space-x-3">
                   <Icon className="h-5 w-5 shrink-0" />
-                  <span>{item.label}</span>
+                  <span className="whitespace-nowrap">{item.label}</span>
                 </div>
                 <RiArrowRightSLine
                   className={`h-4 w-4 shrink-0 transition-transform ${
@@ -227,7 +226,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </button>
 
               {isSubmenuOpen && (
-                <div className="ml-4 space-y-1 border-l border-zinc-800/80 pr-2 pl-9">
+                <div className="ml-3 space-y-1 border-l border-zinc-800/80 pr-2 pl-4">
                   {visibleChildren.map((child) => {
                     const ChildIcon = child.icon || RiArrowRightSLine
                     const isChildRouteActive = pathname.startsWith(child.href)
@@ -236,14 +235,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                        className={`flex items-center space-x-2.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
                           isChildRouteActive
-                            ? 'border border-emerald-800/50 bg-emerald-950/50 font-semibold text-emerald-400'
-                            : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
+                            ? 'border-emerald-800/50 bg-emerald-950/50 font-semibold text-emerald-400'
+                            : 'border-transparent text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
                         }`}
                       >
                         <ChildIcon className="h-3.5 w-3.5 shrink-0" />
-                        <span>{child.label}</span>
+                        <span className="whitespace-nowrap">{child.label}</span>
                       </Link>
                     )
                   })}
@@ -286,7 +285,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             }`}
           >
             <Icon className="h-5 w-5 shrink-0" />
-            <span>{item.label}</span>
+            <span className="whitespace-nowrap">{item.label}</span>
           </Link>
         )
       })}
@@ -299,7 +298,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Desktop Sidebar */}
         <aside
           className={`hidden shrink-0 flex-col justify-between border-r border-zinc-800 bg-zinc-900/60 transition-all duration-300 lg:flex ${
-            isCollapsed ? 'w-16' : 'w-64'
+            isCollapsed ? 'w-16' : 'w-72'
           }`}
         >
           <div>
@@ -320,20 +319,17 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </div>
                 </Link>
               )}
-              {isCollapsed && (
-                <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 font-bold text-white shadow-md shadow-emerald-950">
-                  V
-                </div>
-              )}
               <button
                 onClick={toggleCollapse}
-                className="ml-auto cursor-pointer rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                className={`cursor-pointer rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 ${
+                  isCollapsed ? 'mx-auto' : 'ml-auto'
+                }`}
                 title={isCollapsed ? 'Expandir menu' : 'Recolher menu'}
               >
                 {isCollapsed ? (
-                  <RiMenuUnfoldLine className="h-5 w-5" />
+                  <RiArrowRightSLine className="h-5 w-5" />
                 ) : (
-                  <RiMenuFoldLine className="h-5 w-5" />
+                  <RiArrowLeftSLine className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -394,28 +390,28 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center space-x-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex cursor-pointer items-center space-x-3 rounded-xl border border-zinc-800 bg-zinc-900/60 px-3 py-1.5 transition-colors outline-none hover:bg-zinc-800/80">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-700/60 bg-emerald-950 text-sm font-semibold text-emerald-300">
+                  <button className="flex cursor-pointer items-center space-x-2.5 text-left outline-none">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300">
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div className="hidden flex-col text-left sm:flex">
-                      <span className="max-w-30 truncate text-xs font-semibold text-zinc-200">
+                      <span className="text-xs font-semibold whitespace-nowrap text-zinc-200">
                         {user?.name || 'Usuário'}
                       </span>
-                      <span className="max-w-30 truncate text-[10px] text-zinc-400">
+                      <span className="text-[10px] whitespace-nowrap text-zinc-400">
                         {user?.role?.name || 'Gestor'}
                       </span>
                     </div>
                     <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="z-100 w-64">
+                  <DropdownMenuLabel className="font-normal text-zinc-100 normal-case">
                     <div className="flex flex-col space-y-0.5">
-                      <span className="text-sm font-semibold text-zinc-100">
+                      <span className="text-sm font-bold whitespace-nowrap text-zinc-100">
                         {user?.name || 'Usuário'}
                       </span>
-                      <span className="text-xs font-normal text-zinc-400">
+                      <span className="truncate text-xs font-normal text-zinc-400">
                         {user?.email}
                       </span>
                     </div>
