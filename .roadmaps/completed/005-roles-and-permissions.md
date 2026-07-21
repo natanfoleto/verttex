@@ -2,11 +2,11 @@
 
 ## Metadata
 
-- Status: `planned`
+- Status: `completed`
 - Priority: critical
 - Created at: 2026-07-21
-- Started at:
-- Completed at:
+- Started at: 2026-07-21
+- Completed at: 2026-07-21
 - Dependencies: `002-data-modeling`, `003-user-authentication`
 - Related roadmaps: 006, 007
 
@@ -96,65 +96,64 @@ All permissions from `.ai/PERMISSIONS.md` are seeded and managed in this roadmap
 
 ### Step 1 — Refactor `@verttex/auth`
 
-- [ ] Update `roles.ts` with `admin`, `employee`, `supplier`
-- [ ] Update `subjects/` with Phase 1 subjects
-- [ ] Update `permissions.ts` with dynamic ability building (load from DB overrides)
-- [ ] Update exports in `index.ts`
-- [ ] Verify frontend and backend can import without breaking changes
+- [x] Update `roles.ts` with `admin`, `employee`, `supplier`
+- [x] Update `subjects/` with Phase 1 subjects
+- [x] Update `permissions.ts` with dynamic ability building (load from DB overrides)
+- [x] Update exports in `index.ts`
+- [x] Verify frontend and backend can import without breaking changes
 
 ### Step 2 — Middleware
 
-- [ ] Implement `requirePermission(action, subject)` using CASL ability
-- [ ] Implement `requireStoreAccess(storeIdParam)` using StoreUser table lookup
+- [x] Implement `requirePermission(action, subject)` using CASL ability
+- [x] Implement `requireStoreAccess(storeIdParam)` using StoreUser table lookup
 
 ### Step 3 — Role CRUD API
 
-- [ ] Implement role service (list, create, get, update, delete)
-- [ ] Protect system roles from deletion
-- [ ] Register routes in `src/modules/roles/`
+- [x] Implement role service (list, create, get, update, delete)
+- [x] Protect system roles from deletion
+- [x] Register routes in `src/modules/roles/`
 
 ### Step 4 — Permission management API
 
-- [ ] Implement permission listing
-- [ ] Implement role permission assignment (`PUT /roles/:roleId/permissions`)
-- [ ] Implement user permission override (`PUT /users/:userId/permissions`)
-- [ ] Register routes
+- [x] Implement permission listing
+- [x] Implement role permission assignment (`PUT /roles/:roleId/permissions`)
+- [x] Implement user permission override (`PUT /users/:userId/permissions`)
+- [x] Register routes
 
 ### Step 5 — User CRUD API
 
-- [ ] Implement user service (list, create, get, update, deactivate)
-- [ ] Register routes in `src/modules/users/`
-- [ ] Apply `requirePermission` to all protected routes
+- [x] Implement user service (list, create, get, update, deactivate)
+- [x] Register routes in `src/modules/users/`
+- [x] Apply `requirePermission` to all protected routes
 
 ### Step 6 — Validate
 
-- [ ] `pnpm typecheck` and `pnpm build` pass
-- [ ] All routes in Swagger
+- [x] `pnpm typecheck` and `pnpm build` pass
+- [x] All routes in Swagger
 
 ## Tests
 
-- [ ] Admin has `manage all`
-- [ ] Employee has default permissions
-- [ ] Supplier limited to linked stores
-- [ ] User permission override (allow) grants access
-- [ ] User permission override (deny) blocks access even if role allows
-- [ ] Cannot delete system roles
-- [ ] Cannot deactivate last admin
-- [ ] `requirePermission` blocks unauthorized access
-- [ ] `requireStoreAccess` blocks supplier from other stores
+- [x] Admin has `manage all`
+- [x] Employee has default permissions
+- [x] Supplier limited to linked stores
+- [x] User permission override (allow) grants access
+- [x] User permission override (deny) blocks access even if role allows
+- [x] Cannot delete system roles
+- [x] Cannot deactivate last admin
+- [x] `requirePermission` blocks unauthorized access
+- [x] `requireStoreAccess` blocks supplier from other stores
 
 ## Acceptance Criteria
 
-- [ ] `@verttex/auth` refactored and compatible with Phase 1 spec
-- [ ] All role and permission routes work
-- [ ] User CRUD works with permission protection
-- [ ] Both middlewares implemented and tested
-- [ ] `pnpm typecheck` and `pnpm build` pass
+- [x] `@verttex/auth` refactored and compatible with Phase 1 spec
+- [x] All role and permission routes work
+- [x] User CRUD works with permission protection
+- [x] Both middlewares implemented and tested
+- [x] `pnpm typecheck` and `pnpm build` pass
 
 ## Blockers
 
-- Pending decision #1: employee scope (global vs store-linked)
-- Pending decision #5: individual denial always overrides role?
+None.
 
 ## Pending Decisions
 
@@ -165,8 +164,10 @@ All permissions from `.ai/PERMISSIONS.md` are seeded and managed in this roadmap
 
 ## Progress
 
-Not started.
+100% completed.
 
 ## Change Log
 
 - 2026-07-21: Roadmap created
+- 2026-07-21: Roadmap activated (moved from planned to active)
+- 2026-07-21: Roadmap completed successfully

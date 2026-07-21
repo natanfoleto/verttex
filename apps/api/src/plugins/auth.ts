@@ -6,10 +6,12 @@ import { prisma } from "../infrastructure/database/prisma";
 
 export const authPlugin = fp(async (app) => {
   app.decorateRequest("getCurrentUserAbility", function (this: FastifyRequest) {
-    const roleKey = this.userPayload?.role || "USER";
+    const roleKey = (this.userPayload?.role || "employee") as any;
     const user: UserToken = {
       id: this.userPayload?.id || "anonymous",
-      role: roleKey as any,
+      role: roleKey,
+      rolePermissions: this.userPayload?.rolePermissions,
+      permissions: this.userPayload?.permissions as any,
     };
     return defineAbilityFor(user);
   });
@@ -44,7 +46,22 @@ export const authPlugin = fp(async (app) => {
 
         const session = await prisma.userSession.findUnique({
           where: { id: decoded.sessionId },
-          include: { user: { include: { role: true } } },
+          include: {
+            user: {
+              include: {
+                role: {
+                  include: {
+                    permissions: {
+                      include: { permission: true },
+                    },
+                  },
+                },
+                permissions: {
+                  include: { permission: true },
+                },
+              },
+            },
+          },
         });
 
         if (
@@ -56,6 +73,15 @@ export const authPlugin = fp(async (app) => {
           throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
         }
 
+        const rolePermissions = session.user.role.permissions.map(
+          (rp) => rp.permission.key,
+        );
+
+        const userPermissions = session.user.permissions.map((up) => ({
+          permissionKey: up.permission.key,
+          effect: up.effect as "allow" | "deny",
+        }));
+
         request.userPayload = {
           id: session.user.id,
           name: session.user.name,
@@ -63,6 +89,8 @@ export const authPlugin = fp(async (app) => {
           role: session.user.role.key,
           roleId: session.user.roleId,
           sessionId: session.id,
+          rolePermissions,
+          permissions: userPermissions,
         };
       } catch (err) {
         if (err instanceof AppError) throw err;

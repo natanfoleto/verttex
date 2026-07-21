@@ -16,6 +16,8 @@ export interface AuthenticatedUserPayload {
   role: string;
   roleId: string;
   sessionId: string;
+  rolePermissions?: string[];
+  permissions?: { permissionKey: string; effect: "allow" | "deny" }[];
 }
 
 export interface AuthenticatedCustomerPayload {
