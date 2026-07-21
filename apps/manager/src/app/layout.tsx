@@ -9,6 +9,9 @@ import { QueryProvider } from '../providers/query-provider'
 export const metadata: Metadata = {
   title: 'Verttex Manager',
   description: 'Painel Administrativo do Monorepo Verttex',
+  icons: {
+    icon: '/icon.svg',
+  },
 }
 
 export default function RootLayout({

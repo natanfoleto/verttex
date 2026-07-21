@@ -30,7 +30,6 @@ import {
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiDashboardLine,
-  RiLockPasswordLine,
   RiLogoutBoxRLine,
   RiMenuLine,
   RiShieldLine,
@@ -428,15 +427,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     >
                       <RiUser3Line className="h-4 w-4 text-zinc-400" />
                       <span>Meu perfil</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/perfil#senha"
-                      className="flex items-center space-x-2"
-                    >
-                      <RiLockPasswordLine className="h-4 w-4 text-zinc-400" />
-                      <span>Alterar senha</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

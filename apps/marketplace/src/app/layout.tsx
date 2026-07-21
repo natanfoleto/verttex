@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: 'Verttex — Mercado Regional & Produtos Artesanais',
   description:
     'Conectamos você aos melhores produtores artesanais da nossa região.',
+  icons: {
+    icon: '/icon.svg',
+  },
 }
 
 export default function RootLayout({
