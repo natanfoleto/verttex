@@ -1,4 +1,4 @@
-# Política de Validação de Entrada — VERTTEX NF
+# Política de Validação de Entrada — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22
 

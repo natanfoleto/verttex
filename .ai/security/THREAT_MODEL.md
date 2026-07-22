@@ -1,4 +1,4 @@
-# Modelo de Ameaças — VERTTEX NF
+# Modelo de Ameaças — VERTTEX
 
 > **Metodologia:** STRIDE por fluxo crítico  
 > **Versão:** 1.0 — Estado atual em 2026-07-22  

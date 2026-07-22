@@ -1,4 +1,4 @@
-# Frontend & UI/UX — VERTTEX NF
+# Frontend & UI/UX — VERTTEX
 
 > **Categoria:** Padrões de Interface, Design System e Comportamento Visual  
 > **Localização:** `.ai/frontend/`

@@ -1,4 +1,4 @@
-# Segurança de Upload de Arquivos — VERTTEX NF
+# Segurança de Upload de Arquivos — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **Status:** Não implementado — planejado para fase futura

@@ -1,4 +1,4 @@
-# Matriz de Rate Limiting — VERTTEX NF
+# Matriz de Rate Limiting — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **Status:** Planejado — Fase 3  

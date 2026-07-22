@@ -1,4 +1,4 @@
-# Documentos de Referência — VERTTEX NF
+# Documentos de Referência — VERTTEX
 
 > **Categoria:** Projetos de Referência, Inspiração e Análises Comparativas  
 > **Localização:** `.ai/references/`

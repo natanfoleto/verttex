@@ -1,4 +1,4 @@
-# Plano de Red Team Assistido por IA — VERTTEX NF
+# Plano de Red Team Assistido por IA — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **Escopo:** Apenas ambiente de desenvolvimento/staging com dados fictícios  

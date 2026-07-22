@@ -1,4 +1,4 @@
-# Backend & API — VERTTEX NF
+# Backend & API — VERTTEX
 
 > **Categoria:** Documentação de Serviços, APIs e Banco de Dados  
 > **Localização:** `.ai/backend/`

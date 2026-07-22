@@ -1,4 +1,4 @@
-# Security — VERTTEX NF
+# Security — VERTTEX
 
 > Documentação de segurança do projeto VERTTEX NF.  
 > **Todos os documentos aqui devem refletir o estado real do código, não apenas o estado desejado.**  

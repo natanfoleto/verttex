@@ -1,4 +1,4 @@
-# AI Agent Guidelines — VERTTEX NF Monorepo
+# AI Agent Guidelines — VERTTEX Monorepo
 
 > **Versão:** 2.0 — Centralizada em `.ai/`  
 > **Status:** Documento Mandatório para todas as IAs e Desenvolvedores que colaboram com o projeto

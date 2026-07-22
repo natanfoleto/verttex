@@ -1,4 +1,4 @@
-# Roadmaps Oficiais — VERTTEX NF
+# Roadmaps Oficiais — VERTTEX
 
 > **Categoria:** Planos Executáveis de Desenvolvimento e Histórico de Entregas  
 > **Localização:** `.ai/roadmaps/`

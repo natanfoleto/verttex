@@ -1,4 +1,4 @@
-# Arquitetura — VERTTEX NF
+# Arquitetura — VERTTEX
 
 > **Categoria:** Visão Geral de Arquitetura e Decisões de Design  
 > **Localização:** `.ai/architecture/`

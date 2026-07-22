@@ -1,4 +1,4 @@
-# Matriz de Controle de Acesso — VERTTEX NF
+# Matriz de Controle de Acesso — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **Atualizar ao:** Adicionar ou remover endpoint, alterar requisito de autenticação ou permissão

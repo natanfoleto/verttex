@@ -1,4 +1,4 @@
-# Domínio e Regras de Negócio — VERTTEX NF
+# Domínio e Regras de Negócio — VERTTEX
 
 > **Categoria:** Regras de Negócio, Permissões Funcionais e Fluxos do Sistema  
 > **Localização:** `.ai/domain/`

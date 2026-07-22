@@ -1,4 +1,4 @@
-# AI Agent Readme — VERTTEX NF
+# AI Agent Readme — VERTTEX
 
 Dear AI Agent, please refer to the main guidelines document located at [.ai/AGENT.md](file:///Users/natanfoleto/Desktop/prefeitura/verttex/.ai/AGENT.md).
 

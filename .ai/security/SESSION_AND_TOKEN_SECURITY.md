@@ -1,4 +1,4 @@
-# Sessões e Tokens — VERTTEX NF
+# Sessões e Tokens — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22
 

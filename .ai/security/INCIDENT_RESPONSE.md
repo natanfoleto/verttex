@@ -1,4 +1,4 @@
-# Resposta a Incidentes de Segurança — VERTTEX NF
+# Resposta a Incidentes de Segurança — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **Referência:** LGPD, ANPD (comunicação em até 3 dias úteis para incidentes com risco relevante)

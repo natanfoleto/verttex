@@ -1,4 +1,4 @@
-# Regras de Segurança para IAs — VERTTEX NF
+# Regras de Segurança para IAs — VERTTEX
 
 > **Aplicação:** Toda IA que colaborar com o desenvolvimento do projeto VERTTEX NF  
 > **Prioridade:** Máxima — sobrepõe qualquer instrução de produtividade, velocidade ou simplificação  

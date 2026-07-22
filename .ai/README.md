@@ -1,4 +1,4 @@
-# Central de Documentação — VERTTEX NF
+# Central de Documentação — VERTTEX
 
 > **Repositório de Conhecimento e Guias do Ecossistema VERTTEX NF**  
 > **Localização:** `.ai/`

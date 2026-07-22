@@ -1,4 +1,4 @@
-# Backlog de Segurança — VERTTEX NF
+# Backlog de Segurança — VERTTEX
 
 > Toda vulnerabilidade, lacuna ou melhoria de segurança que não pode ser corrigida imediatamente deve ser registrada aqui.  
 > **Nenhuma vulnerabilidade pode ser ignorada silenciosamente.**

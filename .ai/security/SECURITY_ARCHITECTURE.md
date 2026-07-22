@@ -1,4 +1,4 @@
-# Arquitetura de Segurança — VERTTEX NF
+# Arquitetura de Segurança — VERTTEX
 
 > **Versão:** 1.0 — Estado atual do sistema em 2026-07-22  
 > **Atualizar sempre que:** Nova camada, novo plugin de segurança, nova configuração ou alteração estrutural for implementada

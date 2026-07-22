@@ -1,4 +1,4 @@
-# Planejamento Preliminar — VERTTEX NF
+# Planejamento Preliminar — VERTTEX
 
 > **Categoria:** Estudos, Análises Preparatórias e Bootstrap  
 > **Localização:** `.ai/planning/`

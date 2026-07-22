@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   createContext,
@@ -94,20 +94,22 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     },
     enabled: !isPublicAuthRoute,
     retry: false,
-  })
-
-  const logoutMutation = useMutation({
-    mutationFn: () => apiClient('/auth/customers/logout', { method: 'POST' }),
-    onSuccess: () => {
-      queryClient.setQueryData(['auth-customer-me'], null)
-      queryClient.clear()
-      router.push('/')
-    },
+    refetchOnWindowFocus: false,
   })
 
   const logout = useCallback(async () => {
-    await logoutMutation.mutateAsync()
-  }, [logoutMutation])
+    queryClient.setQueryData(['auth-customer-me'], null)
+    queryClient.cancelQueries()
+    router.replace('/')
+
+    try {
+      await apiClient('/auth/customers/logout', { method: 'POST' })
+    } catch {
+      // Ignore errors during logout
+    } finally {
+      queryClient.clear()
+    }
+  }, [queryClient, router])
 
   const value = useMemo(
     () => ({

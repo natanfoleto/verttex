@@ -66,8 +66,8 @@ export default function ProfilePage() {
   } = useQuery<SessionItem[]>({
     queryKey: ['user-sessions'],
     queryFn: async () => {
-      const res = await apiClient<{ success: boolean; data: SessionItem[] }>('/auth/users/sessions')
-      return res.data
+      const res = await apiClient<SessionItem[]>('/auth/users/sessions')
+      return Array.isArray(res) ? res : []
     },
   })
 
@@ -140,10 +140,10 @@ export default function ProfilePage() {
   const handleRevokeOthers = async () => {
     try {
       setIsRevokingOthers(true)
-      const res = await apiClient<{ success: boolean; data: { message: string } }>('/auth/users/sessions/others', {
+      const res = await apiClient<{ message: string }>('/auth/users/sessions/others', {
         method: 'DELETE',
       })
-      toast.success(res.data.message || 'Outras sessões encerradas com sucesso!')
+      toast.success(res?.message || 'Outras sessões encerradas com sucesso!')
       refetchSessions()
     } catch {
       toast.error('Erro ao encerrar outras sessões.')

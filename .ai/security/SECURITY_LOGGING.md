@@ -1,4 +1,4 @@
-# Logs e Auditoria de Segurança — VERTTEX NF
+# Logs e Auditoria de Segurança — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22
 

@@ -4,7 +4,7 @@ import type { NextConfig } from 'next'
  * Security headers for Marketplace frontend (Next.js 15).
  *
  * Headers applied:
- * - Content-Security-Policy-Report-Only (initially in report-only mode)
+ * - Content-Security-Policy-Report-Only (with connect-src for API & WebSockets)
  * - X-Frame-Options: DENY — clickjacking protection
  * - X-Content-Type-Options: nosniff — MIME sniffing protection
  * - Referrer-Policy: strict-origin-when-cross-origin
@@ -15,6 +15,7 @@ import type { NextConfig } from 'next'
  */
 const cspHeader = `
   default-src 'self';
+  connect-src 'self' http://localhost:3333 ws://localhost:3001 http: https:;
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: https:;
@@ -23,7 +24,6 @@ const cspHeader = `
   base-uri 'self';
   form-action 'self';
   frame-ancestors 'none';
-  upgrade-insecure-requests;
 `.replace(/\s{2,}/g, ' ').trim()
 
 const nextConfig: NextConfig = {
@@ -50,7 +50,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()',
+            value: 'camera=(), microphone=(), geolocation=()',
           },
           {
             key: 'Strict-Transport-Security',

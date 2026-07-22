@@ -1,4 +1,4 @@
-# Observabilidade e Auditoria — VERTTEX NF
+# Observabilidade e Auditoria — VERTTEX
 
 > **Categoria:** Regras de Audit Log, Logs Estruturados e Rastreabilidade  
 > **Localização:** `.ai/observability/`

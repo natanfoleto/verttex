@@ -1,4 +1,4 @@
-# Índice Consolidado de Roadmaps — VERTTEX NF
+# Índice Consolidado de Roadmaps — VERTTEX
 
 > **Visão Geral dos Roadmaps do Projeto**  
 > **Localização:** `.ai/roadmaps/INDEX.md`  

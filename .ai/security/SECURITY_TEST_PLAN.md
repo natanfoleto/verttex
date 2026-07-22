@@ -1,4 +1,4 @@
-# Plano de Testes de Segurança — VERTTEX NF
+# Plano de Testes de Segurança — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **Status:** Planejado — Fase 10  

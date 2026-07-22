@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AppAbility, defineAbilityFor, UserToken } from '@verttex/auth'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -76,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     enabled: !isPublicAuthRoute,
     retry: false,
+    refetchOnWindowFocus: false,
   })
 
   const ability = useMemo(() => {
@@ -114,18 +115,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return defineAbilityFor(userToken)
   }, [user])
 
-  const logoutMutation = useMutation({
-    mutationFn: () => apiClient('/auth/users/logout', { method: 'POST' }),
-    onSuccess: () => {
-      queryClient.setQueryData(['auth-user-me'], null)
-      queryClient.clear()
-      router.push('/login')
-    },
-  })
-
   const logout = useCallback(async () => {
-    await logoutMutation.mutateAsync()
-  }, [logoutMutation])
+    // Immediately clear state and navigate to login to prevent 401 requests on dashboard unmount
+    queryClient.setQueryData(['auth-user-me'], null)
+    queryClient.cancelQueries()
+    router.replace('/login')
+
+    try {
+      await apiClient('/auth/users/logout', { method: 'POST' })
+    } catch {
+      // Ignore network errors during logout call
+    } finally {
+      queryClient.clear()
+    }
+  }, [queryClient, router])
 
   const value = useMemo(
     () => ({

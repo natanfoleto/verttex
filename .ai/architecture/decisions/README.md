@@ -1,4 +1,4 @@
-# Decisões de Arquitetura (ADRs) — VERTTEX NF
+# Decisões de Arquitetura (ADRs) — VERTTEX
 
 > **Categoria:** Architecture Decision Records  
 > **Localização:** `.ai/architecture/decisions/`

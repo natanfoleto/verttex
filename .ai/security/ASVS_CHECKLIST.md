@@ -1,4 +1,4 @@
-# Checklist OWASP ASVS 5.0 — VERTTEX NF
+# Checklist OWASP ASVS 5.0 — VERTTEX
 
 > **Nível alvo:** 2 geral / 3 em áreas críticas  
 > **Versão:** 1.0 — 2026-07-22  

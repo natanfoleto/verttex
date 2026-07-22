@@ -1,4 +1,4 @@
-# Registro de Decisões de Segurança — VERTTEX NF
+# Registro de Decisões de Segurança — VERTTEX
 
 > Todo desvio da política, toda escolha técnica importante e toda exceção aceita devem ser registradas aqui.  
 > **Formato:** Uma seção por decisão, com ID sequencial.  

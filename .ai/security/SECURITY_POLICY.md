@@ -1,4 +1,4 @@
-# Política de Segurança — VERTTEX NF
+# Política de Segurança — VERTTEX
 
 > **Versão:** 1.0  
 > **Data:** 2026-07-22  

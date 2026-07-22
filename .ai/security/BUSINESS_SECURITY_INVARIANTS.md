@@ -1,4 +1,4 @@
-# Invariantes de Segurança de Negócio — VERTTEX NF
+# Invariantes de Segurança de Negócio — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **Atualizar ao:** Adicionar novo fluxo de negócio, regra de negócio crítica ou identificar novo caso de abuso

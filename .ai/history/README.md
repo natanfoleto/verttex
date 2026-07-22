@@ -1,4 +1,4 @@
-# Histórico do Projeto — VERTTEX NF
+# Histórico do Projeto — VERTTEX
 
 > **Categoria:** Documentos Históricos de Origem e Inicialização  
 > **Localização:** `.ai/history/`

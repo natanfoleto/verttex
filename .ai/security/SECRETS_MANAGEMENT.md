@@ -1,4 +1,4 @@
-# Gerenciamento de Secrets — VERTTEX NF
+# Gerenciamento de Secrets — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22  
 > **NUNCA registrar o valor de um secret aqui. Apenas nome, finalidade, responsável e política de rotação.**

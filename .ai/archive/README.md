@@ -1,4 +1,4 @@
-# Arquivo Geral de Documentos — VERTTEX NF
+# Arquivo Geral de Documentos — VERTTEX
 
 > **Categoria:** Documentos Gerais Descontinuados ou Obsoletos  
 > **Localização:** `.ai/archive/`

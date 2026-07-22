@@ -1,4 +1,4 @@
-# Autenticação Segura — VERTTEX NF
+# Autenticação Segura — VERTTEX
 
 > **Versão:** 1.0 — 2026-07-22
 
