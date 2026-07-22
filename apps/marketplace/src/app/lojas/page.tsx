@@ -81,9 +81,9 @@ export default function StoresListingPage() {
   )
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans text-stone-900 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 pb-28 font-sans text-stone-900 lg:pb-36 sm:px-6 lg:px-8">
       {/* Breadcrumb & Title */}
-      <div className="space-y-2 border-b border-stone-200 pb-6">
+      <div className="space-y-3 border-b border-stone-200/80 pb-6">
         <div className="flex items-center space-x-2 text-xs text-stone-500">
           <Link href="/" className="hover:text-emerald-800">
             Início
@@ -94,10 +94,10 @@ export default function StoresListingPage() {
 
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-stone-900">
+            <h1 className="text-3xl font-extrabold tracking-tight text-stone-900 sm:text-4xl">
               Produtores & Lojas Parceiras
             </h1>
-            <p className="mt-1 text-xs text-stone-500">
+            <p className="mt-1.5 text-sm text-stone-500">
               Conheça as histórias, métodos de produção e origens de nossos
               parceiros regionais.
             </p>
@@ -113,7 +113,7 @@ export default function StoresListingPage() {
                 setPage(1)
               }}
               placeholder="Buscar por nome ou cidade..."
-              className="w-full rounded-lg border border-stone-200 bg-white py-2.5 pr-4 pl-10 text-xs text-stone-900 shadow-xs focus:border-emerald-600 focus:outline-none"
+              className="h-10 w-full rounded-lg border border-stone-200 bg-white pr-4 pl-10 text-xs text-stone-900 shadow-xs focus:border-emerald-600 focus:outline-none"
             />
           </div>
         </div>
@@ -121,8 +121,8 @@ export default function StoresListingPage() {
 
       {/* Stores Grid */}
       {paginatedStores.length > 0 ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {paginatedStores.map((store) => (
               <StoreCard key={store.id} {...store} />
             ))}
@@ -130,7 +130,7 @@ export default function StoresListingPage() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-stone-200 pt-4 text-xs text-stone-600">
+            <div className="flex items-center justify-between border-t border-stone-200 pt-6 text-xs text-stone-600">
               <span>
                 Página <strong>{page}</strong> de <strong>{totalPages}</strong> ({filteredStores.length} lojas)
               </span>
@@ -139,7 +139,7 @@ export default function StoresListingPage() {
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3 py-1.5 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3.5 py-2 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Anterior
                 </button>
@@ -147,7 +147,7 @@ export default function StoresListingPage() {
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3 py-1.5 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3.5 py-2 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Próxima
                 </button>

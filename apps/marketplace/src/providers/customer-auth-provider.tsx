@@ -1,15 +1,19 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   createContext,
   ReactNode,
+  Suspense,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useState,
 } from 'react'
 
+import { AuthDialog } from '../components/auth/auth-dialog'
 import { apiClient, ApiError } from '../lib/api-client'
 
 export interface CustomerProfile {
@@ -25,22 +29,50 @@ interface CustomerAuthContextType {
   isError: boolean
   refetchCustomer: () => void
   logout: () => Promise<void>
+  openAuthModal: (mode?: 'login' | 'register') => void
+  closeAuthModal: () => void
 }
 
 const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(
   undefined
 )
 
+function AuthQueryHandler({
+  openAuthModal,
+}: {
+  openAuthModal: (mode: 'login' | 'register') => void
+}) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const authParam = searchParams.get('auth')
+    if (authParam === 'login' || authParam === 'register') {
+      openAuthModal(authParam)
+    }
+  }, [searchParams, openAuthModal])
+
+  return null
+}
+
 export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const queryClient = useQueryClient()
 
+  const [isAuthOpen, setIsAuthOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+
+  const openAuthModal = useCallback((mode: 'login' | 'register' = 'login') => {
+    setAuthMode(mode)
+    setIsAuthOpen(true)
+  }, [])
+
+  const closeAuthModal = useCallback(() => {
+    setIsAuthOpen(false)
+  }, [])
+
   const isPublicAuthRoute =
-    pathname === '/login' ||
-    pathname === '/cadastro' ||
-    pathname === '/esqueci-minha-senha' ||
-    pathname === '/redefinir-senha'
+    pathname === '/esqueci-minha-senha' || pathname === '/redefinir-senha'
 
   const {
     data: customer,
@@ -69,7 +101,7 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       queryClient.setQueryData(['auth-customer-me'], null)
       queryClient.clear()
-      router.push('/login')
+      router.push('/')
     },
   })
 
@@ -84,13 +116,23 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       isError,
       refetchCustomer: refetch,
       logout,
+      openAuthModal,
+      closeAuthModal,
     }),
-    [customer, isLoading, isError, refetch, logout]
+    [customer, isLoading, isError, refetch, logout, openAuthModal, closeAuthModal]
   )
 
   return (
     <CustomerAuthContext.Provider value={value}>
+      <Suspense fallback={null}>
+        <AuthQueryHandler openAuthModal={openAuthModal} />
+      </Suspense>
       {children}
+      <AuthDialog
+        open={isAuthOpen}
+        onOpenChange={setIsAuthOpen}
+        initialMode={authMode}
+      />
     </CustomerAuthContext.Provider>
   )
 }

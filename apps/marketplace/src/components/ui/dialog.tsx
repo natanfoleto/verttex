@@ -50,7 +50,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute top-4 right-4 cursor-pointer rounded-md opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-stone-400 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-stone-100 data-[state=open]:text-stone-500">
+      <DialogPrimitive.Close className="absolute top-4 right-4 z-50 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-stone-200/80 bg-white text-stone-900 shadow-md transition-all hover:bg-stone-100 hover:scale-105 active:scale-95 focus:outline-none disabled:pointer-events-none">
         <RiCloseLine className="h-5 w-5" />
         <span className="sr-only">Fechar</span>
       </DialogPrimitive.Close>

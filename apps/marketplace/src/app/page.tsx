@@ -165,14 +165,14 @@ export default function MarketplaceHomePage() {
   const [activeTab, setActiveTab] = useState('todos')
 
   return (
-    <div className="space-y-16 pb-20 font-sans text-stone-900 antialiased">
+    <div className="space-y-24 pb-28 lg:pb-36 font-sans text-stone-900 antialiased">
       {/* Hero Banner Section */}
-      <section className="relative overflow-hidden bg-linear-to-br from-stone-900 via-stone-800 to-amber-950 px-4 py-20 text-white sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-linear-to-br from-stone-900 via-stone-800 to-amber-950 px-4 py-24 text-white sm:px-6 lg:px-8 lg:py-32">
         <div className="absolute top-0 right-0 h-96 w-96 translate-x-24 -translate-y-24 rounded-full bg-emerald-600/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-96 w-96 -translate-x-24 translate-y-24 rounded-full bg-amber-600/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
+          <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:items-center">
             <div className="space-y-6 lg:col-span-7">
               <div className="inline-flex items-center space-x-2 rounded-full border border-amber-500/40 bg-amber-900/40 px-3.5 py-1 text-xs font-semibold text-amber-300 backdrop-blur-xs">
                 <RiHeartLine className="h-3.5 w-3.5 text-amber-400" />
@@ -248,7 +248,7 @@ export default function MarketplaceHomePage() {
 
       {/* Shop By Categories Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex flex-col items-center space-y-2 text-center">
+        <div className="mb-12 flex flex-col items-center space-y-2 text-center">
           <span className="text-xs font-bold tracking-widest text-emerald-800 uppercase">
             Navegue por Categoria
           </span>
@@ -261,7 +261,7 @@ export default function MarketplaceHomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 justify-items-center gap-6 sm:grid-cols-3 md:grid-cols-6">
+        <div className="grid grid-cols-2 justify-items-center gap-8 sm:grid-cols-3 md:grid-cols-6">
           {MOCK_CATEGORIES.map((cat) => (
             <CategoryCircleCard
               key={cat.id}
@@ -275,7 +275,7 @@ export default function MarketplaceHomePage() {
 
       {/* Featured Products Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <span className="text-xs font-bold tracking-widest text-emerald-800 uppercase">
               Seleção Especial
@@ -308,16 +308,16 @@ export default function MarketplaceHomePage() {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {MOCK_PRODUCTS.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
         </div>
 
-        <div className="mt-10 text-center">
+        <div className="mt-12 text-center">
           <Link
             href="/produtos"
-            className="inline-flex items-center space-x-2 rounded-full border border-stone-300 bg-white px-6 py-3 text-xs font-bold text-stone-800 shadow-xs transition-colors hover:border-emerald-700 hover:bg-stone-50 hover:text-emerald-900"
+            className="inline-flex items-center space-x-2 rounded-full border border-stone-300 bg-white px-6 py-3.5 text-xs font-bold text-stone-800 shadow-xs transition-colors hover:border-emerald-700 hover:bg-stone-50 hover:text-emerald-900"
           >
             <span>Ver Todos os Produtos ({MOCK_PRODUCTS.length}+)</span>
             <RiArrowRightLine className="h-4 w-4" />
@@ -326,8 +326,8 @@ export default function MarketplaceHomePage() {
       </section>
 
       {/* Featured Producers / Stores Section */}
-      <section className="border-y border-stone-200/80 bg-stone-100/70 py-16">
-        <div className="mx-auto max-w-7xl space-y-10 px-4 sm:px-6 lg:px-8">
+      <section className="border-y border-stone-200/80 bg-stone-100/70 py-20">
+        <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
               <span className="text-xs font-bold tracking-widest text-amber-800 uppercase">
@@ -350,7 +350,7 @@ export default function MarketplaceHomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {MOCK_STORES.map((store) => (
               <StoreCard key={store.id} {...store} />
             ))}

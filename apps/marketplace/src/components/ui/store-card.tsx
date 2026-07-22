@@ -44,11 +44,17 @@ export function StoreCard({
           <div className="h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity-30" />
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
+
+        {/* Top-Right Products Count Badge */}
+        <div className="absolute top-3 right-3 z-10 flex items-center space-x-1.5 rounded-full border border-white/20 bg-stone-900/75 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-xs shadow-xs">
+          <RiStore2Line className="h-3.5 w-3.5 text-emerald-400" />
+          <span>{productsCount} produtos</span>
+        </div>
       </div>
 
       {/* Avatar Overlap */}
       <div className="relative px-5 pt-0">
-        <div className="-mt-9 flex items-end justify-between">
+        <div className="-mt-9 flex items-end">
           <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-amber-800 font-serif text-2xl font-bold text-amber-100 shadow-sm">
             {logoUrl ? (
               <img
@@ -59,11 +65,6 @@ export function StoreCard({
             ) : (
               <span>{name.charAt(0)}</span>
             )}
-          </div>
-
-          <div className="flex items-center space-x-1 rounded-full border border-emerald-200/60 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800">
-            <RiStore2Line className="h-3.5 w-3.5 text-emerald-700" />
-            <span>{productsCount} produtos</span>
           </div>
         </div>
       </div>
