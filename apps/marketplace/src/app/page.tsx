@@ -41,7 +41,7 @@ const MOCK_CATEGORIES = [
     name: 'Méis & Polens',
     slug: 'meis-polens',
     imageUrl:
-      'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: '5',
@@ -96,7 +96,7 @@ const MOCK_PRODUCTS: ProductCardProps[] = [
     originalPrice: 39.9,
     unit: 'pote (500g)',
     imageUrl:
-      'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80',
     storeName: 'Apiário Vale Verde',
     storeSlug: 'apiario-vale-verde',
     origin: 'Gramado, RS',

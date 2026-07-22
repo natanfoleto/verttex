@@ -64,7 +64,7 @@ const PRODUCTS_DATA: ProductCardProps[] = [
     originalPrice: 39.9,
     unit: 'pote (500g)',
     imageUrl:
-      'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
     storeName: 'Apiário Vale Verde',
     storeSlug: 'apiario-vale-verde',
     origin: 'Gramado, RS',
