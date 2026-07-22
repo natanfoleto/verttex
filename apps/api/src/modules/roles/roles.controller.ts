@@ -26,7 +26,8 @@ export async function createRoleController(
   reply: FastifyReply
 ) {
   const body = request.body as CreateRoleBody
-  const role = await rolesService.createRole(body)
+  const actorId = request.userPayload?.id
+  const role = await rolesService.createRole(body, actorId, request)
   return reply.status(201).send({
     success: true,
     data: role,
@@ -51,7 +52,8 @@ export async function updateRoleController(
 ) {
   const params = request.params as RoleParams
   const body = request.body as UpdateRoleBody
-  const role = await rolesService.updateRole(params.roleId, body)
+  const actorId = request.userPayload?.id
+  const role = await rolesService.updateRole(params.roleId, body, actorId, request)
   return reply.send({
     success: true,
     data: role,
@@ -63,7 +65,8 @@ export async function deleteRoleController(
   reply: FastifyReply
 ) {
   const params = request.params as RoleParams
-  const result = await rolesService.deleteRole(params.roleId)
+  const actorId = request.userPayload?.id
+  const result = await rolesService.deleteRole(params.roleId, actorId, request)
   return reply.send({
     success: true,
     data: result,
@@ -88,9 +91,12 @@ export async function updateRolePermissionsController(
 ) {
   const params = request.params as RoleParams
   const body = request.body as UpdateRolePermissionsBody
+  const actorId = request.userPayload?.id
   const permissions = await rolesService.updateRolePermissions(
     params.roleId,
-    body.permissionIds
+    body.permissionIds,
+    actorId,
+    request
   )
   return reply.send({
     success: true,

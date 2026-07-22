@@ -1,3 +1,4 @@
+import { FastifyRequest } from 'fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { hashPassword } from '../../shared/utils/crypto'
@@ -70,7 +71,7 @@ export class UsersService {
     }
   }
 
-  async createUser(data: CreateUserBody) {
+  async createUser(data: CreateUserBody, actorId?: string, req?: FastifyRequest) {
     const email = data.email.toLowerCase().trim()
 
     const existingUser = await prisma.user.findUnique({
@@ -113,11 +114,12 @@ export class UsersService {
     })
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'CREATE',
       entity: 'User',
       entityId: user.id,
       newValues: user,
+      req,
     })
 
     return user
@@ -159,7 +161,7 @@ export class UsersService {
     return user
   }
 
-  async updateUser(userId: string, data: UpdateUserBody) {
+  async updateUser(userId: string, data: UpdateUserBody, actorId?: string, req?: FastifyRequest) {
     const previousUser = await prisma.user.findUnique({
       where: { id: userId },
       include: { role: true },
@@ -213,7 +215,7 @@ export class UsersService {
     const action = data.status && data.status !== previousUser.status ? 'STATUS_CHANGE' : 'UPDATE'
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action,
       entity: 'User',
       entityId: userId,
@@ -231,12 +233,13 @@ export class UsersService {
         status: updatedUser.status,
         roleId: updatedUser.roleId,
       },
+      req,
     })
 
     return updatedUser
   }
 
-  async deleteUser(userId: string) {
+  async deleteUser(userId: string, actorId?: string, req?: FastifyRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { role: true },
@@ -256,7 +259,7 @@ export class UsersService {
     })
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'DELETE',
       entity: 'User',
       entityId: userId,
@@ -267,6 +270,7 @@ export class UsersService {
         roleId: user.roleId,
       },
       newValues: { status: 'inactive' },
+      req,
     })
 
     return { message: 'Usuário desativado com sucesso' }
@@ -304,7 +308,12 @@ export class UsersService {
     })
   }
 
-  async updateUserPermissions(userId: string, body: UpdateUserPermissionsBody) {
+  async updateUserPermissions(
+    userId: string,
+    body: UpdateUserPermissionsBody,
+    actorId?: string,
+    req?: FastifyRequest
+  ) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     })
@@ -334,7 +343,7 @@ export class UsersService {
     const newPermissions = await this.getUserPermissions(userId)
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'PERMISSION_CHANGE',
       entity: 'User',
       entityId: userId,
@@ -346,6 +355,7 @@ export class UsersService {
         permissionKey: p.permission.key,
         effect: p.effect,
       })),
+      req,
     })
 
     return newPermissions

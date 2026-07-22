@@ -1,3 +1,4 @@
+import { FastifyRequest } from 'fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { logAudit } from '../../shared/utils/audit'
@@ -20,7 +21,7 @@ export class RolesService {
     })
   }
 
-  async createRole(data: CreateRoleBody) {
+  async createRole(data: CreateRoleBody, actorId?: string, req?: FastifyRequest) {
     const existing = await prisma.role.findUnique({
       where: { key: data.key },
     })
@@ -39,11 +40,12 @@ export class RolesService {
     })
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'CREATE',
       entity: 'Role',
       entityId: role.id,
       newValues: { key: role.key, name: role.name, description: role.description },
+      req,
     })
 
     return role
@@ -71,7 +73,7 @@ export class RolesService {
     return role
   }
 
-  async updateRole(roleId: string, data: UpdateRoleBody) {
+  async updateRole(roleId: string, data: UpdateRoleBody, actorId?: string, req?: FastifyRequest) {
     const previousRole = await prisma.role.findUnique({
       where: { id: roleId },
     })
@@ -90,7 +92,7 @@ export class RolesService {
     })
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'UPDATE',
       entity: 'Role',
       entityId: roleId,
@@ -104,12 +106,13 @@ export class RolesService {
         description: updatedRole.description,
         isActive: updatedRole.isActive,
       },
+      req,
     })
 
     return updatedRole
   }
 
-  async deleteRole(roleId: string) {
+  async deleteRole(roleId: string, actorId?: string, req?: FastifyRequest) {
     const role = await prisma.role.findUnique({
       where: { id: roleId },
       include: {
@@ -142,11 +145,12 @@ export class RolesService {
     })
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'DELETE',
       entity: 'Role',
       entityId: roleId,
       oldValues: { key: role.key, name: role.name },
+      req,
     })
 
     return { message: 'Cargo excluído com sucesso' }
@@ -171,7 +175,12 @@ export class RolesService {
     return role.permissions.map((rp) => rp.permission)
   }
 
-  async updateRolePermissions(roleId: string, permissionIds: string[]) {
+  async updateRolePermissions(
+    roleId: string,
+    permissionIds: string[],
+    actorId?: string,
+    req?: FastifyRequest
+  ) {
     const role = await prisma.role.findUnique({
       where: { id: roleId },
     })
@@ -200,12 +209,13 @@ export class RolesService {
     const newPermissions = await this.getRolePermissions(roleId)
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'PERMISSION_CHANGE',
       entity: 'Role',
       entityId: roleId,
       oldValues: previousPermissions.map((p) => ({ key: p.key })),
       newValues: newPermissions.map((p) => ({ key: p.key })),
+      req,
     })
 
     return newPermissions

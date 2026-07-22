@@ -29,7 +29,8 @@ export async function createUserController(
   reply: FastifyReply
 ) {
   const body = request.body as CreateUserBody
-  const user = await usersService.createUser(body)
+  const actorId = request.userPayload?.id
+  const user = await usersService.createUser(body, actorId, request)
   return reply.status(201).send({
     success: true,
     data: user,
@@ -54,7 +55,8 @@ export async function updateUserController(
 ) {
   const params = request.params as UserParams
   const body = request.body as UpdateUserBody
-  const user = await usersService.updateUser(params.userId, body)
+  const actorId = request.userPayload?.id
+  const user = await usersService.updateUser(params.userId, body, actorId, request)
   return reply.send({
     success: true,
     data: user,
@@ -66,7 +68,8 @@ export async function deleteUserController(
   reply: FastifyReply
 ) {
   const params = request.params as UserParams
-  const result = await usersService.deleteUser(params.userId)
+  const actorId = request.userPayload?.id
+  const result = await usersService.deleteUser(params.userId, actorId, request)
   return reply.send({
     success: true,
     data: result,
@@ -103,9 +106,12 @@ export async function updateUserPermissionsController(
 ) {
   const params = request.params as UserParams
   const body = request.body as UpdateUserPermissionsBody
+  const actorId = request.userPayload?.id
   const permissions = await usersService.updateUserPermissions(
     params.userId,
-    body
+    body,
+    actorId,
+    request
   )
   return reply.send({
     success: true,

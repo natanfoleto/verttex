@@ -57,4 +57,33 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  /* Custom Verttex Sleek Scrollbar (X & Y) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #27272a transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 9999px;
+    transition: background-color 150ms ease-in-out;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #059669;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }

@@ -1,3 +1,4 @@
+import { FastifyRequest } from 'fastify'
 import { AuthenticatedUserPayload } from '../../@types/fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
@@ -13,7 +14,8 @@ import {
 export class StoresService {
   async createStore(
     userPayload: AuthenticatedUserPayload,
-    data: CreateStoreBody
+    data: CreateStoreBody,
+    req?: FastifyRequest
   ) {
     const slug = normalizeSlug(data.slug)
 
@@ -69,6 +71,7 @@ export class StoresService {
         entity: 'Store',
         entityId: store.id,
         newValues: store,
+        req,
       })
 
       return store
@@ -164,7 +167,8 @@ export class StoresService {
   async updateStore(
     storeId: string,
     userPayload: AuthenticatedUserPayload,
-    data: UpdateStoreBody
+    data: UpdateStoreBody,
+    req?: FastifyRequest
   ) {
     const previousStore = await prisma.store.findUnique({
       where: { id: storeId },
@@ -252,12 +256,13 @@ export class StoresService {
         coverUrl: updatedStore.coverUrl,
         customDomain: updatedStore.customDomain,
       },
+      req,
     })
 
     return updatedStore
   }
 
-  async deleteStore(storeId: string, userId?: string) {
+  async deleteStore(storeId: string, userId?: string, req?: FastifyRequest) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
     })
@@ -282,6 +287,7 @@ export class StoresService {
         status: store.status,
       },
       newValues: { status: 'inactive' },
+      req,
     })
 
     return { message: 'Loja desativada com sucesso' }
@@ -316,7 +322,12 @@ export class StoresService {
     return members
   }
 
-  async addStoreMember(storeId: string, data: AddStoreMemberBody) {
+  async addStoreMember(
+    storeId: string,
+    data: AddStoreMemberBody,
+    actorId?: string,
+    req?: FastifyRequest
+  ) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
     })
@@ -364,17 +375,23 @@ export class StoresService {
     })
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'MEMBER_ADD',
       entity: 'Store',
       entityId: storeId,
       newValues: { userId: data.userId, isOwner: data.isOwner ?? false },
+      req,
     })
 
     return member
   }
 
-  async removeStoreMember(storeId: string, userId: string) {
+  async removeStoreMember(
+    storeId: string,
+    userId: string,
+    actorId?: string,
+    req?: FastifyRequest
+  ) {
     const storeUser = await prisma.storeUser.findUnique({
       where: {
         storeId_userId: {
@@ -398,11 +415,12 @@ export class StoresService {
     })
 
     await logAudit({
-      userId: null,
+      userId: actorId ?? null,
       action: 'MEMBER_REMOVE',
       entity: 'Store',
       entityId: storeId,
       oldValues: { userId, isOwner: storeUser.isOwner },
+      req,
     })
 
     return { message: 'Membro removido da loja com sucesso' }

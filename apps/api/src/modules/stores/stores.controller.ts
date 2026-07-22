@@ -18,7 +18,7 @@ export async function createStoreController(
 ) {
   const userPayload = request.userPayload!
   const body = request.body as CreateStoreBody
-  const store = await storesService.createStore(userPayload, body)
+  const store = await storesService.createStore(userPayload, body, request)
   return reply.status(201).send({
     success: true,
     data: store,
@@ -61,7 +61,8 @@ export async function updateStoreController(
   const store = await storesService.updateStore(
     params.storeId,
     userPayload,
-    body
+    body,
+    request
   )
   return reply.send({
     success: true,
@@ -75,7 +76,11 @@ export async function deleteStoreController(
 ) {
   const userPayload = request.userPayload!
   const params = request.params as StoreParams
-  const result = await storesService.deleteStore(params.storeId, userPayload.id)
+  const result = await storesService.deleteStore(
+    params.storeId,
+    userPayload.id,
+    request
+  )
   return reply.send({
     success: true,
     data: result,
@@ -100,7 +105,13 @@ export async function addStoreMemberController(
 ) {
   const params = request.params as StoreParams
   const body = request.body as AddStoreMemberBody
-  const member = await storesService.addStoreMember(params.storeId, body)
+  const actorId = request.userPayload?.id
+  const member = await storesService.addStoreMember(
+    params.storeId,
+    body,
+    actorId,
+    request
+  )
   return reply.status(201).send({
     success: true,
     data: member,
@@ -112,9 +123,12 @@ export async function removeStoreMemberController(
   reply: FastifyReply
 ) {
   const params = request.params as StoreMemberParams
+  const actorId = request.userPayload?.id
   const result = await storesService.removeStoreMember(
     params.storeId,
-    params.userId
+    params.userId,
+    actorId,
+    request
   )
   return reply.send({
     success: true,
