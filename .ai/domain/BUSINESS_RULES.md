@@ -90,7 +90,7 @@ Effective access is determined by:
 
 ### 4.2 Permission Naming
 
-All permissions follow the `resource.action` pattern. See `.ai/PERMISSIONS.md` for the full reference.
+All permissions follow the `resource.action` pattern. See `.ai/domain/PERMISSIONS.md` for the full reference.
 
 ### 4.3 Permission Precedence Order
 
@@ -205,4 +205,4 @@ Do NOT implement without a confirmed follow-up specification:
 - The backend is always the authoritative source of security
 - Soft-delete (logical deactivation) is preferred over hard delete for Users, Customers, and Stores
 - All permissions must follow the `resource.action` naming convention
-- See `.ai/PERMISSIONS.md` for the full permissions reference
+- See `.ai/domain/PERMISSIONS.md` for the full permissions reference

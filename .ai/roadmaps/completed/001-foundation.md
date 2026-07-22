@@ -60,5 +60,5 @@ A working monorepo where all apps and packages compile, pass lint, typecheck, an
 ## Change Log
 
 - 2026-07-21: `apps/storefront` renamed to `apps/marketplace` to align with product naming
-- 2026-07-21: `PROMPT_VERTTEX_BOOTSTRAP.md` moved to `.ai/INITIAL_PROMPT.md`
-- 2026-07-21: Phase 1 overview document ingested; `.ai/` documentation expanded; `.roadmaps/` structure created
+- 2026-07-21: `PROMPT_VERTTEX_BOOTSTRAP.md` moved to `.ai/history/INITIAL_PROMPT.md`
+- 2026-07-21: Phase 1 overview document ingested; `.ai/` documentation expanded; `.ai/roadmaps/` structure created

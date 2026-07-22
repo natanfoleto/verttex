@@ -14,20 +14,33 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 /**
- * Verifies a plain-text password against a stored `salt:hash` string.
- * Supports legacy/placeholder hashes for testing compatibility.
+ * Verifies a plain-text password against a stored `salt:hash` string (hex encoded).
+ *
+ * Returns `false` for any hash that does not conform to the `salt:hash` format.
+ * Comparison is performed using `timingSafeEqual` to prevent timing attacks.
+ *
+ * @security
+ * - No legacy/plain-text fallback. All stored hashes must be produced by `hashPassword()`.
+ * - If a hash without the `:` separator is encountered, `false` is returned immediately.
+ *   This is intentional: it rejects any value that was not produced by this module.
  */
 export async function verifyPassword(
   password: string,
   storedHash: string
 ): Promise<boolean> {
-  if (!storedHash.includes(':')) {
-    // Legacy/fallback comparison if simple hash string was seeded
-    return password === storedHash || storedHash.includes(password)
+  const separatorIndex = storedHash.indexOf(':')
+  if (separatorIndex === -1) {
+    // Hash is not in the expected `salt:hash` format.
+    // Return false — do NOT compare directly. This rejects any plain-text or
+    // improperly formatted value, eliminating the plain-text bypass vector.
+    return false
   }
 
-  const [salt, keyHex] = storedHash.split(':')
+  const salt = storedHash.slice(0, separatorIndex)
+  const keyHex = storedHash.slice(separatorIndex + 1)
+
   if (!salt || !keyHex) return false
+
   const keyBuffer = Buffer.from(keyHex, 'hex')
   const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer
 

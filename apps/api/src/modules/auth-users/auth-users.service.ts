@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest } from 'fastify'
+import { randomUUID } from 'node:crypto'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { logAudit } from '../../shared/utils/audit'
@@ -8,12 +9,18 @@ import {
   hashToken,
   generateRandomToken,
 } from '../../shared/utils/crypto'
+import { revokeJti } from '../../shared/utils/token-denylist'
 import {
   LoginBody,
   ForgotPasswordBody,
   ResetPasswordBody,
   ChangePasswordBody,
 } from './auth-users.schemas'
+
+/** JWT issuer — must match validation in auth.ts */
+const JWT_ISSUER = 'api.verttexloja.com.br'
+/** JWT audience for management users (Manager app) */
+const JWT_AUDIENCE_MANAGER = 'manager'
 
 export class AuthUsersService {
   async login(
@@ -62,9 +69,15 @@ export class AuthUsersService {
       data: { lastLoginAt: new Date() },
     })
 
-    // Generate JWT access token (15 mins)
+    // Generate JWT access token (15 mins) with security claims
+    // jti: unique token ID for denylist (SD-003)
+    // iss/aud: prevent token confusion between contexts (SD-003)
+    const jti = randomUUID()
     const accessToken = app.jwt.sign(
       {
+        jti,
+        iss: JWT_ISSUER,
+        aud: JWT_AUDIENCE_MANAGER,
         sub: user.id,
         actorType: 'user',
         role: user.role.key,
@@ -100,17 +113,26 @@ export class AuthUsersService {
     }
   }
 
-  async logout(userId?: string, sessionId?: string) {
+  async logout(userId?: string, sessionId?: string, jti?: string, tokenExp?: number) {
     if (!sessionId) return
 
     const session = await prisma.userSession.findUnique({
       where: { id: sessionId },
     })
 
+    // Revoke session
     await prisma.userSession.updateMany({
       where: { id: sessionId, revokedAt: null },
       data: { revokedAt: new Date() },
     })
+
+    // Add jti to denylist so the access token is rejected immediately (Fase 4 — SD-003)
+    if (jti) {
+      const expiresAt = tokenExp
+        ? new Date(tokenExp * 1000)
+        : new Date(Date.now() + 15 * 60 * 1000) // fallback: 15 min
+      await revokeJti(jti, expiresAt).catch(() => {})
+    }
 
     if (userId) {
       await logAudit({
@@ -208,12 +230,32 @@ export class AuthUsersService {
       include: { user: { include: { role: true } } },
     })
 
-    if (
-      !session ||
-      session.revokedAt ||
-      session.expiresAt < new Date() ||
-      session.user.status !== 'active'
-    ) {
+    if (!session) {
+      throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+    }
+
+    // Refresh Token Reuse Detection (Fase 5 — VULN-006):
+    // If a session has already been revoked and its refresh token is presented again,
+    // a stolen token is likely being reused by an attacker. Revoke ALL sessions for this user.
+    if (session.revokedAt) {
+      await prisma.userSession.updateMany({
+        where: { userId: session.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      })
+
+      await logAudit({
+        userId: session.userId,
+        action: 'SUSPICIOUS_TOKEN_REUSE',
+        entity: 'UserSession',
+        entityId: session.id,
+        oldValues: { sessionId: session.id, revokedAt: session.revokedAt, ipAddress, userAgent },
+        newValues: { actionTaken: 'ALL_USER_SESSIONS_REVOKED' },
+      })
+
+      throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+    }
+
+    if (session.expiresAt < new Date() || session.user.status !== 'active') {
       throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
     }
 
@@ -238,9 +280,13 @@ export class AuthUsersService {
       },
     })
 
-    // Generate new JWT
+    // Generate new JWT with full security claims
+    const jti = randomUUID()
     const accessToken = app.jwt.sign(
       {
+        jti,
+        iss: JWT_ISSUER,
+        aud: JWT_AUDIENCE_MANAGER,
         sub: session.user.id,
         actorType: 'user',
         role: session.user.role.key,

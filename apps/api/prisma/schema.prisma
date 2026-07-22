@@ -219,3 +219,12 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+model RevokedToken {
+  jti       String   @id          // JWT ID (jti claim) — unique per access token
+  expiresAt DateTime             // Original token expiration — used for periodic cleanup
+  revokedAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("revoked_tokens")
+}

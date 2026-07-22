@@ -66,9 +66,29 @@ export async function logoutController(
   request: FastifyZodRequest,
   reply: FastifyReply
 ) {
+  // Extract jti and exp from the current access token for immediate denylist
+  let jti: string | undefined
+  let tokenExp: number | undefined
+
+  try {
+    const token =
+      request.cookies.user_access_token ||
+      (request.headers.authorization?.split(' ')[1])
+
+    if (token) {
+      const decoded = request.server.jwt.decode<{ jti?: string; exp?: number }>(token)
+      jti = decoded?.jti
+      tokenExp = decoded?.exp
+    }
+  } catch {
+    // Ignore decode errors — logout proceeds regardless
+  }
+
   await authUsersService.logout(
     request.userPayload?.id,
-    request.userPayload?.sessionId
+    request.userPayload?.sessionId,
+    jti,
+    tokenExp
   )
 
   reply

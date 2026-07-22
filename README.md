@@ -64,4 +64,4 @@ pnpm --filter @verttex/manager dev
 pnpm --filter @verttex/marketplace dev
 ```
 
-For more scripts and helper guidelines, consult [.ai/WORKFLOWS.md](file:///Users/natanfoleto/Desktop/prefeitura/verttex/.ai/WORKFLOWS.md).
+For more scripts and helper guidelines, consult [.ai/domain/WORKFLOWS.md](file:///Users/natanfoleto/Desktop/prefeitura/verttex/.ai/domain/WORKFLOWS.md).

@@ -74,7 +74,7 @@ The current `@verttex/auth` package contains placeholder roles (`ADMIN`, `USER`)
 
 ## Business Rules
 
-- See `.ai/PERMISSIONS.md` for full permissions list and precedence
+- See `.ai/domain/PERMISSIONS.md` for full permissions list and precedence
 - System roles (`admin`, `employee`, `supplier`) cannot be deleted
 - Last active admin cannot be deactivated
 - Permission precedence: admin > explicit deny > explicit allow > role default > deny

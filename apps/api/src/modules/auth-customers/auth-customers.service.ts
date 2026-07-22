@@ -143,12 +143,23 @@ export class AuthCustomersService {
       include: { customer: true },
     })
 
-    if (
-      !session ||
-      session.revokedAt ||
-      session.expiresAt < new Date() ||
-      session.customer.status !== 'active'
-    ) {
+    if (!session) {
+      throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+    }
+
+    // Refresh Token Reuse Detection (Fase 5):
+    // If a customer session has already been revoked and its refresh token is reused,
+    // revoke ALL sessions for this customer to contain potential token theft.
+    if (session.revokedAt) {
+      await prisma.customerSession.updateMany({
+        where: { customerId: session.customerId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      })
+
+      throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+    }
+
+    if (session.expiresAt < new Date() || session.customer.status !== 'active') {
       throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
     }
 

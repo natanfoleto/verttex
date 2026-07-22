@@ -5,6 +5,8 @@ import {
   ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 
+import { helmetPlugin } from './plugins/helmet'
+import { rateLimitPlugin } from './plugins/rate-limit'
 import { requestContextPlugin } from './plugins/request-context'
 import { corsPlugin } from './plugins/cors'
 import { jwtPlugin } from './plugins/jwt'
@@ -18,12 +20,20 @@ import { registerModules } from './modules'
 export function buildApp() {
   const app = Fastify({
     logger: true,
+    // Trust 1 level of reverse proxy (Cloudflare / Nginx) for accurate client IP extraction
+    trustProxy: 1,
+    // Global body limit: 256 KB (prevents payload flood attacks — VULN-010)
+    bodyLimit: 256 * 1024,
   }).withTypeProvider<ZodTypeProvider>()
 
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
 
   app.setErrorHandler(httpErrorHandler)
+
+  // Security headers — must be registered first
+  app.register(helmetPlugin)
+  app.register(rateLimitPlugin)
 
   // Plugins
   app.register(requestContextPlugin)

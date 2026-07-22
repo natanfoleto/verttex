@@ -49,7 +49,7 @@ Stores are the core business entity of the Verttex marketplace. Each store repre
 
 ## Business Rules
 
-- See `.ai/BUSINESS_RULES.md` for store status rules, slug rules, and domain strategy
+- See `.ai/domain/BUSINESS_RULES.md` for store status rules, slug rules, and domain strategy
 - Slug must be: unique, URL-safe, normalized, validated against reserved words list
 - `customDomain` field is optional — stored but not functionally activated in Phase 1
 - Status transitions: `draft` → `active`; `active` → `inactive`; any → `suspended` (admin only)

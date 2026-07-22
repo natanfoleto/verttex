@@ -3,6 +3,10 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { defineAbilityFor, UserToken } from '@verttex/auth'
 import { AppError } from '../shared/errors/app-error'
 import { prisma } from '../infrastructure/database/prisma'
+import { isJtiRevoked } from '../shared/utils/token-denylist'
+
+/** JWT issuer — must match the value set in auth-users.service.ts */
+const JWT_ISSUER = 'api.verttexloja.com.br'
 
 export const authPlugin = fp(async (app) => {
   app.decorateRequest('getCurrentUserAbility', function (this: FastifyRequest) {
@@ -34,11 +38,20 @@ export const authPlugin = fp(async (app) => {
         }
 
         const decoded = app.jwt.verify<{
+          jti?: string
+          iss?: string
+          aud?: string | string[]
           sub: string
           actorType: string
           role: string
           sessionId: string
+          exp?: number
         }>(token)
+
+        // Validate issuer to prevent token confusion
+        if (decoded.iss !== JWT_ISSUER) {
+          throw new AppError('UNAUTHORIZED', 'Token inválido para este contexto', 401)
+        }
 
         if (decoded.actorType !== 'user') {
           throw new AppError(
@@ -46,6 +59,14 @@ export const authPlugin = fp(async (app) => {
             'Token inválido para este contexto',
             401
           )
+        }
+
+        // Check jti denylist — revoked access tokens are rejected immediately (SD-003)
+        if (decoded.jti) {
+          const revoked = await isJtiRevoked(decoded.jti)
+          if (revoked) {
+            throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+          }
         }
 
         const session = await prisma.userSession.findUnique({

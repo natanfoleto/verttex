@@ -22,7 +22,7 @@ The Prisma schema was empty (only datasource and generator). All Phase 1 entitie
 
 - [x] All Phase 1 Prisma models created and migrated
 - [x] Database seed for initial roles, permissions, default role permissions, and default admin user
-- [x] Schema fully documented and coherent with `.ai/ARCHITECTURE.md`
+- [x] Schema fully documented and coherent with `.ai/architecture/ARCHITECTURE.md`
 
 ## Scope
 
@@ -51,8 +51,8 @@ The Prisma schema was empty (only datasource and generator). All Phase 1 entitie
 
 ## Business Rules
 
-- All entity rules from `.ai/BUSINESS_RULES.md` enforced
-- All permissions from `.ai/PERMISSIONS.md` seeded
+- All entity rules from `.ai/domain/BUSINESS_RULES.md` enforced
+- All permissions from `.ai/domain/PERMISSIONS.md` seeded
 - `User.email` unique constraint enforced
 - `Customer.email` unique constraint enforced
 - `Role.key` unique constraint enforced
@@ -104,7 +104,7 @@ AuditLog
 ### Step 4 — Create seeds
 
 - [x] Seed roles: `admin`, `employee`, `supplier`
-- [x] Seed permissions (all 23 `resource.action` entries from `.ai/PERMISSIONS.md`)
+- [x] Seed permissions (all 23 `resource.action` entries from `.ai/domain/PERMISSIONS.md`)
 - [x] Seed `RolePermission` default assignments
 - [x] Seed first admin user (`admin@verttexloja.com.br`)
 

@@ -101,7 +101,7 @@ AuditLog
 - Access tokens: short-lived JWT
 - Refresh tokens: rotated, stored as hash only
 - Cookies: `httpOnly`, `secure` in production
-- See `.ai/BACKEND_API.md` for full route and middleware documentation
+- See `.ai/backend/BACKEND_API.md` for full route and middleware documentation
 
 ---
 
@@ -115,6 +115,6 @@ The `@verttex/auth` package concentrates:
 - `defineAbilityFor(user)` function
 - Shared helpers for both backend guards and frontend `<Can>` components
 
-> **Note**: The current state of `@verttex/auth` is a placeholder with only `ADMIN` and `USER` roles. It will be refactored in Roadmap 005 to align with the Phase 1 specification (`admin`, `employee`, `supplier` and full permission subjects).
+> **Note**: The current state of `@verttex/auth` is aligned with Phase 1 specification (`admin`, `employee`, `supplier` and full permission subjects).
 
-See `.ai/PERMISSIONS.md` for the full permissions reference.
+See `.ai/domain/PERMISSIONS.md` for the full permissions reference.

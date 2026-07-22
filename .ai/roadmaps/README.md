@@ -1,161 +1,100 @@
-# Roadmaps — Verttex
+# Roadmaps Oficiais — VERTTEX NF
 
-This folder contains the planning documents and implementation history for the Verttex platform development.
-
----
-
-## Purpose
-
-`.roadmaps/` tracks **what was built, what is being built, and what will be built** — in a way that provides historical context, clear scope boundaries, and implementation guidance.
-
-It is **separate** from `.ai/` by design:
-
-| Folder       | Responsibility                                                              |
-| ------------ | --------------------------------------------------------------------------- |
-| `.ai/`       | Permanent project documentation: architecture, rules, patterns, conventions |
-| `.roadmaps/` | Implementation history: phases, scope, progress, blockers, decisions        |
+> **Categoria:** Planos Executáveis de Desenvolvimento e Histórico de Entregas  
+> **Localização:** `.ai/roadmaps/`
 
 ---
 
-## Folder Structure
+## 1. Finalidade
 
-```
-.roadmaps/
-├── README.md          — This file
-├── INDEX.md           — Consolidated index of all roadmaps
-├── active/            — Roadmaps currently in progress
-├── planned/           — Roadmaps planned but not yet started
-├── completed/         — Finished and validated roadmaps
-└── archived/          — Cancelled, replaced, or obsolete roadmaps
+A pasta `.ai/roadmaps/` rastreia **o que foi construído, o que está sendo construído e o que será construído** no ecossistema VERTTEX NF — oferecendo contexto histórico, limites claros de escopo e rastreabilidade com evidências.
+
+Toda a documentação técnica e planos de execução estão centralizados sob o diretório `.ai/`.
+
+---
+
+## 2. Estrutura de Pastas
+
+```text
+.ai/roadmaps/
+├── README.md          — Este arquivo
+├── INDEX.md           — Índice consolidado de todos os roadmaps
+├── active/            — Roadmaps atualmente em execução (máximo 1 ativo por vez)
+├── planned/           — Roadmaps planejados e aprovados, aguardando início
+├── completed/         — Roadmaps totalmente concluídos e validados
+└── archived/          — Roadmaps cancelados, substituídos ou obsoletos
 ```
 
 ---
 
-## Naming Convention
+## 3. Convenção de Nomenclatura
 
-Files use sequential three-digit numbering:
+Os arquivos utilizam numeração sequencial de três dígitos:
 
-```
+```text
 001-foundation.md
 002-data-modeling.md
 003-user-authentication.md
+004-customer-authentication.md
+005-roles-and-permissions.md
+006-stores-management.md
+007-manager-ui.md
+008-marketplace-ui.md
 ```
 
-Rules:
-
-- Lowercase letters
-- English technical names
-- Hyphens between words
-- Numbers are never reused or renumbered
-- Keep archived roadmap numbers intact
-
----
-
-## Status Values
-
-| Status      | Description                                             |
-| ----------- | ------------------------------------------------------- |
-| `draft`     | Document still being written                            |
-| `planned`   | Ready to start, but not yet in progress                 |
-| `active`    | Currently being developed                               |
-| `blocked`   | Waiting on a dependency, decision, or technical problem |
-| `completed` | Done and validated                                      |
-| `cancelled` | Stopped with no planned restart                         |
-| `archived`  | Kept for history only                                   |
-
-The status inside the document must match the folder it is located in.  
-Exception: a `blocked` roadmap may remain in `active/` as long as the blocker is clearly documented.
+Regras:
+- Letras minúsculas
+- Nomes técnicos claros em inglês ou português
+- Hífen separando palavras
+- Os números nunca são reusados
+- Manter a numeração de roadmaps arquivados intacta
 
 ---
 
-## How to Create a New Roadmap
+## 4. Status e Ciclo de Vida
 
-1. Determine the next available number from `INDEX.md`
-2. Create the file in `planned/` using the template below
-3. Add it to `INDEX.md`
-4. Fill in all required sections
-5. When starting: move to `active/`, set `Started at`, update `INDEX.md`
-6. During development: update `Progress` and `Implementation steps` checkboxes
-7. On completion: move to `completed/`, set `Completed at`, update `INDEX.md`
+| Status | Pasta | Descrição |
+|:---|:---|:---|
+| `planned` | `planned/` | Definido, aprovado e aguardando início de implementação |
+| `active` | `active/` | Em desenvolvimento ativo (somente 1 por vez, salvo independência documentada) |
+| `completed` | `completed/` | Totalmente implementado, testado e validado com evidências |
+| `archived` | `archived/` | Cancelado, substituído ou descontinuado (motivo documentado) |
 
 ---
 
-## Required Sections Template
+## 5. Critérios Rigorosos de Conclusão
 
-```md
-# Roadmap NNN — Name
+Um roadmap somente poderá ser movido para `completed/` quando:
+1. Todas as etapas obrigatórias tiverem sido implementadas.
+2. Os testes tiverem sido executados e aprovados.
+3. A documentação relacionada tiver sido atualizada.
+4. Não existirem pendências bloqueadoras.
+5. Houver evidências verificáveis da conclusão.
 
-## Metadata
+*Código gerado ou compilação bem-sucedida, isoladamente, não constituem conclusão de roadmap.*
 
-- Status:
-- Priority:
-- Created at:
-- Started at:
-- Completed at:
-- Dependencies:
-- Related roadmaps:
+---
 
-## Objective
+## 6. Modelo de Roadmap
 
-## Context
+```markdown
+# Roadmap NNN — Nome do Roadmap
 
-## Expected outcome
+## Metadados
+- Status: [planned | active | completed | archived]
+- Prioridade: [critical | high | medium | low]
+- Criado em: YYYY-MM-DD
+- Iniciado em: YYYY-MM-DD
+- Concluído em: YYYY-MM-DD
+- Dependências: Roadmap XXX, Roadmap YYY
 
-## Scope
-
-## Out of scope
-
-## Business rules
-
-## Architecture decisions
-
-## Database changes
-
-## API routes
-
-## Frontend screens
-
-## Components and packages
-
-## Authentication and authorization
-
-## Permissions involved
-
-## Implementation steps
-
-## Tests
-
-## Acceptance criteria
-
-## Risks
-
-## Blockers
-
-## Pending decisions
-
-## Progress
-
-## Change log
+## Objetivos
+## Escopo
+## Fora do Escopo
+## Regras de Negócio Aplicáveis
+## Alterações na API / Banco de Dados / UI
+## Passos de Implementação
+## Testes e Validações
+## Critérios de Aceite e Evidências
+## Registro de Alterações
 ```
-
----
-
-## Priority Values
-
-```
-critical — blocking other work
-high     — important for the current phase
-medium   — scheduled for the near future
-low      — planned but not urgent
-```
-
----
-
-## Updating the Index
-
-Update `INDEX.md` whenever a roadmap:
-
-- Is created
-- Changes status
-- Is started, completed, blocked, cancelled, or archived
-- Has a relevant scope change
