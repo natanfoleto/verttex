@@ -6,6 +6,7 @@ import { use } from 'react'
 import { RiArrowLeftLine, RiEditLine, RiShieldLine } from 'react-icons/ri'
 
 import { apiClient } from '../../../../lib/api-client'
+import { roleQueryKeys } from '../../../../lib/query-keys'
 
 export default function RoleDetailPage({
   params,
@@ -20,7 +21,7 @@ export default function RoleDetailPage({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['role-detail', roleId],
+    queryKey: roleQueryKeys.detail(roleId),
     queryFn: () => apiClient(`/roles/${roleId}`),
   })
 

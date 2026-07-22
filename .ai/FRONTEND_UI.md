@@ -318,16 +318,22 @@ Every feature screen must implement:
   3. **Items Per Page Select**: Native select component permitting immediate switching of records displayed per page (10, 20, 50, 100).
 - **Query Key Standard**: React Query keys for listing endpoints must include `page`, `perPage`, and `search` states (e.g. `entityKeys.list({ page, perPage, search })`).
 
-### 10.9 Toast Notification Standard (`sonner`)
+### 10.11 User Permissions UI & Visual Effective Status Standard
 
-> **MANDATORY POLICY**: All asynchronous actions, form submissions, permission changes, and CRUD feedback MUST use `sonner` (`import { toast } from 'sonner'`) for user notification toasts.
+> **MANDATORY POLICY**: The User Permissions page (`/usuarios/:userId/permissoes`) **MUST** render explicit visual indicators for effective status (**🟢 Concedida** vs. **🔴 Bloqueada**) alongside the resolution source for every permission line, regardless of whether the current action is set to **Herdar**, **Permitir**, or **Negar**.
 
-- **Toaster Registration**: `<Toaster position="bottom-right" theme="dark" richColors />` is configured in `RootLayout` (`layout.tsx`) of both `apps/manager` and `apps/marketplace`.
-- **Toast Methods**:
-  - `toast.success('Mensagem de sucesso')`: For successful mutations, updates, creations, and permission changes.
-  - `toast.error('Mensagem de erro', { description: err.message })`: For failed operations or API validation errors.
-  - `toast.info(...)` / `toast.warning(...)`: For informational or warning messages.
-- **Prohibited Practice**: NEVER use inline fixed alert banners, native `alert()`, or custom timeout states for user action feedback. Always import and trigger `toast` from `sonner`.
+- **Effective Status Resolution**:
+  - `Permitir`: Rendered as **🟢 Concedida (Exceção Individual: Permitido)**.
+  - `Negar`: Rendered as **🔴 Bloqueada (Exceção Individual: Bloqueado)**.
+  - `Herdar` + Role Has Permission: Rendered as **🟢 Concedida (Herdado do cargo [Nome])**.
+  - `Herdar` + Role Lacks Permission: Rendered as **🔴 Bloqueada (Sem acesso no cargo [Nome])**.
+- **Mandatory Permission Filters**:
+  1. **Search**: Keyword search across key, description, or module.
+  2. **Status**: Filter by Effective Status (`Todas`, `🟢 Concedidas`, `🔴 Bloqueadas`).
+  3. **Action Override**: Filter by override mode (`Todas`, `🔄 Herdar`, `✅ Permitir`, `🚫 Negar`).
+  4. **Operation Type**: Filter by action verb (`Todas`, `👁️ Ler/Listar`, `➕ Criar`, `✏️ Editar`, `🗑️ Excluir`, `⚙️ Gerenciar`).
+  5. **Module**: Filter by target entity module (`Todos`, `User`, `Store`, `Role`, `Audit`, etc.).
+- **Summary Metrics**: Page must display live counters for Total System Permissions, Granted Permissions, Denied Permissions, and Active Individual Overrides.
 
 ---
 

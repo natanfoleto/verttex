@@ -11,6 +11,7 @@ import {
 } from 'react-icons/ri'
 
 import { apiClient } from '../../../../lib/api-client'
+import { userQueryKeys } from '../../../../lib/query-keys'
 import { UserFormDialog } from '../components/user-form-dialog'
 
 export default function UserDetailPage({
@@ -28,7 +29,7 @@ export default function UserDetailPage({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['user-detail', userId],
+    queryKey: userQueryKeys.detail(userId),
     queryFn: () => apiClient(`/users/${userId}`),
   })
 

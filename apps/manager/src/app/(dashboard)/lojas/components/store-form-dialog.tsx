@@ -13,7 +13,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
-import { storeQueryKeys } from '../../../../lib/query-keys'
+import { invalidateStores } from '../../../../lib/query-keys'
 import { sanitizeSlug } from '../../../../lib/slug'
 
 export interface StoreItem {
@@ -89,7 +89,7 @@ export function StoreFormDialog({
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: storeQueryKeys.all })
+      await invalidateStores(queryClient, storeToEdit?.id)
       onOpenChange(false)
     },
     onError: (err: unknown) => {

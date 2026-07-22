@@ -26,6 +26,10 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: 'admin@verttexloja.com.br',
+      password: '',
+    },
   })
 
   const onSubmit = async (data: LoginFormData) => {
@@ -86,11 +90,10 @@ export default function LoginPage() {
               <RiMailLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
                 {...register('email')}
-                value={'admin@verttexloja.com.br'}
                 id="email"
                 name="email"
                 type="email"
-                placeholder="seu.email@verttex.com.br"
+                placeholder="seu.email@verttexloja.com.br"
                 className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
               />
             </div>

@@ -6,6 +6,7 @@ import { use, useEffect, useState } from 'react'
 import { RiArrowLeftLine, RiCheckLine } from 'react-icons/ri'
 
 import { apiClient } from '../../../../../lib/api-client'
+import { invalidateRoles } from '../../../../../lib/query-keys'
 
 export default function RolePermissionsPage({
   params,
@@ -49,7 +50,7 @@ export default function RolePermissionsPage({
         body: JSON.stringify({ permissionIds }),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['role-detail', roleId] })
+      invalidateRoles(queryClient, roleId)
       setFeedbackMessage('Permissões do cargo atualizadas com sucesso!')
       setTimeout(() => setFeedbackMessage(null), 3000)
     },

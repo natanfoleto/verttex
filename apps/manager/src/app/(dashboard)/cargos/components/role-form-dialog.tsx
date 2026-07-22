@@ -13,7 +13,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
-import { roleQueryKeys } from '../../../../lib/query-keys'
+import { invalidateRoles } from '../../../../lib/query-keys'
 import { sanitizeSlug } from '../../../../lib/slug'
 
 export interface RoleItem {
@@ -89,7 +89,7 @@ export function RoleFormDialog({
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: roleQueryKeys.all })
+      await invalidateRoles(queryClient, roleToEdit?.id)
       onOpenChange(false)
     },
     onError: (err: unknown) => {

@@ -13,7 +13,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { useEffect, useState } from 'react'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
-import { userQueryKeys } from '../../../../lib/query-keys'
+import { invalidateUsers } from '../../../../lib/query-keys'
 
 export interface UserItem {
   id: string
@@ -104,7 +104,7 @@ export function UserFormDialog({
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: userQueryKeys.all })
+      await invalidateUsers(queryClient, userToEdit?.id)
       onOpenChange(false)
     },
     onError: (err: unknown) => {

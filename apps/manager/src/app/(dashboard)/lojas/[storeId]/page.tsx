@@ -11,6 +11,7 @@ import {
 } from 'react-icons/ri'
 
 import { apiClient } from '../../../../lib/api-client'
+import { storeQueryKeys } from '../../../../lib/query-keys'
 import { StoreFormDialog } from '../components/store-form-dialog'
 
 export default function StoreDetailPage({
@@ -28,7 +29,7 @@ export default function StoreDetailPage({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['store-detail', storeId],
+    queryKey: storeQueryKeys.detail(storeId),
     queryFn: () => apiClient(`/stores/${storeId}`),
   })
 

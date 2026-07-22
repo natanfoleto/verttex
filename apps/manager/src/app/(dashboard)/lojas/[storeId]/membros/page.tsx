@@ -7,6 +7,7 @@ import { use, useState } from 'react'
 import { RiArrowLeftLine, RiDeleteBinLine, RiUserAddLine } from 'react-icons/ri'
 
 import { apiClient, ApiError } from '../../../../../lib/api-client'
+import { invalidateStores } from '../../../../../lib/query-keys'
 
 export default function StoreMembersPage({
   params,
@@ -38,7 +39,7 @@ export default function StoreMembersPage({
         body: JSON.stringify(body),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['store-detail', storeId] })
+      invalidateStores(queryClient, storeId)
       setSelectedUserId('')
       setIsOwner(false)
       setErrorMessage(null)
@@ -58,7 +59,7 @@ export default function StoreMembersPage({
         method: 'DELETE',
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['store-detail', storeId] })
+      invalidateStores(queryClient, storeId)
     },
   })
 
