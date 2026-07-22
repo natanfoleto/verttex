@@ -313,10 +313,21 @@ Every feature screen must implement:
 
 - **Manager Tables**: Must wrap table content with `<TableWrapper>` passing `meta={data?.meta}`, `onPageChange={setPage}`, `perPageValue={perPage}`, and `onPerPageChange={(newPerPage) => { setPerPage(newPerPage); setPage(1); }}`.
 - **Mandatory Pagination Controls (Default)**:
-  1. **Direct Page Input**: Input field showing current page e.g. `Página [ 1 ] de X` allowing direct typing, Enter submission, or blur navigation to any valid page number.
+  1. **Direct Page Input & Readonly Total Input**: Editable input for current page and readonly input for total pages (e.g. `Página [ 1 ] de [ 5 ]`), allowing direct typing, Enter submission, or blur navigation to any valid page number.
   2. **First & Last Page Navigation**: First Page (`<<`) and Last Page (`>>`) buttons alongside Previous (`<`) and Next (`>`) buttons.
   3. **Items Per Page Select**: Native select component permitting immediate switching of records displayed per page (10, 20, 50, 100).
 - **Query Key Standard**: React Query keys for listing endpoints must include `page`, `perPage`, and `search` states (e.g. `entityKeys.list({ page, perPage, search })`).
+
+### 10.9 Toast Notification Standard (`sonner`)
+
+> **MANDATORY POLICY**: All asynchronous actions, form submissions, permission changes, and CRUD feedback MUST use `sonner` (`import { toast } from 'sonner'`) for user notification toasts.
+
+- **Toaster Registration**: `<Toaster position="bottom-right" theme="dark" richColors />` is configured in `RootLayout` (`layout.tsx`) of both `apps/manager` and `apps/marketplace`.
+- **Toast Methods**:
+  - `toast.success('Mensagem de sucesso')`: For successful mutations, updates, creations, and permission changes.
+  - `toast.error('Mensagem de erro', { description: err.message })`: For failed operations or API validation errors.
+  - `toast.info(...)` / `toast.warning(...)`: For informational or warning messages.
+- **Prohibited Practice**: NEVER use inline fixed alert banners, native `alert()`, or custom timeout states for user action feedback. Always import and trigger `toast` from `sonner`.
 
 ---
 

@@ -214,7 +214,7 @@ export function TableWrapper({
                   <RiArrowLeftSLine className="h-4.5 w-4.5" />
                 </button>
 
-                {/* Page Direct Input */}
+                {/* Page Direct Input & Total Pages Readonly Input */}
                 <div className="flex items-center space-x-1.5 px-1.5">
                   <span>Página</span>
                   <input
@@ -230,13 +230,17 @@ export function TableWrapper({
                     }}
                     onBlur={handlePageSubmit}
                     className="h-8 w-10 rounded-lg border border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 transition-colors focus:border-emerald-600 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    title="Ir para página"
                   />
-                  <span>
-                    de{' '}
-                    <strong className="font-semibold text-zinc-200">
-                      {meta.totalPages || 1}
-                    </strong>
-                  </span>
+                  <span>de</span>
+                  <input
+                    type="text"
+                    readOnly
+                    value={meta.totalPages || 1}
+                    tabIndex={-1}
+                    className="h-8 w-10 cursor-default rounded-lg border border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 focus:outline-none select-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    title="Total de páginas"
+                  />
                 </div>
 
                 {/* Next Page button */}

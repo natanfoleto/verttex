@@ -2,6 +2,7 @@ import './globals.css'
 
 import type { Metadata } from 'next'
 import * as React from 'react'
+import { Toaster } from 'sonner'
 
 import { AuthProvider } from '../providers/auth-provider'
 import { QueryProvider } from '../providers/query-provider'
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
+          <Toaster position="bottom-right" theme="dark" richColors />
         </QueryProvider>
       </body>
     </html>

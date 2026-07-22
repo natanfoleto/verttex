@@ -305,16 +305,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <TooltipProvider>
-      <div className="flex min-h-screen bg-zinc-950 font-sans text-zinc-100 antialiased">
-        {/* Desktop Sidebar */}
+      <div className="flex h-screen overflow-hidden bg-zinc-950 font-sans text-zinc-100 antialiased">
+        {/* Desktop Sidebar (Fixed) */}
         <aside
-          className={`hidden shrink-0 flex-col justify-between border-r border-zinc-800 bg-zinc-900/60 transition-all duration-300 lg:flex ${
+          className={`hidden h-screen shrink-0 flex-col justify-between border-r border-zinc-800 bg-zinc-900/60 transition-all duration-300 lg:flex ${
             isCollapsed ? 'w-16' : 'w-72'
           }`}
         >
-          <div>
+          <div className="flex flex-1 flex-col overflow-y-auto">
             {/* Sidebar Header */}
-            <div className="flex h-16 items-center justify-between border-b border-zinc-800 px-4">
+            <div className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4">
               {!isCollapsed && (
                 <Link href="/" className="flex items-center space-x-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 font-bold text-white shadow-md shadow-emerald-950">
@@ -325,7 +325,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       Verttex
                     </span>
                     <span className="text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
-                      Backoffice
+                      Gestor de negócios
                     </span>
                   </div>
                 </Link>
@@ -346,12 +346,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </div>
 
             {/* Navigation Links */}
-            {renderNavLinks(isCollapsed)}
+            <div className="flex-1 py-2">{renderNavLinks(isCollapsed)}</div>
           </div>
 
           {/* Footer App Info */}
           {!isCollapsed && (
-            <div className="border-t border-zinc-800/60 p-4 text-center">
+            <div className="shrink-0 border-t border-zinc-800/60 p-4 text-center">
               <span className="font-mono text-[11px] text-zinc-500">
                 Verttex Manager v1.0.0
               </span>
@@ -359,10 +359,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           )}
         </aside>
 
-        {/* Main Area */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        {/* Main Area Container */}
+        <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
           {/* Top Header */}
-          <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-zinc-800 bg-zinc-900/40 px-4 backdrop-blur-md lg:px-8">
+          <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-zinc-800 bg-zinc-900/40 px-4 backdrop-blur-md lg:px-8">
             <div className="flex items-center space-x-3">
               {/* Mobile Drawer Trigger */}
               <div className="lg:hidden">
@@ -450,7 +450,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </div>
           </header>
 
-          {/* Page Content Container - Full Width */}
+          {/* Page Content Container - Scroll Y Exclusive to Main Area */}
           <main className="w-full flex-1 overflow-y-auto p-6 lg:p-8">
             {children}
           </main>

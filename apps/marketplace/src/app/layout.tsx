@@ -2,6 +2,7 @@ import './globals.css'
 
 import type { Metadata } from 'next'
 import * as React from 'react'
+import { Toaster } from 'sonner'
 
 import { MarketplaceLayout } from '../components/layout/marketplace-layout'
 import { CustomerAuthProvider } from '../providers/customer-auth-provider'
@@ -28,6 +29,7 @@ export default function RootLayout({
           <CustomerAuthProvider>
             <MarketplaceLayout>{children}</MarketplaceLayout>
           </CustomerAuthProvider>
+          <Toaster position="bottom-right" theme="dark" richColors />
         </QueryProvider>
       </body>
     </html>

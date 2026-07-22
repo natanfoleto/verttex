@@ -2,13 +2,14 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
-import { use, useState } from 'react'
+import { use } from 'react'
 import {
   RiArrowLeftLine,
   RiCheckLine,
   RiCloseLine,
   RiRefreshLine,
 } from 'react-icons/ri'
+import { toast } from 'sonner'
 
 import { apiClient } from '../../../../../lib/api-client'
 
@@ -20,7 +21,6 @@ export default function UserPermissionsPage({
   const resolvedParams = use(params)
   const userId = resolvedParams.userId
   const queryClient = useQueryClient()
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
 
   const { data: user, isLoading: isLoadingUser } = useQuery({
     queryKey: ['user-detail', userId],
@@ -42,8 +42,12 @@ export default function UserPermissionsPage({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-detail', userId] })
-      setFeedbackMessage('Permissões individuais atualizadas com sucesso!')
-      setTimeout(() => setFeedbackMessage(null), 3000)
+      toast.success('Permissões individuais atualizadas com sucesso!')
+    },
+    onError: (err: Error) => {
+      toast.error('Erro ao atualizar permissões', {
+        description: err.message,
+      })
     },
   })
 
@@ -112,12 +116,6 @@ export default function UserPermissionsPage({
           </p>
         </div>
       </div>
-
-      {feedbackMessage && (
-        <div className="rounded-xl border border-emerald-800/80 bg-emerald-950/60 p-4 text-sm text-emerald-300">
-          {feedbackMessage}
-        </div>
-      )}
 
       <div className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40">
         <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/60 p-4">

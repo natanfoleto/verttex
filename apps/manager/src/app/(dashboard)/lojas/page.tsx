@@ -120,18 +120,16 @@ export default function StoresListPage() {
                   {store.name}
                 </td>
                 <td className="px-6 py-4 font-mono text-xs text-zinc-400">
-                  <span
-                    title="Clique para copiar"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      navigator.clipboard.writeText(
-                        `https://verttexloja.com.br/${store.slug}`
-                      )
-                    }}
+                  <a
+                    href={`https://verttexloja.com.br/${store.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Abrir loja em nova aba"
+                    onClick={(e) => e.stopPropagation()}
                     className="cursor-pointer hover:text-emerald-400 hover:underline"
                   >
                     verttexloja.com.br/{store.slug}
-                  </span>
+                  </a>
                 </td>
                 <td className="px-6 py-4 text-zinc-400">
                   {store._count?.users ?? 0} membros
