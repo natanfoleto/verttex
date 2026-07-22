@@ -77,6 +77,14 @@ export const authPlugin = fp(async (app) => {
           throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
         }
 
+        // Update lastActiveAt asynchronously
+        prisma.userSession
+          .update({
+            where: { id: session.id },
+            data: { lastActiveAt: new Date() },
+          })
+          .catch(() => {})
+
         const rolePermissions = session.user.role.permissions.map(
           (rp) => rp.permission.key
         )

@@ -178,3 +178,45 @@ export async function meController(
     data: profile,
   })
 }
+
+export async function listSessionsController(
+  request: FastifyZodRequest,
+  reply: FastifyReply
+) {
+  const userId = request.userPayload!.id
+  const currentSessionId = request.userPayload?.sessionId
+  const sessions = await authUsersService.listUserSessions(userId, currentSessionId)
+
+  return reply.send({
+    success: true,
+    data: sessions,
+  })
+}
+
+export async function revokeSessionController(
+  request: FastifyZodRequest,
+  reply: FastifyReply
+) {
+  const userId = request.userPayload!.id
+  const params = request.params as { sessionId: string }
+  const result = await authUsersService.revokeSession(userId, params.sessionId, request)
+
+  return reply.send({
+    success: true,
+    data: result,
+  })
+}
+
+export async function revokeOtherSessionsController(
+  request: FastifyZodRequest,
+  reply: FastifyReply
+) {
+  const userId = request.userPayload!.id
+  const currentSessionId = request.userPayload!.sessionId!
+  const result = await authUsersService.revokeOtherSessions(userId, currentSessionId, request)
+
+  return reply.send({
+    success: true,
+    data: result,
+  })
+}

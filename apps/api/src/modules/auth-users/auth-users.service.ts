@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify'
+import { FastifyInstance, FastifyRequest } from 'fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { logAudit } from '../../shared/utils/audit'
@@ -121,6 +121,78 @@ export class AuthUsersService {
         oldValues: session ? { sessionId: session.id, ipAddress: session.ipAddress } : null,
       })
     }
+  }
+
+  async listUserSessions(userId: string, currentSessionId?: string) {
+    const sessions = await prisma.userSession.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        userAgent: true,
+        ipAddress: true,
+        provider: true,
+        lastActiveAt: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    })
+
+    return sessions.map((s) => ({
+      ...s,
+      isCurrent: s.id === currentSessionId,
+    }))
+  }
+
+  async revokeSession(userId: string, targetSessionId: string, req?: FastifyRequest) {
+    const session = await prisma.userSession.findFirst({
+      where: { id: targetSessionId, userId, revokedAt: null },
+    })
+
+    if (!session) {
+      throw new AppError('NOT_FOUND', 'Sessão não encontrada ou já encerrada', 404)
+    }
+
+    await prisma.userSession.update({
+      where: { id: targetSessionId },
+      data: { revokedAt: new Date() },
+    })
+
+    await logAudit({
+      userId,
+      action: 'REVOKE_SESSION',
+      entity: 'UserSession',
+      entityId: targetSessionId,
+      oldValues: { ipAddress: session.ipAddress, userAgent: session.userAgent },
+      req,
+    })
+
+    return { message: 'Sessão encerrada com sucesso' }
+  }
+
+  async revokeOtherSessions(userId: string, currentSessionId: string, req?: FastifyRequest) {
+    const result = await prisma.userSession.updateMany({
+      where: {
+        userId,
+        id: { not: currentSessionId },
+        revokedAt: null,
+      },
+      data: { revokedAt: new Date() },
+    })
+
+    await logAudit({
+      userId,
+      action: 'REVOKE_OTHER_SESSIONS',
+      entity: 'UserSession',
+      newValues: { revokedCount: result.count },
+      req,
+    })
+
+    return { message: `${result.count} outra(s) sessão(ões) encerrada(s) com sucesso` }
   }
 
   async refresh(

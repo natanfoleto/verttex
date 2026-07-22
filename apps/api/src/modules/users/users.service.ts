@@ -16,9 +16,11 @@ export class UsersService {
     const perPage = Math.max(1, Math.min(100, query.perPage || 20))
     const skip = (page - 1) * perPage
 
-    const where: any = {}
+    const where: any = {
+      deletedAt: null,
+    }
 
-    if (query.search) {
+    if (query?.search) {
       const search = query.search.trim()
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -26,7 +28,7 @@ export class UsersService {
       ]
     }
 
-    if (query.roleId) {
+    if (query?.roleId) {
       where.roleId = query.roleId
     }
 
@@ -255,12 +257,16 @@ export class UsersService {
 
     await prisma.user.update({
       where: { id: userId },
-      data: { status: 'inactive' },
+      data: {
+        status: 'inactive',
+        deletedAt: new Date(),
+        deletedBy: actorId || null,
+      },
     })
 
     await logAudit({
       userId: actorId ?? null,
-      action: 'DELETE',
+      action: 'ARCHIVE',
       entity: 'User',
       entityId: userId,
       oldValues: {
@@ -269,11 +275,40 @@ export class UsersService {
         status: user.status,
         roleId: user.roleId,
       },
-      newValues: { status: 'inactive' },
+      newValues: { status: 'inactive', deletedAt: new Date() },
       req,
     })
 
-    return { message: 'Usuário desativado com sucesso' }
+    return { message: 'Usuário arquivado com sucesso' }
+  }
+
+  async restoreUser(userId: string, actorId?: string, req?: FastifyRequest) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+
+    if (!user) {
+      throw new AppError('NOT_FOUND', 'Usuário não encontrado', 404)
+    }
+
+    const restoredUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        status: 'active',
+        deletedAt: null,
+        deletedBy: null,
+      },
+    })
+
+    await logAudit({
+      userId: actorId ?? null,
+      action: 'RESTORE',
+      entity: 'User',
+      entityId: userId,
+      req,
+    })
+
+    return restoredUser
   }
 
   async getUserStores(userId: string) {

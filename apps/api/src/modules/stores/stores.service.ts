@@ -82,8 +82,9 @@ export class StoresService {
     const page = Math.max(1, query.page || 1)
     const perPage = Math.max(1, Math.min(100, query.perPage || 20))
     const skip = (page - 1) * perPage
-
-    const where: any = {}
+    const where: any = {
+      deletedAt: null,
+    }
 
     if (query.search) {
       const search = query.search.trim()
@@ -273,12 +274,16 @@ export class StoresService {
 
     await prisma.store.update({
       where: { id: storeId },
-      data: { status: 'inactive' },
+      data: {
+        status: 'inactive',
+        deletedAt: new Date(),
+        deletedBy: userId || null,
+      },
     })
 
     await logAudit({
       userId: userId ?? null,
-      action: 'DELETE',
+      action: 'ARCHIVE',
       entity: 'Store',
       entityId: storeId,
       oldValues: {
@@ -286,11 +291,40 @@ export class StoresService {
         slug: store.slug,
         status: store.status,
       },
-      newValues: { status: 'inactive' },
+      newValues: { status: 'inactive', deletedAt: new Date() },
       req,
     })
 
-    return { message: 'Loja desativada com sucesso' }
+    return { message: 'Loja arquivada com sucesso' }
+  }
+
+  async restoreStore(storeId: string, userId?: string, req?: FastifyRequest) {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+    })
+
+    if (!store) {
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
+    }
+
+    const restoredStore = await prisma.store.update({
+      where: { id: storeId },
+      data: {
+        status: 'active',
+        deletedAt: null,
+        deletedBy: null,
+      },
+    })
+
+    await logAudit({
+      userId: userId ?? null,
+      action: 'RESTORE',
+      entity: 'Store',
+      entityId: storeId,
+      req,
+    })
+
+    return restoredStore
   }
 
   async listStoreMembers(storeId: string) {

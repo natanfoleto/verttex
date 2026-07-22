@@ -26,6 +26,8 @@ export const updateRoleBodySchema = z.object({
 
 export const updateRolePermissionsBodySchema = z.object({
   permissionIds: z.array(z.string()),
+  strategy: z.enum(['ALL', 'PRESERVE_ALL', 'CUSTOM']).optional().default('ALL'),
+  targetUserIds: z.array(z.string()).optional(),
 })
 
 export type RoleParams = z.infer<typeof roleParamsSchema>

@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
@@ -9,9 +10,13 @@ import {
   RiComputerLine,
   RiLockPasswordLine,
   RiShieldLine,
-  RiStoreLine,
   RiUser3Line,
+  RiMacbookLine,
+  RiSmartphoneLine,
+  RiDeleteBin7Line,
+  RiLogoutBoxRLine,
 } from 'react-icons/ri'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { apiClient, ApiError } from '../../../lib/api-client'
@@ -32,6 +37,17 @@ const changePasswordSchema = z
 
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
 
+interface SessionItem {
+  id: string
+  userAgent: string | null
+  ipAddress: string | null
+  provider: string | null
+  lastActiveAt: string | null
+  createdAt: string
+  expiresAt: string
+  isCurrent: boolean
+}
+
 export default function ProfilePage() {
   const { user, refetchUser } = useAuth()
 
@@ -40,6 +56,20 @@ export default function ProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+  const [revokingId, setRevokingId] = useState<string | null>(null)
+  const [isRevokingOthers, setIsRevokingOthers] = useState(false)
+
+  const {
+    data: sessions = [],
+    isLoading: isLoadingSessions,
+    refetch: refetchSessions,
+  } = useQuery<SessionItem[]>({
+    queryKey: ['user-sessions'],
+    queryFn: async () => {
+      const res = await apiClient<{ success: boolean; data: SessionItem[] }>('/auth/users/sessions')
+      return res.data
+    },
+  })
 
   const {
     register,
@@ -89,6 +119,36 @@ export default function ProfilePage() {
       } else {
         setPasswordError('Erro ao alterar senha. Verifique a senha atual.')
       }
+    }
+  }
+
+  const handleRevokeSession = async (sessionId: string) => {
+    try {
+      setRevokingId(sessionId)
+      await apiClient(`/auth/users/sessions/${sessionId}`, {
+        method: 'DELETE',
+      })
+      toast.success('Sessão encerrada com sucesso!')
+      refetchSessions()
+    } catch {
+      toast.error('Erro ao encerrar sessão.')
+    } finally {
+      setRevokingId(null)
+    }
+  }
+
+  const handleRevokeOthers = async () => {
+    try {
+      setIsRevokingOthers(true)
+      const res = await apiClient<{ success: boolean; data: { message: string } }>('/auth/users/sessions/others', {
+        method: 'DELETE',
+      })
+      toast.success(res.data.message || 'Outras sessões encerradas com sucesso!')
+      refetchSessions()
+    } catch {
+      toast.error('Erro ao encerrar outras sessões.')
+    } finally {
+      setIsRevokingOthers(false)
     }
   }
 
@@ -367,36 +427,145 @@ export default function ProfilePage() {
         {/* Tab 4: Sessões */}
         <TabsContent value="sessoes" className="space-y-6">
           <div className="w-full space-y-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
-            <div className="flex items-center space-x-3">
-              <div className="rounded-xl border border-amber-800 bg-amber-950 p-2 text-amber-400">
-                <RiComputerLine className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-zinc-200">
-                  Sessões Ativas
-                </h2>
-                <p className="text-xs text-zinc-400">
-                  Dispositivos e conexões ativas conectadas a esta conta
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-xs text-zinc-300">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div className="flex items-center space-x-3">
-                <RiStoreLine className="h-5 w-5 shrink-0 text-emerald-400" />
+                <div className="rounded-xl border border-amber-800 bg-amber-950 p-2 text-amber-400">
+                  <RiComputerLine className="h-5 w-5" />
+                </div>
                 <div>
-                  <p className="font-semibold text-zinc-100">
-                    Sessão Atual do Navegador
-                  </p>
-                  <p className="text-[11px] text-zinc-500">
-                    Fastify JWT Session (Expira em 7 dias)
+                  <h2 className="text-base font-semibold text-zinc-200">
+                    Sessões Ativas
+                  </h2>
+                  <p className="text-xs text-zinc-400">
+                    Dispositivos e conexões ativas autenticadas nesta conta
                   </p>
                 </div>
               </div>
-              <span className="inline-flex items-center rounded-full border border-emerald-800 bg-emerald-950 px-2.5 py-1 text-[10px] font-semibold text-emerald-400">
-                Ativo Agora
-              </span>
+
+              {sessions.filter((s) => !s.isCurrent).length > 0 && (
+                <button
+                  onClick={handleRevokeOthers}
+                  disabled={isRevokingOthers}
+                  className="flex cursor-pointer items-center space-x-2 rounded-xl border border-rose-800/80 bg-rose-950/60 px-4 py-2 text-xs font-medium text-rose-300 transition-colors hover:bg-rose-900/60 hover:text-rose-200"
+                >
+                  <RiLogoutBoxRLine className="h-4 w-4" />
+                  <span>
+                    {isRevokingOthers
+                      ? 'Encerrando...'
+                      : 'Encerrar Outras Sessões'}
+                  </span>
+                </button>
+              )}
             </div>
+
+            {isLoadingSessions ? (
+              <div className="py-8 text-center text-xs text-zinc-500">
+                Carregando sessões ativas...
+              </div>
+            ) : sessions.length === 0 ? (
+              <div className="py-8 text-center text-xs text-zinc-500">
+                Nenhuma sessão ativa encontrada.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {sessions.map((session) => {
+                  const isMobile =
+                    session.userAgent?.toLowerCase().includes('mobile') ||
+                    session.userAgent?.toLowerCase().includes('android') ||
+                    session.userAgent?.toLowerCase().includes('iphone')
+
+                  return (
+                    <div
+                      key={session.id}
+                      className={`flex flex-col items-start justify-between gap-4 rounded-xl border p-4 text-xs transition-colors sm:flex-row sm:items-center ${
+                        session.isCurrent
+                          ? 'border-emerald-800/60 bg-emerald-950/20'
+                          : 'border-zinc-800 bg-zinc-950/60'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3.5">
+                        <div
+                          className={`rounded-lg p-2.5 ${
+                            session.isCurrent
+                              ? 'border border-emerald-800/80 bg-emerald-950 text-emerald-400'
+                              : 'border border-zinc-800 bg-zinc-900 text-zinc-400'
+                          }`}
+                        >
+                          {isMobile ? (
+                            <RiSmartphoneLine className="h-5 w-5" />
+                          ) : (
+                            <RiMacbookLine className="h-5 w-5" />
+                          )}
+                        </div>
+
+                        <div className="space-y-0.5">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-zinc-200">
+                              {session.userAgent
+                                ? session.userAgent.split(' ')[0]
+                                : 'Navegador Desconhecido'}
+                            </span>
+                            {session.isCurrent && (
+                              <span className="inline-flex items-center rounded-full border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                                Sessão Atual
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="font-mono text-[11px] text-zinc-400">
+                            IP: {session.ipAddress || 'Não registrado'} •{' '}
+                            {session.provider || 'Credenciais'}
+                          </p>
+
+                          <p className="text-[11px] text-zinc-500">
+                            Criada em:{' '}
+                            {new Date(session.createdAt).toLocaleDateString(
+                              'pt-BR',
+                              {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }
+                            )}
+                            {session.lastActiveAt && (
+                              <span>
+                                {' '}
+                                • Última atividade:{' '}
+                                {new Date(
+                                  session.lastActiveAt
+                                ).toLocaleDateString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      {!session.isCurrent && (
+                        <button
+                          onClick={() => handleRevokeSession(session.id)}
+                          disabled={revokingId === session.id}
+                          className="flex cursor-pointer items-center space-x-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-rose-400 transition-colors hover:border-rose-800/80 hover:bg-rose-950/60 hover:text-rose-300"
+                        >
+                          <RiDeleteBin7Line className="h-3.5 w-3.5" />
+                          <span>
+                            {revokingId === session.id
+                              ? 'Encerrando...'
+                              : 'Encerrar Sessão'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>

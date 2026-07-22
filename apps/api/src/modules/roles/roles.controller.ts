@@ -97,7 +97,7 @@ export async function updateRolePermissionsController(
   const actorId = request.userPayload?.id
   const permissions = await rolesService.updateRolePermissions(
     params.roleId,
-    body.permissionIds,
+    body,
     actorId,
     request
   )

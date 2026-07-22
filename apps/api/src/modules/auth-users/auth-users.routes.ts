@@ -8,6 +8,9 @@ import {
   resetPasswordController,
   changePasswordController,
   meController,
+  listSessionsController,
+  revokeSessionController,
+  revokeOtherSessionsController,
 } from './auth-users.controller'
 import {
   loginBodySchema,
@@ -104,5 +107,44 @@ export async function authUsersRoutes(app: FastifyInstance) {
       },
     },
     meController
+  )
+
+  typedApp.get(
+    '/sessions',
+    {
+      preHandler: [app.authenticateUser],
+      schema: {
+        tags: ['Auth — Management Users'],
+        summary: 'Listar sessões ativas do usuário gestor',
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    listSessionsController
+  )
+
+  typedApp.delete(
+    '/sessions/others',
+    {
+      preHandler: [app.authenticateUser],
+      schema: {
+        tags: ['Auth — Management Users'],
+        summary: 'Encerrar todas as outras sessões ativas do usuário',
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    revokeOtherSessionsController
+  )
+
+  typedApp.delete(
+    '/sessions/:sessionId',
+    {
+      preHandler: [app.authenticateUser],
+      schema: {
+        tags: ['Auth — Management Users'],
+        summary: 'Encerrar uma sessão ativa específica',
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    revokeSessionController
   )
 }

@@ -2,7 +2,7 @@ import { FastifyRequest } from 'fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { logAudit } from '../../shared/utils/audit'
-import { CreateRoleBody, UpdateRoleBody, RoleQuery } from './roles.schemas'
+import { CreateRoleBody, UpdateRoleBody, RoleQuery, UpdateRolePermissionsBody } from './roles.schemas'
 
 export class RolesService {
   async listRoles(query?: RoleQuery) {
@@ -211,7 +211,7 @@ export class RolesService {
 
   async updateRolePermissions(
     roleId: string,
-    permissionIds: string[],
+    body: UpdateRolePermissionsBody,
     actorId?: string,
     req?: FastifyRequest
   ) {
@@ -223,9 +223,50 @@ export class RolesService {
       throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
+    const { permissionIds, strategy = 'ALL', targetUserIds = [] } = body
     const previousPermissions = await this.getRolePermissions(roleId)
+    const previousPermIds = new Set(previousPermissions.map((p) => p.id))
+    const newPermIds = new Set(permissionIds)
+
+    // Identify permissions that were removed from the role
+    const removedPermIds = Array.from(previousPermIds).filter((id) => !newPermIds.has(id))
 
     await prisma.$transaction(async (tx) => {
+      // Handle Preservation Strategies (B: PRESERVE_ALL and C: CUSTOM)
+      if ((strategy === 'PRESERVE_ALL' || strategy === 'CUSTOM') && removedPermIds.length > 0) {
+        let usersToPreserve: string[] = []
+
+        if (strategy === 'PRESERVE_ALL') {
+          const roleUsers = await tx.user.findMany({
+            where: { roleId, deletedAt: null },
+            select: { id: true },
+          })
+          usersToPreserve = roleUsers.map((u) => u.id)
+        } else if (strategy === 'CUSTOM') {
+          usersToPreserve = targetUserIds
+        }
+
+        // For each user preserving access, create an explicit ALLOW override if they don't already have an override
+        for (const userId of usersToPreserve) {
+          for (const permId of removedPermIds) {
+            const existingOverride = await tx.userPermission.findUnique({
+              where: { userId_permissionId: { userId, permissionId: permId } },
+            })
+
+            if (!existingOverride) {
+              await tx.userPermission.create({
+                data: {
+                  userId,
+                  permissionId: permId,
+                  effect: 'allow',
+                },
+              })
+            }
+          }
+        }
+      }
+
+      // Overwrite RolePermissions
       await tx.rolePermission.deleteMany({
         where: { roleId },
       })
@@ -247,8 +288,12 @@ export class RolesService {
       action: 'PERMISSION_CHANGE',
       entity: 'Role',
       entityId: roleId,
-      oldValues: previousPermissions.map((p) => ({ key: p.key })),
-      newValues: newPermissions.map((p) => ({ key: p.key })),
+      oldValues: { permissions: previousPermissions.map((p) => p.key) },
+      newValues: {
+        permissions: newPermissions.map((p) => p.key),
+        strategy,
+        targetUserIdsCount: targetUserIds.length,
+      },
       req,
     })
 
