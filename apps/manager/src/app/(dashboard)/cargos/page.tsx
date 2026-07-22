@@ -10,16 +10,20 @@ import { roleQueryKeys } from '../../../lib/query-keys'
 import { RoleFormDialog, RoleItem } from './components/role-form-dialog'
 
 export default function RolesListPage() {
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const [search, setSearch] = useState('')
+
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingRole, setEditingRole] = useState<RoleItem | null>(null)
 
-  const {
-    data: roles,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: roleQueryKeys.all,
-    queryFn: () => apiClient('/roles'),
+  const { data, isLoading, isError } = useQuery({
+    queryKey: roleQueryKeys.list({ page, perPage, search }),
+    queryFn: () => {
+      let url = `/roles?page=${page}&perPage=${perPage}`
+      if (search) url += `&search=${encodeURIComponent(search)}`
+      return apiClient(url)
+    },
   })
 
   const openCreateModal = () => {
@@ -31,6 +35,9 @@ export default function RolesListPage() {
     setEditingRole(role)
     setIsDialogOpen(true)
   }
+
+  const hasActiveFilters = Boolean(search)
+  const roles = data?.data ?? []
 
   return (
     <div className="space-y-6 font-sans text-zinc-100">
@@ -47,11 +54,32 @@ export default function RolesListPage() {
             <span>Novo Cargo</span>
           </button>
         }
+        searchValue={search}
+        onSearchChange={(v) => {
+          setSearch(v)
+          setPage(1)
+        }}
+        searchPlaceholder="Buscar por nome ou identificador..."
         isLoading={isLoading}
         isError={isError}
         isEmpty={!roles || roles.length === 0}
-        emptyTitle="Nenhum cargo cadastrado"
-        emptyDescription="Clique em 'Novo Cargo' para definir a primeira regra de acesso do sistema."
+        emptyTitle={
+          hasActiveFilters
+            ? 'Nenhum cargo encontrado para a busca'
+            : 'Nenhum cargo cadastrado'
+        }
+        emptyDescription={
+          hasActiveFilters
+            ? 'Tente buscar com outro nome de cargo ou chave.'
+            : "Clique em 'Novo Cargo' para definir a primeira regra de acesso do sistema."
+        }
+        meta={data?.meta}
+        onPageChange={setPage}
+        perPageValue={perPage}
+        onPerPageChange={(newPerPage) => {
+          setPerPage(newPerPage)
+          setPage(1)
+        }}
       >
         <table className="w-full border-collapse text-left text-sm">
           <thead>

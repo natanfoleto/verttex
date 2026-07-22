@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
-import { use } from 'react'
+import { use, useState } from 'react'
 import {
   RiArrowLeftLine,
   RiEditLine,
@@ -11,6 +11,7 @@ import {
 } from 'react-icons/ri'
 
 import { apiClient } from '../../../../lib/api-client'
+import { UserFormDialog } from '../components/user-form-dialog'
 
 export default function UserDetailPage({
   params,
@@ -19,6 +20,8 @@ export default function UserDetailPage({
 }) {
   const resolvedParams = use(params)
   const userId = resolvedParams.userId
+
+  const [isEditOpen, setIsEditOpen] = useState(false)
 
   const {
     data: user,
@@ -72,13 +75,14 @@ export default function UserDetailPage({
             <RiShieldUserLine className="h-4 w-4" />
             <span>Permissões</span>
           </Link>
-          <Link
-            href={`/usuarios/${userId}/editar`}
-            className="inline-flex items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
+          <button
+            type="button"
+            onClick={() => setIsEditOpen(true)}
+            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
           >
             <RiEditLine className="h-4 w-4" />
             <span>Editar</span>
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -160,6 +164,12 @@ export default function UserDetailPage({
           )}
         </div>
       </div>
+
+      <UserFormDialog
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        userToEdit={user}
+      />
     </div>
   )
 }

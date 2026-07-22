@@ -2,23 +2,57 @@ import { FastifyRequest } from 'fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { logAudit } from '../../shared/utils/audit'
-import { CreateRoleBody, UpdateRoleBody } from './roles.schemas'
+import { CreateRoleBody, UpdateRoleBody, RoleQuery } from './roles.schemas'
 
 export class RolesService {
-  async listRoles() {
-    return prisma.role.findMany({
-      orderBy: { createdAt: 'asc' },
-      include: {
-        permissions: {
-          include: {
-            permission: true,
+  async listRoles(query?: RoleQuery) {
+    const page = Math.max(1, query?.page || 1)
+    const perPage = Math.max(1, Math.min(100, query?.perPage || 20))
+    const skip = (page - 1) * perPage
+
+    const where: any = {}
+
+    if (query?.search) {
+      const search = query.search.trim()
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { key: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    const [total, roles] = await Promise.all([
+      prisma.role.count({ where }),
+      prisma.role.findMany({
+        where,
+        skip,
+        take: perPage,
+        orderBy: { createdAt: 'asc' },
+        include: {
+          permissions: {
+            include: {
+              permission: true,
+            },
+          },
+          _count: {
+            select: { users: true },
           },
         },
-        _count: {
-          select: { users: true },
-        },
+      }),
+    ])
+
+    const totalPages = Math.ceil(total / perPage)
+
+    return {
+      data: roles,
+      meta: {
+        page,
+        perPage,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
-    })
+    }
   }
 
   async createRole(data: CreateRoleBody, actorId?: string, req?: FastifyRequest) {

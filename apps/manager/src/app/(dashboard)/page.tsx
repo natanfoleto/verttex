@@ -93,7 +93,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-zinc-100">
-              {rolesData?.length ?? '--'}
+              {rolesData?.meta?.total ?? rolesData?.data?.length ?? '--'}
             </div>
             <Link
               href="/cargos"

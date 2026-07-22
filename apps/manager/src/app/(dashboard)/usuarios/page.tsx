@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { RiAddLine, RiEditLine, RiShieldUserLine } from 'react-icons/ri'
 
@@ -10,17 +11,19 @@ import { userQueryKeys } from '../../../lib/query-keys'
 import { UserFormDialog, UserItem } from './components/user-form-dialog'
 
 export default function UsersListPage() {
+  const router = useRouter()
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const [search, setSearch] = useState('')
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UserItem | null>(null)
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: userQueryKeys.list({ page, search }),
+    queryKey: userQueryKeys.list({ page, perPage, search }),
     queryFn: () =>
       apiClient(
-        `/users?page=${page}&perPage=10&search=${encodeURIComponent(search)}`
+        `/users?page=${page}&perPage=${perPage}&search=${encodeURIComponent(search)}`
       ),
   })
 
@@ -69,6 +72,11 @@ export default function UsersListPage() {
         }
         meta={data?.meta}
         onPageChange={setPage}
+        perPageValue={perPage}
+        onPerPageChange={(newPerPage) => {
+          setPerPage(newPerPage)
+          setPage(1)
+        }}
       >
         <table className="w-full border-collapse text-left text-sm">
           <thead>
@@ -84,7 +92,8 @@ export default function UsersListPage() {
             {data?.data?.map((user: UserItem) => (
               <tr
                 key={user.id}
-                className="transition-colors hover:bg-zinc-800/30"
+                onClick={() => router.push(`/usuarios/${user.id}`)}
+                className="cursor-pointer transition-colors hover:bg-zinc-800/40"
               >
                 <td className="px-6 py-4 font-medium text-zinc-100">
                   {user.name}
@@ -106,7 +115,10 @@ export default function UsersListPage() {
                     {user.status === 'active' ? 'Ativo' : 'Inativo'}
                   </span>
                 </td>
-                <td className="space-x-2 px-6 py-4 text-right">
+                <td
+                  className="space-x-2 px-6 py-4 text-right"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
                     onClick={() => openEditModal(user)}

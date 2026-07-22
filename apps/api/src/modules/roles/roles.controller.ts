@@ -3,6 +3,7 @@ import { FastifyZodRequest } from '../../@types/fastify'
 import { RolesService } from './roles.service'
 import {
   RoleParams,
+  RoleQuery,
   CreateRoleBody,
   UpdateRoleBody,
   UpdateRolePermissionsBody,
@@ -11,13 +12,15 @@ import {
 const rolesService = new RolesService()
 
 export async function listRolesController(
-  _request: FastifyZodRequest,
+  request: FastifyZodRequest,
   reply: FastifyReply
 ) {
-  const roles = await rolesService.listRoles()
+  const query = request.query as RoleQuery
+  const result = await rolesService.listRoles(query)
   return reply.send({
     success: true,
-    data: roles,
+    data: result.data,
+    meta: result.meta,
   })
 }
 

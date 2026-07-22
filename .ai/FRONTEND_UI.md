@@ -307,6 +307,17 @@ Every feature screen must implement:
   5. Sessões Ativas
 - Cards take 100% available width without horizontal side-by-side splitting.
 
+### 10.8 Mandatory Pagination Standard for UI Lists & Tables
+
+> **MANDATORY POLICY**: Every table, grid, or list component in `apps/manager` and `apps/marketplace` **MUST include full pagination controls and pagination state management**.
+
+- **Manager Tables**: Must wrap table content with `<TableWrapper>` passing `meta={data?.meta}`, `onPageChange={setPage}`, `perPageValue={perPage}`, and `onPerPageChange={(newPerPage) => { setPerPage(newPerPage); setPage(1); }}`.
+- **Mandatory Pagination Controls (Default)**:
+  1. **Direct Page Input**: Input field showing current page e.g. `Página [ 1 ] de X` allowing direct typing, Enter submission, or blur navigation to any valid page number.
+  2. **First & Last Page Navigation**: First Page (`<<`) and Last Page (`>>`) buttons alongside Previous (`<`) and Next (`>`) buttons.
+  3. **Items Per Page Select**: Native select component permitting immediate switching of records displayed per page (10, 20, 50, 100).
+- **Query Key Standard**: React Query keys for listing endpoints must include `page`, `perPage`, and `search` states (e.g. `entityKeys.list({ page, perPage, search })`).
+
 ---
 
 ## 11. Marketplace Visual Identity & Design System (`apps/marketplace`)

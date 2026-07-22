@@ -12,6 +12,7 @@ import {
 } from './roles.controller'
 import {
   roleParamsSchema,
+  roleQuerySchema,
   createRoleBodySchema,
   updateRoleBodySchema,
   updateRolePermissionsBodySchema,
@@ -28,6 +29,7 @@ export async function rolesRoutes(app: FastifyInstance) {
         tags: ['Roles & Permissions'],
         summary: 'Listar cargos do sistema',
         security: [{ bearerAuth: [] }],
+        querystring: roleQuerySchema,
       },
     },
     listRolesController

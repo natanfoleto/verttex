@@ -42,6 +42,18 @@ All HTTP responses must use the contracts defined in `@verttex/types`.
 }
 ```
 
+### 2.1 Mandatory Pagination Standard for List Endpoints
+
+> **MANDATORY POLICY**: Every collection or list endpoint (e.g. `/users`, `/roles`, `/stores`, `/auditoria`, etc.) **MUST implement pagination and optional search filtering by default**. Never return unpaginated arrays for list endpoints.
+
+- **Query Schema Standard**:
+  - `page`: `z.coerce.number().optional().default(1)`
+  - `perPage`: `z.coerce.number().optional().default(20)`
+  - `search`: `z.string().optional()`
+- **Paginated Response Structure**:
+  - `data`: Array of items.
+  - `meta`: Object containing `page`, `perPage`, `total`, `totalPages`, `hasNextPage`, `hasPreviousPage`.
+
 ### Error Response
 
 ```json

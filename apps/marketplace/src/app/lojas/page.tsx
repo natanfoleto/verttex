@@ -64,12 +64,20 @@ const STORES_DATA: StoreCardProps[] = [
 
 export default function StoresListingPage() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const perPage = 6
 
   const filteredStores = STORES_DATA.filter(
     (store) =>
       store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (store.city &&
         store.city.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
+
+  const totalPages = Math.ceil(filteredStores.length / perPage) || 1
+  const paginatedStores = filteredStores.slice(
+    (page - 1) * perPage,
+    page * perPage
   )
 
   return (
@@ -100,7 +108,10 @@ export default function StoresListingPage() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setPage(1)
+              }}
               placeholder="Buscar por nome ou cidade..."
               className="w-full rounded-lg border border-stone-200 bg-white py-2.5 pr-4 pl-10 text-xs text-stone-900 shadow-xs focus:border-emerald-600 focus:outline-none"
             />
@@ -109,11 +120,40 @@ export default function StoresListingPage() {
       </div>
 
       {/* Stores Grid */}
-      {filteredStores.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredStores.map((store) => (
-            <StoreCard key={store.id} {...store} />
-          ))}
+      {paginatedStores.length > 0 ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {paginatedStores.map((store) => (
+              <StoreCard key={store.id} {...store} />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-stone-200 pt-4 text-xs text-stone-600">
+              <span>
+                Página <strong>{page}</strong> de <strong>{totalPages}</strong> ({filteredStores.length} lojas)
+              </span>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3 py-1.5 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Anterior
+                </button>
+                <button
+                  type="button"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3 py-1.5 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Próxima
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <EmptyState
@@ -121,7 +161,10 @@ export default function StoresListingPage() {
           title="Nenhum produtor encontrado"
           description="Não encontramos produtores correspondentes à sua pesquisa. Tente buscar com outros termos."
           actionLabel="Limpar Pesquisa"
-          onActionClick={() => setSearchQuery('')}
+          onActionClick={() => {
+            setSearchQuery('')
+            setPage(1)
+          }}
         />
       )}
     </div>

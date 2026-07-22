@@ -4,6 +4,14 @@ export const roleParamsSchema = z.object({
   roleId: z.string(),
 })
 
+export const roleQuerySchema = z.object({
+  page: z.coerce.number().optional().default(1),
+  perPage: z.coerce.number().optional().default(20),
+  search: z.string().optional(),
+})
+
+export type RoleQuery = z.infer<typeof roleQuerySchema>
+
 export const createRoleBodySchema = z.object({
   key: z.string().min(2, 'A chave deve ter no mínimo 2 caracteres'),
   name: z.string().min(2, 'O nome deve ter no mínimo 2 caracteres'),

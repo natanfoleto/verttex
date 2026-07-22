@@ -46,10 +46,16 @@ export function UserFormDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Fetch Available Roles
-  const { data: roles } = useQuery({
+  const { data: rolesData } = useQuery({
     queryKey: ['roles-list'],
-    queryFn: () => apiClient('/roles'),
+    queryFn: () => apiClient('/roles?perPage=100'),
   })
+
+  const roles = Array.isArray(rolesData?.data)
+    ? rolesData.data
+    : Array.isArray(rolesData)
+      ? rolesData
+      : []
 
   useEffect(() => {
     if (userToEdit) {

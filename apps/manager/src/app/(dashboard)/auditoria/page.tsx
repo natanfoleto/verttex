@@ -318,6 +318,7 @@ function ExpandedRow({ log }: { log: AuditLogEntry }) {
 
 export default function AuditPage() {
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const [search, setSearch] = useState('')
   const [userIdFilter, setUserIdFilter] = useState('')
   const [actionFilter, setActionFilter] = useState('')
@@ -326,6 +327,7 @@ export default function AuditPage() {
 
   const filters = {
     page,
+    perPage,
     search: search || undefined,
     userId: userIdFilter || undefined,
     action: actionFilter || undefined,
@@ -368,70 +370,6 @@ export default function AuditPage() {
 
   return (
     <div className="space-y-6 font-sans text-zinc-100">
-      {/* Filters bar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-        {/* Author */}
-        <NativeSelect
-          value={userIdFilter}
-          onChange={(e) => {
-            setUserIdFilter(e.target.value)
-            setPage(1)
-          }}
-          wrapperClassName="w-52"
-        >
-          <option value="">Todos os autores</option>
-          {filterOptions?.users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name}
-            </option>
-          ))}
-        </NativeSelect>
-
-        {/* Action */}
-        <NativeSelect
-          value={actionFilter}
-          onChange={(e) => {
-            setActionFilter(e.target.value)
-            setPage(1)
-          }}
-          wrapperClassName="w-44"
-        >
-          <option value="">Todas as ações</option>
-          {filterOptions?.actions.map((a) => (
-            <option key={a} value={a}>
-              {actionBadgeConfig[a]?.label ?? a}
-            </option>
-          ))}
-        </NativeSelect>
-
-        {/* Entity */}
-        <NativeSelect
-          value={entityFilter}
-          onChange={(e) => {
-            setEntityFilter(e.target.value)
-            setPage(1)
-          }}
-          wrapperClassName="w-44"
-        >
-          <option value="">Todas as entidades</option>
-          {filterOptions?.entities.map((e) => (
-            <option key={e} value={e}>
-              {getEntityLabel(e)}
-            </option>
-          ))}
-        </NativeSelect>
-
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="cursor-pointer rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-          >
-            Limpar filtros
-          </button>
-        )}
-      </div>
-
       <TableWrapper
         title="Logs de Auditoria"
         description="Rastreamento completo de ações de usuários e do sistema — criações, atualizações, exclusões e eventos de segurança."
@@ -441,6 +379,70 @@ export default function AuditPage() {
           setPage(1)
         }}
         searchPlaceholder="Buscar por ação, entidade, IP ou usuário..."
+        filters={
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Author */}
+            <NativeSelect
+              value={userIdFilter}
+              onChange={(e) => {
+                setUserIdFilter(e.target.value)
+                setPage(1)
+              }}
+              wrapperClassName="w-44"
+            >
+              <option value="">Todos os autores</option>
+              {filterOptions?.users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </NativeSelect>
+
+            {/* Action */}
+            <NativeSelect
+              value={actionFilter}
+              onChange={(e) => {
+                setActionFilter(e.target.value)
+                setPage(1)
+              }}
+              wrapperClassName="w-40"
+            >
+              <option value="">Todas as ações</option>
+              {filterOptions?.actions.map((a) => (
+                <option key={a} value={a}>
+                  {actionBadgeConfig[a]?.label ?? a}
+                </option>
+              ))}
+            </NativeSelect>
+
+            {/* Entity */}
+            <NativeSelect
+              value={entityFilter}
+              onChange={(e) => {
+                setEntityFilter(e.target.value)
+                setPage(1)
+              }}
+              wrapperClassName="w-40"
+            >
+              <option value="">Todas as entidades</option>
+              {filterOptions?.entities.map((e) => (
+                <option key={e} value={e}>
+                  {getEntityLabel(e)}
+                </option>
+              ))}
+            </NativeSelect>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="cursor-pointer rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+              >
+                Limpar
+              </button>
+            )}
+          </div>
+        }
         isLoading={isLoading}
         isError={isError}
         isEmpty={logs.length === 0}
@@ -456,6 +458,11 @@ export default function AuditPage() {
         }
         meta={data?.meta}
         onPageChange={setPage}
+        perPageValue={perPage}
+        onPerPageChange={(newPerPage) => {
+          setPerPage(newPerPage)
+          setPage(1)
+        }}
       >
         <table className="w-full border-collapse text-left text-sm table-fixed">
           <colgroup>

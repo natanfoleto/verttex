@@ -118,6 +118,8 @@ export default function ProductsListingPage() {
   const [selectedSort, setSelectedSort] = useState('relevancia')
   const [searchQuery, setSearchQuery] = useState('')
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const perPage = 6
 
   const filteredProducts = PRODUCTS_DATA.filter((product) => {
     if (
@@ -128,6 +130,12 @@ export default function ProductsListingPage() {
     }
     return true
   })
+
+  const totalPages = Math.ceil(filteredProducts.length / perPage) || 1
+  const paginatedProducts = filteredProducts.slice(
+    (page - 1) * perPage,
+    page * perPage
+  )
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans text-stone-900 sm:px-6 lg:px-8">
@@ -172,12 +180,19 @@ export default function ProductsListingPage() {
               categories={CATEGORIES}
               activeCategorySlug={selectedCategory}
               activeSort={selectedSort}
-              onSelectCategory={(slug) => setSelectedCategory(slug)}
-              onSelectSort={(sort) => setSelectedSort(sort)}
+              onSelectCategory={(slug) => {
+                setSelectedCategory(slug)
+                setPage(1)
+              }}
+              onSelectSort={(sort) => {
+                setSelectedSort(sort)
+                setPage(1)
+              }}
               onClearAll={() => {
                 setSelectedCategory('')
                 setSelectedSort('relevancia')
                 setSearchQuery('')
+                setPage(1)
               }}
             />
           </div>
@@ -193,12 +208,17 @@ export default function ProductsListingPage() {
               onSelectCategory={(slug) => {
                 setSelectedCategory(slug)
                 setMobileFilterOpen(false)
+                setPage(1)
               }}
-              onSelectSort={(sort) => setSelectedSort(sort)}
+              onSelectSort={(sort) => {
+                setSelectedSort(sort)
+                setPage(1)
+              }}
               onClearAll={() => {
                 setSelectedCategory('')
                 setSelectedSort('relevancia')
                 setSearchQuery('')
+                setPage(1)
               }}
             />
           </div>
@@ -213,7 +233,10 @@ export default function ProductsListingPage() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setPage(1)
+                }}
                 placeholder="Filtrar por nome de produto..."
                 className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2 pr-4 pl-10 text-xs text-stone-900 focus:border-emerald-600 focus:bg-white focus:outline-none"
               />
@@ -222,6 +245,10 @@ export default function ProductsListingPage() {
             <div className="shrink-0 text-xs font-medium text-stone-500">
               Mostrando{' '}
               <strong className="font-bold text-stone-900">
+                {paginatedProducts.length}
+              </strong>{' '}
+              de{' '}
+              <strong className="font-bold text-stone-900">
                 {filteredProducts.length}
               </strong>{' '}
               produtos
@@ -229,11 +256,40 @@ export default function ProductsListingPage() {
           </div>
 
           {/* Product Cards Grid */}
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
+          {paginatedProducts.length > 0 ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {paginatedProducts.map((product) => (
+                  <ProductCard key={product.id} {...product} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-stone-200 pt-4 text-xs text-stone-600">
+                  <span>
+                    Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      disabled={page <= 1}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3 py-1.5 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Anterior
+                    </button>
+                    <button
+                      type="button"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3 py-1.5 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      Próxima
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <EmptyState
@@ -243,6 +299,7 @@ export default function ProductsListingPage() {
               onActionClick={() => {
                 setSelectedCategory('')
                 setSearchQuery('')
+                setPage(1)
               }}
             />
           )}
