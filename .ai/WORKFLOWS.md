@@ -57,8 +57,8 @@ This guide outlines common tasks and terminal commands to run within the monorep
   pnpm db:studio
   ```
 
-## 4. UI Library Tasks
+## 4. UI Component Installation & Customization Workflow
 
-- **Adding a component to `@verttex/ui`**:
-  - Create component under `packages/ui/src/components/`.
-  - Export component from `packages/ui/src/index.ts`.
+- **Installing a new shadcn component in an app**:
+  1. Install or add the component file directly in the target app (`apps/manager` or `apps/marketplace`) under `src/components/ui/`.
+  2. **Mandatory Post-Installation Step**: Review all clickable elements (`button`, close buttons `DialogPrimitive.Close` / `SheetClose`, triggers `TabsTrigger` / `SelectTrigger`, menu items `DropdownMenuSubTrigger` / `DropdownMenuCheckboxItem` / `DropdownMenuRadioItem`, scroll buttons, checkboxes, radio inputs) and ensure `cursor-pointer` is added to their class definitions. Disabled states must preserve `disabled:cursor-not-allowed`.

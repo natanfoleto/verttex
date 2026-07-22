@@ -86,6 +86,7 @@ export default function LoginPage() {
               <RiMailLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
                 {...register('email')}
+                value={'admin@verttexloja.com.br'}
                 id="email"
                 name="email"
                 type="email"

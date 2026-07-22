@@ -459,12 +459,12 @@ export default function AuditPage() {
       >
         <table className="w-full border-collapse text-left text-sm table-fixed">
           <colgroup>
-            <col style={{ width: '15%' }} />  {/* Data / Hora */}
-            <col style={{ width: '22%' }} />  {/* Autor */}
-            <col style={{ width: '13%' }} />  {/* Cargo */}
-            <col style={{ width: '13%' }} />  {/* Ação */}
-            <col style={{ width: '14%' }} />  {/* Entidade */}
-            <col style={{ width: '23%' }} />  {/* ID do Recurso */}
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '22%' }} />
+            <col style={{ width: '13%' }} />
+            <col style={{ width: '13%' }} />
+            <col style={{ width: '14%' }} />
+            <col style={{ width: '23%' }} />
           </colgroup>
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-950/60 text-xs tracking-wider text-zinc-400 uppercase">

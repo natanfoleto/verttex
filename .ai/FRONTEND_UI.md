@@ -199,7 +199,9 @@ Every feature screen must implement:
 - **Import Pattern Standard**:
   - Manager: `import { Button } from '@/components/ui/button'`
   - Marketplace: `import { Button } from '@/components/ui/button'`
-- **Customization Rule**: Do NOT rewrite or alter standard shadcn base component logic unless technically justified. Use Radix UI primitives and utility classes (`cn` helper via `clsx` + `tailwind-merge`).
+- **Customization & Mandatory `cursor-pointer` Rule**:
+  - Do NOT rewrite or alter standard shadcn base component logic unless technically justified. Use Radix UI primitives and utility classes (`cn` helper via `clsx` + `tailwind-merge`).
+  - **MANDATORY ACTION ON INSTALLATION**: Whenever installing or adding a new shadcn component, **always add `cursor-pointer` to all clickable elements** (Buttons, `DialogPrimitive.Close`, `SheetClose`, `TabsTrigger`, `SelectTrigger`, `SelectScrollUpButton`, `SelectScrollDownButton`, `DropdownMenuSubTrigger`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioItem`, Checkboxes, etc.). Disabled states must maintain `disabled:cursor-not-allowed`.
 
 ### 10.2 Modal & Dialog Standard (shadcn/ui Primitives)
 

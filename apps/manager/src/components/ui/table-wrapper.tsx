@@ -137,7 +137,7 @@ export function TableWrapper({
               <button
                 disabled={!meta.hasPreviousPage}
                 onClick={() => onPageChange(meta.page - 1)}
-                className="inline-flex items-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex cursor-pointer items-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <RiArrowLeftSLine className="mr-1 h-4 w-4" />
                 Anterior
@@ -145,7 +145,7 @@ export function TableWrapper({
               <button
                 disabled={!meta.hasNextPage}
                 onClick={() => onPageChange(meta.page + 1)}
-                className="inline-flex items-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex cursor-pointer items-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Próxima
                 <RiArrowRightSLine className="ml-1 h-4 w-4" />
