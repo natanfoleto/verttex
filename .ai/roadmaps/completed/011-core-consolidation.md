@@ -2,11 +2,11 @@
 
 ## Metadata
 
-- Status: Active
+- Status: Completed
 - Priority: Critical
 - Created at: 2026-07-23
 - Started at: 2026-07-23
-- Completed at: Em aberto
+- Completed at: 2026-07-23
 - Dependencies: [`completed/009-security-foundation.md`](.ai/roadmaps/completed/009-security-foundation.md), [`completed/010-security-validation-and-hardening.md`](.ai/roadmaps/completed/010-security-validation-and-hardening.md)
 - Related documents: `.ai/architecture/ARCHITECTURE.md`, `.ai/domain/BUSINESS_RULES.md`, `.ai/domain/PERMISSIONS.md`, `.ai/security/AUTHENTICATION_SECURITY.md`
 
@@ -83,10 +83,10 @@ Ao alterar as permissões vinculadas a um `Role`:
 - [x] Integrar serviço de envio de e-mail transacional via Resend (`EmailService` com fallback gracioso).
 - [x] Garantir que todas as consultas de listagem no backend apliquem o filtro `deletedAt: null` (`roles.service.ts`, `users.service.ts`, `stores.service.ts`).
 - [x] Criar testes automatizados de resiliência e sanitização em `src/email.spec.ts`.
-- [ ] Refinar na UI do Manager a tela de permissões individuais para visualização clara de herdado vs. sobrescrito.
+- [x] Refinar na UI do Manager a tela de permissões individuais para visualização clara de herdado vs. sobrescrito (`/usuarios/[userId]/permissoes`).
 
 ---
 
-## Próximos Passos
+## Status de Conclusão
 
-Finalizar a interface visual do Manager para exibição e edição de exceções individuais de permissão por usuário, e em seguida concluir este roadmap para avançar para o **Roadmap 012 (Categorias e Marcas)**.
+Roadmap 011 concluído com sucesso. Todos os itens de consolidação do núcleo atual foram validados e testados. O projeto encontra-se liberado para o **Roadmap 012 (Categorias e Marcas)**.
