@@ -1,4 +1,5 @@
 import { FastifyRequest } from 'fastify'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { logAudit } from '../../shared/utils/audit'
@@ -10,7 +11,7 @@ export class RolesService {
     const perPage = Math.max(1, Math.min(100, query?.perPage || 20))
     const skip = (page - 1) * perPage
 
-    const where: any = {
+    const where: Prisma.RoleWhereInput = {
       deletedAt: null,
     }
 
@@ -88,8 +89,8 @@ export class RolesService {
   }
 
   async getRole(roleId: string) {
-    const role = await prisma.role.findUnique({
-      where: { id: roleId },
+    const role = await prisma.role.findFirst({
+      where: { id: roleId, deletedAt: null },
       include: {
         permissions: {
           include: {

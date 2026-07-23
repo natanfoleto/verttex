@@ -1,4 +1,5 @@
 import { FastifyRequest } from 'fastify'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { hashPassword } from '../../shared/utils/crypto'
@@ -16,7 +17,7 @@ export class UsersService {
     const perPage = Math.max(1, Math.min(100, query.perPage || 20))
     const skip = (page - 1) * perPage
 
-    const where: any = {
+    const where: Prisma.UserWhereInput = {
       deletedAt: null,
     }
 
@@ -128,8 +129,8 @@ export class UsersService {
   }
 
   async getUser(userId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+    const user = await prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
       select: {
         id: true,
         name: true,

@@ -1,4 +1,5 @@
 import { FastifyRequest } from 'fastify'
+import { Prisma } from '@prisma/client'
 import { AuthenticatedUserPayload } from '../../@types/fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
@@ -82,7 +83,7 @@ export class StoresService {
     const page = Math.max(1, query.page || 1)
     const perPage = Math.max(1, Math.min(100, query.perPage || 20))
     const skip = (page - 1) * perPage
-    const where: any = {
+    const where: Prisma.StoreWhereInput = {
       deletedAt: null,
     }
 
@@ -139,8 +140,8 @@ export class StoresService {
   }
 
   async getStore(storeId: string) {
-    const store = await prisma.store.findUnique({
-      where: { id: storeId },
+    const store = await prisma.store.findFirst({
+      where: { id: storeId, deletedAt: null },
       include: {
         users: {
           include: {
