@@ -4,7 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { RiLockPasswordLine, RiMailLine } from 'react-icons/ri'
+import {
+  RiEyeLine,
+  RiEyeOffLine,
+  RiLockPasswordLine,
+  RiMailLine,
+  RiShieldCheckLine,
+} from 'react-icons/ri'
 import { z } from 'zod'
 
 import { apiClient, ApiError } from '../../../lib/api-client'
@@ -19,6 +25,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 export default function LoginPage() {
   const [serverError, setServerError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -53,102 +60,128 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 font-sans text-zinc-100 antialiased">
-      <div className="w-full max-w-md space-y-8 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-8 shadow-xl backdrop-blur-sm">
+    <div className="relative flex min-h-screen items-center justify-center bg-zinc-950 px-4 font-sans text-zinc-100 antialiased selection:bg-emerald-500 selection:text-white">
+      {/* Ambient background glow */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(16,185,129,0.12),rgba(9,9,11,0))]" />
+
+      <div className="relative w-full max-w-md space-y-8 rounded-3xl border border-zinc-800/80 bg-zinc-900/50 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
         {/* Header */}
         <div className="space-y-3 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-xl font-bold text-white shadow-md shadow-emerald-950">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-linear-to-br from-emerald-500 to-emerald-700 text-2xl font-black text-white shadow-lg shadow-emerald-950/60 ring-4 ring-emerald-950/50">
             V
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
-            Acessar Painel Verttex
-          </h2>
-          <p className="text-sm text-zinc-400">
-            Informe suas credenciais de gestor para entrar
-          </p>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+              Painel de Gestão
+            </h1>
+            <p className="text-xs text-zinc-400">
+              Entre com suas credenciais para acessar o sistema
+            </p>
+          </div>
         </div>
 
         {/* Server Error Alert */}
         {serverError && (
-          <div className="rounded-xl border border-rose-800/80 bg-rose-950/50 p-4 text-center text-sm text-rose-300">
-            {serverError}
+          <div className="flex items-center space-x-2.5 rounded-2xl border border-rose-800/60 bg-rose-950/40 p-4 text-xs font-medium text-rose-300 backdrop-blur-sm animate-in fade-in slide-in-from-top-1">
+            <div className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+            <span>{serverError}</span>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* E-mail Field */}
           <div className="space-y-1.5">
-            <div>
-              <label
-                htmlFor="email"
-                className="text-xs font-semibold tracking-wider text-zinc-300 uppercase"
-              >
-                E-mail corporativo
-              </label>
-            </div>
+            <label
+              htmlFor="email"
+              className="text-[11px] font-semibold tracking-wider text-zinc-300 uppercase"
+            >
+              E-mail corporativo
+            </label>
             <div className="relative">
-              <RiMailLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+              <RiMailLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-emerald-400" />
               <input
                 {...register('email')}
                 id="email"
                 name="email"
                 type="email"
                 placeholder="seu.email@verttexloja.com.br"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                className="w-full rounded-2xl border border-zinc-800/90 bg-zinc-950/80 py-3 pr-4 pl-10 text-sm text-zinc-100 placeholder-zinc-500 transition-all focus:border-emerald-500/80 focus:bg-zinc-950 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
               />
             </div>
             {errors.email && (
-              <p className="mt-1 text-xs text-rose-400">
+              <p className="mt-1 text-xs font-medium text-rose-400">
                 {errors.email.message}
               </p>
             )}
           </div>
 
+          {/* Password Field */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password"
-                className="text-xs font-semibold tracking-wider text-zinc-300 uppercase"
+                className="text-[11px] font-semibold tracking-wider text-zinc-300 uppercase"
               >
                 Senha de acesso
               </label>
               <Link
                 href="/esqueci-minha-senha"
-                className="text-xs font-medium text-emerald-400 hover:underline"
+                className="text-xs font-medium text-emerald-400 transition-colors hover:text-emerald-300 hover:underline"
               >
                 Esqueceu a senha?
               </Link>
             </div>
             <div className="relative">
-              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors" />
               <input
                 {...register('password')}
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                className="w-full rounded-2xl border border-zinc-800/90 bg-zinc-950/80 py-3 pr-11 pl-10 text-sm text-zinc-100 placeholder-zinc-500 transition-all focus:border-emerald-500/80 focus:bg-zinc-950 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute top-1/2 right-3.5 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-300"
+                tabIndex={-1}
+                aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
+              >
+                {showPassword ? (
+                  <RiEyeOffLine className="h-4 w-4" />
+                ) : (
+                  <RiEyeLine className="h-4 w-4" />
+                )}
+              </button>
             </div>
             {errors.password && (
-              <p className="mt-1 text-xs text-rose-400">
+              <p className="mt-1 text-xs font-medium text-rose-400">
                 {errors.password.message}
               </p>
             )}
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-950/60 transition-colors hover:bg-emerald-500 disabled:opacity-50"
+            className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-2xl bg-linear-to-r from-emerald-600 to-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-950/60 transition-all hover:from-emerald-500 hover:to-emerald-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
-              'Entrar no Sistema'
+              <span>Entrar no Sistema</span>
             )}
           </button>
         </form>
+
+        {/* Footer */}
+        <div className="flex items-center justify-center space-x-2 border-t border-zinc-800/60 pt-6 text-xs text-zinc-500">
+          <RiShieldCheckLine className="h-4 w-4 text-emerald-500/80" />
+          <span>Ambiente Seguro • Verttex</span>
+        </div>
       </div>
     </div>
   )
