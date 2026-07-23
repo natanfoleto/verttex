@@ -19,7 +19,7 @@
 | 007 | Manager UI | `completed` | high | 003, 005, 006 | [`completed/007-manager-ui.md`](.ai/roadmaps/completed/007-manager-ui.md) |
 | 008 | Marketplace UI | `completed` | high | 004 | [`completed/008-marketplace-ui.md`](.ai/roadmaps/completed/008-marketplace-ui.md) |
 | 009 | Security Foundation | `completed` | critical | 001 a 008 | [`completed/009-security-foundation.md`](.ai/roadmaps/completed/009-security-foundation.md) |
-| 010 | Security Validation and Hardening | `planned` | high | 009 | [`planned/010-security-validation-and-hardening.md`](.ai/roadmaps/planned/010-security-validation-and-hardening.md) |
+| 010 | Security Validation and Hardening | `completed` | high | 009 | [`completed/010-security-validation-and-hardening.md`](.ai/roadmaps/completed/010-security-validation-and-hardening.md) |
 
 ---
 
@@ -27,9 +27,9 @@
 
 | Status | Quantidade | Observação |
 |:---|:---|:---|
-| `completed` | 9 | Roadmaps 001 a 009 concluídos e documentados |
+| `completed` | 10 | Roadmaps 001 a 010 concluídos e validados |
 | `active` | 0 | Nenhum roadmap ativo no momento |
-| `planned` | 1 | Roadmap 010 (Validação e Hardening de Segurança) |
+| `planned` | 0 | Novos roadmaps serão adicionados conforme definição |
 | `archived` | 0 | Nenhum roadmap arquivado |
 
 ---

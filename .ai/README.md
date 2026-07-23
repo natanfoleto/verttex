@@ -20,9 +20,7 @@ Quando for necessário ler ou consultar informações sobre o projeto, siga esta
 7. [`.ai/backend/`](./backend/README.md) e [`.ai/frontend/`](./frontend/README.md) — Documentação específica de API e UI
 8. [`.ai/observability/`](./observability/README.md) — Regras de auditoria e logging
 9. [`.ai/planning/`](./planning/README.md) — Planejamento preliminar e estudos não formalizados como roadmap
-10. [`.ai/references/`](./references/README.md) — Projetos de referência e comparações (não são fonte de verdade)
-11. [`.ai/history/`](./history/README.md) — Histórico de origem do projeto
-12. [`.ai/archive/`](./archive/README.md) — Documentos descontinuados ou substituídos
+10. [`.ai/archive/`](./archive/README.md) — Documentos descontinuados ou substituídos
 
 ---
 
@@ -69,14 +67,6 @@ Toda a documentação do projeto está dividida nas seguintes categorias oficiai
 │   ├── planned/            — Roadmaps planejados e aprovados
 │   ├── completed/          — Roadmaps totalmente concluídos e validados
 │   └── archived/           — Roadmaps cancelados ou substituídos
-│
-├── references/             — Projetos de referência externa (ex: Ecokids)
-│   ├── README.md
-│   └── ECOKIDS_REFERENCE.md
-│
-├── history/                — Histórico inicial de criação do projeto
-│   ├── README.md
-│   └── INITIAL_PROMPT.md
 │
 ├── security/               — Programa completo de segurança (OWASP ASVS 5.0 / NIST SSDF)
 │   ├── README.md

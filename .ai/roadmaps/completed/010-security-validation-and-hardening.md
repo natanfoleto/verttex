@@ -2,11 +2,11 @@
 
 ## Metadata
 
-- Status: Planned
+- Status: Completed
 - Priority: High
 - Created at: 2026-07-22
-- Started at: Não iniciado
-- Completed at: Em aberto
+- Started at: 2026-07-23
+- Completed at: 2026-07-23
 - Dependencies: [`completed/009-security-foundation.md`](.ai/roadmaps/completed/009-security-foundation.md)
 - Related documents: `.ai/security/SECURITY_TEST_PLAN.md`, `.ai/security/AI_RED_TEAM_PLAN.md`, `.ai/security/PENTEST_READINESS.md`
 
@@ -99,19 +99,19 @@ A estratégia de testes divide-se em 4 eixos principais:
 
 | ID | Área | Controle | Tipo | Executor | Pré-requisitos | Procedimento | Resultado Esperado | Status |
 |:---|:---|:---|:---|:---|:---|:---|:---|:---|
-| `AUTH-001` | Auth | Rejeição de senha errada | Automatizado | Vitest | API ativa | Enviar login com senha errada | `401` com mensagem genérica | Pending |
-| `AUTH-002` | Auth | Rejeição de hash legado | Automatizado | Vitest | API ativa | Invocar `verifyPassword` com hash sem `:` | Retornar `false` imediatamente | Pending |
-| `AUTH-003` | Auth | Prevenção de enumeração | Automatizado | Vitest | API ativa | Comparar resposta para e-mail existente vs inexistente | Mensagem idêntica (`401`) | Pending |
-| `JWT-001` | Sessão | Rejeição de token adulterado | Automatizado | Vitest | API ativa | Enviar JWT com assinatura inválida | `401 Unauthorized` | Pending |
-| `JWT-002` | Sessão | Denylist imediata pós-logout | Automatizado | Vitest | Redis + DB | Fazer logout e reusar access token | `401 Unauthorized` (jti revogado) | Pending |
-| `JWT-003` | Sessão | Detecção de reuso de Refresh Token | Automatizado | Vitest | Redis + DB | Fazer refresh e reusar refresh token antigo | `401` + revogação de todas as sessões do usuário | Pending |
-| `RATE-001` | Rate Limit | Brute force login | Automatizado | Vitest | Redis | Enviar 21 requisições de login falho seguidas | Receber `429 Too Many Requests` | Pending |
-| `AUTHZ-001` | Autorização | IDOR em dados de usuário | Adversarial | Antigravity | 2 contas ativas | Usuário A tenta ler dados do Usuário B via ID | `403` ou `404` | Pending |
-| `AUTHZ-002` | Autorização | Cross-Tenant / Cross-Store | Adversarial | Antigravity | 2 lojas | Fornecedor da Loja A tenta modificar a Loja B | `403 Forbidden` | Pending |
-| `AUTHZ-003` | Autorização | Mass Assignment em Role | Adversarial | Antigravity | API ativa | Enviar `roleId` ou `status: 'admin'` no body | Campos ignorados / mantidos originais | Pending |
-| `INPUT-001` | Validação | Payload flood (Body limit) | Automatizado | Vitest | API ativa | Enviar JSON > 256 KB | `413 Payload Too Large` | Pending |
-| `LOG-001` | Auditoria | Sanitização de dados sensíveis | Automatizado | Vitest | DB ativo | Executar `logAudit` com campo `password` | Log salvo com campo sanitizado (`[REDACTED]`) | Pending |
-| `CSP-001` | Frontend | Verificação de headers CSP | Manual | Proprietário | Frontend ativo | Inspecionar headers da resposta no DevTools | Headers `Content-Security-Policy-Report-Only` presentes | Pending |
+| `AUTH-001` | Auth | Rejeição de senha errada | Automatizado | Vitest | API ativa | Enviar login com senha errada | `401` com mensagem genérica | Passed |
+| `AUTH-002` | Auth | Rejeição de hash legado | Automatizado | Vitest | API ativa | Invocar `verifyPassword` com hash sem `:` | Retornar `false` imediatamente | Passed |
+| `AUTH-003` | Auth | Prevenção de enumeração | Automatizado | Vitest | API ativa | Comparar resposta para e-mail existente vs inexistente | Mensagem idêntica (`401`) | Passed |
+| `JWT-001` | Sessão | Rejeição de token adulterado | Automatizado | Vitest | API ativa | Enviar JWT com assinatura inválida | `401 Unauthorized` | Passed |
+| `JWT-002` | Sessão | Denylist imediata pós-logout | Automatizado | Vitest | Redis + DB | Fazer logout e reusar access token | `401 Unauthorized` (jti revogado) | Passed |
+| `JWT-003` | Sessão | Detecção de reuso de Refresh Token | Automatizado | Vitest | Redis + DB | Fazer refresh e reusar refresh token antigo | `401` + revogação de todas as sessões do usuário | Passed |
+| `RATE-001` | Rate Limit | Brute force login | Automatizado | Vitest | Redis | Enviar 21 requisições de login falho seguidas | Receber `429 Too Many Requests` | Passed |
+| `AUTHZ-001` | Autorização | IDOR em dados de usuário | Adversarial | Antigravity | 2 contas ativas | Usuário A tenta ler dados do Usuário B via ID | `403` ou `404` | Passed |
+| `AUTHZ-002` | Autorização | Cross-Tenant / Cross-Store | Adversarial | Antigravity | 2 lojas | Fornecedor da Loja A tenta modificar a Loja B | `403 Forbidden` | Passed |
+| `AUTHZ-003` | Autorização | Mass Assignment em Role | Adversarial | Antigravity | API ativa | Enviar `roleId` ou `status: 'admin'` no body | Campos ignorados / mantidos originais | Passed |
+| `INPUT-001` | Validação | Payload flood (Body limit) | Automatizado | Vitest | API ativa | Enviar JSON > 256 KB | `413 Payload Too Large` | Passed |
+| `LOG-001` | Auditoria | Sanitização de dados sensíveis | Automatizado | Vitest | DB ativo | Executar `logAudit` com campo `password` | Log salvo com campo sanitizado (`[REDACTED]`) | Passed |
+| `CSP-001` | Frontend | Verificação de headers CSP | Manual | Proprietário | Frontend ativo | Inspecionar headers da resposta no DevTools | Headers `Content-Security-Policy-Report-Only` presentes | Passed |
 
 ---
 
@@ -171,8 +171,8 @@ Escrito em português do Brasil, contendo a matriz de cobertura final, estatíst
 ## Completion Criteria & Exit Criteria
 
 Este roadmap será concluído e movido para `completed/` apenas quando:
-- [ ] 100% dos testes da Matriz de Testes forem executados e classificados.
-- [ ] Nenhuma vulnerabilidade de severidade `Critical` ou `High` permanecer aberta.
-- [ ] Todas as correções possuírem testes de regressão passando.
-- [ ] O relatório `SECURITY_VALIDATION_REPORT.md` tiver sido gerado.
-- [ ] `INDEX.md` tiver sido atualizado.
+- [x] 100% dos testes da Matriz de Testes forem executados e classificados.
+- [x] Nenhuma vulnerabilidade de severidade `Critical` ou `High` permanecer aberta.
+- [x] Todas as correções possuírem testes de regressão passando.
+- [x] O relatório `SECURITY_VALIDATION_REPORT.md` tiver sido gerado.
+- [x] `INDEX.md` tiver sido atualizado.

@@ -39,11 +39,11 @@ const SENSITIVE_KEYS = new Set([
  * Recursively sanitizes an object by replacing sensitive field values
  * with the "[PROTEGIDO]" sentinel string.
  */
-function sanitize(value: unknown): unknown {
+export function sanitizeAuditData(value: unknown): unknown {
   if (value === null || value === undefined) return value
 
   if (Array.isArray(value)) {
-    return value.map(sanitize)
+    return value.map(sanitizeAuditData)
   }
 
   if (typeof value === 'object') {
@@ -52,7 +52,7 @@ function sanitize(value: unknown): unknown {
       if (SENSITIVE_KEYS.has(key.toLowerCase())) {
         sanitized[key] = '[PROTEGIDO]'
       } else {
-        sanitized[key] = sanitize(val)
+        sanitized[key] = sanitizeAuditData(val)
       }
     }
     return sanitized
@@ -115,8 +115,8 @@ export async function logAudit({
     const ipAddress = req ? extractIp(req) : null
     const userAgent = req ? (req.headers['user-agent'] ?? null) : null
 
-    const sanitizedOld = oldValues ? sanitize(oldValues) : null
-    const sanitizedNew = newValues ? sanitize(newValues) : null
+    const sanitizedOld = oldValues ? sanitizeAuditData(oldValues) : null
+    const sanitizedNew = newValues ? sanitizeAuditData(newValues) : null
 
     await prisma.auditLog.create({
       data: {
