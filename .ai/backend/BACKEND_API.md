@@ -10,6 +10,10 @@ Every feature domain is defined flat inside `src/modules/<domain>/`:
 - `<domain>.controller.ts`: Decodes input, calls logic, formats HTTP response.
 - `<domain>.schemas.ts`: Contains Zod schemas for query/body/params and API outputs.
 
+### 1.1 Mandatory Automated Testing Policy
+
+> **MANDATORY POLICY**: Every new feature, endpoint, business logic change, or bug fix **MUST include automated unit/integration tests (using Vitest)**. Code implementation without accompanying automated tests covering both success and error/authorization flows will be considered incomplete.
+
 ---
 
 ## 2. API Response Contracts

@@ -14,6 +14,7 @@ export const env = createEnv({
     R2_SECRET_ACCESS_KEY: z.string().optional(),
     R2_BUCKET_NAME: z.string().optional(),
     REDIS_URL: z.string().optional(),
+    RESEND_API_KEY: z.string().optional(),
   },
   runtimeEnv: {
     SERVER_PORT: process.env.SERVER_PORT,
@@ -26,6 +27,7 @@ export const env = createEnv({
     R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
     R2_BUCKET_NAME: process.env.R2_BUCKET_NAME,
     REDIS_URL: process.env.REDIS_URL,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
   },
   emptyStringAsUndefined: true,
 })

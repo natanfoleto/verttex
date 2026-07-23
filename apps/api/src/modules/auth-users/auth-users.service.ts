@@ -10,6 +10,7 @@ import {
   generateRandomToken,
 } from '../../shared/utils/crypto'
 import { revokeJti } from '../../shared/utils/token-denylist'
+import { emailService } from '../../infrastructure/email/email.service'
 import {
   LoginBody,
   ForgotPasswordBody,
@@ -334,6 +335,14 @@ export class AuthUsersService {
     })
 
     console.log(`🔑 [DEV RESET TOKEN] Email: ${email} | Token: ${rawToken}`)
+
+    const resetUrl = `http://localhost:3000/redefinir-senha?token=${rawToken}`
+    await emailService.sendPasswordResetEmail({
+      to: email,
+      userName: user.name,
+      resetUrl,
+      actorType: 'user',
+    })
 
     return genericResponse
   }

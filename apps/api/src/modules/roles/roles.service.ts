@@ -10,7 +10,9 @@ export class RolesService {
     const perPage = Math.max(1, Math.min(100, query?.perPage || 20))
     const skip = (page - 1) * perPage
 
-    const where: any = {}
+    const where: any = {
+      deletedAt: null,
+    }
 
     if (query?.search) {
       const search = query.search.trim()

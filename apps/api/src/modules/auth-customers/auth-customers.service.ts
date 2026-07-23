@@ -7,6 +7,7 @@ import {
   hashToken,
   generateRandomToken,
 } from '../../shared/utils/crypto'
+import { emailService } from '../../infrastructure/email/email.service'
 import {
   CustomerRegisterBody,
   CustomerLoginBody,
@@ -231,6 +232,14 @@ export class AuthCustomersService {
     console.log(
       `🔑 [DEV CUSTOMER RESET TOKEN] Email: ${email} | Token: ${rawToken}`
     )
+
+    const resetUrl = `http://localhost:3001/redefinir-senha?token=${rawToken}`
+    await emailService.sendPasswordResetEmail({
+      to: email,
+      userName: customer.name,
+      resetUrl,
+      actorType: 'customer',
+    })
 
     return genericResponse
   }

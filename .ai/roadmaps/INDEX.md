@@ -2,7 +2,7 @@
 
 > **Visão Geral dos Roadmaps do Projeto**  
 > **Localização:** `.ai/roadmaps/INDEX.md`  
-> **Última Atualização:** 2026-07-22
+> **Última Atualização:** 2026-07-23
 
 ---
 
@@ -20,6 +20,20 @@
 | 008 | Marketplace UI | `completed` | high | 004 | [`completed/008-marketplace-ui.md`](.ai/roadmaps/completed/008-marketplace-ui.md) |
 | 009 | Security Foundation | `completed` | critical | 001 a 008 | [`completed/009-security-foundation.md`](.ai/roadmaps/completed/009-security-foundation.md) |
 | 010 | Security Validation and Hardening | `completed` | high | 009 | [`completed/010-security-validation-and-hardening.md`](.ai/roadmaps/completed/010-security-validation-and-hardening.md) |
+| 011 | Consolidação do Núcleo Atual | `active` | critical | 009, 010 | [`active/011-core-consolidation.md`](.ai/roadmaps/active/011-core-consolidation.md) |
+| 012 | Categorias e Marcas | `planned` | high | 011 | [`planned/012-categories-and-brands.md`](.ai/roadmaps/planned/012-categories-and-brands.md) |
+| 013 | Catálogo de Produtos, Variações, Mídias e Uploads R2 | `planned` | high | 011, 012 | [`planned/013-product-catalog-media-and-uploads.md`](.ai/roadmaps/planned/013-product-catalog-media-and-uploads.md) |
+| 014 | Estoque e Movimentações | `planned` | high | 013 | [`planned/014-inventory-and-stock-movements.md`](.ai/roadmaps/planned/014-inventory-and-stock-movements.md) |
+| 015 | Publicação e Catálogo do Marketplace | `planned` | high | 013, 014 | [`planned/015-marketplace-catalog-publishing.md`](.ai/roadmaps/planned/015-marketplace-catalog-publishing.md) |
+| 016 | Clientes e Endereços | `planned` | high | 004 | [`planned/016-customers-and-addresses.md`](.ai/roadmaps/planned/016-customers-and-addresses.md) |
+| 017 | Carrinho e Regras de Preço | `planned` | high | 013, 016 | [`planned/017-cart-and-pricing-rules.md`](.ai/roadmaps/planned/017-cart-and-pricing-rules.md) |
+| 018 | Pedidos e Checkout | `planned` | high | 016, 017 | [`planned/018-orders-and-checkout.md`](.ai/roadmaps/planned/018-orders-and-checkout.md) |
+| 019 | Pagamentos | `planned` | high | 018 | [`planned/019-payments.md`](.ai/roadmaps/planned/019-payments.md) |
+| 020 | Entregas e Rastreamento | `planned` | high | 018 | [`planned/020-shipping-and-tracking.md`](.ai/roadmaps/planned/020-shipping-and-tracking.md) |
+| 021 | Cancelamentos, Trocas e Reembolsos | `planned` | medium | 018, 019 | [`planned/021-cancellations-returns-refunds.md`](.ai/roadmaps/planned/021-cancellations-returns-refunds.md) |
+| 022 | Avaliações e Perguntas | `planned` | medium | 013, 018 | [`planned/022-reviews-and-qa.md`](.ai/roadmaps/planned/022-reviews-and-qa.md) |
+| 023 | Notificações | `planned` | medium | 018, 020 | [`planned/023-notifications.md`](.ai/roadmaps/planned/023-notifications.md) |
+| 024 | Relatórios Comerciais e Operacionais | `planned` | medium | 018, 019 | [`planned/024-commercial-and-operational-reports.md`](.ai/roadmaps/planned/024-commercial-and-operational-reports.md) |
 
 ---
 
@@ -28,13 +42,13 @@
 | Status | Quantidade | Observação |
 |:---|:---|:---|
 | `completed` | 10 | Roadmaps 001 a 010 concluídos e validados |
-| `active` | 0 | Nenhum roadmap ativo no momento |
-| `planned` | 0 | Novos roadmaps serão adicionados conforme definição |
+| `active` | 1 | Roadmap 011 em execução (Consolidação do Núcleo) |
+| `planned` | 13 | Roadmaps 012 a 024 planejados e registrados |
 | `archived` | 0 | Nenhum roadmap arquivado |
 
 ---
 
 ## Observações
-- Os roadmaps 001 a 008 representam as entregas da Fase 1 funcional da plataforma VERTTEX NF.
-- O roadmap 009 registra a fundação, políticas e implementação inicial de segurança em todas as camadas do projeto.
-- O roadmap 010 conduzirá os testes formais, validação adversarial, testes manuais e hardening do sistema.
+- Os roadmaps 001 a 008 representam as entregas da Fase 1 funcional da plataforma VERTTEX.
+- Os roadmaps 009 e 010 representam o estabelecimento e validação completa da fundação de segurança.
+- Os roadmaps 011 a 024 foram registrados para planejar a evolução sequencial da plataforma, com detalhamento aprofundado dos roadmaps 011, 012 e 013.
