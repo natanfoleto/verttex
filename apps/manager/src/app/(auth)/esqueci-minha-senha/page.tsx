@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
-                E-mail corporativo
+                E-mail
               </label>
               <div className="relative">
                 <RiMailLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />

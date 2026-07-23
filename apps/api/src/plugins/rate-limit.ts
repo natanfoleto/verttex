@@ -35,5 +35,8 @@ export const rateLimitPlugin = fp(async (app) => {
       // Respect X-Forwarded-For when trustProxy is configured on Fastify
       return req.ip
     },
+    // Bypass rate limiting during local development (NODE_ENV === 'development')
+    // Rate limit remains 100% active in tests (NODE_ENV === 'test') and production (NODE_ENV === 'production')
+    allowList: () => process.env.NODE_ENV === 'development',
   })
 })

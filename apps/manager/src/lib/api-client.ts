@@ -22,6 +22,35 @@ export class ApiError extends Error {
   }
 }
 
+let isRefreshing = false
+let refreshPromise: Promise<boolean> | null = null
+
+async function refreshTokenSilent(): Promise<boolean> {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise
+  }
+
+  isRefreshing = true
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/users/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      })
+      const body = await res.json().catch(() => null)
+      return res.ok && body?.success !== false
+    } catch {
+      return false
+    } finally {
+      isRefreshing = false
+      refreshPromise = null
+    }
+  })()
+
+  return refreshPromise
+}
+
 export async function apiClient<T = any>(
   endpoint: string,
   options: RequestInit = {}
@@ -33,13 +62,36 @@ export async function apiClient<T = any>(
     ...(options.headers as Record<string, string>),
   }
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     ...options,
     headers,
     credentials: 'include',
   })
 
-  const data = await response.json().catch(() => null)
+  let data = await response.json().catch(() => null)
+
+  // Silent automatic refresh mechanism when 401 occurs on non-auth routes
+  const isAuthEndpoint =
+    endpoint.includes('/auth/users/login') ||
+    endpoint.includes('/auth/users/refresh') ||
+    endpoint.includes('/auth/users/logout')
+
+  if (response.status === 401 && !isAuthEndpoint) {
+    try {
+      const refreshSuccess = await refreshTokenSilent()
+      if (refreshSuccess) {
+        // Retry original request with renewed access token
+        response = await fetch(url, {
+          ...options,
+          headers,
+          credentials: 'include',
+        })
+        data = await response.json().catch(() => null)
+      }
+    } catch {
+      // Refresh failed, fallback to standard error handling
+    }
+  }
 
   if (!response.ok || (data && data.success === false)) {
     const errorData = data?.error

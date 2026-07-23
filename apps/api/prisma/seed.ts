@@ -57,6 +57,18 @@ const permissionsData = [
     description: 'Vincular e desvincular usuários da loja',
   },
 
+  // Categories module
+  { key: 'categories.read', module: 'categories', description: 'Visualizar categorias' },
+  { key: 'categories.create', module: 'categories', description: 'Criar categorias' },
+  { key: 'categories.update', module: 'categories', description: 'Editar categorias' },
+  { key: 'categories.delete', module: 'categories', description: 'Arquivar categorias' },
+
+  // Brands module
+  { key: 'brands.read', module: 'brands', description: 'Visualizar marcas' },
+  { key: 'brands.create', module: 'brands', description: 'Criar marcas' },
+  { key: 'brands.update', module: 'brands', description: 'Editar marcas' },
+  { key: 'brands.delete', module: 'brands', description: 'Arquivar marcas' },
+
   // Products module
   {
     key: 'products.read',
@@ -1016,6 +1028,74 @@ async function main() {
     })
   }
   console.log(`✅ ${auditEvents.length} audit log entries seeded.`)
+
+  // Seed Categories
+  const catQueijos = await prisma.category.upsert({
+    where: { slug: 'queijos-artesanais' },
+    update: {},
+    create: {
+      name: 'Queijos Artesanais',
+      slug: 'queijos-artesanais',
+      description: 'Queijos finos e artesanais produzidos em regiões tradicionais',
+      position: 1,
+      status: 'active',
+      isVisible: true,
+    },
+  })
+
+  await prisma.category.upsert({
+    where: { slug: 'queijo-canastra' },
+    update: {},
+    create: {
+      name: 'Queijo Canastra',
+      slug: 'queijo-canastra',
+      description: 'Queijos curados e meia-cura da região da Canastra',
+      parentId: catQueijos.id,
+      position: 1,
+      status: 'active',
+      isVisible: true,
+    },
+  })
+
+  await prisma.category.upsert({
+    where: { slug: 'doces-e-geleias' },
+    update: {},
+    create: {
+      name: 'Doces & Geleias',
+      slug: 'doces-e-geleias',
+      description: 'Doces de leite, geleias de frutas nativas e compotas tradicionais',
+      position: 2,
+      status: 'active',
+      isVisible: true,
+    },
+  })
+
+  // Seed Brands
+  await prisma.brand.upsert({
+    where: { slug: 'queijaria-serra-da-canastra' },
+    update: {},
+    create: {
+      name: 'Queijaria Serra da Canastra',
+      slug: 'queijaria-serra-da-canastra',
+      description: 'Produtor tradicional da Serra da Canastra',
+      status: 'active',
+      isVisible: true,
+    },
+  })
+
+  await prisma.brand.upsert({
+    where: { slug: 'alvorada-artesanal' },
+    update: {},
+    create: {
+      name: 'Alvorada Artesanal',
+      slug: 'alvorada-artesanal',
+      description: 'Doces e compotas artesanais',
+      status: 'active',
+      isVisible: true,
+    },
+  })
+
+  console.log('✅ Categorias e marcas iniciais semeadas com sucesso.')
 
   console.log('🎉 Seed finished successfully!')
 }

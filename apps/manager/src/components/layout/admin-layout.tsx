@@ -30,9 +30,11 @@ import {
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiDashboardLine,
+  RiFolder3Line,
   RiHistoryLine,
   RiLogoutBoxRLine,
   RiMenuLine,
+  RiPriceTag3Line,
   RiShieldLine,
   RiStoreLine,
   RiUser3Line,
@@ -106,6 +108,31 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       show: true,
     },
     {
+      label: 'Catálogo & Taxonomia',
+      icon: RiFolder3Line,
+      show: ability.can('read', 'Category') || ability.can('read', 'Brand'),
+      children: [
+        {
+          label: 'Categorias',
+          href: '/categorias',
+          icon: RiFolder3Line,
+          show: ability.can('read', 'Category'),
+        },
+        {
+          label: 'Marcas',
+          href: '/marcas',
+          icon: RiPriceTag3Line,
+          show: ability.can('read', 'Brand'),
+        },
+      ],
+    },
+    {
+      label: 'Lojas Parceiras',
+      href: '/lojas',
+      icon: RiStoreLine,
+      show: ability.can('read', 'Store'),
+    },
+    {
       label: 'Gestão de Acessos',
       icon: RiShieldLine,
       show: ability.can('read', 'User') || ability.can('read', 'Role'),
@@ -123,12 +150,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           show: ability.can('read', 'Role'),
         },
       ],
-    },
-    {
-      label: 'Lojas Parceiras',
-      href: '/lojas',
-      icon: RiStoreLine,
-      show: ability.can('read', 'Store'),
     },
     {
       label: 'Logs de Auditoria',
@@ -153,6 +174,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   // Format breadcrumb title based on active path
   const getPageTitle = () => {
     if (pathname === '/') return 'Dashboard'
+    if (pathname.startsWith('/categorias')) return 'Taxonomia de Categorias'
+    if (pathname.startsWith('/marcas')) return 'Catálogo de Marcas'
     if (pathname.startsWith('/usuarios')) return 'Usuários Gestores'
     if (pathname.startsWith('/cargos')) return 'Cargos e Permissões'
     if (pathname.startsWith('/lojas')) return 'Lojas Parceiras'

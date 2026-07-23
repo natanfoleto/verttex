@@ -2,12 +2,12 @@
 
 ## Metadata
 
-- Status: Planned
+- Status: Completed
 - Priority: High
 - Created at: 2026-07-23
-- Started at: Não iniciado
-- Completed at: Em aberto
-- Dependencies: [`planned/011-core-consolidation.md`](.ai/roadmaps/planned/011-core-consolidation.md)
+- Started at: 2026-07-23
+- Completed at: 2026-07-23
+- Dependencies: [`completed/011-core-consolidation.md`](.ai/roadmaps/completed/011-core-consolidation.md)
 - Related documents: `.ai/architecture/ARCHITECTURE.md`, `.ai/domain/BUSINESS_RULES.md`, `.ai/domain/PERMISSIONS.md`
 
 ---

@@ -17,6 +17,8 @@ export const subjectSchema = z.union([
   z.literal('Permission'),
   z.literal('Store'),
   z.literal('Customer'),
+  z.literal('Category'),
+  z.literal('Brand'),
   z.literal('Product'),
   z.literal('Inventory'),
   z.literal('Sale'),

@@ -228,3 +228,54 @@ model RevokedToken {
   @@index([expiresAt])
   @@map("revoked_tokens")
 }
+
+model Category {
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  description     String?
+  imageUrl        String?
+  iconUrl         String?
+  parentId        String?
+  position        Int       @default(0)
+  status          String    @default("active") // active, inactive
+  isVisible       Boolean   @default(true)
+  metaTitle       String?
+  metaDescription String?
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryHierarchy")
+
+  @@index([parentId])
+  @@index([status])
+  @@index([position])
+  @@map("categories")
+}
+
+model Brand {
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  description     String?
+  logoUrl         String?
+  status          String    @default("active") // active, inactive
+  isVisible       Boolean   @default(true)
+  metaTitle       String?
+  metaDescription String?
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  deletedBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status])
+  @@index([name])
+  @@map("brands")
+}

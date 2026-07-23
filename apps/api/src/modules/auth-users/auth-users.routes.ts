@@ -19,18 +19,11 @@ import {
   changePasswordBodySchema,
 } from './auth-users.schemas'
 
+const isDev = process.env.NODE_ENV === 'development'
+
 export async function authUsersRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
-  /**
-   * POST /auth/users/login
-   *
-   * Rate limit: 20 attempts per IP per 15 minutes.
-   * A second per-account limit (5/15min) should be added via service-level
-   * tracking when Redis is available (see RATE_LIMIT_MATRIX.md).
-   *
-   * @security RATE_LIMIT_MATRIX.md — login
-   */
   typedApp.post(
     '/login',
     {
@@ -39,6 +32,7 @@ export async function authUsersRoutes(app: FastifyInstance) {
           max: 20,
           timeWindow: '15 minutes',
           keyGenerator: (req) => `login:ip:${req.ip}`,
+          allowList: () => isDev,
           errorResponseBuilder: (_req, context) => ({
             success: false,
             error: 'RATE_LIMIT_EXCEEDED',
@@ -69,13 +63,6 @@ export async function authUsersRoutes(app: FastifyInstance) {
     logoutController
   )
 
-  /**
-   * POST /auth/users/refresh
-   *
-   * Rate limit: 30 refreshes per IP per 15 minutes.
-   *
-   * @security RATE_LIMIT_MATRIX.md — refresh
-   */
   typedApp.post(
     '/refresh',
     {
@@ -84,6 +71,7 @@ export async function authUsersRoutes(app: FastifyInstance) {
           max: 30,
           timeWindow: '15 minutes',
           keyGenerator: (req) => `refresh:ip:${req.ip}`,
+          allowList: () => isDev,
         },
       },
       schema: {
@@ -94,13 +82,6 @@ export async function authUsersRoutes(app: FastifyInstance) {
     refreshController
   )
 
-  /**
-   * POST /auth/users/forgot-password
-   *
-   * Rate limit: 10 requests per IP per 30 minutes.
-   *
-   * @security RATE_LIMIT_MATRIX.md — forgot-password
-   */
   typedApp.post(
     '/forgot-password',
     {
@@ -109,6 +90,7 @@ export async function authUsersRoutes(app: FastifyInstance) {
           max: 10,
           timeWindow: '30 minutes',
           keyGenerator: (req) => `forgot:ip:${req.ip}`,
+          allowList: () => isDev,
           errorResponseBuilder: (_req, context) => ({
             success: false,
             error: 'RATE_LIMIT_EXCEEDED',
@@ -126,13 +108,6 @@ export async function authUsersRoutes(app: FastifyInstance) {
     forgotPasswordController
   )
 
-  /**
-   * POST /auth/users/reset-password
-   *
-   * Rate limit: 5 attempts per IP per 15 minutes.
-   *
-   * @security RATE_LIMIT_MATRIX.md — reset-password
-   */
   typedApp.post(
     '/reset-password',
     {
@@ -141,6 +116,7 @@ export async function authUsersRoutes(app: FastifyInstance) {
           max: 5,
           timeWindow: '15 minutes',
           keyGenerator: (req) => `reset:ip:${req.ip}`,
+          allowList: () => isDev,
         },
       },
       schema: {
@@ -152,13 +128,6 @@ export async function authUsersRoutes(app: FastifyInstance) {
     resetPasswordController
   )
 
-  /**
-   * POST /auth/users/change-password
-   *
-   * Rate limit: 5 attempts per authenticated user per 15 minutes.
-   *
-   * @security RATE_LIMIT_MATRIX.md — change-password
-   */
   typedApp.post(
     '/change-password',
     {
@@ -171,6 +140,7 @@ export async function authUsersRoutes(app: FastifyInstance) {
             const payload = (req as any).userPayload
             return `change-pwd:user:${payload?.id ?? req.ip}`
           },
+          allowList: () => isDev,
         },
       },
       schema: {

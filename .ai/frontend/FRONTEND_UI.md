@@ -189,23 +189,25 @@ Every feature screen must implement:
 
 ## 10. UI Architecture & Independent Frontend Component Standards
 
-### 10.1 Independent Frontend shadcn/ui Architecture
+### 10.1 Independent Frontend Shadcn UI Architecture & Mandatory Component Policy
 
-> **MANDATORY POLICY**: Always install and configure shadcn components directly within the frontend application (`apps/manager` or `apps/marketplace`) that uses them. Do NOT install components prematurely without active usage, and do NOT add basic shadcn components to a shared package. The legacy `@verttex/ui` shared package has been completely removed to avoid tight coupling and broken Radix UI imports.
+> **MANDATORY POLICY & STRICT COMPONENT REUSE RULE**:  
+> 1. **Shadcn UI is the Primary Component Library**: Every new page, modal, layout, form element, data table, menu, drawer, tab group, badge, card, or visual component **MUST first seek and reuse official Shadcn UI / Radix UI components** (`@/components/ui/...`). Building custom HTML/CSS controls (such as custom `<div>` modals, custom tab systems, or ad-hoc dropdowns) is strictly prohibited whenever an equivalent Shadcn component exists. Custom component creation is reserved strictly for rare, complex edge cases not covered by Shadcn/Radix.
+> 2. **Component Installation & Location**: Install and configure Shadcn components directly within the target frontend application (`apps/manager/src/components/ui/` or `apps/marketplace/src/components/ui/`).
+> 3. **Import Pattern Standard**:
+>    - Manager: `import { Button } from '@/components/ui/button'`
+>    - Marketplace: `import { Button } from '@/components/ui/button'`
+> 4. **Mandatory `cursor-pointer` Rule**: Whenever adding or using UI components, **always enforce `cursor-pointer` on ALL clickable elements** (Buttons, Close Icons, `DialogClose`, `SheetClose`, `TabsTrigger`, `SelectTrigger`, Checkboxes, Badges with click handlers, etc.). Disabled states must maintain `disabled:cursor-not-allowed`.
 
-- **Frontend Component Locations**:
-  - `apps/manager`: `src/components/ui/` (`dialog.tsx`, `dropdown-menu.tsx`, `button.tsx`, `input.tsx`, `label.tsx`, `select.tsx`, `table.tsx`, `tabs.tsx`, `sheet.tsx`, `tooltip.tsx`, `native-select.tsx`).
-  - `apps/marketplace`: `src/components/ui/` (`dialog.tsx`, `dropdown-menu.tsx`, `button.tsx`, `product-card.tsx`, `store-card.tsx`, etc.).
-- **Import Pattern Standard**:
-  - Manager: `import { Button } from '@/components/ui/button'`
-  - Marketplace: `import { Button } from '@/components/ui/button'`
-- **Customization & Mandatory `cursor-pointer` Rule**:
-  - Do NOT rewrite or alter standard shadcn base component logic unless technically justified. Use Radix UI primitives and utility classes (`cn` helper via `clsx` + `tailwind-merge`).
-  - **MANDATORY ACTION ON INSTALLATION**: Whenever installing or adding a new shadcn component, **always add `cursor-pointer` to all clickable elements** (Buttons, `DialogPrimitive.Close`, `SheetClose`, `TabsTrigger`, `SelectTrigger`, `SelectScrollUpButton`, `SelectScrollDownButton`, `DropdownMenuSubTrigger`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioItem`, Checkboxes, etc.). Disabled states must maintain `disabled:cursor-not-allowed`.
+### 10.2 Modal & Dialog Standard (Shadcn UI Primitives)
 
-### 10.2 Modal & Dialog Standard (shadcn/ui Primitives)
+> **MANDATORY POLICY & STRICT PROHIBITION**:
+> 1. **Zero Native Browser Dialogs (`confirm()`, `alert()`, `prompt()`)**: Native browser popups are strictly forbidden throughout the entire application. All destructive or confirmation prompts (such as archiving, deleting, or status changes) **MUST use the Shadcn UI `AlertDialog` component** (`AlertDialog`, `AlertDialogContent`, `AlertDialogHeader`, `AlertDialogTitle`, `AlertDialogDescription`, `AlertDialogFooter`, `AlertDialogCancel`, `AlertDialogAction` from `@/components/ui/alert-dialog`).
+> 2. **Zero Custom `<div>` Modals**: It is strictly forbidden to build custom popups using raw `<div>` overlays (`fixed inset-0 flex...`). All creation, editing, detail, or confirmation popups **MUST reuse the official Shadcn UI / Radix UI dialog primitives** (`Dialog`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription`, `DialogFooter`, `DialogClose` from `@/components/ui/dialog`, or `Sheet` / `AlertDialog`).
+> 3. **Mandatory `cursor-pointer`**: Every clickable element in modals, forms, tables, and dialog close/action/cancel buttons **MUST include `cursor-pointer`**.
+> 4. **Click-Outside & Keyboard Accessibility**: By using Radix UI `Dialog` and `AlertDialog`, popups automatically support backdrop click-outside dismissal (`DialogOverlay`), ESC key closure, focus trap, and ARIA screen reader accessibility.
 
-- **Form Display Standard**: All creation and editing forms for entities (`Cargos`, `Usuários`, `Lojas`) must be displayed inside `Dialog` modals directly on their listing pages, instead of using separate page routes (`/novo`, `/[id]/editar`). All legacy `/novo` and `/editar` subfolder routes must be completely removed.
+- **Form Display Standard**: All creation and editing forms for entities (`Cargos`, `Usuários`, `Lojas`, `Categorias`, `Marcas`) must be displayed inside `Dialog` modals directly on their listing pages, instead of using separate page routes (`/novo`, `/[id]/editar`). All legacy `/novo` and `/editar` subfolder routes must be completely removed.
 - **Standalone Dialog Component Architecture**:
   - Form dialog modals must be isolated in standalone component files located inside a `components/` subdirectory adjacent to the target page (e.g., `app/(dashboard)/cargos/components/role-form-dialog.tsx`, `app/(dashboard)/usuarios/components/user-form-dialog.tsx`, `app/(dashboard)/lojas/components/store-form-dialog.tsx`).
   - The main listing page (`page.tsx`) controls simple boolean / item state (`isDialogOpen`, `editingItem`), rendering the action button with `onClick={openCreateModal}` and mounting the standalone dialog component (`<EntityFormDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} itemToEdit={editingItem} />`).
@@ -292,6 +294,12 @@ Every feature screen must implement:
   ```
 - Active route highlighting applies automatically to both parent and child routes.
 - Mobile screens (< `lg`) render the sidebar inside a slide-over `Sheet` drawer.
+- **Navigation Sequence Standard**: Sidebar menu items must strictly follow this order, keeping security and governance modules at the bottom:
+  1. **Painel Principal** (`/`)
+  2. **Catálogo & Taxonomia** (`/categorias`, `/marcas`)
+  3. **Lojas Parceiras** (`/lojas`)
+  4. **Gestão de Acessos** (`/usuarios`, `/cargos`) — *Sempre no final*
+  5. **Logs de Auditoria** (`/auditoria`) — *Sempre por último*
 
 ### 10.6 Category Tabs (`Tabs`)
 

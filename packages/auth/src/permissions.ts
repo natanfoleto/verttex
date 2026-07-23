@@ -38,6 +38,16 @@ export const PERMISSION_MAP: Record<
   'stores.delete': { action: 'delete', subject: 'Store' },
   'stores.manage-members': { action: 'manage-members', subject: 'Store' },
 
+  'categories.read': { action: 'read', subject: 'Category' },
+  'categories.create': { action: 'create', subject: 'Category' },
+  'categories.update': { action: 'update', subject: 'Category' },
+  'categories.delete': { action: 'delete', subject: 'Category' },
+
+  'brands.read': { action: 'read', subject: 'Brand' },
+  'brands.create': { action: 'create', subject: 'Brand' },
+  'brands.update': { action: 'update', subject: 'Brand' },
+  'brands.delete': { action: 'delete', subject: 'Brand' },
+
   'products.read': { action: 'read', subject: 'Product' },
   'products.create': { action: 'create', subject: 'Product' },
   'products.update': { action: 'update', subject: 'Product' },
