@@ -8,6 +8,8 @@ import {
   UpdateProductBody,
 } from "./products.schemas";
 
+import { UploadService } from "../../shared/services/upload.service";
+
 export function slugify(text: string): string {
   return text
     .toString()
@@ -454,13 +456,23 @@ export class ProductsService {
 
     // Sync media files if provided
     if (body.mediaFileIds !== undefined) {
+      const existingMedias = await prisma.productMedia.findMany({
+        where: { productId: id },
+      });
+
+      const existingFileIds = existingMedias.map((m) => m.fileId);
+      const newFileIds = body.mediaFileIds.filter(Boolean);
+      const removedFileIds = existingFileIds.filter(
+        (fId) => !newFileIds.includes(fId),
+      );
+
       await prisma.productMedia.deleteMany({
         where: { productId: id },
       });
 
-      if (body.mediaFileIds.length > 0) {
-        for (let idx = 0; idx < body.mediaFileIds.length; idx++) {
-          const fileId = body.mediaFileIds[idx];
+      if (newFileIds.length > 0) {
+        for (let idx = 0; idx < newFileIds.length; idx++) {
+          const fileId = newFileIds[idx];
           if (!fileId) continue;
           const isMain = body.mainMediaFileId
             ? fileId === body.mainMediaFileId
@@ -473,6 +485,16 @@ export class ProductsService {
               position: idx,
             },
           });
+        }
+      }
+
+      // Permanently remove unlinked orphaned files from Cloudflare R2 and database
+      for (const removedFileId of removedFileIds) {
+        const usageCount = await prisma.productMedia.count({
+          where: { fileId: removedFileId },
+        });
+        if (usageCount === 0) {
+          await UploadService.deleteFile(removedFileId);
         }
       }
     }

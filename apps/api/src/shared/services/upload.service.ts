@@ -181,4 +181,25 @@ export class UploadService {
       publicUrl,
     };
   }
+
+  /**
+   * Permanently deletes a file from Cloudflare R2 and PostgreSQL database
+   */
+  static async deleteFile(fileId: string) {
+    const file = await prisma.file.findUnique({
+      where: { id: fileId },
+    });
+
+    if (!file) return;
+
+    try {
+      await r2Storage.deleteFile(file.objectKey);
+    } catch (err) {
+      console.error(`Erro ao apagar arquivo ${file.objectKey} no Cloudflare R2:`, err);
+    }
+
+    await prisma.file.delete({
+      where: { id: fileId },
+    }).catch(() => null);
+  }
 }

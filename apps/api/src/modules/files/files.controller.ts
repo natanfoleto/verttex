@@ -2,6 +2,7 @@ import { FastifyReply } from "fastify";
 import { FastifyZodRequest } from "../../@types/fastify";
 import { AppError } from "../../shared/errors/app-error";
 import { FilesService } from "./files.service";
+import { UploadService } from "../../shared/services/upload.service";
 import { FinalizeUploadParams, RequestUploadBody } from "./files.schemas";
 
 export async function requestUploadController(
@@ -101,5 +102,18 @@ export async function getFileController(
   return reply.send({
     success: true,
     data: file,
+  });
+}
+
+export async function deleteFileController(
+  request: FastifyZodRequest,
+  reply: FastifyReply,
+) {
+  const params = request.params as { fileId: string };
+  await UploadService.deleteFile(params.fileId);
+
+  return reply.send({
+    success: true,
+    data: { message: "Arquivo removido com sucesso!" },
   });
 }

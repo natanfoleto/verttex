@@ -3,6 +3,7 @@ import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { requirePermission } from "../../shared/middlewares/require-permission";
 import {
+  deleteFileController,
   directUploadController,
   finalizeUploadController,
   getFileController,
@@ -69,5 +70,19 @@ export async function filesRoutes(app: FastifyInstance) {
       },
     },
     getFileController,
+  );
+
+  typedApp.delete(
+    "/:fileId",
+    {
+      preHandler: [app.authenticateUser, requirePermission("delete", "File")],
+      schema: {
+        tags: ["Files — Media Management"],
+        summary: "Deletar arquivo permanentemente do Cloudflare R2 e do banco de dados",
+        security: [{ bearerAuth: [] }],
+        params: z.object({ fileId: z.string() }),
+      },
+    },
+    deleteFileController,
   );
 }
