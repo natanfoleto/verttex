@@ -343,6 +343,30 @@ Every feature screen must implement:
   5. **Module**: Filter by target entity module (`Todos`, `User`, `Store`, `Role`, `Audit`, etc.).
 - **Summary Metrics**: Page must display live counters for Total System Permissions, Granted Permissions, Denied Permissions, and Active Individual Overrides.
 
+### 10.12 Infrastructure Abstraction in User-Facing Text
+
+> **MANDATORY POLICY**: Technical infrastructure details **MUST NEVER appear in any text visible to the end user**. This includes labels, button text, form descriptions, toast notifications, error messages, tooltips, and any other UI element rendered to the user.
+
+**Prohibited examples (never use):**
+- ❌ `"Upload via Cloudflare R2"`
+- ❌ `"Sincronizando com Redis"`
+- ❌ `"Arquivo salvo no bucket S3"`
+- ❌ `"Conectando ao PostgreSQL"`
+- ❌ `"Enviando via Resend API"`
+- ❌ `"Token JWT expirado"`
+- ❌ `"Erro 500: Internal Server Error"`
+
+**Correct substitutions (always use friendly language):**
+- ✅ `"Imagem do Produto"` (instead of "Upload via Cloudflare R2 Direct")
+- ✅ `"Imagem enviada com sucesso!"` (instead of "Arquivo salvo no bucket")
+- ✅ `"Sua sessão expirou. Faça login novamente."` (instead of "Token JWT expirado")
+- ✅ `"Erro ao processar a solicitação."` (instead of "Erro 500: Internal Server Error")
+
+**Allowed locations for technical detail:**
+- Code comments (for developer context)
+- Internal logs and terminal output
+- Technical documentation (`.ai/` docs, `README.md`)
+
 ---
 
 ## 11. Marketplace Visual Identity & Design System (`apps/marketplace`)

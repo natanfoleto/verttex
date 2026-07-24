@@ -10,6 +10,8 @@ import { storesRoutes } from './stores/stores.routes'
 import { auditRoutes } from './audit/audit.routes'
 import { categoriesRoutes } from './categories/categories.routes'
 import { brandsRoutes } from './brands/brands.routes'
+import { filesRoutes } from './files/files.routes'
+import { productsRoutes } from './products/products.routes'
 
 export async function registerModules(app: FastifyInstance) {
   await app.register(healthRoutes)
@@ -23,5 +25,7 @@ export async function registerModules(app: FastifyInstance) {
   await app.register(auditRoutes)
   await app.register(categoriesRoutes, { prefix: '/categories' })
   await app.register(brandsRoutes, { prefix: '/brands' })
+  await app.register(filesRoutes, { prefix: '/files' })
+  await app.register(productsRoutes, { prefix: '/products' })
 }
 

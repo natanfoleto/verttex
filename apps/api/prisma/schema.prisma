@@ -20,6 +20,7 @@ model User {
   sessions            UserSession[]
   passwordResetTokens UserPasswordResetToken[]
   auditLogs           AuditLog[]
+  files               File[]
   emailVerifiedAt     DateTime?
   lastLoginAt         DateTime?
   twoFactorSecret     String?
@@ -98,6 +99,8 @@ model Store {
   customDomain String?
   status       String      @default("draft") // draft, active, inactive, suspended
   users        StoreUser[]
+  products     Product[]
+  files        File[]
   deletedAt    DateTime?
   deletedBy    String?
   createdAt    DateTime    @default(now())
@@ -251,6 +254,7 @@ model Category {
 
   parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children Category[] @relation("CategoryHierarchy")
+  products Product[]
 
   @@index([parentId])
   @@index([status])
@@ -274,8 +278,166 @@ model Brand {
   deletedBy       String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  products        Product[]
 
+  @@index([slug])
   @@index([status])
-  @@index([name])
   @@map("brands")
+}
+
+model Product {
+  id               String             @id @default(cuid())
+  storeId          String
+  store            Store              @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId       String
+  category         Category           @relation(fields: [categoryId], references: [id])
+  brandId          String?
+  brand            Brand?             @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  name             String
+  slug             String
+  shortDescription String?
+  fullDescription  String?            @db.Text
+  type             String             @default("simple") // simple, variable
+  status           String             @default("draft") // draft, active, inactive, archived
+  isPublished      Boolean            @default(false)
+  isFeatured       Boolean            @default(false)
+  weight           Float?             // em gramas
+  width            Float?             // em cm
+  height           Float?             // em cm
+  length           Float?             // em cm
+  metaTitle        String?
+  metaDescription  String?
+  createdBy        String?
+  updatedBy        String?
+  deletedAt        DateTime?
+  deletedBy        String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  options          ProductOption[]
+  variations       ProductVariation[]
+  medias           ProductMedia[]
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([status])
+  @@index([isPublished])
+  @@map("products")
+}
+
+model ProductOption {
+  id        String               @id @default(cuid())
+  productId String
+  product   Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String               // ex: "Sabor", "Tamanho", "Peso"
+  position  Int                  @default(0)
+  createdAt DateTime             @default(now())
+  values    ProductOptionValue[]
+
+  @@index([productId])
+  @@map("product_options")
+}
+
+model ProductOptionValue {
+  id              String                  @id @default(cuid())
+  optionId        String
+  option          ProductOption           @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  value           String                  // ex: "500g", "Curado", "Meia Cura"
+  position        Int                     @default(0)
+  variationValues ProductVariationValue[]
+
+  @@index([optionId])
+  @@map("product_option_values")
+}
+
+model ProductVariation {
+  id               String                  @id @default(cuid())
+  productId        String
+  product          Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku              String                  @unique
+  barcode          String?
+  price            Decimal                 @db.Decimal(10, 2)
+  promotionalPrice Decimal?                @db.Decimal(10, 2)
+  costPrice        Decimal?                @db.Decimal(10, 2)
+  isDefault        Boolean                 @default(false)
+  status           String                  @default("active") // active, inactive
+  weight           Float?
+  width            Float?
+  height           Float?
+  length           Float?
+  position         Int                     @default(0)
+  deletedAt        DateTime?
+  deletedBy        String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  values           ProductVariationValue[]
+  medias           ProductMedia[]
+
+  @@index([productId])
+  @@index([sku])
+  @@index([status])
+  @@map("product_variations")
+}
+
+model ProductVariationValue {
+  id            String             @id @default(cuid())
+  variationId   String
+  variation     ProductVariation   @relation(fields: [variationId], references: [id], onDelete: Cascade)
+  optionValueId String
+  optionValue   ProductOptionValue @relation(fields: [optionValueId], references: [id], onDelete: Cascade)
+
+  @@unique([variationId, optionValueId])
+  @@map("product_variation_values")
+}
+
+model File {
+  id           String         @id @default(cuid())
+  publicId     String         @unique @default(cuid())
+  provider     String         @default("cloudflare_r2") // cloudflare_r2, local
+  bucket       String         @default("verttex-media")
+  objectKey    String         @unique
+  originalName String
+  extension    String
+  mimeType     String
+  size         Int
+  checksum     String?
+  width        Int?
+  height       Int?
+  status       String         @default("pending") // pending, processing, approved, rejected
+  purpose      String         @default("product_image") // product_image, category_icon, brand_logo, store_logo
+  storeId      String?
+  store        Store?         @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  userId       String?
+  user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  deletedAt    DateTime?
+  deletedBy    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  productMedia ProductMedia[]
+
+  @@index([storeId])
+  @@index([userId])
+  @@index([status])
+  @@map("files")
+}
+
+model ProductMedia {
+  id          String            @id @default(cuid())
+  productId   String
+  product     Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variationId String?
+  variation   ProductVariation? @relation(fields: [variationId], references: [id], onDelete: SetNull)
+  fileId      String
+  file        File              @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  altText     String?
+  position    Int               @default(0)
+  isMain      Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+
+  @@index([productId])
+  @@index([fileId])
+  @@map("product_medias")
 }

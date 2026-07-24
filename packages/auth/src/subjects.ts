@@ -20,6 +20,8 @@ export const subjectSchema = z.union([
   z.literal('Category'),
   z.literal('Brand'),
   z.literal('Product'),
+  z.literal('ProductVariation'),
+  z.literal('File'),
   z.literal('Inventory'),
   z.literal('Sale'),
   z.literal('Report'),

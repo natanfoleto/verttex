@@ -22,7 +22,7 @@
 | 010 | Security Validation and Hardening | `completed` | high | 009 | [`completed/010-security-validation-and-hardening.md`](.ai/roadmaps/completed/010-security-validation-and-hardening.md) |
 | 011 | Consolidação do Núcleo Atual | `completed` | critical | 009, 010 | [`completed/011-core-consolidation.md`](.ai/roadmaps/completed/011-core-consolidation.md) |
 | 012 | Categorias e Marcas | `completed` | high | 011 | [`completed/012-categories-and-brands.md`](.ai/roadmaps/completed/012-categories-and-brands.md) |
-| 013 | Catálogo de Produtos, Variações, Mídias e Uploads R2 | `planned` | high | 011, 012 | [`planned/013-product-catalog-media-and-uploads.md`](.ai/roadmaps/planned/013-product-catalog-media-and-uploads.md) |
+| 013 | Catálogo de Produtos, Variações, Mídias e Uploads R2 | `completed` | high | 011, 012 | [`completed/013-product-catalog-media-and-uploads.md`](.ai/roadmaps/completed/013-product-catalog-media-and-uploads.md) |
 | 014 | Estoque e Movimentações | `planned` | high | 013 | [`planned/014-inventory-and-stock-movements.md`](.ai/roadmaps/planned/014-inventory-and-stock-movements.md) |
 | 015 | Publicação e Catálogo do Marketplace | `planned` | high | 013, 014 | [`planned/015-marketplace-catalog-publishing.md`](.ai/roadmaps/planned/015-marketplace-catalog-publishing.md) |
 | 016 | Clientes e Endereços | `planned` | high | 004 | [`planned/016-customers-and-addresses.md`](.ai/roadmaps/planned/016-customers-and-addresses.md) |
@@ -41,9 +41,9 @@
 
 | Status | Quantidade | Observação |
 |:---|:---|:---|
-| `completed` | 12 | Roadmaps 001 a 012 concluídos e validados |
-| `active` | 0 | Nenhum roadmap ativo no momento |
-| `planned` | 12 | Roadmaps 013 a 024 planejados e registrados |
+| `completed` | 13 | Roadmaps 001 a 013 concluídos e validados |
+| `active` | 0 | Nenhum roadmap ativo |
+| `planned` | 11 | Roadmaps 014 a 024 planejados e registrados |
 | `archived` | 0 | Nenhum roadmap arquivado |
 
 ---

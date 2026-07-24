@@ -2,12 +2,12 @@
 
 ## Metadata
 
-- Status: Planned
+- Status: Active
 - Priority: High
 - Created at: 2026-07-23
-- Started at: Não iniciado
+- Started at: 2026-07-23
 - Completed at: Em aberto
-- Dependencies: [`planned/011-core-consolidation.md`](.ai/roadmaps/planned/011-core-consolidation.md), [`planned/012-categories-and-brands.md`](.ai/roadmaps/planned/012-categories-and-brands.md)
+- Dependencies: [`completed/011-core-consolidation.md`](.ai/roadmaps/completed/011-core-consolidation.md), [`completed/012-categories-and-brands.md`](.ai/roadmaps/completed/012-categories-and-brands.md)
 - Related documents: `.ai/architecture/ARCHITECTURE.md`, `.ai/security/FILE_UPLOAD_SECURITY.md`, `.ai/domain/BUSINESS_RULES.md`
 
 ---
@@ -136,11 +136,6 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 2. **Autorização & Validação:** API valida tamanho (máx 5 MB), extensão (allowlist: `jpg`, `png`, `webp`) e gera uma URL pré-assinada PUT direta para o Cloudflare R2 com expiração de 15 minutos.
 3. **Upload Direto:** Frontend faz PUT diretamente no R2 sem sobrecarregar a memória da API Node.js.
 4. **Finalização Server-Side:** Frontend chama POST `/files/:fileId/finalize`. A API lê os primeiros bytes do arquivo no R2, valida a **assinatura binária (Magic Bytes)**, extrai dimensões, remove metadados EXIF e altera o status para `approved`.
-
-### Diretrizes de Segurança de Uploads
-- **Impedimento de SVG na V1:** Arquivos SVG permanecem desativados na V1 devido ao risco de execução de código ativo XSS em vetores.
-- **Nomes de Arquivo:** O nome original do arquivo é descartado do caminho físico no R2. A `objectKey` é gerada server-side como `uploads/{environment}/{purpose}/{uuid}.{ext}`.
-- **Limpeza de Órfãos:** Jobs de background purgam arquivos com status `pending` há mais de 24 horas.
 
 ---
 

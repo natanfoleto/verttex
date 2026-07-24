@@ -88,7 +88,39 @@ const permissionsData = [
   {
     key: 'products.delete',
     module: 'products',
-    description: 'Excluir produtos',
+    description: 'Excluir/Arquivar produtos',
+  },
+  {
+    key: 'products.publish',
+    module: 'products',
+    description: 'Publicar produtos no Marketplace',
+  },
+  {
+    key: 'products.manage-media',
+    module: 'products',
+    description: 'Gerenciar imagens e mídias do produto',
+  },
+  {
+    key: 'products.manage-price',
+    module: 'products',
+    description: 'Gerenciar preços e custos de produtos',
+  },
+
+  // Files module
+  {
+    key: 'files.read',
+    module: 'files',
+    description: 'Visualizar mídias e arquivos',
+  },
+  {
+    key: 'files.upload',
+    module: 'files',
+    description: 'Fazer upload de mídias e arquivos',
+  },
+  {
+    key: 'files.delete',
+    module: 'files',
+    description: 'Excluir mídias e arquivos',
   },
 
   // Inventory module
@@ -1095,7 +1127,53 @@ async function main() {
     },
   })
 
-  console.log('✅ Categorias e marcas iniciais semeadas com sucesso.')
+  // Seed Sample Product
+  const firstStore = await prisma.store.findFirst({ where: { slug: 'queijaria-alvorada' } })
+  const firstCategory = await prisma.category.findFirst({ where: { slug: 'queijo-canastra' } })
+  const firstBrand = await prisma.brand.findFirst({ where: { slug: 'queijaria-serra-da-canastra' } })
+
+  if (firstStore && firstCategory) {
+    const prod = await prisma.product.upsert({
+      where: {
+        storeId_slug: {
+          storeId: firstStore.id,
+          slug: 'queijo-canastra-meia-cura-500g',
+        },
+      },
+      update: {},
+      create: {
+        storeId: firstStore.id,
+        categoryId: firstCategory.id,
+        brandId: firstBrand?.id || null,
+        name: 'Queijo Canastra Meia Cura 500g',
+        slug: 'queijo-canastra-meia-cura-500g',
+        shortDescription: 'Queijo artesanal da Canastra maturado por 14 dias',
+        fullDescription: 'Produzido com leite cru de vaca na região da Serra da Canastra.',
+        type: 'simple',
+        status: 'active',
+        isPublished: true,
+        isFeatured: true,
+        weight: 500,
+      },
+    })
+
+    await prisma.productVariation.upsert({
+      where: { sku: 'CANASTRA-MC-500G' },
+      update: {},
+      create: {
+        productId: prod.id,
+        sku: 'CANASTRA-MC-500G',
+        price: 49.9,
+        promotionalPrice: 44.9,
+        costPrice: 28.0,
+        isDefault: true,
+        status: 'active',
+        weight: 500,
+      },
+    })
+  }
+
+  console.log('✅ Categorias, marcas e produtos de amostra semeadas com sucesso.')
 
   console.log('🎉 Seed finished successfully!')
 }

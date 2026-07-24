@@ -110,8 +110,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     {
       label: 'Catálogo & Taxonomia',
       icon: RiFolder3Line,
-      show: ability.can('read', 'Category') || ability.can('read', 'Brand'),
+      show: ability.can('read', 'Product') || ability.can('read', 'Category') || ability.can('read', 'Brand'),
       children: [
+        {
+          label: 'Produtos',
+          href: '/produtos',
+          icon: RiPriceTag3Line,
+          show: ability.can('read', 'Product'),
+        },
         {
           label: 'Categorias',
           href: '/categorias',
@@ -174,6 +180,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   // Format breadcrumb title based on active path
   const getPageTitle = () => {
     if (pathname === '/') return 'Dashboard'
+    if (pathname.startsWith('/produtos')) return 'Catálogo de Produtos'
     if (pathname.startsWith('/categorias')) return 'Taxonomia de Categorias'
     if (pathname.startsWith('/marcas')) return 'Catálogo de Marcas'
     if (pathname.startsWith('/usuarios')) return 'Usuários Gestores'

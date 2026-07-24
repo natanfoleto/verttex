@@ -53,6 +53,10 @@ export const PERMISSION_MAP: Record<
   'products.update': { action: 'update', subject: 'Product' },
   'products.delete': { action: 'delete', subject: 'Product' },
 
+  'files.read': { action: 'read', subject: 'File' },
+  'files.upload': { action: 'create', subject: 'File' },
+  'files.delete': { action: 'delete', subject: 'File' },
+
   'inventory.read': { action: 'read', subject: 'Inventory' },
   'inventory.update': { action: 'update', subject: 'Inventory' },
 
