@@ -400,8 +400,8 @@ export class ProductsService {
       data: payload,
     })
 
-    // If updating simple product price or SKU
-    if (existing.type === 'simple' && (body.price !== undefined || body.sku !== undefined)) {
+    // If updating simple product price, promotionalPrice, costPrice, SKU or dimensions
+    if (existing.type === 'simple') {
       const defaultVar = await prisma.productVariation.findFirst({
         where: { productId: id, isDefault: true },
       })
@@ -413,8 +413,35 @@ export class ProductsService {
             ...(body.promotionalPrice !== undefined ? { promotionalPrice: body.promotionalPrice } : {}),
             ...(body.costPrice !== undefined ? { costPrice: body.costPrice } : {}),
             ...(body.sku !== undefined ? { sku: body.sku } : {}),
+            ...(body.weight !== undefined ? { weight: body.weight } : {}),
+            ...(body.width !== undefined ? { width: body.width } : {}),
+            ...(body.height !== undefined ? { height: body.height } : {}),
+            ...(body.length !== undefined ? { length: body.length } : {}),
           },
         })
+      }
+    }
+
+    // Sync media files if provided
+    if (body.mediaFileIds !== undefined) {
+      await prisma.productMedia.deleteMany({
+        where: { productId: id },
+      })
+
+      if (body.mediaFileIds.length > 0) {
+        for (let idx = 0; idx < body.mediaFileIds.length; idx++) {
+          const fileId = body.mediaFileIds[idx]
+          if (!fileId) continue
+          const isMain = body.mainMediaFileId ? fileId === body.mainMediaFileId : idx === 0
+          await prisma.productMedia.create({
+            data: {
+              productId: id,
+              fileId,
+              isMain,
+              position: idx,
+            },
+          })
+        }
       }
     }
 

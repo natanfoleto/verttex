@@ -7,11 +7,15 @@ import {
   RiArrowLeftLine,
   RiEditLine,
   RiGlobalLine,
+  RiInformationLine,
+  RiShoppingBag3Line,
   RiUserSharedLine,
 } from 'react-icons/ri'
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '../../../../lib/api-client'
 import { storeQueryKeys } from '../../../../lib/query-keys'
+import { ProductsTable } from '../../produtos/components/products-table'
 import { StoreFormDialog } from '../components/store-form-dialog'
 
 export default function StoreDetailPage({
@@ -23,6 +27,7 @@ export default function StoreDetailPage({
   const storeId = resolvedParams.storeId
 
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState('overview')
 
   const {
     data: store,
@@ -52,7 +57,7 @@ export default function StoreDetailPage({
   return (
     <div className="w-full space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div className="flex items-center space-x-4">
           <Link
             href="/lojas"
@@ -73,117 +78,137 @@ export default function StoreDetailPage({
         <div className="flex items-center space-x-3">
           <Link
             href={`/lojas/${storeId}/membros`}
-            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
+            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-800"
           >
             <RiUserSharedLine className="h-4 w-4" />
-            <span>Membros</span>
+            <span>Gerenciar Membros</span>
           </Link>
           <button
             type="button"
             onClick={() => setIsEditOpen(true)}
-            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
+            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition-colors hover:bg-emerald-500"
           >
             <RiEditLine className="h-4 w-4" />
-            <span>Editar</span>
+            <span>Editar Loja</span>
           </button>
         </div>
       </div>
 
-      <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Info Card */}
-        <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
-          <h2 className="text-base font-semibold text-zinc-200">
-            Informações da Loja
-          </h2>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-6 inline-flex bg-zinc-900/80 p-1">
+          <TabsTrigger value="overview" className="flex items-center space-x-2 text-xs">
+            <RiInformationLine className="h-4 w-4" />
+            <span>Visão Geral</span>
+          </TabsTrigger>
+          <TabsTrigger value="products" className="flex items-center space-x-2 text-xs">
+            <RiShoppingBag3Line className="h-4 w-4" />
+            <span>Produtos da Loja</span>
+          </TabsTrigger>
+        </TabsList>
 
-          <div className="space-y-3 text-sm">
-            <div>
-              <span className="block text-xs text-zinc-500">Status Atual</span>
-              <span
-                className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                  store.status === 'active'
-                    ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
-                    : store.status === 'draft'
-                      ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
-                      : store.status === 'suspended'
-                        ? 'border-rose-800 bg-rose-950 text-rose-400'
-                        : 'border-amber-800 bg-amber-950 text-amber-400'
-                }`}
-              >
-                {store.status === 'active'
-                  ? 'Ativa'
-                  : store.status === 'draft'
-                    ? 'Rascunho'
-                    : store.status === 'suspended'
-                      ? 'Suspensa'
-                      : 'Inativa'}
-              </span>
-            </div>
+        <TabsContent value="overview">
+          <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Info Card */}
+            <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+              <h2 className="text-base font-semibold text-zinc-200">
+                Informações da Loja
+              </h2>
 
-            <div>
-              <span className="block text-xs text-zinc-500">Descrição</span>
-              <p className="mt-0.5 text-zinc-300">
-                {store.description || 'Sem descrição cadastrada'}
-              </p>
-            </div>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <span className="block text-xs text-zinc-500">Status Atual</span>
+                  <span
+                    className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                      store.status === 'active'
+                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                        : store.status === 'draft'
+                          ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
+                          : store.status === 'suspended'
+                            ? 'border-rose-800 bg-rose-950 text-rose-400'
+                            : 'border-amber-800 bg-amber-950 text-amber-400'
+                    }`}
+                  >
+                    {store.status === 'active'
+                      ? 'Ativa'
+                      : store.status === 'draft'
+                        ? 'Rascunho'
+                        : store.status === 'suspended'
+                          ? 'Suspensa'
+                          : 'Inativa'}
+                  </span>
+                </div>
 
-            <div>
-              <span className="block text-xs text-zinc-500">
-                Domínio Próprio
-              </span>
-              <div className="mt-0.5 flex items-center space-x-2">
-                <RiGlobalLine className="h-4 w-4 text-zinc-500" />
-                <span className="font-mono text-xs text-zinc-300">
-                  {store.customDomain || 'Nenhum cadastrado'}
-                </span>
+                <div>
+                  <span className="block text-xs text-zinc-500">Descrição</span>
+                  <p className="mt-0.5 text-zinc-300">
+                    {store.description || 'Sem descrição cadastrada'}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="block text-xs text-zinc-500">
+                    Domínio Próprio
+                  </span>
+                  <div className="mt-0.5 flex items-center space-x-2">
+                    <RiGlobalLine className="h-4 w-4 text-zinc-500" />
+                    <span className="font-mono text-xs text-zinc-300">
+                      {store.customDomain || 'Nenhum cadastrado'}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Store Members Summary */}
-        <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-zinc-200">
-              Membros Vinculados ({store.users?.length || 0})
-            </h2>
-          </div>
+            {/* Store Members Summary */}
+            <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-zinc-200">
+                  Membros Vinculados ({store.users?.length || 0})
+                </h2>
+              </div>
 
-          {store.users && store.users.length > 0 ? (
-            <div className="space-y-2">
-              {store.users.map(
-                (su: {
-                  isOwner: boolean
-                  user: { id: string; name: string; email: string }
-                }) => (
-                  <div
-                    key={su.user.id}
-                    className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-3 text-sm"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium text-zinc-200">
-                        {su.user.name}
-                      </span>
-                      <span className="text-xs text-zinc-500">
-                        {su.user.email}
-                      </span>
-                    </div>
-                    {su.isOwner && (
-                      <span className="rounded border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 uppercase">
-                        Proprietário
-                      </span>
-                    )}
-                  </div>
-                )
+              {store.users && store.users.length > 0 ? (
+                <div className="space-y-2">
+                  {store.users.map(
+                    (su: {
+                      isOwner: boolean
+                      user: { id: string; name: string; email: string }
+                    }) => (
+                      <div
+                        key={su.user.id}
+                        className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-3 text-sm"
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium text-zinc-200">
+                            {su.user.name}
+                          </span>
+                          <span className="text-xs text-zinc-500">
+                            {su.user.email}
+                          </span>
+                        </div>
+                        {su.isOwner && (
+                          <span className="rounded border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 uppercase">
+                            Proprietário
+                          </span>
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-zinc-500">
+                  Nenhum membro vinculado a esta loja.
+                </p>
               )}
             </div>
-          ) : (
-            <p className="text-sm text-zinc-500">
-              Nenhum membro vinculado a esta loja.
-            </p>
-          )}
-        </div>
-      </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="products">
+          <ProductsTable fixedStoreId={storeId} hideTitle />
+        </TabsContent>
+      </Tabs>
 
       <StoreFormDialog
         open={isEditOpen}
