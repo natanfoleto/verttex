@@ -7,15 +7,31 @@ export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElemen
   label?: React.ReactNode
   description?: React.ReactNode
   wrapperClassName?: string
+  onCheckedChange?: (checked: boolean) => void
 }
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   (
-    { className, wrapperClassName, label, description, disabled, id, ...props },
+    {
+      className,
+      wrapperClassName,
+      label,
+      description,
+      disabled,
+      id,
+      onChange,
+      onCheckedChange,
+      ...props
+    },
     ref,
   ) => {
     const generatedId = React.useId()
     const checkboxId = id || generatedId
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange?.(e)
+      onCheckedChange?.(e.target.checked)
+    }
 
     return (
       <label
@@ -33,6 +49,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             ref={ref}
             disabled={disabled}
             className="peer sr-only"
+            onChange={handleChange}
             {...props}
           />
           <div
