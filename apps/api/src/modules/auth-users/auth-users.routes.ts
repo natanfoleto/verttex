@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
+import { z } from "zod";
 import {
   loginController,
   logoutController,
@@ -19,7 +20,7 @@ import {
   changePasswordBodySchema,
 } from "./auth-users.schemas";
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
 export async function authUsersRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>();
@@ -77,6 +78,7 @@ export async function authUsersRoutes(app: FastifyInstance) {
       schema: {
         tags: ["Auth — Management Users"],
         summary: "Renovar token de acesso do usuário gestor",
+        body: z.object({ refreshToken: z.string().optional() }).optional(),
       },
     },
     refreshController,

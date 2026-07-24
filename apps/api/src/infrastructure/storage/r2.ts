@@ -10,7 +10,7 @@ export class R2Storage {
   private bucketName: string;
 
   constructor() {
-    this.bucketName = apiEnv.R2_BUCKET_NAME || "verttex-bucket";
+    this.bucketName = apiEnv.R2_BUCKET_NAME || "verttex";
     if (
       apiEnv.R2_ENDPOINT &&
       apiEnv.R2_ACCESS_KEY_ID &&
@@ -46,11 +46,23 @@ export class R2Storage {
       }),
     );
 
-    return `${apiEnv.R2_ENDPOINT}/${this.bucketName}/${key}`;
+    return this.getFileUrl(key);
   }
 
   async getFileUrl(key: string): Promise<string> {
-    return `${apiEnv.R2_ENDPOINT || "http://localhost:3333/mock-storage"}/${this.bucketName}/${key}`;
+    const cleanKey = key.replace(/^\//, "");
+
+    if (apiEnv.R2_PUBLIC_URL) {
+      const cleanPublicUrl = apiEnv.R2_PUBLIC_URL.replace(/\/$/, "");
+      return `${cleanPublicUrl}/${cleanKey}`;
+    }
+
+    if (apiEnv.R2_ENDPOINT) {
+      const cleanEndpoint = apiEnv.R2_ENDPOINT.replace(/\/$/, "");
+      return `${cleanEndpoint}/${this.bucketName}/${cleanKey}`;
+    }
+
+    return `http://localhost:3333/mock-storage/${cleanKey}`;
   }
 
   async deleteFile(key: string): Promise<void> {

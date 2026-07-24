@@ -217,6 +217,30 @@ Every feature screen must implement:
   - `Dialog`: For standard form modals and popups (`DialogHeader`, `DialogContent`, `DialogFooter`, `DialogTitle`, `DialogDescription`).
   - `Sheet`: For extensive forms, side-drawer panels, or mobile navigation (`SheetContent`, `SheetHeader`, `SheetTitle`).
   - `AlertDialog`: For critical or destructive confirmation prompts (`AlertDialogAction`, `AlertDialogCancel`).
+- **Canonical Form Dialog Design Pattern (Mandatory Standard for ALL Form Dialogs)**:
+  Every form modal in `apps/manager` and `apps/marketplace` **MUST strictly adhere** to the following structural and visual rules:
+  1. **Fixed Height & Viewport Control (`DialogContent`)**:
+     - ClassName: `w-full flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl`
+     - Height MUST be fixed/bounded to prevent content/layout height jumps between tabs or states (e.g. `h-185 max-h-[90vh] min-h-150` for large multi-tab forms like Products, or `max-h-[90vh]` for standard forms).
+     - Width MUST be wide enough so labels NEVER wrap into two lines (e.g. use `max-w-xl` ~576px or `max-w-2xl` ~672px when displaying 3-column field grids or long labels).
+  2. **Header Without Border (`DialogHeader`)**:
+     - ClassName: `px-6 pt-5 pb-2` (strictly NO `border-b` bottom border).
+     - Title: `text-xl font-bold text-zinc-100`.
+     - Description: `text-xs text-zinc-400`.
+  3. **Scrollable Form Container**:
+     - `<form onSubmit={...} className="flex flex-1 flex-col overflow-hidden">`
+     - Scroll Area: `<div className="flex-1 flex flex-col overflow-y-auto px-6 pt-1 pb-6 space-y-4">`
+  4. **Bordered Container Card (`TabsContent` ONLY)**:
+     - The outer bordered card container (`rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5.5`) MUST ONLY be used when the dialog contains a `Tabs` component (wrapping `TabsContent`).
+     - Standard forms WITHOUT tabs place form fields directly inside the scroll area (`px-6 pt-1 pb-6 space-y-4`) WITHOUT an extra outer bordered `div`.
+  5. **Single-Line Form Labels (Strict Rule)**:
+     - Form labels MUST NEVER wrap into 2 lines (e.g., `"Visível no Marketplace"` must render on a single line).
+     - Always use `whitespace-nowrap` on labels and adjust grid column spans or dialog max-width (`max-w-xl` / `max-w-2xl`) to guarantee labels remain single-line across all viewports.
+  6. **Footer Without Border (`DialogFooter`)**:
+     - ClassName: `bg-zinc-950 px-6 py-4` (strictly NO `border-t` top border).
+     - Submit button includes icon (`RiCheckLine className="h-4 w-4"`).
+  7. **Zero Raw Emojis in Labels**: Form labels and checkboxes MUST NOT contain raw emoji characters (e.g., use `<span>Produto em Destaque</span>` without `⭐`).
+
 - **Centering & Layering Standard**: Overlay backdrops use `fixed inset-0 z-50 bg-black/80 backdrop-blur-xs` and modal contents use `fixed z-50 top-1/2 left-1/2` with `style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}` to ensure bulletproof viewport centering regardless of Tailwind v4 transform layer resets.
 - Modals must standardize titles, descriptions, scrollable body area, cancel/save buttons, loading states, error alerts, and automatic query invalidation + closure on success.
 

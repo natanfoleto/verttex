@@ -5,8 +5,13 @@ import { useState } from 'react'
 import {
   RiAddLine,
   RiArchiveLine,
+  RiCheckLine,
+  RiCloseCircleLine,
+  RiDraftLine,
   RiEditLine,
+  RiGlobalLine,
   RiImageLine,
+  RiLockLine,
   RiSearchLine,
   RiSendPlaneLine,
   RiStarFill,
@@ -237,9 +242,9 @@ export function ProductsTable({
       )}
 
       {/* Filters Bar */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-        <div className="relative sm:col-span-2">
-          <RiSearchLine className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative flex-1 min-w-60">
+          <RiSearchLine className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 pointer-events-none" />
           <Input
             type="text"
             placeholder="Buscar por nome, slug ou SKU..."
@@ -252,7 +257,7 @@ export function ProductsTable({
           />
         </div>
 
-        <div>
+        <div className="w-full sm:w-40">
           <NativeSelect
             value={statusFilter}
             onChange={(e) => {
@@ -266,26 +271,10 @@ export function ProductsTable({
             <option value="inactive">Inativo</option>
             <option value="archived">Arquivado</option>
           </NativeSelect>
-          <div>
-            <NativeSelect
-              value={brandFilter}
-              onChange={(e) => {
-                setBrandFilter(e.target.value)
-                setPage(1)
-              }}
-            >
-              <option value="">Todas as Marcas</option>
-              {brandsList.map((br: any) => (
-                <option key={br.id} value={br.id}>
-                  {br.name}
-                </option>
-              ))}
-            </NativeSelect>
-          </div>
         </div>
 
         {!fixedStoreId && (
-          <div>
+          <div className="w-full sm:w-44">
             <NativeSelect
               value={storeFilter}
               onChange={(e) => {
@@ -303,7 +292,7 @@ export function ProductsTable({
           </div>
         )}
 
-        <div>
+        <div className="w-full sm:w-44">
           <NativeSelect
             value={categoryFilter}
             onChange={(e) => {
@@ -315,6 +304,23 @@ export function ProductsTable({
             {categoriesList.map((cat: any) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+
+        <div className="w-full sm:w-44">
+          <NativeSelect
+            value={brandFilter}
+            onChange={(e) => {
+              setBrandFilter(e.target.value)
+              setPage(1)
+            }}
+          >
+            <option value="">Todas as Marcas</option>
+            {brandsList.map((br: any) => (
+              <option key={br.id} value={br.id}>
+                {br.name}
               </option>
             ))}
           </NativeSelect>
@@ -433,35 +439,59 @@ export function ProductsTable({
                       </td>
 
                       <td className="px-4 py-3">
-                        <div className="flex flex-col space-y-1 items-start">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           <span
-                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                               prod.status === 'active'
-                                ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                                ? 'border-emerald-800 bg-emerald-950/80 text-emerald-400'
                                 : prod.status === 'draft'
-                                  ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
+                                  ? 'border-zinc-700 bg-zinc-800/80 text-zinc-300'
                                   : prod.status === 'archived'
-                                    ? 'border-rose-900/60 bg-rose-950 text-rose-400'
-                                    : 'border-amber-800 bg-amber-950 text-amber-400'
+                                    ? 'border-rose-900/60 bg-rose-950/80 text-rose-400'
+                                    : 'border-amber-800 bg-amber-950/80 text-amber-400'
                             }`}
                           >
-                            {prod.status === 'active'
-                              ? 'Ativo'
-                              : prod.status === 'draft'
-                                ? 'Rascunho'
-                                : prod.status === 'archived'
-                                  ? 'Arquivado'
-                                  : 'Inativo'}
+                            {prod.status === 'active' && (
+                              <RiCheckLine className="h-3 w-3" />
+                            )}
+                            {prod.status === 'draft' && (
+                              <RiDraftLine className="h-3 w-3" />
+                            )}
+                            {prod.status === 'archived' && (
+                              <RiArchiveLine className="h-3 w-3" />
+                            )}
+                            {prod.status === 'inactive' && (
+                              <RiCloseCircleLine className="h-3 w-3" />
+                            )}
+                            <span>
+                              {prod.status === 'active'
+                                ? 'Ativo'
+                                : prod.status === 'draft'
+                                  ? 'Rascunho'
+                                  : prod.status === 'archived'
+                                    ? 'Arquivado'
+                                    : 'Inativo'}
+                            </span>
                           </span>
 
                           <span
-                            className={`text-[10px] font-medium ${
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                               prod.isPublished
-                                ? 'text-emerald-400'
-                                : 'text-zinc-500'
+                                ? 'border-emerald-900/60 bg-emerald-950/60 text-emerald-400'
+                                : 'border-zinc-800 bg-zinc-900 text-zinc-400'
                             }`}
                           >
-                            {prod.isPublished ? '🌐 Publicado' : '🔒 Privado'}
+                            {prod.isPublished ? (
+                              <>
+                                <RiGlobalLine className="h-3 w-3 text-emerald-400" />
+                                <span>Publicado</span>
+                              </>
+                            ) : (
+                              <>
+                                <RiLockLine className="h-3 w-3 text-zinc-400" />
+                                <span>Privado</span>
+                              </>
+                            )}
                           </span>
                         </div>
                       </td>

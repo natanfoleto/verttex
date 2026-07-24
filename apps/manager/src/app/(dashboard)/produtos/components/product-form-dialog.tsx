@@ -717,8 +717,8 @@ export function ProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
-        <DialogHeader className="border-b border-zinc-800/80 px-6 py-4">
+      <DialogContent className="h-185 max-h-[90vh] min-h-150 w-full max-w-4xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+        <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
             {isEditing ? 'Editar Produto' : 'Novo Produto'}
           </DialogTitle>
@@ -733,13 +733,13 @@ export function ProductFormDialog({
           onSubmit={handleSubmit}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-1 pb-6">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
-              className="w-full"
+              className="w-full flex-1 flex flex-col"
             >
-              <TabsList className="mb-4 grid w-full grid-cols-5 bg-zinc-900/80 p-1">
+              <TabsList className="mb-5 grid w-full grid-cols-5 bg-zinc-900/80 p-1 shrink-0">
                 <TabsTrigger
                   value="geral"
                   className="flex items-center space-x-1.5 text-xs"
@@ -779,7 +779,10 @@ export function ProductFormDialog({
               </TabsList>
 
               {/* TAB 1: GERAL */}
-              <TabsContent value="geral" className="space-y-4">
+              <TabsContent
+                value="geral"
+                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5.5 space-y-3.5"
+              >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div>
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
@@ -904,7 +907,7 @@ export function ProductFormDialog({
                         onChange={(e) => setIsFeatured(e.target.checked)}
                         className="h-4 w-4 cursor-pointer rounded border-zinc-800 bg-zinc-900 text-emerald-500 focus:ring-emerald-500"
                       />
-                      <span>⭐ Produto em Destaque</span>
+                      <span>Produto em Destaque</span>
                     </label>
                   </div>
                 </div>
@@ -926,7 +929,7 @@ export function ProductFormDialog({
                     Descrição Completa (Ficha Técnica & Detalhes)
                   </label>
                   <Textarea
-                    rows={4}
+                    rows={3}
                     placeholder="Histórico do produtor, processo de maturação, harmonização, ingredientes..."
                     value={fullDescription}
                     onChange={(e) => setFullDescription(e.target.value)}
@@ -935,7 +938,10 @@ export function ProductFormDialog({
               </TabsContent>
 
               {/* TAB 2: PREÇO & ESTOQUE */}
-              <TabsContent value="preco" className="space-y-4">
+              <TabsContent
+                value="preco"
+                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+              >
                 {type === 'variable' && (
                   <div className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-3 text-xs text-amber-300">
                     ℹ️ Para produtos variáveis, os preços e SKUs são definidos
@@ -1032,7 +1038,10 @@ export function ProductFormDialog({
               </TabsContent>
 
               {/* TAB 3: VARIAÇÕES */}
-              <TabsContent value="variacoes" className="space-y-4">
+              <TabsContent
+                value="variacoes"
+                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+              >
                 {type !== 'variable' ? (
                   <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-sm text-zinc-400">
                     Altere o tipo do produto para{' '}
@@ -1279,7 +1288,10 @@ export function ProductFormDialog({
               </TabsContent>
 
               {/* TAB 4: MÍDIAS & IMAGENS */}
-              <TabsContent value="midias" className="space-y-4">
+              <TabsContent
+                value="midias"
+                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+              >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1383,7 +1395,10 @@ export function ProductFormDialog({
               </TabsContent>
 
               {/* TAB 5: FRETE & SEO */}
-              <TabsContent value="frete-seo" className="space-y-4">
+              <TabsContent
+                value="frete-seo"
+                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+              >
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-zinc-200">
                     Dimensões para Cálculo de Frete
@@ -1473,7 +1488,7 @@ export function ProductFormDialog({
             </Tabs>
           </div>
 
-          <DialogFooter className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-4">
+          <DialogFooter className="bg-zinc-950 px-6 py-4">
             <Button
               type="button"
               variant="outline"

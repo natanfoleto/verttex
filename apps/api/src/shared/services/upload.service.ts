@@ -1,3 +1,4 @@
+import { apiEnv } from "@verttex/env/api";
 import { AppError } from "../errors/app-error";
 import { prisma } from "../../infrastructure/database/prisma";
 
@@ -46,12 +47,12 @@ export class UploadService {
     const uniqueId =
       Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
     const objectKey = `uploads/${purpose}/${uniqueId}.${extension}`;
-    const bucket = process.env.R2_BUCKET_NAME || "verttex-media";
+    const bucket = apiEnv.R2_BUCKET_NAME || "verttex";
 
     // Create File database record in 'pending' status
     const file = await prisma.file.create({
       data: {
-        provider: process.env.R2_ACCOUNT_ID ? "cloudflare_r2" : "local",
+        provider: apiEnv.R2_ENDPOINT ? "cloudflare_r2" : "local",
         bucket,
         objectKey,
         originalName: fileName,
@@ -66,8 +67,8 @@ export class UploadService {
     });
 
     // Mock/Real presigned PUT URL
-    const uploadUrl = process.env.R2_PUBLIC_URL
-      ? `${process.env.R2_PUBLIC_URL}/${objectKey}`
+    const uploadUrl = apiEnv.R2_PUBLIC_URL
+      ? `${apiEnv.R2_PUBLIC_URL.replace(/\/$/, "")}/${objectKey}`
       : `http://localhost:3333/uploads/${objectKey}?fileId=${file.id}`;
 
     return {

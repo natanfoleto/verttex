@@ -17,8 +17,9 @@ import {
   customerResetPasswordBodySchema,
   customerChangePasswordBodySchema,
 } from "./auth-customers.schemas";
+import { z } from "zod";
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
 export async function authCustomersRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>();
@@ -102,6 +103,7 @@ export async function authCustomersRoutes(app: FastifyInstance) {
       schema: {
         tags: ["Auth — Marketplace Customers"],
         summary: "Renovar token de acesso do cliente comprador",
+        body: z.object({ refreshToken: z.string().optional() }).optional(),
       },
     },
     refreshCustomerController,

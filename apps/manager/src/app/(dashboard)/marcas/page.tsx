@@ -5,6 +5,7 @@ import { useState } from 'react'
 import {
   RiAddLine,
   RiArchiveLine,
+  RiCheckLine,
   RiEditLine,
   RiPriceTag3Line,
   RiSearchLine,
@@ -326,85 +327,90 @@ export default function BrandsPage() {
 
       {/* Modal Reusável do Shadcn UI (Dialog) */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="w-full max-w-xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+          <DialogHeader className="px-6 pt-5 pb-2">
+            <DialogTitle className="text-xl font-bold text-zinc-100">
               {editingBrand ? 'Editar Marca' : 'Nova Marca'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs text-zinc-400">
               {editingBrand
                 ? 'Altere as informações da marca cadastrada'
                 : 'Cadastre uma nova marca ou fabricante no repositório global'}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">
-                Nome da Marca
-              </label>
-              <Input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Queijaria Serra da Canastra"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">
-                Slug (opcional)
-              </label>
-              <Input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="queijaria-serra-da-canastra"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">
-                Descrição
-              </label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={2}
-                placeholder="História ou descrição da marca..."
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-3 pb-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Status
+                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  Nome da Marca
                 </label>
-                <NativeSelect
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
-                >
-                  <option value="active">Ativa</option>
-                  <option value="inactive">Inativa</option>
-                </NativeSelect>
+                <Input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ex: Queijaria Serra da Canastra"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Visível no Marketplace
+                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  Slug (opcional)
                 </label>
-                <NativeSelect
-                  value={isVisible ? 'true' : 'false'}
-                  onChange={(e) => setIsVisible(e.target.value === 'true')}
-                >
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </NativeSelect>
+                <Input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="queijaria-serra-da-canastra"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  Descrição
+                </label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={2}
+                  placeholder="História ou descrição da marca..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                    Status
+                  </label>
+                  <NativeSelect
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as any)}
+                  >
+                    <option value="active">Ativa</option>
+                    <option value="inactive">Inativa</option>
+                  </NativeSelect>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                    Visível no Marketplace
+                  </label>
+                  <NativeSelect
+                    value={isVisible ? 'true' : 'false'}
+                    onChange={(e) => setIsVisible(e.target.value === 'true')}
+                  >
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                  </NativeSelect>
+                </div>
               </div>
             </div>
 
-            <DialogFooter className="mt-6 border-t border-zinc-800 pt-4">
+            <DialogFooter className="bg-zinc-950 px-6 py-4">
               <Button type="button" variant="outline" onClick={closeModal}>
                 Cancelar
               </Button>
@@ -412,7 +418,14 @@ export default function BrandsPage() {
                 type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
-                {editingBrand ? 'Salvar Alterações' : 'Criar Marca'}
+                <RiCheckLine className="h-4 w-4" />
+                <span>
+                  {createMutation.isPending || updateMutation.isPending
+                    ? 'Salvando...'
+                    : editingBrand
+                      ? 'Salvar Alterações'
+                      : 'Criar Marca'}
+                </span>
               </Button>
             </DialogFooter>
           </form>

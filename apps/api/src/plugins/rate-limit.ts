@@ -37,6 +37,7 @@ export const rateLimitPlugin = fp(async (app) => {
     },
     // Bypass rate limiting during local development (NODE_ENV === 'development')
     // Rate limit remains 100% active in tests (NODE_ENV === 'test') and production (NODE_ENV === 'production')
-    allowList: () => process.env.NODE_ENV === "development",
+    allowList: () =>
+      !process.env.NODE_ENV || process.env.NODE_ENV === "development",
   });
 });

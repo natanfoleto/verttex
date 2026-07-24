@@ -36,6 +36,7 @@ async function refreshTokenSilent(): Promise<boolean> {
       const res = await fetch(`${API_URL}/auth/users/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
         credentials: 'include',
       })
       const body = await res.json().catch(() => null)

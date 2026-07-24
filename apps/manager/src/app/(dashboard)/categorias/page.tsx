@@ -5,6 +5,7 @@ import { useState } from 'react'
 import {
   RiAddLine,
   RiArchiveLine,
+  RiCheckLine,
   RiEditLine,
   RiFolder3Line,
   RiFolderLine,
@@ -383,117 +384,122 @@ export default function CategoriesPage() {
 
       {/* Modal Reusável do Shadcn UI (Dialog) */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="w-full max-w-xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+          <DialogHeader className="px-6 pt-5 pb-2">
+            <DialogTitle className="text-xl font-bold text-zinc-100">
               {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs text-zinc-400">
               {editingCategory
                 ? 'Altere as informações da categoria global'
                 : 'Cadastre uma nova categoria na árvore de navegação'}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">
-                Nome da Categoria
-              </label>
-              <Input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Queijos Artesanais"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-3 pb-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Slug (opcional)
+                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  Nome da Categoria
                 </label>
                 <Input
                   type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="queijos-artesanais"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ex: Queijos Artesanais"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Categoria Pai
-                </label>
-                <NativeSelect
-                  value={parentId}
-                  onChange={(e) => setParentId(e.target.value)}
-                >
-                  <option value="">Nenhuma (Categoria Raiz)</option>
-                  {listData
-                    ?.filter((c) => c.id !== editingCategory?.id)
-                    .map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                </NativeSelect>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                    Slug (opcional)
+                  </label>
+                  <Input
+                    type="text"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="queijos-artesanais"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                    Categoria Pai
+                  </label>
+                  <NativeSelect
+                    value={parentId}
+                    onChange={(e) => setParentId(e.target.value)}
+                  >
+                    <option value="">Nenhuma (Categoria Raiz)</option>
+                    {listData
+                      ?.filter((c) => c.id !== editingCategory?.id)
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                  </NativeSelect>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">
-                Descrição
-              </label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={2}
-                placeholder="Descrição da categoria..."
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Posição
+                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  Descrição
                 </label>
-                <Input
-                  type="number"
-                  value={position}
-                  onChange={(e) => setPosition(Number(e.target.value))}
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={2}
+                  placeholder="Descrição da categoria..."
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Status
-                </label>
-                <NativeSelect
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
-                >
-                  <option value="active">Ativa</option>
-                  <option value="inactive">Inativa</option>
-                </NativeSelect>
-              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                    Posição
+                  </label>
+                  <Input
+                    type="number"
+                    value={position}
+                    onChange={(e) => setPosition(Number(e.target.value))}
+                  />
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Visível no Marketplace
-                </label>
-                <NativeSelect
-                  value={isVisible ? 'true' : 'false'}
-                  onChange={(e) => setIsVisible(e.target.value === 'true')}
-                >
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </NativeSelect>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                    Status
+                  </label>
+                  <NativeSelect
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as any)}
+                  >
+                    <option value="active">Ativa</option>
+                    <option value="inactive">Inativa</option>
+                  </NativeSelect>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                    Visível no Marketplace
+                  </label>
+                  <NativeSelect
+                    value={isVisible ? 'true' : 'false'}
+                    onChange={(e) => setIsVisible(e.target.value === 'true')}
+                  >
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                  </NativeSelect>
+                </div>
               </div>
             </div>
 
-            <DialogFooter className="mt-6 border-t border-zinc-800 pt-4">
+            <DialogFooter className="bg-zinc-950 px-6 py-4">
               <Button type="button" variant="outline" onClick={closeModal}>
                 Cancelar
               </Button>
@@ -501,11 +507,14 @@ export default function CategoriesPage() {
                 type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
-                {createMutation.isPending || updateMutation.isPending
-                  ? 'Salvando...'
-                  : editingCategory
-                    ? 'Salvar Alterações'
-                    : 'Criar Categoria'}
+                <RiCheckLine className="h-4 w-4" />
+                <span>
+                  {createMutation.isPending || updateMutation.isPending
+                    ? 'Salvando...'
+                    : editingCategory
+                      ? 'Salvar Alterações'
+                      : 'Criar Categoria'}
+                </span>
               </Button>
             </DialogFooter>
           </form>

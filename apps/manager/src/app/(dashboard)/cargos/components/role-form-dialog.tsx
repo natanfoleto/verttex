@@ -3,6 +3,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
+import { RiCheckLine } from 'react-icons/ri'
+
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -24,8 +26,8 @@ export interface RoleItem {
   id: string
   name: string
   key: string
-  description?: string
-  isSystem: boolean
+  description?: string | null
+  isSystem?: boolean
   isActive: boolean
 }
 
@@ -70,7 +72,7 @@ export function RoleFormDialog({
   const mutation = useMutation({
     mutationFn: async () => {
       setErrorMessage(null)
-      const finalKey = sanitizeSlug(key || name).replace(/-/g, '_')
+      const finalKey = key || sanitizeSlug(name).replace(/-/g, '_')
 
       if (isEditing && roleToEdit) {
         return apiClient(`/roles/${roleToEdit.id}`, {
@@ -119,109 +121,110 @@ export function RoleFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md font-sans">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Cargo' : 'Novo Cargo'}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+        <DialogHeader className="px-6 pt-5 pb-2">
+          <DialogTitle className="text-xl font-bold text-zinc-100">
+            {isEditing ? 'Editar Cargo' : 'Novo Cargo'}
+          </DialogTitle>
+          <DialogDescription className="text-xs text-zinc-400">
             {isEditing
               ? 'Atualize as informações do perfil de acesso selecionado.'
               : 'Cadastre um novo perfil de acesso e permissões para o sistema.'}
           </DialogDescription>
         </DialogHeader>
 
-        {errorMessage && (
-          <div className="rounded-xl border border-rose-800/60 bg-rose-950/60 p-3 text-xs text-rose-300">
-            {errorMessage}
-          </div>
-        )}
-
         <form
           onSubmit={(e) => {
             e.preventDefault()
             mutation.mutate()
           }}
-          className="space-y-4"
+          className="flex flex-1 flex-col overflow-hidden"
         >
-          <div>
-            <label
-              htmlFor="role-name"
-              className="text-xs font-semibold text-zinc-300"
-            >
-              Nome do Cargo *
-            </label>
-            <Input
-              id="role-name"
-              name="name"
-              type="text"
-              required
-              value={name}
-              onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="Ex: Gerente de Loja"
-              className="mt-1"
-            />
-          </div>
+          <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-3 pb-6 space-y-4">
+            {errorMessage && (
+              <div className="rounded-xl border border-rose-800/60 bg-rose-950/60 p-3 text-xs text-rose-300">
+                {errorMessage}
+              </div>
+            )}
 
-          {!isEditing && (
             <div>
               <label
-                htmlFor="role-key"
-                className="text-xs font-semibold text-zinc-300"
+                htmlFor="role-name"
+                className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
               >
-                Identificador (Key) *
+                Nome do Cargo <span className="text-rose-400">*</span>
               </label>
               <Input
-                id="role-key"
-                name="key"
+                id="role-name"
+                name="name"
                 type="text"
                 required
-                value={key}
-                onChange={(e) => handleKeyChange(e.target.value)}
-                placeholder="Ex: store_manager"
-                className="mt-1 font-mono"
+                value={name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="Ex: Gerente de Loja"
               />
             </div>
-          )}
 
-          <div>
-            <label
-              htmlFor="role-description"
-              className="text-xs font-semibold text-zinc-300"
-            >
-              Descrição
-            </label>
-            <Textarea
-              id="role-description"
-              name="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descrição opcional das responsabilidades..."
-              className="mt-1"
-              rows={3}
-            />
-          </div>
+            {!isEditing && (
+              <div>
+                <label
+                  htmlFor="role-key"
+                  className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
+                >
+                  Identificador (Key) <span className="text-rose-400">*</span>
+                </label>
+                <Input
+                  id="role-key"
+                  name="key"
+                  type="text"
+                  required
+                  value={key}
+                  onChange={(e) => handleKeyChange(e.target.value)}
+                  placeholder="Ex: store_manager"
+                  className="font-mono"
+                />
+              </div>
+            )}
 
-          {isEditing && (
             <div>
               <label
-                htmlFor="role-status"
-                className="text-xs font-semibold text-zinc-300"
+                htmlFor="role-description"
+                className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
               >
-                Status
+                Descrição
               </label>
-              <NativeSelect
-                id="role-status"
-                name="status"
-                value={isActive ? 'active' : 'inactive'}
-                onChange={(e) => setIsActive(e.target.value === 'active')}
-                wrapperClassName="mt-1"
-              >
-                <option value="active">Ativo</option>
-                <option value="inactive">Inativo</option>
-              </NativeSelect>
+              <Textarea
+                id="role-description"
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Descrição opcional das responsabilidades..."
+                rows={3}
+              />
             </div>
-          )}
 
-          <DialogFooter>
+            {isEditing && (
+              <div>
+                <label
+                  htmlFor="role-status"
+                  className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
+                >
+                  Status
+                </label>
+                <NativeSelect
+                  id="role-status"
+                  name="status"
+                  value={isActive ? 'active' : 'inactive'}
+                  onChange={(e) => setIsActive(e.target.value === 'active')}
+                >
+                  <option value="active">Ativo</option>
+                  <option value="inactive">Inativo</option>
+                </NativeSelect>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="bg-zinc-950 px-6 py-4">
             <Button
               type="button"
               variant="outline"
@@ -230,11 +233,14 @@ export function RoleFormDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending
-                ? 'Salvando...'
-                : isEditing
-                  ? 'Salvar Alterações'
-                  : 'Criar Cargo'}
+              <RiCheckLine className="h-4 w-4" />
+              <span>
+                {mutation.isPending
+                  ? 'Salvando...'
+                  : isEditing
+                    ? 'Salvar Alterações'
+                    : 'Criar Cargo'}
+              </span>
             </Button>
           </DialogFooter>
         </form>
