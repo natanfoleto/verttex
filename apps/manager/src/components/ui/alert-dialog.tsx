@@ -1,7 +1,7 @@
 'use client'
 
-import * as React from 'react'
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
+import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
@@ -18,7 +18,7 @@ const AlertDialogOverlay = React.forwardRef<
   <AlertDialogPrimitive.Overlay
     className={cn(
       'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80 backdrop-blur-xs',
-      className
+      className,
     )}
     {...props}
     ref={ref}
@@ -42,7 +42,7 @@ const AlertDialogContent = React.forwardRef<
       }}
       className={cn(
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed z-50 grid w-full max-w-lg gap-4 border border-zinc-800 bg-zinc-900 p-6 text-zinc-100 shadow-2xl duration-200 sm:rounded-2xl',
-        className
+        className,
       )}
       {...props}
     />
@@ -57,7 +57,7 @@ const AlertDialogHeader = ({
   <div
     className={cn(
       'flex flex-col space-y-2 text-center sm:text-left',
-      className
+      className,
     )}
     {...props}
   />
@@ -71,7 +71,7 @@ const AlertDialogFooter = ({
   <div
     className={cn(
       'mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-2',
-      className
+      className,
     )}
     {...props}
   />
@@ -111,7 +111,7 @@ const AlertDialogAction = React.forwardRef<
     ref={ref}
     className={cn(
       'inline-flex cursor-pointer items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition-colors hover:bg-rose-500 disabled:opacity-50',
-      className
+      className,
     )}
     {...props}
   />
@@ -126,7 +126,7 @@ const AlertDialogCancel = React.forwardRef<
     ref={ref}
     className={cn(
       'inline-flex cursor-pointer items-center justify-center rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200',
-      className
+      className,
     )}
     {...props}
   />
@@ -135,14 +135,14 @@ AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName
 
 export {
   AlertDialog,
-  AlertDialogPortal,
-  AlertDialogOverlay,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 }

@@ -1,6 +1,9 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -9,8 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
-import { useEffect, useState } from 'react'
+import { Textarea } from '@/components/ui/textarea'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
 import { invalidateRoles } from '../../../../lib/query-keys'
@@ -145,7 +149,7 @@ export function RoleFormDialog({
             >
               Nome do Cargo *
             </label>
-            <input
+            <Input
               id="role-name"
               name="name"
               type="text"
@@ -153,7 +157,7 @@ export function RoleFormDialog({
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="Ex: Gerente de Loja"
-              className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
+              className="mt-1"
             />
           </div>
 
@@ -165,7 +169,7 @@ export function RoleFormDialog({
               >
                 Identificador (Key) *
               </label>
-              <input
+              <Input
                 id="role-key"
                 name="key"
                 type="text"
@@ -173,7 +177,7 @@ export function RoleFormDialog({
                 value={key}
                 onChange={(e) => handleKeyChange(e.target.value)}
                 placeholder="Ex: store_manager"
-                className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 font-mono text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
+                className="mt-1 font-mono"
               />
             </div>
           )}
@@ -185,13 +189,13 @@ export function RoleFormDialog({
             >
               Descrição
             </label>
-            <textarea
+            <Textarea
               id="role-description"
               name="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descrição opcional das responsabilidades..."
-              className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 focus:border-emerald-600 focus:outline-none"
+              className="mt-1"
               rows={3}
             />
           </div>
@@ -218,24 +222,20 @@ export function RoleFormDialog({
           )}
 
           <DialogFooter>
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="cursor-pointer rounded-xl border border-zinc-800 px-4 py-2 text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
             >
               Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={mutation.isPending}
-              className="cursor-pointer rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
-            >
+            </Button>
+            <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending
                 ? 'Salvando...'
                 : isEditing
                   ? 'Salvar Alterações'
                   : 'Criar Cargo'}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

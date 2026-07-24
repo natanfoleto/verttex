@@ -13,6 +13,7 @@ Todo dado externo é não confiável. A validação estrutural ocorre antes de q
 ## 2. Obrigações por Tipo de Input
 
 ### Body (JSON)
+
 - Schema Zod obrigatório em toda rota que recebe body
 - Usar `.strict()` ou `.strip()` para rejeitar/ignorar campos desconhecidos
 - `string()`: sempre `min(1)` e `max(N)` explícito
@@ -21,14 +22,17 @@ Todo dado externo é não confiável. A validação estrutural ocorre antes de q
 - Arrays: sempre `min(0)` e `max(N)` items
 
 ### Params (`/rota/:id`)
+
 - Validar formato UUID quando esperado: `z.string().uuid()`
 
 ### Query String
+
 - Validar todos os parâmetros de busca, filtro, paginação
 - `page`: `z.coerce.number().min(1).default(1)`
 - `perPage`: `z.coerce.number().min(1).max(100).default(20)`
 
 ### Headers
+
 - Validar apenas quando utilizados na lógica de negócio
 
 ---
@@ -36,9 +40,9 @@ Todo dado externo é não confiável. A validação estrutural ocorre antes de q
 ## 3. Limites de Paginação
 
 | Parâmetro | Padrão | Máximo |
-|:---|:---|:---|
-| `page` | 1 | — |
-| `perPage` | 20 | 100 |
+| :-------- | :----- | :----- |
+| `page`    | 1      | —      |
+| `perPage` | 20     | 100    |
 
 **Nenhuma listagem retorna itens ilimitados.**
 
@@ -46,23 +50,23 @@ Todo dado externo é não confiável. A validação estrutural ocorre antes de q
 
 ## 4. Limites de Body
 
-| Tipo de rota | Limite |
-|:---|:---|
-| Geral JSON | 256 KB |
-| Rotas simples | 64 KB |
-| Upload | Fluxo separado com limites por tipo |
+| Tipo de rota  | Limite                              |
+| :------------ | :---------------------------------- |
+| Geral JSON    | 256 KB                              |
+| Rotas simples | 64 KB                               |
+| Upload        | Fluxo separado com limites por tipo |
 
 ---
 
 ## 5. Estado Atual
 
-| Controle | Status |
-|:---|:---|
-| Schema Zod em endpoints principais | ✅ |
-| `.strict()` generalizado | ❌ — usar `.strip()` padrão do Zod |
-| Validação de params/query em todos os endpoints | ⚠️ Parcial |
-| Body limit global explícito | ❌ — Fase 7 |
-| Limites de paginação | ⚠️ Parcial |
+| Controle                                        | Status                             |
+| :---------------------------------------------- | :--------------------------------- |
+| Schema Zod em endpoints principais              | ✅                                 |
+| `.strict()` generalizado                        | ❌ — usar `.strip()` padrão do Zod |
+| Validação de params/query em todos os endpoints | ⚠️ Parcial                         |
+| Body limit global explícito                     | ❌ — Fase 7                        |
+| Limites de paginação                            | ⚠️ Parcial                         |
 
 ---
 

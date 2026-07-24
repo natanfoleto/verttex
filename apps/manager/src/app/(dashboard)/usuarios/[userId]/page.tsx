@@ -10,6 +10,8 @@ import {
   RiStoreLine,
 } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+
 import { apiClient } from '../../../../lib/api-client'
 import { userQueryKeys } from '../../../../lib/query-keys'
 import { UserFormDialog } from '../components/user-form-dialog'
@@ -76,14 +78,10 @@ export default function UserDetailPage({
             <RiShieldUserLine className="h-4 w-4" />
             <span>Permissões</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => setIsEditOpen(true)}
-            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
-          >
+          <Button type="button" onClick={() => setIsEditOpen(true)}>
             <RiEditLine className="h-4 w-4" />
             <span>Editar</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -155,7 +153,7 @@ export default function UserDetailPage({
                       /{su.store.slug}
                     </span>
                   </div>
-                )
+                ),
               )}
             </div>
           ) : (

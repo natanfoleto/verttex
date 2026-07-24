@@ -3,13 +3,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import {
-  RiAddLine,
-  RiEditLine,
-  RiUserSharedLine,
-} from 'react-icons/ri'
+import { RiAddLine, RiEditLine, RiUserSharedLine } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
+
 import { TableWrapper } from '../../../components/ui/table-wrapper'
 import { apiClient } from '../../../lib/api-client'
 import { storeQueryKeys } from '../../../lib/query-keys'
@@ -26,11 +24,16 @@ export default function StoresListPage() {
   const [editingStore, setEditingStore] = useState<StoreItem | null>(null)
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: storeQueryKeys.list({ page, perPage, search, status: statusFilter }),
+    queryKey: storeQueryKeys.list({
+      page,
+      perPage,
+      search,
+      status: statusFilter,
+    }),
     queryFn: () => {
       let url = `/stores?page=${page}&perPage=${perPage}`
       if (search) url += `&search=${encodeURIComponent(search)}`
-      if (statusFilter) url += `&status=${statusFilter}`
+      if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`
       return apiClient(url)
     },
   })
@@ -53,14 +56,10 @@ export default function StoresListPage() {
         title="Lojas Parceiras"
         description="Gerencie as lojas dos produtores e parceiros cadastrados na plataforma Verttex"
         actionButton={
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-emerald-950 transition-colors hover:bg-emerald-500"
-          >
+          <Button type="button" onClick={openCreateModal}>
             <RiAddLine className="h-4 w-4" />
             <span>Nova Loja</span>
-          </button>
+          </Button>
         }
         searchValue={search}
         onSearchChange={setSearch}
@@ -159,14 +158,16 @@ export default function StoresListPage() {
                   className="space-x-2 px-6 py-4 text-right"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="icon"
                     onClick={() => openEditModal(store)}
-                    className="inline-flex cursor-pointer items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                    className="h-8 w-8 p-1.5 text-zinc-400 hover:text-zinc-100"
                     title="Editar"
                   >
                     <RiEditLine className="h-4 w-4" />
-                  </button>
+                  </Button>
                   <a
                     href={`/lojas/${store.id}/membros`}
                     className="inline-flex items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-emerald-400"

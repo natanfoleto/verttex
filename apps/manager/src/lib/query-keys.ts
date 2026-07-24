@@ -64,32 +64,49 @@ export const auditQueryKeys = {
 /**
  * Standard Invalidator Helpers for Real-Time Instant Component Refreshing
  */
-export async function invalidateUsers(queryClient: QueryClient, userId?: string) {
+export async function invalidateUsers(
+  queryClient: QueryClient,
+  userId?: string,
+) {
   await queryClient.invalidateQueries({ queryKey: userQueryKeys.all })
   await queryClient.invalidateQueries({ queryKey: ['user-detail'] })
   if (userId) {
     await queryClient.invalidateQueries({ queryKey: ['user-detail', userId] })
-    await queryClient.invalidateQueries({ queryKey: userQueryKeys.detail(userId) })
+    await queryClient.invalidateQueries({
+      queryKey: userQueryKeys.detail(userId),
+    })
   }
   await queryClient.invalidateQueries({ queryKey: ['dashboard-users-count'] })
 }
 
-export async function invalidateStores(queryClient: QueryClient, storeId?: string) {
+export async function invalidateStores(
+  queryClient: QueryClient,
+  storeId?: string,
+) {
   await queryClient.invalidateQueries({ queryKey: storeQueryKeys.all })
   await queryClient.invalidateQueries({ queryKey: ['store-detail'] })
   if (storeId) {
-    await queryClient.invalidateQueries({ queryKey: ['store-detail', storeId] })
-    await queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(storeId) })
+    await queryClient.invalidateQueries({
+      queryKey: ['store-detail', storeId],
+    })
+    await queryClient.invalidateQueries({
+      queryKey: storeQueryKeys.detail(storeId),
+    })
   }
   await queryClient.invalidateQueries({ queryKey: ['dashboard-stores-count'] })
 }
 
-export async function invalidateRoles(queryClient: QueryClient, roleId?: string) {
+export async function invalidateRoles(
+  queryClient: QueryClient,
+  roleId?: string,
+) {
   await queryClient.invalidateQueries({ queryKey: roleQueryKeys.all })
   await queryClient.invalidateQueries({ queryKey: ['role-detail'] })
   if (roleId) {
     await queryClient.invalidateQueries({ queryKey: ['role-detail', roleId] })
-    await queryClient.invalidateQueries({ queryKey: roleQueryKeys.detail(roleId) })
+    await queryClient.invalidateQueries({
+      queryKey: roleQueryKeys.detail(roleId),
+    })
   }
   await queryClient.invalidateQueries({ queryKey: ['dashboard-roles-count'] })
 }

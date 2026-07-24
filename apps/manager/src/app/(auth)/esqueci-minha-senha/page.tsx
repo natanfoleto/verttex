@@ -7,6 +7,9 @@ import { useForm } from 'react-hook-form'
 import { RiArrowLeftLine, RiMailLine } from 'react-icons/ri'
 import { z } from 'zod'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { apiClient } from '../../../lib/api-client'
 
 const forgotSchema = z.object({
@@ -76,11 +79,11 @@ export default function ForgotPasswordPage() {
               </label>
               <div className="relative">
                 <RiMailLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
-                <input
+                <Input
                   {...register('email')}
                   type="email"
                   placeholder="seu.email@verttex.com.br"
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pr-4 pl-11 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                  className="pl-11 h-11"
                 />
               </div>
               {errors.email && (
@@ -90,17 +93,13 @@ export default function ForgotPasswordPage() {
               )}
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-emerald-500 disabled:opacity-50"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full h-11">
               {isLoading ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 'Enviar Instruções'
               )}
-            </button>
+            </Button>
 
             <div className="pt-2 text-center">
               <Link

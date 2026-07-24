@@ -13,6 +13,9 @@ import {
 } from 'react-icons/ri'
 import { z } from 'zod'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { apiClient, ApiError } from '../../../lib/api-client'
 
 const loginSchema = z.object({
@@ -100,13 +103,13 @@ export default function LoginPage() {
             </label>
             <div className="relative">
               <RiMailLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-emerald-400" />
-              <input
+              <Input
                 {...register('email')}
                 id="email"
                 name="email"
                 type="email"
                 placeholder="seu.email@verttexloja.com.br"
-                className="w-full rounded-2xl border border-zinc-800/90 bg-zinc-950/80 py-3 pr-4 pl-10 text-sm text-zinc-100 placeholder-zinc-500 transition-all focus:border-emerald-500/80 focus:bg-zinc-950 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
+                className="pl-10 h-11 rounded-2xl"
               />
             </div>
             {errors.email && (
@@ -134,18 +137,20 @@ export default function LoginPage() {
             </div>
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors" />
-              <input
+              <Input
                 {...register('password')}
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="w-full rounded-2xl border border-zinc-800/90 bg-zinc-950/80 py-3 pr-11 pl-10 text-sm text-zinc-100 placeholder-zinc-500 transition-all focus:border-emerald-500/80 focus:bg-zinc-950 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none"
+                className="pl-10 pr-11 h-11 rounded-2xl"
               />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute top-1/2 right-3.5 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-300"
+                className="absolute top-1/2 right-2.5 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
                 tabIndex={-1}
                 aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
               >
@@ -154,7 +159,7 @@ export default function LoginPage() {
                 ) : (
                   <RiEyeLine className="h-4 w-4" />
                 )}
-              </button>
+              </Button>
             </div>
             {errors.password && (
               <p className="mt-1 text-xs font-medium text-rose-400">
@@ -164,17 +169,17 @@ export default function LoginPage() {
           </div>
 
           {/* Submit Button */}
-          <button
+          <Button
             type="submit"
             disabled={isLoading}
-            className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-2xl bg-linear-to-r from-emerald-600 to-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-950/60 transition-all hover:from-emerald-500 hover:to-emerald-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full h-11 rounded-2xl text-sm"
           >
             {isLoading ? (
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <span>Entrar no Sistema</span>
             )}
-          </button>
+          </Button>
         </form>
 
         {/* Footer */}

@@ -3,6 +3,8 @@
 import * as React from 'react'
 import { RiRefreshLine } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+
 export default function ErrorPage({
   error,
   reset,
@@ -24,14 +26,10 @@ export default function ErrorPage({
           Não foi possível carregar as informações desta página no momento.
         </p>
 
-        <button
-          type="button"
-          onClick={() => reset()}
-          className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-800 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700"
-        >
+        <Button type="button" onClick={() => reset()}>
           <RiRefreshLine className="h-4 w-4" />
           <span>Tentar novamente</span>
-        </button>
+        </Button>
       </div>
     </div>
   )

@@ -1,5 +1,26 @@
 'use client'
 
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { ReactNode, useEffect, useState } from 'react'
+import { IconType } from 'react-icons'
+import {
+  RiArrowDownSLine,
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiDashboardLine,
+  RiFolder3Line,
+  RiHistoryLine,
+  RiLogoutBoxRLine,
+  RiMenuLine,
+  RiPriceTag3Line,
+  RiShieldLine,
+  RiStoreLine,
+  RiUser3Line,
+  RiUserLine,
+} from 'react-icons/ri'
+
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,25 +42,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { ReactNode, useEffect, useState } from 'react'
-import { IconType } from 'react-icons'
-import {
-  RiArrowDownSLine,
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-  RiDashboardLine,
-  RiFolder3Line,
-  RiHistoryLine,
-  RiLogoutBoxRLine,
-  RiMenuLine,
-  RiPriceTag3Line,
-  RiShieldLine,
-  RiStoreLine,
-  RiUser3Line,
-  RiUserLine,
-} from 'react-icons/ri'
 
 import { useAuth } from '../../providers/auth-provider'
 
@@ -110,7 +112,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     {
       label: 'Catálogo & Taxonomia',
       icon: RiFolder3Line,
-      show: ability.can('read', 'Product') || ability.can('read', 'Category') || ability.can('read', 'Brand'),
+      show:
+        ability.can('read', 'Product') ||
+        ability.can('read', 'Category') ||
+        ability.can('read', 'Brand'),
       children: [
         {
           label: 'Produtos',
@@ -170,7 +175,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     if (item.show === false) return false
     if (item.children) {
       const visibleChildren = item.children.filter(
-        (child) => child.show !== false
+        (child) => child.show !== false,
       )
       return visibleChildren.length > 0
     }
@@ -200,7 +205,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           item.children?.filter((child) => child.show !== false) || []
 
         const isChildActive = visibleChildren.some((child) =>
-          pathname.startsWith(child.href)
+          pathname.startsWith(child.href),
         )
         const isActive =
           item.href === '/'
@@ -216,7 +221,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             return (
               <Tooltip key={item.label}>
                 <TooltipTrigger asChild>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => toggleSubmenu(item.label)}
                     className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${
                       isActive
@@ -225,7 +232,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     }`}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
-                  </button>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="space-y-1">
                   <p className="font-semibold">{item.label}</p>
@@ -245,7 +252,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
           return (
             <div key={item.label} className="space-y-1">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => toggleSubmenu(item.label)}
                 className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
@@ -264,7 +272,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       : 'text-zinc-500'
                   }`}
                 />
-              </button>
+              </Button>
 
               {isSubmenuOpen && (
                 <div className="ml-3 space-y-1 border-l border-zinc-800/80 pr-2 pl-4">
@@ -360,7 +368,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </div>
                 </Link>
               )}
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={toggleCollapse}
                 className={`cursor-pointer rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 ${
                   isCollapsed ? 'mx-auto' : 'ml-auto'
@@ -372,7 +382,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 ) : (
                   <RiArrowLeftSLine className="h-5 w-5" />
                 )}
-              </button>
+              </Button>
             </div>
 
             {/* Navigation Links */}
@@ -398,9 +408,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <div className="lg:hidden">
                 <Sheet>
                   <SheetTrigger asChild>
-                    <button className="cursor-pointer rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="cursor-pointer rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                    >
                       <RiMenuLine className="h-6 w-6" />
-                    </button>
+                    </Button>
                   </SheetTrigger>
                   <SheetContent
                     side="left"
@@ -431,7 +445,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center space-x-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex cursor-pointer items-center space-x-2.5 text-left outline-none">
+                  <Button
+                    variant="ghost"
+                    className="flex cursor-pointer items-center space-x-2.5 text-left outline-none h-auto p-1"
+                  >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300">
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
@@ -444,7 +461,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       </span>
                     </div>
                     <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400" />
-                  </button>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="z-100 w-64">
                   <DropdownMenuLabel className="font-normal text-zinc-100 normal-case">

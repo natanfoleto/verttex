@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { RiAddLine, RiEditLine, RiShieldLine } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+
 import { TableWrapper } from '../../../components/ui/table-wrapper'
 import { apiClient } from '../../../lib/api-client'
 import { roleQueryKeys } from '../../../lib/query-keys'
@@ -45,14 +47,10 @@ export default function RolesListPage() {
         title="Cargos e Permissões"
         description="Gerencie os cargos do sistema e as permissões de cada perfil de acesso"
         actionButton={
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-emerald-950 transition-colors hover:bg-emerald-500"
-          >
+          <Button type="button" onClick={openCreateModal}>
             <RiAddLine className="h-4 w-4" />
             <span>Novo Cargo</span>
-          </button>
+          </Button>
         }
         searchValue={search}
         onSearchChange={(v) => {
@@ -127,14 +125,16 @@ export default function RolesListPage() {
                 </td>
                 <td className="space-x-2 px-6 py-4 text-right">
                   {!role.isSystem && (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="icon"
                       onClick={() => openEditModal(role)}
-                      className="inline-flex cursor-pointer items-center rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                      className="h-8 w-8 p-1.5 text-zinc-400 hover:text-zinc-100"
                       title="Editar"
                     >
                       <RiEditLine className="h-4 w-4" />
-                    </button>
+                    </Button>
                   )}
                   <a
                     href={`/cargos/${role.id}/permissoes`}

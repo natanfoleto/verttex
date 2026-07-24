@@ -105,6 +105,7 @@ A IA deve **nunca**:
 ## 5. Regras de Banco de Dados (Prisma)
 
 São **proibidos** em todo o projeto:
+
 - `$queryRaw`
 - `$executeRaw`
 - `$queryRawUnsafe`
@@ -166,6 +167,7 @@ Nenhuma feature que muda estado do sistema é considerada completa sem sua imple
 A IA pode ser usada para procurar vulnerabilidades **apenas em ambiente de desenvolvimento autorizado**.
 
 São absolutamente proibidos:
+
 - Atacar produção
 - Atacar usuários reais
 - Usar dados reais desnecessariamente

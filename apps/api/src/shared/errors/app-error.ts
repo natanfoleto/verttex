@@ -1,4 +1,4 @@
-import { ErrorCode } from './error-codes'
+import { ErrorCode } from "./error-codes";
 
 export class AppError extends Error {
   constructor(
@@ -6,9 +6,9 @@ export class AppError extends Error {
     message: string,
     public readonly statusCode: number = 400,
     public readonly details: unknown = null,
-    public readonly fieldErrors?: Record<string, string[]>
+    public readonly fieldErrors?: Record<string, string[]>,
   ) {
-    super(message)
-    Object.setPrototypeOf(this, new.target.prototype)
+    super(message);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }

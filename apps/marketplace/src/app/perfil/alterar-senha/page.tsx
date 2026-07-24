@@ -7,6 +7,9 @@ import { useForm } from 'react-hook-form'
 import { RiArrowLeftLine, RiLockPasswordLine } from 'react-icons/ri'
 import { z } from 'zod'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { CustomerAuthGuard } from '../../../components/guards/customer-auth-guard'
 import { apiClient, ApiError } from '../../../lib/api-client'
 
@@ -107,11 +110,11 @@ export default function CustomerChangePasswordPage() {
             </label>
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
+              <Input
                 {...register('currentPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="pl-10"
               />
             </div>
             {errors.currentPassword && (
@@ -127,11 +130,11 @@ export default function CustomerChangePasswordPage() {
             </label>
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
+              <Input
                 {...register('newPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="pl-10"
               />
             </div>
             {errors.newPassword && (
@@ -147,11 +150,11 @@ export default function CustomerChangePasswordPage() {
             </label>
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
+              <Input
                 {...register('confirmPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="pl-10"
               />
             </div>
             {errors.confirmPassword && (
@@ -161,17 +164,13 @@ export default function CustomerChangePasswordPage() {
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="mt-2 flex w-full cursor-pointer items-center justify-center rounded-lg bg-emerald-800 px-4 py-3 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 disabled:opacity-50"
-          >
+          <Button type="submit" disabled={isLoading} className="mt-2 w-full">
             {isLoading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               'Atualizar Senha'
             )}
-          </button>
+          </Button>
         </form>
       </div>
     </CustomerAuthGuard>

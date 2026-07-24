@@ -16,6 +16,9 @@ import {
   RiUserAddLine,
 } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { useCustomer } from '../../providers/customer-auth-provider'
 
 export function MarketplaceHeader() {
@@ -55,21 +58,23 @@ export function MarketplaceHeader() {
         >
           <div className="relative w-full">
             <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <input
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar queijos, vinhos, mel, embutidos ou produtores..."
-              className="h-10.5 w-full rounded-lg border border-stone-200 bg-stone-50 pr-10 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+              className="h-10.5 pr-10 pl-10 text-xs"
             />
             {searchQuery && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => setSearchQuery('')}
-                className="absolute top-1/2 right-3 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600"
               >
                 <RiCloseLine className="h-4 w-4" />
-              </button>
+              </Button>
             )}
           </div>
         </form>
@@ -99,42 +104,47 @@ export function MarketplaceHeader() {
                 <span className="max-w-28 truncate">{customer.name}</span>
               </Link>
 
-              <button
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => logout()}
-                className="h-10.5 w-10.5 inline-flex cursor-pointer items-center justify-center rounded-lg border border-stone-200 p-0 text-stone-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                className="h-10.5 w-10.5 p-0 text-stone-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                 title="Sair da conta"
               >
                 <RiLogoutBoxRLine className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => openAuthModal('login')}
-                className="h-10.5 inline-flex cursor-pointer items-center space-x-1 rounded-lg border border-stone-200 bg-white px-4 font-semibold text-stone-700 transition-colors hover:bg-stone-50"
+                className="h-10.5 px-4"
               >
                 <RiLockLine className="h-3.5 w-3.5 text-emerald-700" />
                 <span>Entrar</span>
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => openAuthModal('register')}
-                className="h-10.5 inline-flex cursor-pointer items-center space-x-1 rounded-lg bg-emerald-800 px-4 font-semibold text-white shadow-xs transition-colors hover:bg-emerald-700"
+                className="h-10.5 px-4"
               >
                 <RiUserAddLine className="h-3.5 w-3.5" />
                 <span>Criar Conta</span>
-              </button>
+              </Button>
             </div>
           )}
         </div>
 
         {/* Mobile Hamburger Trigger */}
         <div className="flex items-center space-x-3 md:hidden">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="cursor-pointer rounded-lg border border-stone-200 bg-stone-50 p-2.5 text-stone-700 transition-colors hover:bg-stone-100"
+            className="p-2.5"
             aria-label="Abrir menu"
           >
             {mobileMenuOpen ? (
@@ -142,7 +152,7 @@ export function MarketplaceHeader() {
             ) : (
               <RiMenuLine className="h-5 w-5" />
             )}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -152,14 +162,11 @@ export function MarketplaceHeader() {
           <div className="flex items-center space-x-1">
             {/* Mega Dropdown: All Categories */}
             <div className="group relative">
-              <button
-                type="button"
-                className="flex cursor-pointer items-center space-x-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-white transition-colors hover:bg-emerald-700"
-              >
+              <Button type="button" className="py-2.5">
                 <RiMenu3Line className="h-4 w-4" />
                 <span>Todas as Categorias</span>
                 <RiArrowDownSLine className="h-4 w-4 transition-transform group-hover:rotate-180" />
-              </button>
+              </Button>
 
               {/* Hover Dropdown Content */}
               <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
@@ -304,7 +311,6 @@ export function MarketplaceHeader() {
               </div>
             </div>
           </div>
-
         </div>
       </nav>
 
@@ -314,12 +320,12 @@ export function MarketplaceHeader() {
           {/* Mobile Search */}
           <form onSubmit={handleSearchSubmit} className="relative">
             <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <input
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar produtos ou produtores..."
-              className="w-full rounded-lg border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 focus:border-emerald-600 focus:outline-none"
+              className="pl-10 text-xs"
             />
           </form>
 
@@ -354,39 +360,39 @@ export function MarketplaceHeader() {
                   <span>Meu Perfil ({customer.name})</span>
                 </Link>
 
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => {
                     logout()
                     setMobileMenuOpen(false)
                   }}
-                  className="flex w-full cursor-pointer items-center space-x-2 rounded-lg px-3 py-2.5 font-semibold text-rose-600 hover:bg-rose-50"
+                  className="flex w-full justify-start space-x-2 font-semibold text-rose-600 hover:bg-rose-50"
                 >
                   <RiLogoutBoxRLine className="h-4 w-4" />
                   <span>Sair da Conta</span>
-                </button>
+                </Button>
               </>
             ) : (
               <div className="grid grid-cols-2 gap-2 pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => {
                     setMobileMenuOpen(false)
                     openAuthModal('login')
                   }}
-                  className="flex cursor-pointer items-center justify-center rounded-lg border border-stone-200 bg-white py-2.5 text-xs font-semibold text-stone-700"
                 >
                   Entrar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => {
                     setMobileMenuOpen(false)
                     openAuthModal('register')
                   }}
-                  className="flex cursor-pointer items-center justify-center rounded-lg bg-emerald-800 py-2.5 text-xs font-semibold text-white shadow-xs"
                 >
                   Criar Conta
-                </button>
+                </Button>
               </div>
             )}
           </div>

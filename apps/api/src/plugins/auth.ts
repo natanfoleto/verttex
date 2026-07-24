@@ -1,71 +1,79 @@
-import fp from 'fastify-plugin'
-import { FastifyRequest, FastifyReply } from 'fastify'
-import { defineAbilityFor, UserToken } from '@verttex/auth'
-import { AppError } from '../shared/errors/app-error'
-import { prisma } from '../infrastructure/database/prisma'
-import { isJtiRevoked } from '../shared/utils/token-denylist'
+import fp from "fastify-plugin";
+import { FastifyRequest, FastifyReply } from "fastify";
+import { defineAbilityFor, UserToken } from "@verttex/auth";
+import { AppError } from "../shared/errors/app-error";
+import { prisma } from "../infrastructure/database/prisma";
+import { isJtiRevoked } from "../shared/utils/token-denylist";
 
 /** JWT issuer — must match the value set in auth-users.service.ts */
-const JWT_ISSUER = 'api.verttexloja.com.br'
+const JWT_ISSUER = "api.verttexloja.com.br";
 
 export const authPlugin = fp(async (app) => {
-  app.decorateRequest('getCurrentUserAbility', function (this: FastifyRequest) {
-    const roleKey = (this.userPayload?.role || 'employee') as any
+  app.decorateRequest("getCurrentUserAbility", function (this: FastifyRequest) {
+    const roleKey = (this.userPayload?.role || "employee") as any;
     const user: UserToken = {
-      id: this.userPayload?.id || 'anonymous',
+      id: this.userPayload?.id || "anonymous",
       role: roleKey,
       rolePermissions: this.userPayload?.rolePermissions,
       permissions: this.userPayload?.permissions as any,
-    }
-    return defineAbilityFor(user)
-  })
+    };
+    return defineAbilityFor(user);
+  });
 
   app.decorate(
-    'authenticateUser',
+    "authenticateUser",
     async function (request: FastifyRequest, _reply: FastifyReply) {
       try {
-        let token: string | undefined = request.cookies.user_access_token
+        let token: string | undefined = request.cookies.user_access_token;
 
         if (!token && request.headers.authorization) {
-          const parts = request.headers.authorization.split(' ')
-          if (parts.length === 2 && parts[0] === 'Bearer') {
-            token = parts[1]
+          const parts = request.headers.authorization.split(" ");
+          if (parts.length === 2 && parts[0] === "Bearer") {
+            token = parts[1];
           }
         }
 
         if (!token) {
-          throw new AppError('UNAUTHORIZED', 'Não autenticado', 401)
+          throw new AppError("UNAUTHORIZED", "Não autenticado", 401);
         }
 
         const decoded = app.jwt.verify<{
-          jti?: string
-          iss?: string
-          aud?: string | string[]
-          sub: string
-          actorType: string
-          role: string
-          sessionId: string
-          exp?: number
-        }>(token)
+          jti?: string;
+          iss?: string;
+          aud?: string | string[];
+          sub: string;
+          actorType: string;
+          role: string;
+          sessionId: string;
+          exp?: number;
+        }>(token);
 
         // Validate issuer to prevent token confusion
         if (decoded.iss !== JWT_ISSUER) {
-          throw new AppError('UNAUTHORIZED', 'Token inválido para este contexto', 401)
+          throw new AppError(
+            "UNAUTHORIZED",
+            "Token inválido para este contexto",
+            401,
+          );
         }
 
-        if (decoded.actorType !== 'user') {
+        if (decoded.actorType !== "user") {
           throw new AppError(
-            'UNAUTHORIZED',
-            'Token inválido para este contexto',
-            401
-          )
+            "UNAUTHORIZED",
+            "Token inválido para este contexto",
+            401,
+          );
         }
 
         // Check jti denylist — revoked access tokens are rejected immediately (SD-003)
         if (decoded.jti) {
-          const revoked = await isJtiRevoked(decoded.jti)
+          const revoked = await isJtiRevoked(decoded.jti);
           if (revoked) {
-            throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+            throw new AppError(
+              "UNAUTHORIZED",
+              "Sessão inválida ou expirada",
+              401,
+            );
           }
         }
 
@@ -87,15 +95,19 @@ export const authPlugin = fp(async (app) => {
               },
             },
           },
-        })
+        });
 
         if (
           !session ||
           session.revokedAt ||
           session.expiresAt < new Date() ||
-          session.user.status !== 'active'
+          session.user.status !== "active"
         ) {
-          throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+          throw new AppError(
+            "UNAUTHORIZED",
+            "Sessão inválida ou expirada",
+            401,
+          );
         }
 
         // Update lastActiveAt asynchronously
@@ -104,16 +116,16 @@ export const authPlugin = fp(async (app) => {
             where: { id: session.id },
             data: { lastActiveAt: new Date() },
           })
-          .catch(() => {})
+          .catch(() => {});
 
         const rolePermissions = session.user.role.permissions.map(
-          (rp) => rp.permission.key
-        )
+          (rp) => rp.permission.key,
+        );
 
         const userPermissions = session.user.permissions.map((up) => ({
           permissionKey: up.permission.key,
-          effect: up.effect as 'allow' | 'deny',
-        }))
+          effect: up.effect as "allow" | "deny",
+        }));
 
         request.userPayload = {
           id: session.user.id,
@@ -124,57 +136,61 @@ export const authPlugin = fp(async (app) => {
           sessionId: session.id,
           rolePermissions,
           permissions: userPermissions,
-        }
+        };
       } catch (err) {
-        if (err instanceof AppError) throw err
-        throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+        if (err instanceof AppError) throw err;
+        throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
       }
-    }
-  )
+    },
+  );
 
   app.decorate(
-    'authenticateCustomer',
+    "authenticateCustomer",
     async function (request: FastifyRequest, _reply: FastifyReply) {
       try {
-        let token: string | undefined = request.cookies.customer_access_token
+        let token: string | undefined = request.cookies.customer_access_token;
 
         if (!token && request.headers.authorization) {
-          const parts = request.headers.authorization.split(' ')
-          if (parts.length === 2 && parts[0] === 'Bearer') {
-            token = parts[1]
+          const parts = request.headers.authorization.split(" ");
+          if (parts.length === 2 && parts[0] === "Bearer") {
+            token = parts[1];
           }
         }
 
         if (!token) {
-          throw new AppError('UNAUTHORIZED', 'Não autenticado', 401)
+          throw new AppError("UNAUTHORIZED", "Não autenticado", 401);
         }
 
         const decoded = app.jwt.verify<{
-          sub: string
-          actorType: string
-          sessionId: string
-        }>(token)
+          sub: string;
+          actorType: string;
+          sessionId: string;
+        }>(token);
 
-        if (decoded.actorType !== 'customer') {
+        if (decoded.actorType !== "customer") {
           throw new AppError(
-            'UNAUTHORIZED',
-            'Token inválido para este contexto',
-            401
-          )
+            "UNAUTHORIZED",
+            "Token inválido para este contexto",
+            401,
+          );
         }
 
         const session = await prisma.customerSession.findUnique({
           where: { id: decoded.sessionId },
           include: { customer: true },
-        })
+        });
 
         if (
           !session ||
           session.revokedAt ||
           session.expiresAt < new Date() ||
-          session.customer.status !== 'active'
+          session.customer.status !== "active"
         ) {
-          throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+          throw new AppError(
+            "UNAUTHORIZED",
+            "Sessão inválida ou expirada",
+            401,
+          );
         }
 
         request.customerPayload = {
@@ -182,11 +198,11 @@ export const authPlugin = fp(async (app) => {
           name: session.customer.name,
           email: session.customer.email,
           sessionId: session.id,
-        }
+        };
       } catch (err) {
-        if (err instanceof AppError) throw err
-        throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+        if (err instanceof AppError) throw err;
+        throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
       }
-    }
-  )
-})
+    },
+  );
+});

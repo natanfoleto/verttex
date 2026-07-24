@@ -17,7 +17,7 @@ Quando for necessário ler ou consultar informações sobre o projeto, siga esta
 4. [`.ai/roadmaps/INDEX.md`](./roadmaps/INDEX.md) — Índice consolidado de todos os roadmaps
 5. [`.ai/architecture/`](./architecture/README.md) — Arquitetura vigente, topologia e ADRs
 6. [`.ai/domain/`](./domain/README.md) — Regras de negócio, modelos de dados, permissões e fluxos
-7. [`.ai/backend/`](./backend/README.md) e [`.ai/frontend/`](./frontend/README.md) — Documentação específica de API e UI
+7. [`.ai/backend/`](./backend/README.md) e [`.ai/frontend/FRONTEND_UI.md`](./frontend/FRONTEND_UI.md) — Documentação técnica de API e UI (contendo a **Regra Canônica de Uso do Shadcn UI §10.13**)
 8. [`.ai/observability/`](./observability/README.md) — Regras de auditoria e logging
 9. [`.ai/planning/`](./planning/README.md) — Planejamento preliminar e estudos não formalizados como roadmap
 10. [`.ai/archive/`](./archive/README.md) — Documentos descontinuados ou substituídos

@@ -1,10 +1,13 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { NativeSelect } from '@/components/ui/native-select'
 import Link from 'next/link'
 import { use, useState } from 'react'
 import { RiArrowLeftLine, RiDeleteBinLine, RiUserAddLine } from 'react-icons/ri'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
 
 import { apiClient, ApiError } from '../../../../../lib/api-client'
 import { invalidateStores } from '../../../../../lib/query-keys'
@@ -124,26 +127,26 @@ export default function StoreMembersPage({
                 <option key={user.id} value={user.id}>
                   {user.name} ({user.email})
                 </option>
-              )
+              ),
             )}
           </NativeSelect>
 
           <label className="flex cursor-pointer items-center space-x-2 px-2 text-sm text-zinc-300">
-            <input
+            <Input
               type="checkbox"
               checked={isOwner}
               onChange={(e) => setIsOwner(e.target.checked)}
+              className="h-4 w-4 cursor-pointer"
             />
             <span>Proprietário</span>
           </label>
 
-          <button
+          <Button
             type="submit"
             disabled={!selectedUserId || addMemberMutation.isPending}
-            className="shrink-0 cursor-pointer rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500 disabled:opacity-50"
           >
             {addMemberMutation.isPending ? 'Adicionando...' : 'Vincular'}
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -180,16 +183,19 @@ export default function StoreMembersPage({
                     </p>
                   </div>
 
-                  <button
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
                     onClick={() => removeMemberMutation.mutate(su.user.id)}
                     disabled={removeMemberMutation.isPending}
-                    className="cursor-pointer rounded-lg border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-rose-400"
+                    className="h-8 w-8 p-2 text-zinc-400 hover:text-rose-400"
                     title="Desvincular membro"
                   >
                     <RiDeleteBinLine className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
-              )
+              ),
             )
           ) : (
             <div className="p-8 text-center text-sm text-zinc-500">

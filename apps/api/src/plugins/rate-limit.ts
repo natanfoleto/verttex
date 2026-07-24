@@ -1,6 +1,6 @@
-import fp from 'fastify-plugin'
-import rateLimit from '@fastify/rate-limit'
-import { redisClient } from '../infrastructure/redis/redis'
+import fp from "fastify-plugin";
+import rateLimit from "@fastify/rate-limit";
+import { redisClient } from "../infrastructure/redis/redis";
 
 /**
  * Global rate limit plugin for the Fastify API.
@@ -18,25 +18,25 @@ export const rateLimitPlugin = fp(async (app) => {
     global: false,
     redis: redisClient ?? undefined,
     addHeaders: {
-      'x-ratelimit-limit': true,
-      'x-ratelimit-remaining': true,
-      'x-ratelimit-reset': true,
-      'retry-after': true,
+      "x-ratelimit-limit": true,
+      "x-ratelimit-remaining": true,
+      "x-ratelimit-reset": true,
+      "retry-after": true,
     },
     // Default error message when rate limit is exceeded
     errorResponseBuilder: (_req, context) => ({
       success: false,
-      error: 'RATE_LIMIT_EXCEEDED',
+      error: "RATE_LIMIT_EXCEEDED",
       message: `Muitas requisições. Tente novamente em ${Math.ceil(context.ttl / 1000)} segundo(s).`,
       retryAfter: Math.ceil(context.ttl / 1000),
     }),
     // Key generator: use IP by default (overridden per route as needed)
     keyGenerator: (req) => {
       // Respect X-Forwarded-For when trustProxy is configured on Fastify
-      return req.ip
+      return req.ip;
     },
     // Bypass rate limiting during local development (NODE_ENV === 'development')
     // Rate limit remains 100% active in tests (NODE_ENV === 'test') and production (NODE_ENV === 'production')
-    allowList: () => process.env.NODE_ENV === 'development',
-  })
-})
+    allowList: () => process.env.NODE_ENV === "development",
+  });
+});

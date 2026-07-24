@@ -7,6 +7,9 @@ import { useForm } from 'react-hook-form'
 import { RiArrowLeftLine, RiMailLine } from 'react-icons/ri'
 import { z } from 'zod'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { apiClient } from '../../../lib/api-client'
 
 const forgotSchema = z.object({
@@ -79,11 +82,11 @@ export default function CustomerForgotPasswordPage() {
               </label>
               <div className="relative">
                 <RiMailLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                <input
+                <Input
                   {...register('email')}
                   type="email"
                   placeholder="seu.email@exemplo.com"
-                  className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                  className="pl-10"
                 />
               </div>
               {errors.email && (
@@ -93,17 +96,13 @@ export default function CustomerForgotPasswordPage() {
               )}
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-emerald-800 px-4 py-3 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 disabled:opacity-50"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 'Enviar Instruções'
               )}
-            </button>
+            </Button>
 
             <div className="pt-2 text-center">
               <Link

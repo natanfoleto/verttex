@@ -29,25 +29,25 @@
 
 ### 1.3 Tokens e Sessões
 
-| Token | Tipo | Duração | Armazenamento |
-|:---|:---|:---|:---|
-| Access token | JWT assinado | 15 min | Cookie HttpOnly / Authorization header |
-| Refresh token | Opaco (64 bytes hex) | 7 dias | Cookie HttpOnly; armazenado como SHA-256 hash no DB |
-| Reset token | Opaco (64 bytes hex) | 1 hora | Armazenado como SHA-256 hash no DB |
+| Token         | Tipo                 | Duração | Armazenamento                                       |
+| :------------ | :------------------- | :------ | :-------------------------------------------------- |
+| Access token  | JWT assinado         | 15 min  | Cookie HttpOnly / Authorization header              |
+| Refresh token | Opaco (64 bytes hex) | 7 dias  | Cookie HttpOnly; armazenado como SHA-256 hash no DB |
+| Reset token   | Opaco (64 bytes hex) | 1 hora  | Armazenado como SHA-256 hash no DB                  |
 
 ---
 
 ## 2. Gaps e Melhorias Planejadas
 
-| Gap | VULN | Fase |
-|:---|:---|:---|
-| Fallback inseguro em `verifyPassword` | VULN-001 | Fase 6 |
-| Rate limiting em login | VULN-002 | Fase 3 |
-| Claims JWT sem `jti`, `iss`, `aud` | VULN-004 | Fase 4 |
-| Denylist de `jti` para revogação imediata | VULN-004 | Fase 4 |
-| Hash dummy para usuário inexistente (anti-timing) | — | Fase 4 |
-| Detecção de reutilização de refresh token | VULN-006 | Fase 5 |
-| MFA para admins | — | Roadmap futuro |
+| Gap                                               | VULN     | Fase           |
+| :------------------------------------------------ | :------- | :------------- |
+| Fallback inseguro em `verifyPassword`             | VULN-001 | Fase 6         |
+| Rate limiting em login                            | VULN-002 | Fase 3         |
+| Claims JWT sem `jti`, `iss`, `aud`                | VULN-004 | Fase 4         |
+| Denylist de `jti` para revogação imediata         | VULN-004 | Fase 4         |
+| Hash dummy para usuário inexistente (anti-timing) | —        | Fase 4         |
+| Detecção de reutilização de refresh token         | VULN-006 | Fase 5         |
+| MFA para admins                                   | —        | Roadmap futuro |
 
 ---
 

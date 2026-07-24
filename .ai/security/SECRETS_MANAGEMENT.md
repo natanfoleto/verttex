@@ -7,16 +7,16 @@
 
 ## 1. Secrets Existentes
 
-| Nome da Variável | Finalidade | Onde Usado | Responsável | Rotação |
-|:---|:---|:---|:---|:---|
-| `DATABASE_URL` | Conexão com PostgreSQL | API | Infraestrutura | A definir — antes de qualquer vazamento suspeito |
-| `JWT_SECRET` | Assinatura de tokens JWT | API | Segurança | A definir — rotação requer invalidação de todos os tokens ativos |
-| `COOKIE_SECRET` | Assinatura de cookies | API | Segurança | A definir |
-| `CORS_ORIGIN` | Allowlist de CORS | API | Infraestrutura | A cada novo domínio adicionado |
-| `R2_ENDPOINT` | Endpoint do Cloudflare R2 | API | Infraestrutura | — |
-| `R2_ACCESS_KEY_ID` | Credencial de acesso ao R2 | API | Infraestrutura | A definir — mínimo anual |
-| `R2_SECRET_ACCESS_KEY` | Chave secreta R2 | API | Infraestrutura | A definir — junto com R2_ACCESS_KEY_ID |
-| `R2_BUCKET_NAME` | Nome do bucket R2 | API | Infraestrutura | — |
+| Nome da Variável       | Finalidade                 | Onde Usado | Responsável    | Rotação                                                          |
+| :--------------------- | :------------------------- | :--------- | :------------- | :--------------------------------------------------------------- |
+| `DATABASE_URL`         | Conexão com PostgreSQL     | API        | Infraestrutura | A definir — antes de qualquer vazamento suspeito                 |
+| `JWT_SECRET`           | Assinatura de tokens JWT   | API        | Segurança      | A definir — rotação requer invalidação de todos os tokens ativos |
+| `COOKIE_SECRET`        | Assinatura de cookies      | API        | Segurança      | A definir                                                        |
+| `CORS_ORIGIN`          | Allowlist de CORS          | API        | Infraestrutura | A cada novo domínio adicionado                                   |
+| `R2_ENDPOINT`          | Endpoint do Cloudflare R2  | API        | Infraestrutura | —                                                                |
+| `R2_ACCESS_KEY_ID`     | Credencial de acesso ao R2 | API        | Infraestrutura | A definir — mínimo anual                                         |
+| `R2_SECRET_ACCESS_KEY` | Chave secreta R2           | API        | Infraestrutura | A definir — junto com R2_ACCESS_KEY_ID                           |
+| `R2_BUCKET_NAME`       | Nome do bucket R2          | API        | Infraestrutura | —                                                                |
 
 ---
 
@@ -34,16 +34,16 @@
 
 ## 3. Estado Atual
 
-| Controle | Status | Observação |
-|:---|:---|:---|
-| `.env.*` no `.gitignore` | ✅ | `!.env.example` rastreado |
-| Variáveis tipadas com Zod | ✅ | `@t3-oss/env-core` |
-| `.env.example` existente | ❌ | Não há `.env.example` nos apps — criar |
-| Secret manager | ❌ | Apenas arquivos `.env` locais |
-| Secret scanning automatizado | ❌ | Fase 9 |
-| Pre-commit hook de scanning | ❌ | Fase 9 |
-| Rotação documentada | ❌ | Processo não definido |
-| Secrets diferentes por ambiente | ❓ | Não verificado |
+| Controle                        | Status | Observação                             |
+| :------------------------------ | :----- | :------------------------------------- |
+| `.env.*` no `.gitignore`        | ✅     | `!.env.example` rastreado              |
+| Variáveis tipadas com Zod       | ✅     | `@t3-oss/env-core`                     |
+| `.env.example` existente        | ❌     | Não há `.env.example` nos apps — criar |
+| Secret manager                  | ❌     | Apenas arquivos `.env` locais          |
+| Secret scanning automatizado    | ❌     | Fase 9                                 |
+| Pre-commit hook de scanning     | ❌     | Fase 9                                 |
+| Rotação documentada             | ❌     | Processo não definido                  |
+| Secrets diferentes por ambiente | ❓     | Não verificado                         |
 
 ---
 

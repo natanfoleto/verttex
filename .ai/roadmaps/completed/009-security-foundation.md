@@ -57,28 +57,29 @@ Com a conclusão da Fase 1 funcional (Roadmaps 001 a 008), o sistema VERTTEX NF 
 
 ## Implemented Controls
 
-| Controle | Estado | Evidência / Arquivo |
-|:---|:---|:---|
-| Governança & Políticas | Implementado | 20 arquivos em [`.ai/security/`](.ai/security/) |
-| Hash de senhas estrito (`scrypt`) | Implementado | [`crypto.ts`](../../apps/api/src/shared/utils/crypto.ts) |
-| Removido fallback inseguro (VULN-001) | Implementado | [`crypto.ts`](../../apps/api/src/shared/utils/crypto.ts#L31-L48) |
-| Headers de segurança HTTP (Helmet) | Implementado | [`helmet.ts`](../../apps/api/src/plugins/helmet.ts) |
+| Controle                                    | Estado       | Evidência / Arquivo                                                                                                          |
+| :------------------------------------------ | :----------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| Governança & Políticas                      | Implementado | 20 arquivos em [`.ai/security/`](.ai/security/)                                                                              |
+| Hash de senhas estrito (`scrypt`)           | Implementado | [`crypto.ts`](../../apps/api/src/shared/utils/crypto.ts)                                                                     |
+| Removido fallback inseguro (VULN-001)       | Implementado | [`crypto.ts`](../../apps/api/src/shared/utils/crypto.ts#L31-L48)                                                             |
+| Headers de segurança HTTP (Helmet)          | Implementado | [`helmet.ts`](../../apps/api/src/plugins/helmet.ts)                                                                          |
 | Rate Limiting por IP/Conta (Redis + Memory) | Implementado | [`rate-limit.ts`](../../apps/api/src/plugins/rate-limit.ts) + [`redis.ts`](../../apps/api/src/infrastructure/redis/redis.ts) |
-| Claims JWT (`jti`, `iss`, `aud`) | Implementado | [`auth-users.service.ts`](../../apps/api/src/modules/auth-users/auth-users.service.ts) |
-| Validação de Issuer e Audience | Implementado | [`auth.ts`](../../apps/api/src/plugins/auth.ts) |
-| Trust Proxy (`trustProxy: 1`) | Implementado | [`app.ts`](../../apps/api/src/app.ts) |
-| Denylist de `jti` (Redis + DB) | Implementado | [`token-denylist.ts`](../../apps/api/src/shared/utils/token-denylist.ts) |
-| Re-use detection de Refresh Token | Implementado | `auth-users.service.ts` e `auth-customers.service.ts` |
-| Body Limit global (256 KB) | Implementado | [`app.ts`](../../apps/api/src/app.ts) |
-| CSP Headers (Next.js Frontends) | Implementado | `apps/manager/next.config.ts` e `apps/marketplace/next.config.ts` |
-| Suíte de testes Vitest | Implementado | `crypto.spec.ts` e `token-denylist.spec.ts` |
-| Gates pré-deploy documentados (SD-005) | Implementado | `.ai/security/SECURITY_ARCHITECTURE.md` |
+| Claims JWT (`jti`, `iss`, `aud`)            | Implementado | [`auth-users.service.ts`](../../apps/api/src/modules/auth-users/auth-users.service.ts)                                       |
+| Validação de Issuer e Audience              | Implementado | [`auth.ts`](../../apps/api/src/plugins/auth.ts)                                                                              |
+| Trust Proxy (`trustProxy: 1`)               | Implementado | [`app.ts`](../../apps/api/src/app.ts)                                                                                        |
+| Denylist de `jti` (Redis + DB)              | Implementado | [`token-denylist.ts`](../../apps/api/src/shared/utils/token-denylist.ts)                                                     |
+| Re-use detection de Refresh Token           | Implementado | `auth-users.service.ts` e `auth-customers.service.ts`                                                                        |
+| Body Limit global (256 KB)                  | Implementado | [`app.ts`](../../apps/api/src/app.ts)                                                                                        |
+| CSP Headers (Next.js Frontends)             | Implementado | `apps/manager/next.config.ts` e `apps/marketplace/next.config.ts`                                                            |
+| Suíte de testes Vitest                      | Implementado | `crypto.spec.ts` e `token-denylist.spec.ts`                                                                                  |
+| Gates pré-deploy documentados (SD-005)      | Implementado | `.ai/security/SECURITY_ARCHITECTURE.md`                                                                                      |
 
 ---
 
 ## Documentation Created
 
 Todos os 20 documentos exigidos foram criados em `.ai/security/`:
+
 1. `README.md`
 2. `SECURITY_POLICY.md`
 3. `AI_SECURITY_RULES.md`

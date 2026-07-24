@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { RiSearchLine, RiStore2Line } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { EmptyState } from '../../components/ui/empty-state'
 import { StoreCard, StoreCardProps } from '../../components/ui/store-card'
 
@@ -71,13 +74,13 @@ export default function StoresListingPage() {
     (store) =>
       store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (store.city &&
-        store.city.toLowerCase().includes(searchQuery.toLowerCase()))
+        store.city.toLowerCase().includes(searchQuery.toLowerCase())),
   )
 
   const totalPages = Math.ceil(filteredStores.length / perPage) || 1
   const paginatedStores = filteredStores.slice(
     (page - 1) * perPage,
-    page * perPage
+    page * perPage,
   )
 
   return (
@@ -105,7 +108,7 @@ export default function StoresListingPage() {
 
           <div className="relative w-full max-w-xs">
             <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <input
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => {
@@ -113,7 +116,7 @@ export default function StoresListingPage() {
                 setPage(1)
               }}
               placeholder="Buscar por nome ou cidade..."
-              className="h-10 w-full rounded-lg border border-stone-200 bg-white pr-4 pl-10 text-xs text-stone-900 shadow-xs focus:border-emerald-600 focus:outline-none"
+              className="h-10 pl-10"
             />
           </div>
         </div>
@@ -132,25 +135,28 @@ export default function StoresListingPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-stone-200 pt-6 text-xs text-stone-600">
               <span>
-                Página <strong>{page}</strong> de <strong>{totalPages}</strong> ({filteredStores.length} lojas)
+                Página <strong>{page}</strong> de <strong>{totalPages}</strong>{' '}
+                ({filteredStores.length} lojas)
               </span>
               <div className="flex items-center space-x-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3.5 py-2 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Anterior
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3.5 py-2 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Próxima
-                </button>
+                </Button>
               </div>
             </div>
           )}

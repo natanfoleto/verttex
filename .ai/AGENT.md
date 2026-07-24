@@ -33,8 +33,8 @@ Antes de iniciar a análise ou alteração de qualquer código, você **DEVE** l
 - **Segurança Desde o Início:** Todo código deve nascer seguro. É obrigatório consultar e seguir `.ai/security/AI_SECURITY_RULES.md`.
 - **Zero Trust no Frontend:** O backend é sempre a autoridade de segurança. O frontend apenas oculta elementos para experiência do usuário.
 - **Proibição Absoluta de Diálogos Nativos do Navegador:** É estritamente proibido utilizar funções nativas do JavaScript como `confirm()`, `alert()` ou `prompt()`. Qualquer ação que exija confirmação do usuário (ex: arquivar, excluir, desativar, alterar permissão) **DEVE obrigatoriamente utilizar o componente `AlertDialog` do Shadcn UI** (`AlertDialog`, `AlertDialogContent`, `AlertDialogHeader`, `AlertDialogTitle`, `AlertDialogDescription`, `AlertDialogFooter`, `AlertDialogCancel`, `AlertDialogAction` de `@/components/ui/alert-dialog`).
-- **Uso Obrigatório do Shadcn UI (Lib Principal de Componentes):** Toda e qualquer nova página, modal, componente de formulário, tabela, menu, tooltip, aba, badge ou elemento visual **DEVE obrigatoriamente buscar e reutilizar os componentes oficiais do Shadcn UI / Radix UI** (`@/components/ui/...` como `Dialog`, `AlertDialog`, `Sheet`, `DropdownMenu`, `Tabs`, `Table`, `Tooltip`, `Select`, `Input`, `Button`, etc.). É proibido criar elementos visuais ou modais customizados do zero (como `div` com `fixed inset-0`) quando o Shadcn UI possuir o recurso equivalente. Apenas em cenários raríssimos onde não exista recurso no Shadcn/Radix será permitida a criação de um componente próprio.
-- **Classe `cursor-pointer` Mandatória:** **TODOS** os elementos clicáveis do frontend (botões de formulário, botões de ação na tabela, ícones de fechar dialog, links, badges interativas e seletores) **DEVEM obrigatoriamente conter a classe Tailwind `cursor-pointer`**.
+- **Uso Obrigatório do Shadcn UI (Regra Arquitetural Não Negociável):** Toda e qualquer página, modal, formulário, tabela, menu, tooltip, aba, badge, card ou elemento visual **DEVE obrigatoriamente utilizar os componentes oficiais do Shadcn UI / Radix UI** (`@/components/ui/...` como `Button`, `Input`, `Textarea`, `Select`, `NativeSelect`, `Checkbox`, `Dialog`, `AlertDialog`, `Sheet`, `DropdownMenu`, `Tabs`, `Table`, `Tooltip`, etc.). É **estritamente proibido** utilizar tags HTML nativas como `<button>`, `<input>`, `<select>`, `<textarea>`, `<dialog>` ou modais artesanais (`div` com `fixed inset-0`) em códigos de funcionalidade dos front-ends. O descumprimento é bloqueado automaticamente pela regra ESLint `react/forbid-elements`. Consulte [`.ai/frontend/FRONTEND_UI.md#1013`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/.ai/frontend/FRONTEND_UI.md) para detalhes.
+- **Classe `cursor-pointer` Mandatória:** **TODOS** os elementos clicáveis do frontend (botões do Shadcn, botões de ação na tabela, ícones de fechar dialog, links, badges interativas e seletores) **DEVEM obrigatoriamente conter a classe Tailwind `cursor-pointer`**.
 - **Nunca Inventar o Estado do Projeto:** Inspecione sempre o código e banco reais antes de fazer afirmações sobre o sistema.
 - **Atualização de Documentação:** Toda alteração de funcionalidade deve ser acompanhada da atualização dos documentos relacionados em `.ai/`.
 
@@ -43,14 +43,17 @@ Antes de iniciar a análise ou alteração de qualquer código, você **DEVE** l
 ## 3. Diretrizes de Arquitetura e Monorepo
 
 ### 🔴 Regra Permanente de Auditoria (Obrigatória)
+
 Toda ação realizada por um usuário ou sistema que crie, modifique, remova, publique, arquive, restaure, aprove, rejeite, autentique, exporte ou altere o estado de qualquer recurso **DEVE gerar um registro de auditoria** via `logAudit()` em `apps/api/src/shared/utils/audit.ts`. Nenhuma funcionalidade de mutação é considerada completa sem auditoria.
 
 ### Regras de Dependência entre Pacotes
+
 - `apps/` podem importar de `packages/` via workspace (ex: `@verttex/ui`, `@verttex/env`).
 - `packages/` **NUNCA** podem importar nada de `apps/`.
 - Uma app **NUNCA** pode importar arquivos diretamente de outra app (ex: sem imports de `apps/api/src` dentro de `apps/manager`).
 
 ### Exportações e Nomenclatura
+
 - **Named Exports APENAS:** Sempre usar exportações nomeadas. Exportação default é permitida apenas em rotas do Next.js (`page.tsx`, `layout.tsx`) ou arquivos de configuração que a exigem.
 - **Nomenclatura:** Arquivos em `kebab-case`, Componentes/Tipos em `PascalCase`, Funções/Variáveis em `camelCase`, Schemas terminando em `Schema`.
 

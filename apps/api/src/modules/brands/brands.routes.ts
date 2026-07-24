@@ -1,74 +1,74 @@
-import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { z } from 'zod'
-import { requirePermission } from '../../shared/middlewares/require-permission'
-import { brandsController } from './brands.controller'
+import { FastifyInstance } from "fastify";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
+import { z } from "zod";
+import { requirePermission } from "../../shared/middlewares/require-permission";
+import { brandsController } from "./brands.controller";
 import {
   brandQuerySchema,
   createBrandSchema,
   updateBrandSchema,
-} from './brands.schemas'
+} from "./brands.schemas";
 
 const idParamsSchema = z.object({
   id: z.string().min(1),
-})
+});
 
 export async function brandsRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>()
+  const typedApp = app.withTypeProvider<ZodTypeProvider>();
 
   // Public / General Read Routes
   typedApp.get(
-    '/',
+    "/",
     {
       schema: {
         querystring: brandQuerySchema,
       },
     },
-    brandsController.list
-  )
+    brandsController.list,
+  );
 
   typedApp.get(
-    '/:id',
+    "/:id",
     {
       schema: {
         params: idParamsSchema,
       },
     },
-    brandsController.getById
-  )
+    brandsController.getById,
+  );
 
   // Protected Routes (Management users)
   typedApp.post(
-    '/',
+    "/",
     {
-      preHandler: [app.authenticateUser, requirePermission('create', 'Brand')],
+      preHandler: [app.authenticateUser, requirePermission("create", "Brand")],
       schema: {
         body: createBrandSchema,
       },
     },
-    brandsController.create
-  )
+    brandsController.create,
+  );
 
   typedApp.patch(
-    '/:id',
+    "/:id",
     {
-      preHandler: [app.authenticateUser, requirePermission('update', 'Brand')],
+      preHandler: [app.authenticateUser, requirePermission("update", "Brand")],
       schema: {
         params: idParamsSchema,
         body: updateBrandSchema,
       },
     },
-    brandsController.update
-  )
+    brandsController.update,
+  );
 
   typedApp.delete(
-    '/:id',
+    "/:id",
     {
-      preHandler: [app.authenticateUser, requirePermission('delete', 'Brand')],
+      preHandler: [app.authenticateUser, requirePermission("delete", "Brand")],
       schema: {
         params: idParamsSchema,
       },
     },
-    brandsController.delete
-  )
+    brandsController.delete,
+  );
 }

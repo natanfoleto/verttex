@@ -9,8 +9,8 @@ import {
   RiSearchLine,
 } from 'react-icons/ri'
 
-import { NativeSelect } from './native-select'
 import { DataTableSkeleton } from '../skeletons/data-table-skeleton'
+import { NativeSelect } from './native-select'
 
 interface MetaData {
   page: number

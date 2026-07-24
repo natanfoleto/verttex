@@ -6,6 +6,8 @@ import {
   RiStarFill,
 } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+
 export interface ProductCardProps {
   id: string
   name: string
@@ -96,13 +98,15 @@ export function ProductCard({
         </div>
 
         {/* Wishlist Button */}
-        <button
+        <Button
           type="button"
-          className="absolute top-3 right-3 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/90 text-stone-600 shadow-xs backdrop-blur-xs transition-colors hover:bg-white hover:text-rose-500"
+          variant="ghost"
+          size="icon"
+          className="absolute top-3 right-3 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/90 text-stone-600 shadow-xs backdrop-blur-xs transition-colors hover:bg-white hover:text-rose-500 p-0"
           title="Salvar nos favoritos"
         >
           <RiHeartLine className="h-4 w-4" />
-        </button>
+        </Button>
 
         {/* Origin tag at bottom of image */}
         {origin && (

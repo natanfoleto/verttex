@@ -1,5 +1,5 @@
-import fp from 'fastify-plugin'
-import helmet from '@fastify/helmet'
+import fp from "fastify-plugin";
+import helmet from "@fastify/helmet";
 
 /**
  * Configures HTTP security headers for the Fastify API.
@@ -20,7 +20,7 @@ import helmet from '@fastify/helmet'
  * @security SECURITY_ARCHITECTURE.md — Camada 2 (Servidor HTTP)
  */
 export const helmetPlugin = fp(async (app) => {
-  const isProduction = process.env.NODE_ENV === 'production'
+  const isProduction = process.env.NODE_ENV === "production";
 
   await app.register(helmet, {
     // Enforce HTTPS for 1 year in production (with subdomains and preload)
@@ -36,19 +36,19 @@ export const helmetPlugin = fp(async (app) => {
     noSniff: true,
 
     // Clickjacking protection — API responses are not embedded, but protects error pages
-    frameguard: { action: 'sameorigin' },
+    frameguard: { action: "sameorigin" },
 
     // Control referrer information sent with requests
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
 
     // Disable DNS prefetching
     dnsPrefetchControl: { allow: false },
 
     // Cross-origin isolation — prevent cross-origin window interactions
-    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginOpenerPolicy: { policy: "same-origin" },
 
     // Prevent cross-origin resource embedding
-    crossOriginResourcePolicy: { policy: 'same-origin' },
+    crossOriginResourcePolicy: { policy: "same-origin" },
 
     // Do not set Content-Security-Policy on the API — set it on frontends only
     contentSecurityPolicy: false,
@@ -60,6 +60,6 @@ export const helmetPlugin = fp(async (app) => {
     ieNoOpen: false,
 
     // Permissions-Policy: restrict browser features
-    permittedCrossDomainPolicies: { permittedPolicies: 'none' },
-  })
-})
+    permittedCrossDomainPolicies: { permittedPolicies: "none" },
+  });
+});

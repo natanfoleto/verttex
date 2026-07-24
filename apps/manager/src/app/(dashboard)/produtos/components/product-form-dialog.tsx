@@ -18,6 +18,7 @@ import {
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -26,8 +27,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
+
 import { apiClient, ApiError } from '../../../../lib/api-client'
 import { sanitizeSlug } from '../../../../lib/slug'
 
@@ -148,7 +152,9 @@ export function ProductFormDialog({
   const [shortDescription, setShortDescription] = useState('')
   const [fullDescription, setFullDescription] = useState('')
   const [type, setType] = useState<'simple' | 'variable'>('simple')
-  const [status, setStatus] = useState<'draft' | 'active' | 'inactive' | 'archived'>('draft')
+  const [status, setStatus] = useState<
+    'draft' | 'active' | 'inactive' | 'archived'
+  >('draft')
   const [isPublished, setIsPublished] = useState(false)
   const [isFeatured, setIsFeatured] = useState(false)
 
@@ -181,7 +187,7 @@ export function ProductFormDialog({
     queryKey: ['stores-dropdown'],
     queryFn: async () => {
       const res = await apiClient('/stores')
-      return Array.isArray(res) ? res : res?.data ?? []
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
   })
@@ -190,7 +196,7 @@ export function ProductFormDialog({
     queryKey: ['categories-dropdown'],
     queryFn: async () => {
       const res = await apiClient('/categories')
-      return Array.isArray(res) ? res : res?.data ?? []
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
   })
@@ -199,7 +205,7 @@ export function ProductFormDialog({
     queryKey: ['brands-dropdown'],
     queryFn: async () => {
       const res = await apiClient('/brands')
-      return Array.isArray(res) ? res : res?.data ?? []
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
   })
@@ -235,10 +241,16 @@ export function ProductFormDialog({
       setMetaDescription(productToEdit.metaDescription || '')
 
       // Simple product prices
-      const defaultVar = productToEdit.variations?.find((v) => v.isDefault) || productToEdit.variations?.[0]
+      const defaultVar =
+        productToEdit.variations?.find((v) => v.isDefault) ||
+        productToEdit.variations?.[0]
       if (defaultVar) {
         setPrice(defaultVar.price ? String(defaultVar.price) : '')
-        setPromotionalPrice(defaultVar.promotionalPrice ? String(defaultVar.promotionalPrice) : '')
+        setPromotionalPrice(
+          defaultVar.promotionalPrice
+            ? String(defaultVar.promotionalPrice)
+            : '',
+        )
         setCostPrice(defaultVar.costPrice ? String(defaultVar.costPrice) : '')
         setSku(defaultVar.sku || '')
         setBarcode(defaultVar.barcode || '')
@@ -257,7 +269,7 @@ export function ProductFormDialog({
             name: opt.name,
             values: opt.values ? opt.values.map((v) => v.value) : [],
             valueInput: '',
-          }))
+          })),
         )
       } else {
         setOptions([])
@@ -269,8 +281,12 @@ export function ProductFormDialog({
             const optVals: Record<string, string> = {}
             if (v.values) {
               v.values.forEach((valItem) => {
-                if (valItem.optionValue?.option?.name && valItem.optionValue?.value) {
-                  optVals[valItem.optionValue.option.name] = valItem.optionValue.value
+                if (
+                  valItem.optionValue?.option?.name &&
+                  valItem.optionValue?.value
+                ) {
+                  optVals[valItem.optionValue.option.name] =
+                    valItem.optionValue.value
                 }
               })
             }
@@ -283,7 +299,7 @@ export function ProductFormDialog({
               status: (v.status as 'active' | 'inactive') || 'active',
               optionValues: optVals,
             }
-          })
+          }),
         )
       } else {
         setVariations([])
@@ -297,7 +313,7 @@ export function ProductFormDialog({
             previewUrl: `https://pub-verttex.r2.dev/${m.file.objectKey}`,
             originalName: m.file.originalName,
             isMain: m.isMain,
-          }))
+          })),
         )
       } else {
         setMediaItems([])
@@ -335,7 +351,13 @@ export function ProductFormDialog({
       setVariations([])
       setMediaItems([])
     }
-  }, [open, productToEdit, defaultStoreId, storesList.length, categoriesList.length])
+  }, [
+    open,
+    productToEdit,
+    defaultStoreId,
+    storesList.length,
+    categoriesList.length,
+  ])
 
   // Handle Name Input Change (Auto Slug)
   const handleNameChange = (val: string) => {
@@ -388,9 +410,12 @@ export function ProductFormDialog({
         }).catch(() => null)
 
         // 3. Finalize upload
-        const finalized = await apiClient(`/files/${presigned.fileId}/finalize`, {
-          method: 'POST',
-        })
+        const finalized = await apiClient(
+          `/files/${presigned.fileId}/finalize`,
+          {
+            method: 'POST',
+          },
+        )
 
         const localPreview = URL.createObjectURL(file)
 
@@ -407,7 +432,9 @@ export function ProductFormDialog({
 
       toast.success('Imagem(ns) enviada(s) com sucesso!')
     } catch (err: any) {
-      toast.error(err instanceof ApiError ? err.message : 'Erro ao enviar imagem')
+      toast.error(
+        err instanceof ApiError ? err.message : 'Erro ao enviar imagem',
+      )
     } finally {
       setIsUploadingMedia(false)
       e.target.value = ''
@@ -420,7 +447,7 @@ export function ProductFormDialog({
       prev.map((item) => ({
         ...item,
         isMain: item.fileId === fileId,
-      }))
+      })),
     )
   }
 
@@ -439,11 +466,18 @@ export function ProductFormDialog({
   // Options & Variations Management
   const addOption = () => {
     if (!newOptionName.trim()) return
-    if (options.some((o) => o.name.toLowerCase() === newOptionName.trim().toLowerCase())) {
+    if (
+      options.some(
+        (o) => o.name.toLowerCase() === newOptionName.trim().toLowerCase(),
+      )
+    ) {
       toast.error('Já existe uma opção com esse nome.')
       return
     }
-    setOptions([...options, { name: newOptionName.trim(), values: [], valueInput: '' }])
+    setOptions([
+      ...options,
+      { name: newOptionName.trim(), values: [], valueInput: '' },
+    ])
     setNewOptionName('')
   }
 
@@ -485,12 +519,17 @@ export function ProductFormDialog({
   // Auto Generate Variations from Options
   const generateVariationsFromOptions = () => {
     if (options.length === 0 || options.some((o) => o.values.length === 0)) {
-      toast.error('Adicione pelo menos 1 valor em cada opção para gerar variações.')
+      toast.error(
+        'Adicione pelo menos 1 valor em cada opção para gerar variações.',
+      )
       return
     }
 
     // Cartesian product helper
-    const cartesian = (acc: Record<string, string>[], optIdx: number): Record<string, string>[] => {
+    const cartesian = (
+      acc: Record<string, string>[],
+      optIdx: number,
+    ): Record<string, string>[] => {
       if (optIdx >= options.length) return acc
       const currentOpt = options[optIdx]!
       const nextAcc: Record<string, string>[] = []
@@ -509,20 +548,22 @@ export function ProductFormDialog({
     const combinations = cartesian([{}], 0)
     const baseSlug = slug || sanitizeSlug(name) || 'PROD'
 
-    const generatedVars: ProductVariationItem[] = combinations.map((combo, idx) => {
-      const comboSuffix = Object.values(combo).join('-').toUpperCase()
-      const comboSku = `${baseSlug.toUpperCase().slice(0, 6)}-${comboSuffix}-${idx + 1}`
+    const generatedVars: ProductVariationItem[] = combinations.map(
+      (combo, idx) => {
+        const comboSuffix = Object.values(combo).join('-').toUpperCase()
+        const comboSku = `${baseSlug.toUpperCase().slice(0, 6)}-${comboSuffix}-${idx + 1}`
 
-      return {
-        sku: comboSku,
-        barcode: '',
-        price: price ? Number(price) : 0,
-        promotionalPrice: promotionalPrice ? Number(promotionalPrice) : '',
-        costPrice: costPrice ? Number(costPrice) : '',
-        status: 'active',
-        optionValues: combo,
-      }
-    })
+        return {
+          sku: comboSku,
+          barcode: '',
+          price: price ? Number(price) : 0,
+          promotionalPrice: promotionalPrice ? Number(promotionalPrice) : '',
+          costPrice: costPrice ? Number(costPrice) : '',
+          status: 'active',
+          optionValues: combo,
+        }
+      },
+    )
 
     setVariations(generatedVars)
     toast.success(`${generatedVars.length} variação(ões) gerada(s)!`)
@@ -531,7 +572,7 @@ export function ProductFormDialog({
   const updateVariationField = (
     index: number,
     field: keyof ProductVariationItem,
-    val: any
+    val: any,
   ) => {
     setVariations((prev) => {
       const next = [...prev]
@@ -554,7 +595,9 @@ export function ProductFormDialog({
       onOpenChange(false)
     },
     onError: (err: any) => {
-      toast.error(err instanceof ApiError ? err.message : 'Erro ao criar produto')
+      toast.error(
+        err instanceof ApiError ? err.message : 'Erro ao criar produto',
+      )
     },
   })
 
@@ -571,7 +614,9 @@ export function ProductFormDialog({
       onOpenChange(false)
     },
     onError: (err: any) => {
-      toast.error(err instanceof ApiError ? err.message : 'Erro ao atualizar produto')
+      toast.error(
+        err instanceof ApiError ? err.message : 'Erro ao atualizar produto',
+      )
     },
   })
 
@@ -595,7 +640,9 @@ export function ProductFormDialog({
     }
 
     if (type === 'simple' && (!price || Number(price) <= 0)) {
-      toast.error('Informe um preço de venda maior que zero para o produto simples.')
+      toast.error(
+        'Informe um preço de venda maior que zero para o produto simples.',
+      )
       return
     }
 
@@ -634,7 +681,9 @@ export function ProductFormDialog({
 
     if (type === 'simple') {
       payload.price = Number(price)
-      payload.promotionalPrice = promotionalPrice ? Number(promotionalPrice) : null
+      payload.promotionalPrice = promotionalPrice
+        ? Number(promotionalPrice)
+        : null
       payload.costPrice = costPrice ? Number(costPrice) : null
       payload.sku = sku.trim() || undefined
     } else {
@@ -648,7 +697,9 @@ export function ProductFormDialog({
         sku: v.sku.trim(),
         barcode: v.barcode?.trim() || null,
         price: Number(v.price),
-        promotionalPrice: v.promotionalPrice ? Number(v.promotionalPrice) : null,
+        promotionalPrice: v.promotionalPrice
+          ? Number(v.promotionalPrice)
+          : null,
         costPrice: v.costPrice ? Number(v.costPrice) : null,
         status: v.status,
         isDefault: i === 0,
@@ -678,15 +729,28 @@ export function ProductFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col overflow-hidden"
+        >
           <div className="flex-1 overflow-y-auto px-6 py-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="mb-4 grid w-full grid-cols-5 bg-zinc-900/80 p-1">
-                <TabsTrigger value="geral" className="flex items-center space-x-1.5 text-xs">
+                <TabsTrigger
+                  value="geral"
+                  className="flex items-center space-x-1.5 text-xs"
+                >
                   <RiInformationLine className="h-4 w-4" />
                   <span>Geral</span>
                 </TabsTrigger>
-                <TabsTrigger value="preco" className="flex items-center space-x-1.5 text-xs">
+                <TabsTrigger
+                  value="preco"
+                  className="flex items-center space-x-1.5 text-xs"
+                >
                   <RiPriceTag3Line className="h-4 w-4" />
                   <span>Preço & Estoque</span>
                 </TabsTrigger>
@@ -698,11 +762,17 @@ export function ProductFormDialog({
                   <RiStackLine className="h-4 w-4" />
                   <span>Variações</span>
                 </TabsTrigger>
-                <TabsTrigger value="midias" className="flex items-center space-x-1.5 text-xs">
+                <TabsTrigger
+                  value="midias"
+                  className="flex items-center space-x-1.5 text-xs"
+                >
                   <RiImageAddLine className="h-4 w-4" />
                   <span>Imagens ({mediaItems.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="frete-seo" className="flex items-center space-x-1.5 text-xs">
+                <TabsTrigger
+                  value="frete-seo"
+                  className="flex items-center space-x-1.5 text-xs"
+                >
                   <RiTruckLine className="h-4 w-4" />
                   <span>Frete & SEO</span>
                 </TabsTrigger>
@@ -747,7 +817,9 @@ export function ProductFormDialog({
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-zinc-300">Marca</label>
+                    <label className="mb-1 block text-xs font-semibold text-zinc-300">
+                      Marca
+                    </label>
                     <NativeSelect
                       value={brandId}
                       onChange={(e) => setBrandId(e.target.value)}
@@ -767,13 +839,12 @@ export function ProductFormDialog({
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Nome do Produto <span className="text-rose-400">*</span>
                     </label>
-                    <input
+                    <Input
                       type="text"
                       required
                       placeholder="Ex: Queijo Canastra Curado 500g"
                       value={name}
                       onChange={(e) => handleNameChange(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
 
@@ -781,12 +852,12 @@ export function ProductFormDialog({
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Slug Único (URL)
                     </label>
-                    <input
+                    <Input
                       type="text"
                       placeholder="queijo-canastra-curado-500g"
                       value={slug}
                       onChange={(e) => handleSlugChange(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 font-mono text-sm text-zinc-300 placeholder-zinc-600 transition-colors focus:border-emerald-500 focus:outline-none"
+                      className="font-mono text-zinc-300 placeholder:text-zinc-600"
                     />
                   </div>
                 </div>
@@ -798,11 +869,15 @@ export function ProductFormDialog({
                     </label>
                     <NativeSelect
                       value={type}
-                      onChange={(e) => setType(e.target.value as 'simple' | 'variable')}
+                      onChange={(e) =>
+                        setType(e.target.value as 'simple' | 'variable')
+                      }
                       disabled={isEditing}
                     >
                       <option value="simple">Produto Simples (1 SKU)</option>
-                      <option value="variable">Produto Variável (Opções/Tamanhos)</option>
+                      <option value="variable">
+                        Produto Variável (Opções/Tamanhos)
+                      </option>
                     </NativeSelect>
                   </div>
 
@@ -823,7 +898,7 @@ export function ProductFormDialog({
 
                   <div className="flex items-center space-x-4 pt-6">
                     <label className="flex cursor-pointer items-center space-x-2 text-xs font-medium text-zinc-300">
-                      <input
+                      <Input
                         type="checkbox"
                         checked={isFeatured}
                         onChange={(e) => setIsFeatured(e.target.checked)}
@@ -838,12 +913,11 @@ export function ProductFormDialog({
                   <label className="mb-1 block text-xs font-semibold text-zinc-300">
                     Descrição Curta (Resumo de Listagem)
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="Breve resumo artesanal do produto para cartões e busca"
                     value={shortDescription}
                     onChange={(e) => setShortDescription(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
 
@@ -851,12 +925,11 @@ export function ProductFormDialog({
                   <label className="mb-1 block text-xs font-semibold text-zinc-300">
                     Descrição Completa (Ficha Técnica & Detalhes)
                   </label>
-                  <textarea
+                  <Textarea
                     rows={4}
                     placeholder="Histórico do produtor, processo de maturação, harmonização, ingredientes..."
                     value={fullDescription}
                     onChange={(e) => setFullDescription(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
               </TabsContent>
@@ -865,16 +938,21 @@ export function ProductFormDialog({
               <TabsContent value="preco" className="space-y-4">
                 {type === 'variable' && (
                   <div className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-3 text-xs text-amber-300">
-                    ℹ️ Para produtos variáveis, os preços e SKUs são definidos individualmente para cada variação na aba <strong>Variações</strong>.
+                    ℹ️ Para produtos variáveis, os preços e SKUs são definidos
+                    individualmente para cada variação na aba{' '}
+                    <strong>Variações</strong>.
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div>
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
-                      Preço de Venda (R$) {type === 'simple' && <span className="text-rose-400">*</span>}
+                      Preço de Venda (R$){' '}
+                      {type === 'simple' && (
+                        <span className="text-rose-400">*</span>
+                      )}
                     </label>
-                    <input
+                    <Input
                       type="number"
                       step="0.01"
                       min="0"
@@ -882,7 +960,7 @@ export function ProductFormDialog({
                       placeholder="0.00"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 font-mono text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:outline-none disabled:opacity-50"
+                      className="font-mono text-zinc-100 placeholder:text-zinc-500"
                     />
                   </div>
 
@@ -890,7 +968,7 @@ export function ProductFormDialog({
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Preço Promocional (R$)
                     </label>
-                    <input
+                    <Input
                       type="number"
                       step="0.01"
                       min="0"
@@ -898,7 +976,7 @@ export function ProductFormDialog({
                       placeholder="Preço de desconto (opcional)"
                       value={promotionalPrice}
                       onChange={(e) => setPromotionalPrice(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 font-mono text-sm text-emerald-400 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:outline-none disabled:opacity-50"
+                      className="font-mono text-emerald-400 placeholder:text-zinc-500"
                     />
                   </div>
 
@@ -906,7 +984,7 @@ export function ProductFormDialog({
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Preço de Custo (R$)
                     </label>
-                    <input
+                    <Input
                       type="number"
                       step="0.01"
                       min="0"
@@ -914,7 +992,7 @@ export function ProductFormDialog({
                       placeholder="Custo interno de fabricação"
                       value={costPrice}
                       onChange={(e) => setCostPrice(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 font-mono text-sm text-zinc-300 placeholder-zinc-500 transition-colors focus:border-emerald-500 focus:outline-none disabled:opacity-50"
+                      className="font-mono text-zinc-300 placeholder:text-zinc-500"
                     />
                   </div>
                 </div>
@@ -924,13 +1002,13 @@ export function ProductFormDialog({
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Código SKU
                     </label>
-                    <input
+                    <Input
                       type="text"
                       disabled={type === 'variable'}
                       placeholder="Gerado automaticamente se vazio"
                       value={sku}
                       onChange={(e) => setSku(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 font-mono text-sm text-zinc-200 placeholder-zinc-600 transition-colors focus:border-emerald-500 focus:outline-none disabled:opacity-50"
+                      className="font-mono text-zinc-200 placeholder:text-zinc-600"
                     />
                     <span className="mt-1 block text-[11px] text-zinc-500">
                       Identificador de estoque único (ex: QC-CANASTRA-500G).
@@ -941,13 +1019,13 @@ export function ProductFormDialog({
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Código de Barras (EAN / GTIN)
                     </label>
-                    <input
+                    <Input
                       type="text"
                       disabled={type === 'variable'}
                       placeholder="7891234567890"
                       value={barcode}
                       onChange={(e) => setBarcode(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 font-mono text-sm text-zinc-200 placeholder-zinc-600 transition-colors focus:border-emerald-500 focus:outline-none disabled:opacity-50"
+                      className="font-mono text-zinc-200 placeholder:text-zinc-600"
                     />
                   </div>
                 </div>
@@ -957,33 +1035,39 @@ export function ProductFormDialog({
               <TabsContent value="variacoes" className="space-y-4">
                 {type !== 'variable' ? (
                   <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-sm text-zinc-400">
-                    Altere o tipo do produto para <strong>Produto Variável</strong> na aba Geral para habilitar a gestão de opções e variações.
+                    Altere o tipo do produto para{' '}
+                    <strong>Produto Variável</strong> na aba Geral para
+                    habilitar a gestão de opções e variações.
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {/* Define Options */}
                     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-4">
-                      <h3 className="text-sm font-semibold text-zinc-200">1. Definir Opções do Produto</h3>
+                      <h3 className="text-sm font-semibold text-zinc-200">
+                        1. Definir Opções do Produto
+                      </h3>
                       <p className="text-xs text-zinc-400">
-                        Crie os atributos configuráveis do produto (ex: Sabor, Peso, Tamanho) e adicione seus respectivos valores.
+                        Crie os atributos configuráveis do produto (ex: Sabor,
+                        Peso, Tamanho) e adicione seus respectivos valores.
                       </p>
 
                       <div className="flex items-center space-x-2">
-                        <input
+                        <Input
                           type="text"
                           placeholder="Nome da opção (ex: Sabor, Peso, Maturação)"
                           value={newOptionName}
                           onChange={(e) => setNewOptionName(e.target.value)}
-                          className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                          className="flex-1"
                         />
-                        <button
+                        <Button
                           type="button"
+                          variant="secondary"
                           onClick={addOption}
                           className="inline-flex cursor-pointer items-center space-x-1.5 rounded-xl bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200 transition-colors hover:bg-zinc-700"
                         >
                           <RiAddLine className="h-4 w-4 text-emerald-400" />
                           <span>Adicionar Opção</span>
-                        </button>
+                        </Button>
                       </div>
 
                       {/* Options List */}
@@ -998,13 +1082,15 @@ export function ProductFormDialog({
                                 <span className="font-semibold text-xs text-emerald-400 uppercase tracking-wide">
                                   {opt.name}
                                 </span>
-                                <button
+                                <Button
                                   type="button"
+                                  variant="ghost"
+                                  size="icon"
                                   onClick={() => removeOption(optIdx)}
-                                  className="text-zinc-500 hover:text-rose-400"
+                                  className="h-6 w-6 text-zinc-500 hover:text-rose-400"
                                 >
                                   <RiCloseLine className="h-4 w-4" />
-                                </button>
+                                </Button>
                               </div>
 
                               <div className="flex flex-wrap gap-1.5 items-center">
@@ -1014,19 +1100,23 @@ export function ProductFormDialog({
                                     className="inline-flex items-center space-x-1 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs font-medium text-zinc-200"
                                   >
                                     <span>{val}</span>
-                                    <button
+                                    <Button
                                       type="button"
-                                      onClick={() => removeOptionValue(optIdx, valIdx)}
-                                      className="text-zinc-500 hover:text-rose-400"
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() =>
+                                        removeOptionValue(optIdx, valIdx)
+                                      }
+                                      className="h-4 w-4 p-0 text-zinc-500 hover:text-rose-400"
                                     >
                                       <RiCloseLine className="h-3 w-3" />
-                                    </button>
+                                    </Button>
                                   </span>
                                 ))}
                               </div>
 
                               <div className="flex items-center space-x-2 pt-1">
-                                <input
+                                <Input
                                   type="text"
                                   placeholder={`Novo valor para ${opt.name} (ex: 500g, Curado)`}
                                   value={opt.valueInput || ''}
@@ -1041,26 +1131,28 @@ export function ProductFormDialog({
                                       addOptionValue(optIdx)
                                     }
                                   }}
-                                  className="flex-1 rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                                  className="flex-1"
                                 />
-                                <button
+                                <Button
                                   type="button"
+                                  variant="secondary"
                                   onClick={() => addOptionValue(optIdx)}
-                                  className="rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-700"
+                                  className="h-9 px-3 text-xs"
                                 >
                                   + Inserir
-                                </button>
+                                </Button>
                               </div>
                             </div>
                           ))}
 
-                          <button
+                          <Button
                             type="button"
+                            variant="outline"
                             onClick={generateVariationsFromOptions}
-                            className="w-full cursor-pointer rounded-xl border border-emerald-800/80 bg-emerald-950/60 py-2.5 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-900/80"
+                            className="w-full border-emerald-800/80 bg-emerald-950/60 text-emerald-400 hover:bg-emerald-900/80"
                           >
                             ⚡ Gerar Matriz de Variações Automaticamente
-                          </button>
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -1084,68 +1176,96 @@ export function ProductFormDialog({
                                     .map(([k, val]) => `${k}: ${val}`)
                                     .join(' | ')}
                                 </span>
-                                <button
+                                <Button
                                   type="button"
+                                  variant="ghost"
+                                  size="icon"
                                   onClick={() =>
-                                    setVariations((prev) => prev.filter((_, i) => i !== vIdx))
+                                    setVariations((prev) =>
+                                      prev.filter((_, i) => i !== vIdx),
+                                    )
                                   }
-                                  className="text-zinc-500 hover:text-rose-400"
+                                  className="h-6 w-6 text-zinc-500 hover:text-rose-400"
                                 >
                                   <RiDeleteBin6Line className="h-4 w-4" />
-                                </button>
+                                </Button>
                               </div>
 
                               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">SKU *</label>
-                                  <input
+                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                    SKU *
+                                  </label>
+                                  <Input
                                     type="text"
                                     required
                                     value={vItem.sku}
                                     onChange={(e) =>
-                                      updateVariationField(vIdx, 'sku', e.target.value)
+                                      updateVariationField(
+                                        vIdx,
+                                        'sku',
+                                        e.target.value,
+                                      )
                                     }
-                                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 font-mono text-xs text-zinc-200"
+                                    className="font-mono text-xs text-zinc-200"
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">Preço (R$) *</label>
-                                  <input
+                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                    Preço (R$) *
+                                  </label>
+                                  <Input
                                     type="number"
                                     step="0.01"
                                     required
                                     value={vItem.price}
                                     onChange={(e) =>
-                                      updateVariationField(vIdx, 'price', e.target.value)
+                                      updateVariationField(
+                                        vIdx,
+                                        'price',
+                                        e.target.value,
+                                      )
                                     }
-                                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 font-mono text-xs text-zinc-200"
+                                    className="font-mono text-xs text-zinc-200"
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">Promoção (R$)</label>
-                                  <input
+                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                    Promoção (R$)
+                                  </label>
+                                  <Input
                                     type="number"
                                     step="0.01"
                                     value={vItem.promotionalPrice || ''}
                                     onChange={(e) =>
-                                      updateVariationField(vIdx, 'promotionalPrice', e.target.value)
+                                      updateVariationField(
+                                        vIdx,
+                                        'promotionalPrice',
+                                        e.target.value,
+                                      )
                                     }
-                                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 font-mono text-xs text-emerald-400"
+                                    className="font-mono text-xs text-emerald-400"
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">Custo (R$)</label>
-                                  <input
+                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                    Custo (R$)
+                                  </label>
+                                  <Input
                                     type="number"
                                     step="0.01"
                                     value={vItem.costPrice || ''}
                                     onChange={(e) =>
-                                      updateVariationField(vIdx, 'costPrice', e.target.value)
+                                      updateVariationField(
+                                        vIdx,
+                                        'costPrice',
+                                        e.target.value,
+                                      )
                                     }
-                                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 font-mono text-xs text-zinc-400"
+                                    className="font-mono text-xs text-zinc-400"
                                   />
                                 </div>
                               </div>
@@ -1163,16 +1283,21 @@ export function ProductFormDialog({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-semibold text-zinc-200">Imagens do Produto</h3>
+                      <h3 className="text-sm font-semibold text-zinc-200">
+                        Imagens do Produto
+                      </h3>
                       <p className="text-xs text-zinc-400">
-                        Envie imagens de alta qualidade do produto artesanal. A primeira imagem é a capa principal por padrão.
+                        Envie imagens de alta qualidade do produto artesanal. A
+                        primeira imagem é a capa principal por padrão.
                       </p>
                     </div>
 
                     <label className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-500">
                       <RiUpload2Line className="h-4 w-4" />
-                      <span>{isUploadingMedia ? 'Enviando...' : 'Adicionar Imagem'}</span>
-                      <input
+                      <span>
+                        {isUploadingMedia ? 'Enviando...' : 'Adicionar Imagem'}
+                      </span>
+                      <Input
                         type="file"
                         multiple
                         accept="image/jpeg,image/png,image/webp"
@@ -1190,7 +1315,9 @@ export function ProductFormDialog({
                         <div
                           key={item.fileId}
                           className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-zinc-900 p-2 transition-all ${
-                            item.isMain ? 'border-amber-500/80 ring-1 ring-amber-500/30' : 'border-zinc-800'
+                            item.isMain
+                              ? 'border-amber-500/80 ring-1 ring-amber-500/30'
+                              : 'border-zinc-800'
                           }`}
                         >
                           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-950">
@@ -1214,23 +1341,27 @@ export function ProductFormDialog({
                             </span>
                             <div className="flex items-center space-x-1">
                               {!item.isMain && (
-                                <button
+                                <Button
                                   type="button"
+                                  variant="ghost"
+                                  size="icon"
                                   title="Marcar como Principal"
                                   onClick={() => setMainImage(item.fileId)}
-                                  className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800 hover:text-amber-400"
+                                  className="h-6 w-6 p-0 text-zinc-400 hover:text-amber-400"
                                 >
                                   <RiStarLine className="h-4 w-4" />
-                                </button>
+                                </Button>
                               )}
-                              <button
+                              <Button
                                 type="button"
+                                variant="ghost"
+                                size="icon"
                                 title="Remover Imagem"
                                 onClick={() => removeImage(item.fileId)}
-                                className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800 hover:text-rose-400"
+                                className="h-6 w-6 p-0 text-zinc-400 hover:text-rose-400"
                               >
                                 <RiDeleteBin6Line className="h-4 w-4" />
-                              </button>
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -1239,9 +1370,12 @@ export function ProductFormDialog({
                   ) : (
                     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 p-8 text-center">
                       <RiImageAddLine className="h-10 w-10 text-zinc-600 mb-2" />
-                      <p className="text-sm font-medium text-zinc-300">Nenhuma imagem enviada</p>
+                      <p className="text-sm font-medium text-zinc-300">
+                        Nenhuma imagem enviada
+                      </p>
                       <p className="text-xs text-zinc-500 mt-1">
-                        Carregue arquivos nos formatos JPG, PNG ou WebP de até 5 MB.
+                        Carregue arquivos nos formatos JPG, PNG ou WebP de até 5
+                        MB.
                       </p>
                     </div>
                   )}
@@ -1251,18 +1385,19 @@ export function ProductFormDialog({
               {/* TAB 5: FRETE & SEO */}
               <TabsContent value="frete-seo" className="space-y-4">
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-zinc-200">Dimensões para Cálculo de Frete</h3>
+                  <h3 className="text-sm font-semibold text-zinc-200">
+                    Dimensões para Cálculo de Frete
+                  </h3>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                     <div>
                       <label className="mb-1 block text-xs font-semibold text-zinc-300">
                         Peso (gramas)
                       </label>
-                      <input
+                      <Input
                         type="number"
                         placeholder="Ex: 500"
                         value={weight}
                         onChange={(e) => setWeight(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
 
@@ -1270,12 +1405,11 @@ export function ProductFormDialog({
                       <label className="mb-1 block text-xs font-semibold text-zinc-300">
                         Largura (cm)
                       </label>
-                      <input
+                      <Input
                         type="number"
                         placeholder="Ex: 15"
                         value={width}
                         onChange={(e) => setWidth(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
 
@@ -1283,12 +1417,11 @@ export function ProductFormDialog({
                       <label className="mb-1 block text-xs font-semibold text-zinc-300">
                         Altura (cm)
                       </label>
-                      <input
+                      <Input
                         type="number"
                         placeholder="Ex: 10"
                         value={height}
                         onChange={(e) => setHeight(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
 
@@ -1296,12 +1429,11 @@ export function ProductFormDialog({
                       <label className="mb-1 block text-xs font-semibold text-zinc-300">
                         Comprimento (cm)
                       </label>
-                      <input
+                      <Input
                         type="number"
                         placeholder="Ex: 15"
                         value={length}
                         onChange={(e) => setLength(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -1310,17 +1442,18 @@ export function ProductFormDialog({
                 <hr className="border-zinc-800/80 my-4" />
 
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-zinc-200">Otimização SEO (Buscadores)</h3>
+                  <h3 className="text-sm font-semibold text-zinc-200">
+                    Otimização SEO (Buscadores)
+                  </h3>
                   <div>
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Meta Título (Meta Title)
                     </label>
-                    <input
+                    <Input
                       type="text"
                       placeholder="Ex: Queijo Canastra Artesanal Curado 500g — Serra da Canastra"
                       value={metaTitle}
                       onChange={(e) => setMetaTitle(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
 
@@ -1328,12 +1461,11 @@ export function ProductFormDialog({
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
                       Meta Descrição (Meta Description)
                     </label>
-                    <textarea
+                    <Textarea
                       rows={2}
                       placeholder="Descrição otimizada para ser exibida nos resultados do Google..."
                       value={metaDescription}
                       onChange={(e) => setMetaDescription(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1342,18 +1474,17 @@ export function ProductFormDialog({
           </div>
 
           <DialogFooter className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-4">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
             >
               Cancelar
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="submit"
               disabled={createMutation.isPending || updateMutation.isPending}
-              className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-semibold text-white shadow-md transition-colors hover:bg-emerald-500 disabled:opacity-50"
             >
               <RiCheckLine className="h-4 w-4" />
               <span>
@@ -1363,7 +1494,7 @@ export function ProductFormDialog({
                     ? 'Salvar Alterações'
                     : 'Cadastrar Produto'}
               </span>
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

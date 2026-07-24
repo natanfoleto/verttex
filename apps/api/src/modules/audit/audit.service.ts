@@ -1,37 +1,37 @@
-import { prisma } from '../../infrastructure/database/prisma'
-import { AuditQuery } from './audit.schemas'
+import { prisma } from "../../infrastructure/database/prisma";
+import { AuditQuery } from "./audit.schemas";
 
 export class AuditService {
   async listAuditLogs(query: AuditQuery) {
-    const page = Math.max(1, query.page || 1)
-    const perPage = Math.max(1, Math.min(100, query.perPage || 20))
-    const skip = (page - 1) * perPage
+    const page = Math.max(1, query.page || 1);
+    const perPage = Math.max(1, Math.min(100, query.perPage || 20));
+    const skip = (page - 1) * perPage;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {}
+    const where: any = {};
 
     if (query.search) {
-      const search = query.search.trim()
+      const search = query.search.trim();
       where.OR = [
-        { action: { contains: search, mode: 'insensitive' } },
-        { entity: { contains: search, mode: 'insensitive' } },
-        { entityId: { contains: search, mode: 'insensitive' } },
-        { ipAddress: { contains: search, mode: 'insensitive' } },
-        { userAgent: { contains: search, mode: 'insensitive' } },
+        { action: { contains: search, mode: "insensitive" } },
+        { entity: { contains: search, mode: "insensitive" } },
+        { entityId: { contains: search, mode: "insensitive" } },
+        { ipAddress: { contains: search, mode: "insensitive" } },
+        { userAgent: { contains: search, mode: "insensitive" } },
         {
           user: {
             OR: [
-              { name: { contains: search, mode: 'insensitive' } },
-              { email: { contains: search, mode: 'insensitive' } },
+              { name: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
             ],
           },
         },
-      ]
+      ];
     }
 
-    if (query.userId) where.userId = query.userId
-    if (query.action) where.action = query.action
-    if (query.entity) where.entity = query.entity
+    if (query.userId) where.userId = query.userId;
+    if (query.action) where.action = query.action;
+    if (query.entity) where.entity = query.entity;
 
     const [total, logs] = await Promise.all([
       prisma.auditLog.count({ where }),
@@ -39,7 +39,7 @@ export class AuditService {
         where,
         skip,
         take: perPage,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           user: {
             select: {
@@ -53,27 +53,27 @@ export class AuditService {
           },
         },
       }),
-    ])
+    ]);
 
     // Distinct values for filter dropdowns
     const [distinctActions, distinctEntities, users] = await Promise.all([
       prisma.auditLog.findMany({
-        distinct: ['action'],
+        distinct: ["action"],
         select: { action: true },
-        orderBy: { action: 'asc' },
+        orderBy: { action: "asc" },
       }),
       prisma.auditLog.findMany({
-        distinct: ['entity'],
+        distinct: ["entity"],
         select: { entity: true },
-        orderBy: { entity: 'asc' },
+        orderBy: { entity: "asc" },
       }),
       prisma.user.findMany({
         select: { id: true, name: true, email: true },
-        orderBy: { name: 'asc' },
+        orderBy: { name: "asc" },
       }),
-    ])
+    ]);
 
-    const totalPages = Math.ceil(total / perPage)
+    const totalPages = Math.ceil(total / perPage);
 
     return {
       data: {
@@ -92,6 +92,6 @@ export class AuditService {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
-    }
+    };
   }
 }

@@ -1,14 +1,14 @@
-import { FastifyRequest } from 'fastify'
-import { prisma } from '../../infrastructure/database/prisma'
-import { UploadService } from '../../shared/services/upload.service'
-import { FinalizeUploadParams, RequestUploadBody } from './files.schemas'
-import { logAudit } from '../../shared/utils/audit'
+import { FastifyRequest } from "fastify";
+import { prisma } from "../../infrastructure/database/prisma";
+import { UploadService } from "../../shared/services/upload.service";
+import { FinalizeUploadParams, RequestUploadBody } from "./files.schemas";
+import { logAudit } from "../../shared/utils/audit";
 
 export class FilesService {
   static async requestUpload(
     body: RequestUploadBody,
     userId: string,
-    req?: FastifyRequest
+    req?: FastifyRequest,
   ) {
     const result = await UploadService.requestUpload({
       fileName: body.fileName,
@@ -17,37 +17,41 @@ export class FilesService {
       purpose: body.purpose,
       storeId: body.storeId,
       userId,
-    })
+    });
 
     await logAudit({
       userId,
-      action: 'REQUEST_FILE_UPLOAD',
-      entity: 'File',
+      action: "REQUEST_FILE_UPLOAD",
+      entity: "File",
       entityId: result.fileId,
-      newValues: { fileName: body.fileName, size: body.size, purpose: body.purpose },
+      newValues: {
+        fileName: body.fileName,
+        size: body.size,
+        purpose: body.purpose,
+      },
       req,
-    })
+    });
 
-    return result
+    return result;
   }
 
   static async finalizeUpload(
     params: FinalizeUploadParams,
     userId: string,
-    req?: FastifyRequest
+    req?: FastifyRequest,
   ) {
-    const file = await UploadService.finalizeUpload(params.fileId)
+    const file = await UploadService.finalizeUpload(params.fileId);
 
     await logAudit({
       userId,
-      action: 'FINALIZE_FILE_UPLOAD',
-      entity: 'File',
+      action: "FINALIZE_FILE_UPLOAD",
+      entity: "File",
       entityId: file.id,
       newValues: { status: file.status, checksum: file.checksum },
       req,
-    })
+    });
 
-    return file
+    return file;
   }
 
   static async getFile(fileId: string) {
@@ -56,7 +60,7 @@ export class FilesService {
         OR: [{ id: fileId }, { publicId: fileId }],
         deletedAt: null,
       },
-    })
-    return file
+    });
+    return file;
   }
 }

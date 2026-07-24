@@ -18,7 +18,10 @@ import {
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+
 import { apiClient } from '../../../../../lib/api-client'
 import { invalidateUsers } from '../../../../../lib/query-keys'
 
@@ -68,9 +71,15 @@ export default function UserPermissionsPage({
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'granted' | 'denied'>('all')
-  const [overrideFilter, setOverrideFilter] = useState<'all' | 'inherit' | 'allow' | 'deny'>('all')
-  const [actionTypeFilter, setActionTypeFilter] = useState<'all' | 'read' | 'create' | 'update' | 'delete' | 'manage'>('all')
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'granted' | 'denied'
+  >('all')
+  const [overrideFilter, setOverrideFilter] = useState<
+    'all' | 'inherit' | 'allow' | 'deny'
+  >('all')
+  const [actionTypeFilter, setActionTypeFilter] = useState<
+    'all' | 'read' | 'create' | 'update' | 'delete' | 'manage'
+  >('all')
   const [moduleFilter, setModuleFilter] = useState<string>('all')
 
   const { data: user, isLoading: isLoadingUser } = useQuery({
@@ -85,7 +94,7 @@ export default function UserPermissionsPage({
 
   const updatePermissionsMutation = useMutation({
     mutationFn: (
-      overrides: Array<{ permissionId: string; effect: 'allow' | 'deny' }>
+      overrides: Array<{ permissionId: string; effect: 'allow' | 'deny' }>,
     ) =>
       apiClient(`/users/${userId}/permissions`, {
         method: 'PUT',
@@ -126,7 +135,7 @@ export default function UserPermissionsPage({
   user?.permissions?.forEach(
     (up: { permissionId: string; effect: 'allow' | 'deny' }) => {
       currentOverridesMap.set(up.permissionId, up.effect)
-    }
+    },
   )
 
   // Helper function to resolve effective status and visual indicators
@@ -180,7 +189,7 @@ export default function UserPermissionsPage({
   const totalCount = allPermissions?.length || 0
   let grantedCount = 0
   let deniedCount = 0
-  let overrideCount = currentOverridesMap.size
+  const overrideCount = currentOverridesMap.size
 
   const availableModulesSet = new Set<string>()
 
@@ -196,25 +205,23 @@ export default function UserPermissionsPage({
   // Toggle Override Action
   const handleToggleOverride = (
     permissionId: string,
-    effect: 'allow' | 'deny' | 'inherit'
+    effect: 'allow' | 'deny' | 'inherit',
   ) => {
     const newOverrides: Array<{
       permissionId: string
       effect: 'allow' | 'deny'
     }> = []
 
-    allPermissions?.forEach(
-      (perm: { id: string }) => {
-        let currentEffect = currentOverridesMap.get(perm.id)
-        if (perm.id === permissionId) {
-          if (effect === 'inherit') return
-          currentEffect = effect
-        }
-        if (currentEffect) {
-          newOverrides.push({ permissionId: perm.id, effect: currentEffect })
-        }
+    allPermissions?.forEach((perm: { id: string }) => {
+      let currentEffect = currentOverridesMap.get(perm.id)
+      if (perm.id === permissionId) {
+        if (effect === 'inherit') return
+        currentEffect = effect
       }
-    )
+      if (currentEffect) {
+        newOverrides.push({ permissionId: perm.id, effect: currentEffect })
+      }
+    })
 
     updatePermissionsMutation.mutate(newOverrides)
   }
@@ -245,11 +252,36 @@ export default function UserPermissionsPage({
     // Operation type filter
     if (actionTypeFilter !== 'all') {
       const k = perm.key.toLowerCase()
-      if (actionTypeFilter === 'read' && !k.includes('read') && !k.includes('list')) return false
-      if (actionTypeFilter === 'create' && !k.includes('create') && !k.includes('add')) return false
-      if (actionTypeFilter === 'update' && !k.includes('update') && !k.includes('edit')) return false
-      if (actionTypeFilter === 'delete' && !k.includes('delete') && !k.includes('remove')) return false
-      if (actionTypeFilter === 'manage' && !k.includes('manage') && !k.includes('admin')) return false
+      if (
+        actionTypeFilter === 'read' &&
+        !k.includes('read') &&
+        !k.includes('list')
+      )
+        return false
+      if (
+        actionTypeFilter === 'create' &&
+        !k.includes('create') &&
+        !k.includes('add')
+      )
+        return false
+      if (
+        actionTypeFilter === 'update' &&
+        !k.includes('update') &&
+        !k.includes('edit')
+      )
+        return false
+      if (
+        actionTypeFilter === 'delete' &&
+        !k.includes('delete') &&
+        !k.includes('remove')
+      )
+        return false
+      if (
+        actionTypeFilter === 'manage' &&
+        !k.includes('manage') &&
+        !k.includes('admin')
+      )
+        return false
     }
 
     // Module filter
@@ -303,7 +335,9 @@ export default function UserPermissionsPage({
               Permissões do Usuário — {user?.name}
             </h1>
             <p className="text-sm text-zinc-400">
-              Cargo Padrão: <strong className="text-zinc-200">{user?.role?.name}</strong> ({user?.role?.key})
+              Cargo Padrão:{' '}
+              <strong className="text-zinc-200">{user?.role?.name}</strong> (
+              {user?.role?.key})
             </p>
           </div>
         </div>
@@ -312,32 +346,48 @@ export default function UserPermissionsPage({
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
-          <span className="block text-xs font-semibold text-zinc-400">Total no Sistema</span>
-          <span className="mt-1 block text-2xl font-bold text-zinc-100">{totalCount}</span>
+          <span className="block text-xs font-semibold text-zinc-400">
+            Total no Sistema
+          </span>
+          <span className="mt-1 block text-2xl font-bold text-zinc-100">
+            {totalCount}
+          </span>
         </div>
 
         <div className="rounded-2xl border border-emerald-950/60 bg-emerald-950/20 p-4">
           <div className="flex items-center justify-between">
-            <span className="block text-xs font-semibold text-emerald-400">Permissões Concedidas</span>
+            <span className="block text-xs font-semibold text-emerald-400">
+              Permissões Concedidas
+            </span>
             <RiShieldCheckLine className="h-5 w-5 text-emerald-400" />
           </div>
-          <span className="mt-1 block text-2xl font-bold text-emerald-300">{grantedCount}</span>
+          <span className="mt-1 block text-2xl font-bold text-emerald-300">
+            {grantedCount}
+          </span>
         </div>
 
         <div className="rounded-2xl border border-rose-950/60 bg-rose-950/20 p-4">
           <div className="flex items-center justify-between">
-            <span className="block text-xs font-semibold text-rose-400">Permissões Bloqueadas</span>
+            <span className="block text-xs font-semibold text-rose-400">
+              Permissões Bloqueadas
+            </span>
             <RiShieldCrossLine className="h-5 w-5 text-rose-400" />
           </div>
-          <span className="mt-1 block text-2xl font-bold text-rose-300">{deniedCount}</span>
+          <span className="mt-1 block text-2xl font-bold text-rose-300">
+            {deniedCount}
+          </span>
         </div>
 
         <div className="rounded-2xl border border-amber-950/60 bg-amber-950/20 p-4">
           <div className="flex items-center justify-between">
-            <span className="block text-xs font-semibold text-amber-400">Exceções Individuais</span>
+            <span className="block text-xs font-semibold text-amber-400">
+              Exceções Individuais
+            </span>
             <RiFlashlightLine className="h-5 w-5 text-amber-400" />
           </div>
-          <span className="mt-1 block text-2xl font-bold text-amber-300">{overrideCount}</span>
+          <span className="mt-1 block text-2xl font-bold text-amber-300">
+            {overrideCount}
+          </span>
         </div>
       </div>
 
@@ -349,12 +399,15 @@ export default function UserPermissionsPage({
             <span>Filtros de Permissão</span>
           </div>
           {hasActiveFilters && (
-            <button
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
               onClick={resetFilters}
-              className="cursor-pointer text-xs font-medium text-amber-400 hover:underline"
+              className="text-amber-400 hover:underline p-0 h-auto text-xs"
             >
               Limpar Filtros
-            </button>
+            </Button>
           )}
         </div>
 
@@ -362,12 +415,12 @@ export default function UserPermissionsPage({
           {/* Search */}
           <div className="relative md:col-span-1">
             <RiSearchLine className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-            <input
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar permissão..."
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2 pr-3 pl-9 text-xs text-zinc-100 placeholder-zinc-500 focus:border-emerald-600 focus:outline-none"
+              className="pl-9"
             />
           </div>
 
@@ -423,115 +476,134 @@ export default function UserPermissionsPage({
       {/* Main List */}
       <div className="w-full space-y-6">
         {permissionsByModule.size > 0 ? (
-          Array.from(permissionsByModule.entries()).map(([moduleName, perms]) => (
-            <div
-              key={moduleName}
-              className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40"
-            >
-              <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/60 p-4">
-                <span className="text-xs font-semibold tracking-wider text-zinc-200 uppercase">
-                  Módulo: {getModuleLabel(moduleName)}
-                </span>
-                <span className="rounded bg-zinc-900 px-2 py-0.5 text-xs text-zinc-400">
-                  {perms.length} {perms.length === 1 ? 'permissão' : 'permissões'}
-                </span>
-              </div>
+          Array.from(permissionsByModule.entries()).map(
+            ([moduleName, perms]) => (
+              <div
+                key={moduleName}
+                className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40"
+              >
+                <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/60 p-4">
+                  <span className="text-xs font-semibold tracking-wider text-zinc-200 uppercase">
+                    Módulo: {getModuleLabel(moduleName)}
+                  </span>
+                  <span className="rounded bg-zinc-900 px-2 py-0.5 text-xs text-zinc-400">
+                    {perms.length}{' '}
+                    {perms.length === 1 ? 'permissão' : 'permissões'}
+                  </span>
+                </div>
 
-              <div className="divide-y divide-zinc-800/60">
-                {perms.map((perm) => {
-                  const currentEffect = currentOverridesMap.get(perm.id)
-                  const effective = getEffectiveInfo(perm)
-                  const Icon = effective.icon
+                <div className="divide-y divide-zinc-800/60">
+                  {perms.map((perm) => {
+                    const currentEffect = currentOverridesMap.get(perm.id)
+                    const effective = getEffectiveInfo(perm)
+                    const Icon = effective.icon
 
-                  return (
-                    <div
-                      key={perm.id}
-                      className="flex flex-col justify-between gap-4 p-4 transition-colors hover:bg-zinc-800/20 md:flex-row md:items-center"
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-sm font-semibold text-zinc-100">
-                            {perm.key}
-                          </span>
-                          
-                          {/* Visual Effective Status Badge */}
-                          <span
-                            className={`inline-flex items-center space-x-1 rounded-md border px-2 py-0.5 text-[11px] font-medium shadow-xs ${effective.badgeClass}`}
-                          >
-                            <Icon className="h-3.5 w-3.5" />
-                            <span>{effective.isGranted ? 'Concedida' : 'Bloqueada'}</span>
-                            <span className="opacity-75">({effective.source})</span>
-                          </span>
+                    return (
+                      <div
+                        key={perm.id}
+                        className="flex flex-col justify-between gap-4 p-4 transition-colors hover:bg-zinc-800/20 md:flex-row md:items-center"
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-mono text-sm font-semibold text-zinc-100">
+                              {perm.key}
+                            </span>
+
+                            {/* Visual Effective Status Badge */}
+                            <span
+                              className={`inline-flex items-center space-x-1 rounded-md border px-2 py-0.5 text-[11px] font-medium shadow-xs ${effective.badgeClass}`}
+                            >
+                              <Icon className="h-3.5 w-3.5" />
+                              <span>
+                                {effective.isGranted
+                                  ? 'Concedida'
+                                  : 'Bloqueada'}
+                              </span>
+                              <span className="opacity-75">
+                                ({effective.source})
+                              </span>
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-zinc-400">
+                            {perm.description}
+                          </p>
                         </div>
 
-                        <p className="text-xs text-zinc-400">
-                          {perm.description}
-                        </p>
+                        {/* Override Action Controls */}
+                        <div className="flex shrink-0 items-center space-x-1.5">
+                          <Button
+                            type="button"
+                            variant={
+                              currentEffect === 'allow' ? 'default' : 'outline'
+                            }
+                            size="sm"
+                            onClick={() =>
+                              handleToggleOverride(perm.id, 'allow')
+                            }
+                            disabled={updatePermissionsMutation.isPending}
+                            className={
+                              currentEffect === 'allow'
+                                ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                                : ''
+                            }
+                          >
+                            <RiCheckLine className="h-3.5 w-3.5" />
+                            <span>Permitir</span>
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant={
+                              currentEffect === 'deny'
+                                ? 'destructive'
+                                : 'outline'
+                            }
+                            size="sm"
+                            onClick={() =>
+                              handleToggleOverride(perm.id, 'deny')
+                            }
+                            disabled={updatePermissionsMutation.isPending}
+                          >
+                            <RiCloseLine className="h-3.5 w-3.5" />
+                            <span>Negar</span>
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handleToggleOverride(perm.id, 'inherit')
+                            }
+                            disabled={updatePermissionsMutation.isPending}
+                            title="Herdar permissão do cargo"
+                          >
+                            <RiRefreshLine className="h-3.5 w-3.5" />
+                            <span>Herdar</span>
+                          </Button>
+                        </div>
                       </div>
-
-                      {/* Override Action Controls */}
-                      <div className="flex shrink-0 items-center space-x-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleOverride(perm.id, 'allow')}
-                          disabled={updatePermissionsMutation.isPending}
-                          className={`inline-flex cursor-pointer items-center space-x-1 rounded-xl border px-3 py-1.5 text-xs transition-all ${
-                            currentEffect === 'allow'
-                              ? 'border-emerald-700 bg-emerald-950 font-semibold text-emerald-300 shadow-xs'
-                              : 'border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
-                          }`}
-                        >
-                          <RiCheckLine className="h-3.5 w-3.5" />
-                          <span>Permitir</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleOverride(perm.id, 'deny')}
-                          disabled={updatePermissionsMutation.isPending}
-                          className={`inline-flex cursor-pointer items-center space-x-1 rounded-xl border px-3 py-1.5 text-xs transition-all ${
-                            currentEffect === 'deny'
-                              ? 'border-rose-700 bg-rose-950 font-semibold text-rose-300 shadow-xs'
-                              : 'border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
-                          }`}
-                        >
-                          <RiCloseLine className="h-3.5 w-3.5" />
-                          <span>Negar</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleOverride(perm.id, 'inherit')}
-                          disabled={updatePermissionsMutation.isPending}
-                          className={`inline-flex cursor-pointer items-center space-x-1 rounded-xl border px-3 py-1.5 text-xs transition-all ${
-                            !currentEffect
-                              ? 'border-zinc-700 bg-zinc-800 font-semibold text-zinc-200 shadow-xs'
-                              : 'border-zinc-800 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
-                          }`}
-                          title="Herdar permissão do cargo"
-                        >
-                          <RiRefreshLine className="h-3.5 w-3.5" />
-                          <span>Herdar</span>
-                        </button>
-                      </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          ))
+            ),
+          )
         ) : (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-12 text-center">
             <p className="text-sm text-zinc-400">
               Nenhuma permissão encontrada com os filtros selecionados.
             </p>
             {hasActiveFilters && (
-              <button
+              <Button
+                type="button"
+                variant="outline"
                 onClick={resetFilters}
-                className="mt-3 inline-flex cursor-pointer items-center space-x-1.5 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2 text-xs font-semibold text-amber-400 transition-colors hover:bg-zinc-900"
+                className="mt-3 text-amber-400"
               >
                 <span>Limpar Filtros</span>
-              </button>
+              </Button>
             )}
           </div>
         )}

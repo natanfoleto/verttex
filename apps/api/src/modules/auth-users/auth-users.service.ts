@@ -1,58 +1,58 @@
-import { FastifyInstance, FastifyRequest } from 'fastify'
-import { randomUUID } from 'node:crypto'
-import { prisma } from '../../infrastructure/database/prisma'
-import { AppError } from '../../shared/errors/app-error'
-import { logAudit } from '../../shared/utils/audit'
+import { FastifyInstance, FastifyRequest } from "fastify";
+import { randomUUID } from "node:crypto";
+import { prisma } from "../../infrastructure/database/prisma";
+import { AppError } from "../../shared/errors/app-error";
+import { logAudit } from "../../shared/utils/audit";
 import {
   hashPassword,
   verifyPassword,
   hashToken,
   generateRandomToken,
-} from '../../shared/utils/crypto'
-import { revokeJti } from '../../shared/utils/token-denylist'
-import { emailService } from '../../infrastructure/email/email.service'
+} from "../../shared/utils/crypto";
+import { revokeJti } from "../../shared/utils/token-denylist";
+import { emailService } from "../../infrastructure/email/email.service";
 import {
   LoginBody,
   ForgotPasswordBody,
   ResetPasswordBody,
   ChangePasswordBody,
-} from './auth-users.schemas'
+} from "./auth-users.schemas";
 
 /** JWT issuer — must match validation in auth.ts */
-const JWT_ISSUER = 'api.verttexloja.com.br'
+const JWT_ISSUER = "api.verttexloja.com.br";
 /** JWT audience for management users (Manager app) */
-const JWT_AUDIENCE_MANAGER = 'manager'
+const JWT_AUDIENCE_MANAGER = "manager";
 
 export class AuthUsersService {
   async login(
     app: FastifyInstance,
     body: LoginBody,
     ipAddress?: string,
-    userAgent?: string
+    userAgent?: string,
   ) {
-    const email = body.email.toLowerCase().trim()
+    const email = body.email.toLowerCase().trim();
 
     const user = await prisma.user.findUnique({
       where: { email },
       include: { role: true },
-    })
+    });
 
-    if (!user || user.status !== 'active') {
-      throw new AppError('UNAUTHORIZED', 'E-mail ou senha inválidos', 401)
+    if (!user || user.status !== "active") {
+      throw new AppError("UNAUTHORIZED", "E-mail ou senha inválidos", 401);
     }
 
     const isPasswordValid = await verifyPassword(
       body.password,
-      user.passwordHash
-    )
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
-      throw new AppError('UNAUTHORIZED', 'E-mail ou senha inválidos', 401)
+      throw new AppError("UNAUTHORIZED", "E-mail ou senha inválidos", 401);
     }
 
     // Generate refresh token (random) & session
-    const rawRefreshToken = generateRandomToken(32)
-    const refreshTokenHash = hashToken(rawRefreshToken)
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    const rawRefreshToken = generateRandomToken(32);
+    const refreshTokenHash = hashToken(rawRefreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
     const session = await prisma.userSession.create({
       data: {
@@ -62,42 +62,42 @@ export class AuthUsersService {
         userAgent,
         expiresAt,
       },
-    })
+    });
 
     // Update last login
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
-    })
+    });
 
     // Generate JWT access token (15 mins) with security claims
     // jti: unique token ID for denylist (SD-003)
     // iss/aud: prevent token confusion between contexts (SD-003)
-    const jti = randomUUID()
+    const jti = randomUUID();
     const accessToken = app.jwt.sign(
       {
         jti,
         iss: JWT_ISSUER,
         aud: JWT_AUDIENCE_MANAGER,
         sub: user.id,
-        actorType: 'user',
+        actorType: "user",
         role: user.role.key,
         sessionId: session.id,
       },
-      { expiresIn: '15m' }
-    )
+      { expiresIn: "15m" },
+    );
 
     await prisma.auditLog.create({
       data: {
         userId: user.id,
-        action: 'LOGIN',
-        entity: 'User',
+        action: "LOGIN",
+        entity: "User",
         entityId: user.id,
         newValues: { email: user.email, role: user.role.key },
         ipAddress: ipAddress ?? null,
         userAgent: userAgent ?? null,
       },
-    })
+    });
 
     return {
       accessToken,
@@ -111,38 +111,45 @@ export class AuthUsersService {
           name: user.role.name,
         },
       },
-    }
+    };
   }
 
-  async logout(userId?: string, sessionId?: string, jti?: string, tokenExp?: number) {
-    if (!sessionId) return
+  async logout(
+    userId?: string,
+    sessionId?: string,
+    jti?: string,
+    tokenExp?: number,
+  ) {
+    if (!sessionId) return;
 
     const session = await prisma.userSession.findUnique({
       where: { id: sessionId },
-    })
+    });
 
     // Revoke session
     await prisma.userSession.updateMany({
       where: { id: sessionId, revokedAt: null },
       data: { revokedAt: new Date() },
-    })
+    });
 
     // Add jti to denylist so the access token is rejected immediately (Fase 4 — SD-003)
     if (jti) {
       const expiresAt = tokenExp
         ? new Date(tokenExp * 1000)
-        : new Date(Date.now() + 15 * 60 * 1000) // fallback: 15 min
-      await revokeJti(jti, expiresAt).catch(() => {})
+        : new Date(Date.now() + 15 * 60 * 1000); // fallback: 15 min
+      await revokeJti(jti, expiresAt).catch(() => {});
     }
 
     if (userId) {
       await logAudit({
         userId,
-        action: 'LOGOUT',
-        entity: 'User',
+        action: "LOGOUT",
+        entity: "User",
         entityId: userId,
-        oldValues: session ? { sessionId: session.id, ipAddress: session.ipAddress } : null,
-      })
+        oldValues: session
+          ? { sessionId: session.id, ipAddress: session.ipAddress }
+          : null,
+      });
     }
   }
 
@@ -153,7 +160,7 @@ export class AuthUsersService {
         revokedAt: null,
         expiresAt: { gt: new Date() },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       select: {
         id: true,
         userAgent: true,
@@ -163,41 +170,53 @@ export class AuthUsersService {
         createdAt: true,
         expiresAt: true,
       },
-    })
+    });
 
     return sessions.map((s) => ({
       ...s,
       isCurrent: s.id === currentSessionId,
-    }))
+    }));
   }
 
-  async revokeSession(userId: string, targetSessionId: string, req?: FastifyRequest) {
+  async revokeSession(
+    userId: string,
+    targetSessionId: string,
+    req?: FastifyRequest,
+  ) {
     const session = await prisma.userSession.findFirst({
       where: { id: targetSessionId, userId, revokedAt: null },
-    })
+    });
 
     if (!session) {
-      throw new AppError('NOT_FOUND', 'Sessão não encontrada ou já encerrada', 404)
+      throw new AppError(
+        "NOT_FOUND",
+        "Sessão não encontrada ou já encerrada",
+        404,
+      );
     }
 
     await prisma.userSession.update({
       where: { id: targetSessionId },
       data: { revokedAt: new Date() },
-    })
+    });
 
     await logAudit({
       userId,
-      action: 'REVOKE_SESSION',
-      entity: 'UserSession',
+      action: "REVOKE_SESSION",
+      entity: "UserSession",
       entityId: targetSessionId,
       oldValues: { ipAddress: session.ipAddress, userAgent: session.userAgent },
       req,
-    })
+    });
 
-    return { message: 'Sessão encerrada com sucesso' }
+    return { message: "Sessão encerrada com sucesso" };
   }
 
-  async revokeOtherSessions(userId: string, currentSessionId: string, req?: FastifyRequest) {
+  async revokeOtherSessions(
+    userId: string,
+    currentSessionId: string,
+    req?: FastifyRequest,
+  ) {
     const result = await prisma.userSession.updateMany({
       where: {
         userId,
@@ -205,34 +224,36 @@ export class AuthUsersService {
         revokedAt: null,
       },
       data: { revokedAt: new Date() },
-    })
+    });
 
     await logAudit({
       userId,
-      action: 'REVOKE_OTHER_SESSIONS',
-      entity: 'UserSession',
+      action: "REVOKE_OTHER_SESSIONS",
+      entity: "UserSession",
       newValues: { revokedCount: result.count },
       req,
-    })
+    });
 
-    return { message: `${result.count} outra(s) sessão(ões) encerrada(s) com sucesso` }
+    return {
+      message: `${result.count} outra(s) sessão(ões) encerrada(s) com sucesso`,
+    };
   }
 
   async refresh(
     app: FastifyInstance,
     refreshToken: string,
     ipAddress?: string,
-    userAgent?: string
+    userAgent?: string,
   ) {
-    const tokenHash = hashToken(refreshToken)
+    const tokenHash = hashToken(refreshToken);
 
     const session = await prisma.userSession.findUnique({
       where: { refreshTokenHash: tokenHash },
       include: { user: { include: { role: true } } },
-    })
+    });
 
     if (!session) {
-      throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+      throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
     }
 
     // Refresh Token Reuse Detection (Fase 5 — VULN-006):
@@ -242,34 +263,39 @@ export class AuthUsersService {
       await prisma.userSession.updateMany({
         where: { userId: session.userId, revokedAt: null },
         data: { revokedAt: new Date() },
-      })
+      });
 
       await logAudit({
         userId: session.userId,
-        action: 'SUSPICIOUS_TOKEN_REUSE',
-        entity: 'UserSession',
+        action: "SUSPICIOUS_TOKEN_REUSE",
+        entity: "UserSession",
         entityId: session.id,
-        oldValues: { sessionId: session.id, revokedAt: session.revokedAt, ipAddress, userAgent },
-        newValues: { actionTaken: 'ALL_USER_SESSIONS_REVOKED' },
-      })
+        oldValues: {
+          sessionId: session.id,
+          revokedAt: session.revokedAt,
+          ipAddress,
+          userAgent,
+        },
+        newValues: { actionTaken: "ALL_USER_SESSIONS_REVOKED" },
+      });
 
-      throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+      throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
     }
 
-    if (session.expiresAt < new Date() || session.user.status !== 'active') {
-      throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
+    if (session.expiresAt < new Date() || session.user.status !== "active") {
+      throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);
     }
 
     // Revoke current session (Rotation)
     await prisma.userSession.update({
       where: { id: session.id },
       data: { revokedAt: new Date() },
-    })
+    });
 
     // Create new session
-    const rawRefreshToken = generateRandomToken(32)
-    const newRefreshTokenHash = hashToken(rawRefreshToken)
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    const rawRefreshToken = generateRandomToken(32);
+    const newRefreshTokenHash = hashToken(rawRefreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     const newSession = await prisma.userSession.create({
       data: {
@@ -279,52 +305,52 @@ export class AuthUsersService {
         userAgent,
         expiresAt,
       },
-    })
+    });
 
     // Generate new JWT with full security claims
-    const jti = randomUUID()
+    const jti = randomUUID();
     const accessToken = app.jwt.sign(
       {
         jti,
         iss: JWT_ISSUER,
         aud: JWT_AUDIENCE_MANAGER,
         sub: session.user.id,
-        actorType: 'user',
+        actorType: "user",
         role: session.user.role.key,
         sessionId: newSession.id,
       },
-      { expiresIn: '15m' }
-    )
+      { expiresIn: "15m" },
+    );
 
     return {
       accessToken,
       refreshToken: rawRefreshToken,
-    }
+    };
   }
 
   async forgotPassword(body: ForgotPasswordBody) {
-    const email = body.email.toLowerCase().trim()
-    const user = await prisma.user.findUnique({ where: { email } })
+    const email = body.email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({ where: { email } });
 
     // Security practice: Always return generic message whether user exists or not
     const genericResponse = {
       message:
-        'Se existir uma conta associada ao e-mail informado, enviaremos as instruções de recuperação.',
-    }
+        "Se existir uma conta associada ao e-mail informado, enviaremos as instruções de recuperação.",
+    };
 
-    if (!user || user.status !== 'active') {
-      return genericResponse
+    if (!user || user.status !== "active") {
+      return genericResponse;
     }
 
     // Invalidate previous active reset tokens
     await prisma.userPasswordResetToken.updateMany({
       where: { userId: user.id, usedAt: null },
       data: { usedAt: new Date() },
-    })
+    });
 
-    const rawToken = generateRandomToken(32)
-    const tokenHash = hashToken(rawToken)
-    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000) // 1 hour
+    const rawToken = generateRandomToken(32);
+    const tokenHash = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
 
     await prisma.userPasswordResetToken.create({
       data: {
@@ -332,43 +358,43 @@ export class AuthUsersService {
         tokenHash,
         expiresAt,
       },
-    })
+    });
 
-    console.log(`🔑 [DEV RESET TOKEN] Email: ${email} | Token: ${rawToken}`)
+    console.log(`🔑 [DEV RESET TOKEN] Email: ${email} | Token: ${rawToken}`);
 
-    const resetUrl = `http://localhost:3000/redefinir-senha?token=${rawToken}`
+    const resetUrl = `http://localhost:3000/redefinir-senha?token=${rawToken}`;
     await emailService.sendPasswordResetEmail({
       to: email,
       userName: user.name,
       resetUrl,
-      actorType: 'user',
-    })
+      actorType: "user",
+    });
 
-    return genericResponse
+    return genericResponse;
   }
 
   async resetPassword(body: ResetPasswordBody) {
-    const tokenHash = hashToken(body.token)
+    const tokenHash = hashToken(body.token);
 
     const resetToken = await prisma.userPasswordResetToken.findUnique({
       where: { tokenHash },
       include: { user: true },
-    })
+    });
 
     if (
       !resetToken ||
       resetToken.usedAt ||
       resetToken.expiresAt < new Date() ||
-      resetToken.user.status !== 'active'
+      resetToken.user.status !== "active"
     ) {
       throw new AppError(
-        'UNAUTHORIZED',
-        'Token de recuperação inválido ou expirado',
-        400
-      )
+        "UNAUTHORIZED",
+        "Token de recuperação inválido ou expirado",
+        400,
+      );
     }
 
-    const newPasswordHash = await hashPassword(body.newPassword)
+    const newPasswordHash = await hashPassword(body.newPassword);
 
     await prisma.$transaction([
       prisma.user.update({
@@ -384,34 +410,34 @@ export class AuthUsersService {
         where: { userId: resetToken.userId, revokedAt: null },
         data: { revokedAt: new Date() },
       }),
-    ])
+    ]);
 
     await logAudit({
       userId: resetToken.userId,
-      action: 'PASSWORD_RESET',
-      entity: 'User',
+      action: "PASSWORD_RESET",
+      entity: "User",
       entityId: resetToken.userId,
-    })
+    });
 
-    return { message: 'Senha redefinida com sucesso!' }
+    return { message: "Senha redefinida com sucesso!" };
   }
 
   async changePassword(userId: string, body: ChangePasswordBody) {
-    const user = await prisma.user.findUnique({ where: { id: userId } })
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
-      throw new AppError('NOT_FOUND', 'Usuário não encontrado', 404)
+      throw new AppError("NOT_FOUND", "Usuário não encontrado", 404);
     }
 
     const isCurrentValid = await verifyPassword(
       body.currentPassword,
-      user.passwordHash
-    )
+      user.passwordHash,
+    );
     if (!isCurrentValid) {
-      throw new AppError('VALIDATION_ERROR', 'Senha atual incorreta', 400)
+      throw new AppError("VALIDATION_ERROR", "Senha atual incorreta", 400);
     }
 
-    const newPasswordHash = await hashPassword(body.newPassword)
+    const newPasswordHash = await hashPassword(body.newPassword);
 
     await prisma.$transaction([
       prisma.user.update({
@@ -423,16 +449,16 @@ export class AuthUsersService {
         where: { userId, revokedAt: null },
         data: { revokedAt: new Date() },
       }),
-    ])
+    ]);
 
     await logAudit({
       userId,
-      action: 'PASSWORD_CHANGE',
-      entity: 'User',
+      action: "PASSWORD_CHANGE",
+      entity: "User",
       entityId: userId,
-    })
+    });
 
-    return { message: 'Senha alterada com sucesso!' }
+    return { message: "Senha alterada com sucesso!" };
   }
 
   async getUserProfile(userId: string) {
@@ -453,28 +479,28 @@ export class AuthUsersService {
           include: { store: true },
         },
       },
-    })
+    });
 
-    if (!user || user.status !== 'active') {
-      throw new AppError('NOT_FOUND', 'Usuário não encontrado', 404)
+    if (!user || user.status !== "active") {
+      throw new AppError("NOT_FOUND", "Usuário não encontrado", 404);
     }
 
     // Build permissions list (role defaults + individual overrides)
     const permissionsList: Array<{
-      key: string
-      effect: 'allow' | 'deny'
-      origin: 'role' | 'override'
-    }> = []
+      key: string;
+      effect: "allow" | "deny";
+      origin: "role" | "override";
+    }> = [];
 
-    const overrideKeys = new Set(user.permissions.map((p) => p.permission.key))
+    const overrideKeys = new Set(user.permissions.map((p) => p.permission.key));
 
     // Admin role has manage all
-    if (user.role.key === 'admin') {
+    if (user.role.key === "admin") {
       permissionsList.push({
-        key: 'manage.all',
-        effect: 'allow',
-        origin: 'role',
-      })
+        key: "manage.all",
+        effect: "allow",
+        origin: "role",
+      });
     }
 
     // Add role default permissions
@@ -482,9 +508,9 @@ export class AuthUsersService {
       if (!overrideKeys.has(rp.permission.key)) {
         permissionsList.push({
           key: rp.permission.key,
-          effect: 'allow',
-          origin: 'role',
-        })
+          effect: "allow",
+          origin: "role",
+        });
       }
     }
 
@@ -492,9 +518,9 @@ export class AuthUsersService {
     for (const up of user.permissions) {
       permissionsList.push({
         key: up.permission.key,
-        effect: up.effect as 'allow' | 'deny',
-        origin: 'override',
-      })
+        effect: up.effect as "allow" | "deny",
+        origin: "override",
+      });
     }
 
     return {
@@ -517,6 +543,6 @@ export class AuthUsersService {
       })),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-    }
+    };
   }
 }

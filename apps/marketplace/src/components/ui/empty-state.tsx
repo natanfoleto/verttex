@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { IconType } from 'react-icons'
 import { RiSearchLine } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+
 export interface EmptyStateProps {
   icon?: IconType
   title: string
@@ -40,13 +42,9 @@ export function EmptyState({
       )}
 
       {actionLabel && !actionHref && onActionClick && (
-        <button
-          type="button"
-          onClick={onActionClick}
-          className="mt-6 inline-flex cursor-pointer items-center space-x-2 rounded-lg bg-emerald-800 px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-emerald-700"
-        >
+        <Button type="button" onClick={onActionClick} className="mt-6">
           <span>{actionLabel}</span>
-        </button>
+        </Button>
       )}
     </div>
   )

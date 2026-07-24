@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -29,7 +30,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
+
 import { apiClient, ApiError } from '../../../lib/api-client'
 import { useAuth } from '../../../providers/auth-provider'
 
@@ -52,7 +56,9 @@ export default function BrandsPage() {
 
   // State
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null)
   const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null)
@@ -79,7 +85,8 @@ export default function BrandsPage() {
     },
   })
 
-  const listData: Brand[] = listRes?.data ?? (Array.isArray(listRes) ? listRes : [])
+  const listData: Brand[] =
+    listRes?.data ?? (Array.isArray(listRes) ? listRes : [])
 
   // Mutations
   const createMutation = useMutation({
@@ -110,7 +117,9 @@ export default function BrandsPage() {
       closeModal()
     },
     onError: (err: any) => {
-      toast.error(err instanceof ApiError ? err.message : 'Erro ao atualizar marca')
+      toast.error(
+        err instanceof ApiError ? err.message : 'Erro ao atualizar marca',
+      )
     },
   })
 
@@ -125,7 +134,9 @@ export default function BrandsPage() {
       setDeletingBrand(null)
     },
     onError: (err: any) => {
-      toast.error(err instanceof ApiError ? err.message : 'Erro ao arquivar marca')
+      toast.error(
+        err instanceof ApiError ? err.message : 'Erro ao arquivar marca',
+      )
     },
   })
 
@@ -189,19 +200,16 @@ export default function BrandsPage() {
             Catálogo de Marcas
           </h1>
           <p className="text-xs text-zinc-400">
-            Gerencie o cadastro reutilizável de marcas e fabricantes da plataforma
+            Gerencie o cadastro reutilizável de marcas e fabricantes da
+            plataforma
           </p>
         </div>
 
         {ability.can('create', 'Brand') && (
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="flex cursor-pointer items-center justify-center space-x-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-950/60 transition-colors hover:bg-emerald-500"
-          >
+          <Button type="button" onClick={openCreateModal}>
             <RiAddLine className="h-4 w-4" />
             <span>Nova Marca</span>
-          </button>
+          </Button>
         )}
       </div>
 
@@ -209,12 +217,12 @@ export default function BrandsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4 backdrop-blur-xl">
         <div className="relative w-full sm:w-72">
           <RiSearchLine className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-          <input
+          <Input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nome ou slug..."
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2 pr-3 pl-9 text-xs text-zinc-100 placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+            className="pl-9"
           />
         </div>
 
@@ -239,7 +247,9 @@ export default function BrandsPage() {
         </div>
 
         {isLoading ? (
-          <div className="p-12 text-center text-zinc-500 text-xs">Carregando marcas...</div>
+          <div className="p-12 text-center text-zinc-500 text-xs">
+            Carregando marcas...
+          </div>
         ) : listData.length > 0 ? (
           <div className="divide-y divide-zinc-800/60 overflow-x-auto">
             {listData.map((brand) => (
@@ -253,7 +263,9 @@ export default function BrandsPage() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <span className="font-semibold text-sm text-zinc-100">{brand.name}</span>
+                      <span className="font-semibold text-sm text-zinc-100">
+                        {brand.name}
+                      </span>
                       <span className="rounded-md bg-zinc-950 border border-zinc-800 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
                         /{brand.slug}
                       </span>
@@ -268,32 +280,38 @@ export default function BrandsPage() {
                       </span>
                     </div>
                     {brand.description && (
-                      <p className="text-xs text-zinc-400 line-clamp-1">{brand.description}</p>
+                      <p className="text-xs text-zinc-400 line-clamp-1">
+                        {brand.description}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   {ability.can('update', 'Brand') && (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="icon"
                       onClick={() => openEditModal(brand)}
-                      className="cursor-pointer rounded-lg border border-zinc-800 p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                      className="h-8 w-8 p-1.5 text-zinc-400 hover:text-zinc-200"
                       title="Editar"
                     >
                       <RiEditLine className="h-4 w-4" />
-                    </button>
+                    </Button>
                   )}
 
                   {ability.can('delete', 'Brand') && (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="icon"
                       onClick={() => setDeletingBrand(brand)}
-                      className="cursor-pointer rounded-lg border border-rose-900/50 p-1.5 text-rose-400 transition-colors hover:bg-rose-950"
+                      className="h-8 w-8 p-1.5 border-rose-900/50 text-rose-400 hover:bg-rose-950"
                       title="Arquivar"
                     >
                       <RiArchiveLine className="h-4 w-4" />
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -322,42 +340,47 @@ export default function BrandsPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">Nome da Marca</label>
-              <input
+              <label className="text-xs font-semibold text-zinc-300">
+                Nome da Marca
+              </label>
+              <Input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex: Queijaria Serra da Canastra"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-2.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">Slug (opcional)</label>
-              <input
+              <label className="text-xs font-semibold text-zinc-300">
+                Slug (opcional)
+              </label>
+              <Input
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="queijaria-serra-da-canastra"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-2.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-zinc-300">Descrição</label>
-              <textarea
+              <label className="text-xs font-semibold text-zinc-300">
+                Descrição
+              </label>
+              <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
                 placeholder="História ou descrição da marca..."
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-2.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">Status</label>
+                <label className="text-xs font-semibold text-zinc-300">
+                  Status
+                </label>
                 <NativeSelect
                   value={status}
                   onChange={(e) => setStatus(e.target.value as any)}
@@ -368,7 +391,9 @@ export default function BrandsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300">Visível no Marketplace</label>
+                <label className="text-xs font-semibold text-zinc-300">
+                  Visível no Marketplace
+                </label>
                 <NativeSelect
                   value={isVisible ? 'true' : 'false'}
                   onChange={(e) => setIsVisible(e.target.value === 'true')}
@@ -380,20 +405,15 @@ export default function BrandsPage() {
             </div>
 
             <DialogFooter className="mt-6 border-t border-zinc-800 pt-4">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="cursor-pointer rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
-              >
+              <Button type="button" variant="outline" onClick={closeModal}>
                 Cancelar
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
-                className="cursor-pointer rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition-colors hover:bg-emerald-500 disabled:opacity-50"
               >
                 {editingBrand ? 'Salvar Alterações' : 'Criar Marca'}
-              </button>
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -408,7 +428,9 @@ export default function BrandsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Arquivar Marca</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja arquivar a marca &quot;{deletingBrand?.name}&quot;? Ela será desativada do catálogo de marcas.
+              Tem certeza que deseja arquivar a marca &quot;
+              {deletingBrand?.name}&quot;? Ela será desativada do catálogo de
+              marcas.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

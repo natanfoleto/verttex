@@ -6,12 +6,15 @@ import { use, useEffect, useState } from 'react'
 import {
   RiArrowLeftLine,
   RiCheckLine,
-  RiUser3Line,
-  RiUserSharedLine,
   RiCloseLine,
   RiSearchLine,
+  RiUserSharedLine,
 } from 'react-icons/ri'
 import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 
 import { apiClient } from '../../../../../lib/api-client'
 import { invalidateRoles } from '../../../../../lib/query-keys'
@@ -38,7 +41,9 @@ export default function RolePermissionsPage({
 
   // Propagation Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [strategy, setStrategy] = useState<'ALL' | 'PRESERVE_ALL' | 'CUSTOM'>('ALL')
+  const [strategy, setStrategy] = useState<'ALL' | 'PRESERVE_ALL' | 'CUSTOM'>(
+    'ALL',
+  )
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [userSearch, setUserSearch] = useState('')
 
@@ -54,7 +59,8 @@ export default function RolePermissionsPage({
 
   const { data: usersData } = useQuery({
     queryKey: ['users-for-role', roleId],
-    queryFn: () => apiClient<{ data: UserItem[] }>(`/users?roleId=${roleId}&perPage=100`),
+    queryFn: () =>
+      apiClient<{ data: UserItem[] }>(`/users?roleId=${roleId}&perPage=100`),
     enabled: isModalOpen,
   })
 
@@ -64,8 +70,8 @@ export default function RolePermissionsPage({
     if (role?.rolePermissions) {
       const initialSet = new Set<string>(
         role.rolePermissions.map(
-          (rp: { permissionId: string }) => rp.permissionId
-        )
+          (rp: { permissionId: string }) => rp.permissionId,
+        ),
       )
       setSelectedPermissionIds(initialSet)
     }
@@ -113,7 +119,8 @@ export default function RolePermissionsPage({
     updateRolePermissionsMutation.mutate({
       permissionIds: Array.from(selectedPermissionIds),
       strategy,
-      targetUserIds: strategy === 'CUSTOM' ? Array.from(selectedUserIds) : undefined,
+      targetUserIds:
+        strategy === 'CUSTOM' ? Array.from(selectedUserIds) : undefined,
     })
   }
 
@@ -162,13 +169,13 @@ export default function RolePermissionsPage({
         permissionsByModule.set(mod, [])
       }
       permissionsByModule.get(mod)!.push(perm)
-    }
+    },
   )
 
   const filteredUsers = roleUsers.filter(
     (u) =>
       u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-      u.email.toLowerCase().includes(userSearch.toLowerCase())
+      u.email.toLowerCase().includes(userSearch.toLowerCase()),
   )
 
   return (
@@ -191,14 +198,14 @@ export default function RolePermissionsPage({
           </div>
         </div>
 
-        <button
+        <Button
           onClick={handleOpenSaveModal}
           disabled={updateRolePermissionsMutation.isPending}
-          className="flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-emerald-500 disabled:opacity-50"
+          className="bg-emerald-600 hover:bg-emerald-500 font-semibold"
         >
           <RiCheckLine className="h-4 w-4" />
           <span>Salvar Permissões</span>
-        </button>
+        </Button>
       </div>
 
       {feedbackMessage && (
@@ -237,17 +244,16 @@ export default function RolePermissionsPage({
                         </p>
                       </div>
 
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={isChecked}
-                        onChange={() => togglePermission(perm.id)}
+                        onCheckedChange={() => togglePermission(perm.id)}
                       />
                     </label>
                   )
                 })}
               </div>
             </div>
-          )
+          ),
         )}
       </div>
 
@@ -266,16 +272,19 @@ export default function RolePermissionsPage({
                   </h2>
                   <p className="text-xs text-zinc-400">
                     Escolha como aplicar as novas permissões do cargo{' '}
-                    <strong className="text-zinc-200">{role?.name}</strong> aos usuários
+                    <strong className="text-zinc-200">{role?.name}</strong> aos
+                    usuários
                   </p>
                 </div>
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsModalOpen(false)}
-                className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                className="h-8 w-8 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 p-0"
               >
                 <RiCloseLine className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
 
             {/* Strategy Options */}
@@ -288,19 +297,20 @@ export default function RolePermissionsPage({
                     : 'border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-700'
                 }`}
               >
-                <input
+                <Input
                   type="radio"
                   name="strategy"
                   checked={strategy === 'ALL'}
                   onChange={() => setStrategy('ALL')}
-                  className="mt-1"
+                  className="mt-1 h-4 w-4 shrink-0"
                 />
                 <div>
                   <div className="text-sm font-semibold text-zinc-200">
                     Opção A — Aplicar a nova configuração a todos
                   </div>
                   <p className="mt-0.5 text-xs text-zinc-400">
-                    Todos os usuários deste cargo passam a herdar a nova configuração automaticamente.
+                    Todos os usuários deste cargo passam a herdar a nova
+                    configuração automaticamente.
                   </p>
                 </div>
               </label>
@@ -313,19 +323,21 @@ export default function RolePermissionsPage({
                     : 'border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-700'
                 }`}
               >
-                <input
+                <Input
                   type="radio"
                   name="strategy"
                   checked={strategy === 'PRESERVE_ALL'}
                   onChange={() => setStrategy('PRESERVE_ALL')}
-                  className="mt-1"
+                  className="mt-1 h-4 w-4 shrink-0"
                 />
                 <div>
                   <div className="text-sm font-semibold text-zinc-200">
                     Opção B — Preservar as permissões atuais de todos
                   </div>
                   <p className="mt-0.5 text-xs text-zinc-400">
-                    Os usuários atuais mantêm seus direitos de acesso anteriores (criando exceções individuais). Novos usuários vinculados posteriormente utilizarão a nova configuração.
+                    Os usuários atuais mantêm seus direitos de acesso anteriores
+                    (criando exceções individuais). Novos usuários vinculados
+                    posteriormente utilizarão a nova configuração.
                   </p>
                 </div>
               </label>
@@ -338,19 +350,20 @@ export default function RolePermissionsPage({
                     : 'border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-700'
                 }`}
               >
-                <input
+                <Input
                   type="radio"
                   name="strategy"
                   checked={strategy === 'CUSTOM'}
                   onChange={() => setStrategy('CUSTOM')}
-                  className="mt-1"
+                  className="mt-1 h-4 w-4 shrink-0"
                 />
                 <div>
                   <div className="text-sm font-semibold text-zinc-200">
                     Opção C — Escolher usuários individualmente
                   </div>
                   <p className="mt-0.5 text-xs text-zinc-400">
-                    Selecione especificamente quais usuários devem preservar suas permissões atuais.
+                    Selecione especificamente quais usuários devem preservar
+                    suas permissões atuais.
                   </p>
                 </div>
               </label>
@@ -361,35 +374,40 @@ export default function RolePermissionsPage({
               <div className="space-y-3 rounded-xl border border-zinc-800 bg-zinc-950 p-4">
                 <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
                   <div className="text-xs font-semibold text-zinc-300">
-                    Usuários a Preservar ({selectedUserIds.size} de {roleUsers.length} selecionados)
+                    Usuários a Preservar ({selectedUserIds.size} de{' '}
+                    {roleUsers.length} selecionados)
                   </div>
                   <div className="flex items-center space-x-2 text-xs">
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
+                      size="sm"
                       onClick={handleSelectAllUsers}
-                      className="text-emerald-400 hover:underline"
+                      className="p-0 text-emerald-400 hover:underline h-auto"
                     >
                       Selecionar Todos
-                    </button>
+                    </Button>
                     <span className="text-zinc-600">•</span>
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
+                      size="sm"
                       onClick={handleDeselectAllUsers}
-                      className="text-zinc-400 hover:underline"
+                      className="p-0 text-zinc-400 hover:underline h-auto"
                     >
                       Remover Seleções
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
                 <div className="relative">
                   <RiSearchLine className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-                  <input
+                  <Input
                     type="text"
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
                     placeholder="Buscar por nome ou e-mail..."
-                    className="w-full rounded-lg border border-zinc-800 bg-zinc-900 pl-9 pr-3 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                    className="pl-9 text-xs"
                   />
                 </div>
 
@@ -402,27 +420,27 @@ export default function RolePermissionsPage({
                     filteredUsers.map((u) => {
                       const isSelected = selectedUserIds.has(u.id)
                       return (
-                        <label
+                        <div
                           key={u.id}
-                          className="flex cursor-pointer items-center justify-between p-2.5 transition-colors hover:bg-zinc-900"
+                          onClick={() => toggleUserSelection(u.id)}
+                          className={`flex cursor-pointer items-center justify-between p-2.5 text-xs transition-colors ${
+                            isSelected
+                              ? 'bg-emerald-950/40 font-medium text-emerald-300'
+                              : 'text-zinc-300 hover:bg-zinc-800/40'
+                          }`}
                         >
-                          <div className="flex items-center space-x-2.5">
-                            <RiUser3Line className="h-4 w-4 text-zinc-500" />
-                            <div>
-                              <div className="text-xs font-medium text-zinc-200">
-                                {u.name}
-                              </div>
-                              <div className="text-[11px] text-zinc-500">
-                                {u.email}
-                              </div>
-                            </div>
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-zinc-200">
+                              {u.name}
+                            </span>
+                            <span className="text-[11px] text-zinc-500">
+                              {u.email}
+                            </span>
                           </div>
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleUserSelection(u.id)}
-                          />
-                        </label>
+                          {isSelected && (
+                            <RiCheckLine className="h-4 w-4 text-emerald-400 shrink-0" />
+                          )}
+                        </div>
                       )
                     })
                   )}
@@ -431,19 +449,18 @@ export default function RolePermissionsPage({
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-end space-x-3 pt-2">
-              <button
+            <div className="flex items-center justify-end space-x-3 border-t border-zinc-800 p-4">
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => setIsModalOpen(false)}
-                className="rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
               >
                 Cancelar
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleConfirmSave}
                 disabled={updateRolePermissionsMutation.isPending}
-                className="flex items-center space-x-2 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-semibold text-white shadow-md hover:bg-emerald-500 disabled:opacity-50"
               >
                 <RiCheckLine className="h-4 w-4" />
                 <span>
@@ -451,7 +468,7 @@ export default function RolePermissionsPage({
                     ? 'Aplicando...'
                     : 'Confirmar e Aplicar'}
                 </span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>

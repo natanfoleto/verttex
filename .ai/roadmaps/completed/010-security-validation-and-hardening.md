@@ -97,27 +97,28 @@ A estratégia de testes divide-se em 4 eixos principais:
 
 ## Matriz de Testes Executáveis
 
-| ID | Área | Controle | Tipo | Executor | Pré-requisitos | Procedimento | Resultado Esperado | Status |
-|:---|:---|:---|:---|:---|:---|:---|:---|:---|
-| `AUTH-001` | Auth | Rejeição de senha errada | Automatizado | Vitest | API ativa | Enviar login com senha errada | `401` com mensagem genérica | Passed |
-| `AUTH-002` | Auth | Rejeição de hash legado | Automatizado | Vitest | API ativa | Invocar `verifyPassword` com hash sem `:` | Retornar `false` imediatamente | Passed |
-| `AUTH-003` | Auth | Prevenção de enumeração | Automatizado | Vitest | API ativa | Comparar resposta para e-mail existente vs inexistente | Mensagem idêntica (`401`) | Passed |
-| `JWT-001` | Sessão | Rejeição de token adulterado | Automatizado | Vitest | API ativa | Enviar JWT com assinatura inválida | `401 Unauthorized` | Passed |
-| `JWT-002` | Sessão | Denylist imediata pós-logout | Automatizado | Vitest | Redis + DB | Fazer logout e reusar access token | `401 Unauthorized` (jti revogado) | Passed |
-| `JWT-003` | Sessão | Detecção de reuso de Refresh Token | Automatizado | Vitest | Redis + DB | Fazer refresh e reusar refresh token antigo | `401` + revogação de todas as sessões do usuário | Passed |
-| `RATE-001` | Rate Limit | Brute force login | Automatizado | Vitest | Redis | Enviar 21 requisições de login falho seguidas | Receber `429 Too Many Requests` | Passed |
-| `AUTHZ-001` | Autorização | IDOR em dados de usuário | Adversarial | Antigravity | 2 contas ativas | Usuário A tenta ler dados do Usuário B via ID | `403` ou `404` | Passed |
-| `AUTHZ-002` | Autorização | Cross-Tenant / Cross-Store | Adversarial | Antigravity | 2 lojas | Fornecedor da Loja A tenta modificar a Loja B | `403 Forbidden` | Passed |
-| `AUTHZ-003` | Autorização | Mass Assignment em Role | Adversarial | Antigravity | API ativa | Enviar `roleId` ou `status: 'admin'` no body | Campos ignorados / mantidos originais | Passed |
-| `INPUT-001` | Validação | Payload flood (Body limit) | Automatizado | Vitest | API ativa | Enviar JSON > 256 KB | `413 Payload Too Large` | Passed |
-| `LOG-001` | Auditoria | Sanitização de dados sensíveis | Automatizado | Vitest | DB ativo | Executar `logAudit` com campo `password` | Log salvo com campo sanitizado (`[REDACTED]`) | Passed |
-| `CSP-001` | Frontend | Verificação de headers CSP | Manual | Proprietário | Frontend ativo | Inspecionar headers da resposta no DevTools | Headers `Content-Security-Policy-Report-Only` presentes | Passed |
+| ID          | Área        | Controle                           | Tipo         | Executor     | Pré-requisitos  | Procedimento                                           | Resultado Esperado                                      | Status |
+| :---------- | :---------- | :--------------------------------- | :----------- | :----------- | :-------------- | :----------------------------------------------------- | :------------------------------------------------------ | :----- |
+| `AUTH-001`  | Auth        | Rejeição de senha errada           | Automatizado | Vitest       | API ativa       | Enviar login com senha errada                          | `401` com mensagem genérica                             | Passed |
+| `AUTH-002`  | Auth        | Rejeição de hash legado            | Automatizado | Vitest       | API ativa       | Invocar `verifyPassword` com hash sem `:`              | Retornar `false` imediatamente                          | Passed |
+| `AUTH-003`  | Auth        | Prevenção de enumeração            | Automatizado | Vitest       | API ativa       | Comparar resposta para e-mail existente vs inexistente | Mensagem idêntica (`401`)                               | Passed |
+| `JWT-001`   | Sessão      | Rejeição de token adulterado       | Automatizado | Vitest       | API ativa       | Enviar JWT com assinatura inválida                     | `401 Unauthorized`                                      | Passed |
+| `JWT-002`   | Sessão      | Denylist imediata pós-logout       | Automatizado | Vitest       | Redis + DB      | Fazer logout e reusar access token                     | `401 Unauthorized` (jti revogado)                       | Passed |
+| `JWT-003`   | Sessão      | Detecção de reuso de Refresh Token | Automatizado | Vitest       | Redis + DB      | Fazer refresh e reusar refresh token antigo            | `401` + revogação de todas as sessões do usuário        | Passed |
+| `RATE-001`  | Rate Limit  | Brute force login                  | Automatizado | Vitest       | Redis           | Enviar 21 requisições de login falho seguidas          | Receber `429 Too Many Requests`                         | Passed |
+| `AUTHZ-001` | Autorização | IDOR em dados de usuário           | Adversarial  | Antigravity  | 2 contas ativas | Usuário A tenta ler dados do Usuário B via ID          | `403` ou `404`                                          | Passed |
+| `AUTHZ-002` | Autorização | Cross-Tenant / Cross-Store         | Adversarial  | Antigravity  | 2 lojas         | Fornecedor da Loja A tenta modificar a Loja B          | `403 Forbidden`                                         | Passed |
+| `AUTHZ-003` | Autorização | Mass Assignment em Role            | Adversarial  | Antigravity  | API ativa       | Enviar `roleId` ou `status: 'admin'` no body           | Campos ignorados / mantidos originais                   | Passed |
+| `INPUT-001` | Validação   | Payload flood (Body limit)         | Automatizado | Vitest       | API ativa       | Enviar JSON > 256 KB                                   | `413 Payload Too Large`                                 | Passed |
+| `LOG-001`   | Auditoria   | Sanitização de dados sensíveis     | Automatizado | Vitest       | DB ativo        | Executar `logAudit` com campo `password`               | Log salvo com campo sanitizado (`[REDACTED]`)           | Passed |
+| `CSP-001`   | Frontend    | Verificação de headers CSP         | Manual       | Proprietário | Frontend ativo  | Inspecionar headers da resposta no DevTools            | Headers `Content-Security-Policy-Report-Only` presentes | Passed |
 
 ---
 
 ## Adversarial Testing (Red Team Assistido por IA)
 
 O agente Antigravity executará análises adversariais direcionadas para:
+
 1. Tentar forjar permissões alterando tokens JWT ou payloads JSON.
 2. Tentar acessar endpoints restritos de gestão a partir de contas de clientes compradores.
 3. Verificar se há qualquer endpoint sem autenticação ou sem validação de permissão no catálogo de rotas.
@@ -129,6 +130,7 @@ O agente Antigravity executará análises adversariais direcionadas para:
 Procedimentos detalhados para execução visual/manual pelo proprietário:
 
 ### Teste Manual 1: Tentativa de Acesso Cruzado entre Lojas (IDOR)
+
 1. Efetue login no Manager com o usuário `roberto@queijariaalvorada.com.br` (Fornecedor da Queijaria Alvorada).
 2. Abra a página da loja e copie o ID/slug da loja no navegador.
 3. Faça login com outro usuário (`clarissa@vinicolarossi.com.br`).
@@ -136,6 +138,7 @@ Procedimentos detalhados para execução visual/manual pelo proprietário:
 5. **Resultado esperado:** O sistema deve negar o acesso ou ocultar os botões de edição de dados.
 
 ### Teste Manual 2: Validação de Reutilização de Token Pós-Logout
+
 1. Faça login na aplicação.
 2. Abra o DevTools (F12) -> Aplicação -> Cookies e copie o valor do cookie `user_access_token`.
 3. Clique em "Sair" (Logout).
@@ -147,6 +150,7 @@ Procedimentos detalhados para execução visual/manual pelo proprietário:
 ## Vulnerability Management & Correction Workflow
 
 Quando um teste falhar ou uma vulnerabilidade for encontrada:
+
 ```
 1. Registrar falha no SECURITY_BACKLOG.md
 2. Escrever teste unitário/integração que reproduza a falha
@@ -171,6 +175,7 @@ Escrito em português do Brasil, contendo a matriz de cobertura final, estatíst
 ## Completion Criteria & Exit Criteria
 
 Este roadmap será concluído e movido para `completed/` apenas quando:
+
 - [x] 100% dos testes da Matriz de Testes forem executados e classificados.
 - [x] Nenhuma vulnerabilidade de severidade `Critical` ou `High` permanecer aberta.
 - [x] Todas as correções possuírem testes de regressão passando.

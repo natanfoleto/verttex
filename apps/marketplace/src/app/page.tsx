@@ -10,6 +10,8 @@ import {
   RiStore2Line,
 } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+
 import { CategoryCircleCard } from '../components/ui/category-card'
 import { ProductCard, ProductCardProps } from '../components/ui/product-card'
 import { StoreCard, StoreCardProps } from '../components/ui/store-card'
@@ -292,17 +294,15 @@ export default function MarketplaceHomePage() {
               { id: 'vinhos', label: 'Vinhos' },
               { id: 'meis', label: 'Méis' },
             ].map((tab) => (
-              <button
+              <Button
                 key={tab.id}
+                variant={activeTab === tab.id ? 'default' : 'outline'}
+                size="sm"
                 onClick={() => setActiveTab(tab.id)}
-                className={`cursor-pointer rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
-                }`}
+                className="rounded-full"
               >
                 {tab.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

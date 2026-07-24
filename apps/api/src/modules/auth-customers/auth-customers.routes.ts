@@ -1,5 +1,5 @@
-import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { FastifyInstance } from "fastify";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
   registerCustomerController,
   loginCustomerController,
@@ -9,185 +9,185 @@ import {
   resetPasswordCustomerController,
   changePasswordCustomerController,
   meCustomerController,
-} from './auth-customers.controller'
+} from "./auth-customers.controller";
 import {
   customerRegisterBodySchema,
   customerLoginBodySchema,
   customerForgotPasswordBodySchema,
   customerResetPasswordBodySchema,
   customerChangePasswordBodySchema,
-} from './auth-customers.schemas'
+} from "./auth-customers.schemas";
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === "development";
 
 export async function authCustomersRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>()
+  const typedApp = app.withTypeProvider<ZodTypeProvider>();
 
   typedApp.post(
-    '/register',
+    "/register",
     {
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: '1 hour',
+          timeWindow: "1 hour",
           keyGenerator: (req) => `register:ip:${req.ip}`,
           allowList: () => isDev,
           errorResponseBuilder: (_req, context) => ({
             success: false,
-            error: 'RATE_LIMIT_EXCEEDED',
+            error: "RATE_LIMIT_EXCEEDED",
             message: `Muitas tentativas de cadastro. Tente novamente em ${Math.ceil(context.ttl / 60000)} minuto(s).`,
             retryAfter: Math.ceil(context.ttl / 1000),
           }),
         },
       },
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Criar conta de cliente comprador',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Criar conta de cliente comprador",
         body: customerRegisterBodySchema,
       },
     },
-    registerCustomerController
-  )
+    registerCustomerController,
+  );
 
   typedApp.post(
-    '/login',
+    "/login",
     {
       config: {
         rateLimit: {
           max: 20,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => `cust-login:ip:${req.ip}`,
           allowList: () => isDev,
           errorResponseBuilder: (_req, context) => ({
             success: false,
-            error: 'RATE_LIMIT_EXCEEDED',
+            error: "RATE_LIMIT_EXCEEDED",
             message: `Muitas tentativas de login. Tente novamente em ${Math.ceil(context.ttl / 1000)} segundo(s).`,
             retryAfter: Math.ceil(context.ttl / 1000),
           }),
         },
       },
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Autenticar cliente comprador',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Autenticar cliente comprador",
         body: customerLoginBodySchema,
       },
     },
-    loginCustomerController
-  )
+    loginCustomerController,
+  );
 
   typedApp.post(
-    '/logout',
+    "/logout",
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Encerrar sessão do cliente comprador',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Encerrar sessão do cliente comprador",
         security: [{ bearerAuth: [] }],
       },
     },
-    logoutCustomerController
-  )
+    logoutCustomerController,
+  );
 
   typedApp.post(
-    '/refresh',
+    "/refresh",
     {
       config: {
         rateLimit: {
           max: 30,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => `cust-refresh:ip:${req.ip}`,
           allowList: () => isDev,
         },
       },
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Renovar token de acesso do cliente comprador',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Renovar token de acesso do cliente comprador",
       },
     },
-    refreshCustomerController
-  )
+    refreshCustomerController,
+  );
 
   typedApp.post(
-    '/forgot-password',
+    "/forgot-password",
     {
       config: {
         rateLimit: {
           max: 10,
-          timeWindow: '30 minutes',
+          timeWindow: "30 minutes",
           keyGenerator: (req) => `cust-forgot:ip:${req.ip}`,
           allowList: () => isDev,
           errorResponseBuilder: (_req, context) => ({
             success: false,
-            error: 'RATE_LIMIT_EXCEEDED',
+            error: "RATE_LIMIT_EXCEEDED",
             message: `Muitas solicitações de recuperação. Tente novamente em ${Math.ceil(context.ttl / 60000)} minuto(s).`,
             retryAfter: Math.ceil(context.ttl / 1000),
           }),
         },
       },
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Solicitar recuperação de senha do cliente',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Solicitar recuperação de senha do cliente",
         body: customerForgotPasswordBodySchema,
       },
     },
-    forgotPasswordCustomerController
-  )
+    forgotPasswordCustomerController,
+  );
 
   typedApp.post(
-    '/reset-password',
+    "/reset-password",
     {
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => `cust-reset:ip:${req.ip}`,
           allowList: () => isDev,
         },
       },
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Redefinir senha do cliente via token',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Redefinir senha do cliente via token",
         body: customerResetPasswordBodySchema,
       },
     },
-    resetPasswordCustomerController
-  )
+    resetPasswordCustomerController,
+  );
 
   typedApp.post(
-    '/change-password',
+    "/change-password",
     {
       preHandler: [app.authenticateCustomer],
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => {
-            const payload = (req as any).customerPayload
-            return `cust-change-pwd:${payload?.id ?? req.ip}`
+            const payload = (req as any).customerPayload;
+            return `cust-change-pwd:${payload?.id ?? req.ip}`;
           },
           allowList: () => isDev,
         },
       },
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Alterar própria senha do cliente',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Alterar própria senha do cliente",
         security: [{ bearerAuth: [] }],
         body: customerChangePasswordBodySchema,
       },
     },
-    changePasswordCustomerController
-  )
+    changePasswordCustomerController,
+  );
 
   typedApp.get(
-    '/me',
+    "/me",
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ['Auth — Marketplace Customers'],
-        summary: 'Retornar dados do cliente autenticado',
+        tags: ["Auth — Marketplace Customers"],
+        summary: "Retornar dados do cliente autenticado",
         security: [{ bearerAuth: [] }],
       },
     },
-    meCustomerController
-  )
+    meCustomerController,
+  );
 }

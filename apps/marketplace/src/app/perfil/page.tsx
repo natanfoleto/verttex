@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { RiCheckLine, RiLockPasswordLine, RiUser3Line } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { CustomerAuthGuard } from '../../components/guards/customer-auth-guard'
 import { apiClient } from '../../lib/api-client'
 import { useCustomer } from '../../providers/customer-auth-provider'
@@ -77,11 +80,11 @@ export default function CustomerProfilePage() {
               <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
                 E-mail (Não alterável)
               </label>
-              <input
+              <Input
                 type="email"
                 disabled
                 value={customer?.email || ''}
-                className="mt-1.5 w-full cursor-not-allowed rounded-lg border border-stone-200 bg-stone-100 px-4 py-2.5 text-xs text-stone-500"
+                className="mt-1.5 cursor-not-allowed text-stone-500"
               />
             </div>
 
@@ -89,11 +92,11 @@ export default function CustomerProfilePage() {
               <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
                 Nome Completo
               </label>
-              <input
+              <Input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-stone-200 bg-stone-50 px-4 py-2.5 text-xs text-stone-900 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="mt-1.5"
               />
             </div>
 
@@ -101,22 +104,22 @@ export default function CustomerProfilePage() {
               <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
                 Telefone / WhatsApp
               </label>
-              <input
+              <Input
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-stone-200 bg-stone-50 px-4 py-2.5 text-xs text-stone-900 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="mt-1.5"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="mt-4 flex w-full cursor-pointer items-center justify-center space-x-2 rounded-lg bg-emerald-800 px-4 py-3 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700"
+              className="mt-4 w-full"
             >
               <RiCheckLine className="h-4 w-4" />
               <span>{isSubmitting ? 'Salvando...' : 'Salvar Alterações'}</span>
-            </button>
+            </Button>
           </form>
         </div>
       </div>

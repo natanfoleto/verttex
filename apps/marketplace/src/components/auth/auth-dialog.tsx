@@ -15,11 +15,9 @@ import {
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { apiClient, ApiError } from '@/lib/api-client'
 import { useCustomer } from '@/providers/customer-auth-provider'
 
@@ -133,23 +131,27 @@ export function AuthDialog({
 
               {/* Social Login Buttons */}
               <div className="mt-6 grid grid-cols-2 gap-3">
-                <button
+                <Button
                   type="button"
-                  onClick={() => toast.info('Login social com Google em breve!')}
-                  className="inline-flex h-11 items-center justify-center space-x-2 rounded-xl border border-stone-200 bg-stone-50 px-4 text-xs font-semibold text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-100 cursor-pointer"
+                  variant="outline"
+                  onClick={() =>
+                    toast.info('Login social com Google em breve!')
+                  }
+                  className="h-11"
                 >
                   <RiGoogleFill className="h-4.5 w-4.5 text-emerald-700" />
                   <span>Google</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => toast.info('Login social com Apple em breve!')}
-                  className="inline-flex h-11 items-center justify-center space-x-2 rounded-xl border border-stone-200 bg-stone-50 px-4 text-xs font-semibold text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-100 cursor-pointer"
+                  className="h-11"
                 >
                   <RiAppleFill className="h-4.5 w-4.5 text-stone-900" />
                   <span>Apple</span>
-                </button>
+                </Button>
               </div>
 
               {/* Divider */}
@@ -169,13 +171,13 @@ export function AuthDialog({
                     </label>
                     <div className="relative">
                       <RiUser3Line className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                      <input
+                      <Input
                         type="text"
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Seu nome completo"
-                        className="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                        className="h-11 pl-10"
                       />
                     </div>
                   </div>
@@ -187,13 +189,13 @@ export function AuthDialog({
                   </label>
                   <div className="relative">
                     <RiMailLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                    <input
+                    <Input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="seu.email@exemplo.com"
-                      className="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                      className="h-11 pl-10"
                     />
                   </div>
                 </div>
@@ -215,7 +217,7 @@ export function AuthDialog({
                   </div>
                   <div className="relative">
                     <RiLockLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                    <input
+                    <Input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
@@ -225,33 +227,35 @@ export function AuthDialog({
                           ? 'Sua senha'
                           : 'Crie uma senha de acesso'
                       }
-                      className="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pr-10 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                      className="h-11 pr-10 pl-10"
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
+                      className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600"
                     >
                       {showPassword ? (
                         <RiEyeOffLine className="h-4 w-4" />
                       ) : (
                         <RiEyeLine className="h-4 w-4" />
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-2 h-11.5 w-full cursor-pointer rounded-xl bg-emerald-800 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                  className="mt-2 h-11.5 w-full bg-emerald-800 hover:bg-emerald-700 font-bold"
                 >
                   {isSubmitting
                     ? 'Aguarde...'
                     : mode === 'login'
                       ? 'Entrar no Marketplace'
                       : 'Criar Minha Conta'}
-                </button>
+                </Button>
               </form>
             </div>
 
@@ -260,24 +264,28 @@ export function AuthDialog({
               {mode === 'login' ? (
                 <>
                   Ainda não possui uma conta?{' '}
-                  <button
+                  <Button
                     type="button"
+                    variant="link"
+                    size="sm"
                     onClick={() => handleModeSwitch('register')}
-                    className="cursor-pointer font-bold text-emerald-800 hover:underline"
+                    className="p-0 font-bold text-emerald-800 hover:underline h-auto text-xs"
                   >
                     Cadastrar-se agora
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <>
                   Já possui uma conta?{' '}
-                  <button
+                  <Button
                     type="button"
+                    variant="link"
+                    size="sm"
                     onClick={() => handleModeSwitch('login')}
-                    className="cursor-pointer font-bold text-emerald-800 hover:underline"
+                    className="p-0 font-bold text-emerald-800 hover:underline h-auto text-xs"
                   >
                     Fazer login
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
@@ -301,10 +309,12 @@ export function AuthDialog({
             <div className="relative z-10 my-auto space-y-4 py-8">
               <h3 className="text-3xl font-extrabold tracking-tight text-white leading-snug sm:text-4xl">
                 100+ Produtores Locais. <br />
-                <span className="text-emerald-400">1.000+ Produtos</span> Artesanais.
+                <span className="text-emerald-400">1.000+ Produtos</span>{' '}
+                Artesanais.
               </h3>
               <p className="text-xs leading-relaxed text-stone-300 sm:text-sm">
-                Queijos coloniais, vinhos nobres, méis puros e embutidos defumados entregues diretamente da origem para a sua mesa.
+                Queijos coloniais, vinhos nobres, méis puros e embutidos
+                defumados entregues diretamente da origem para a sua mesa.
               </p>
             </div>
 
@@ -315,7 +325,8 @@ export function AuthDialog({
                 <span>Direto do Produtor da Serra</span>
               </div>
               <p className="mt-1.5 text-xs text-stone-300">
-                Apoiando a economia familiar e preservando nossas tradições artesanais.
+                Apoiando a economia familiar e preservando nossas tradições
+                artesanais.
               </p>
             </div>
           </div>

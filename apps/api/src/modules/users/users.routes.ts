@@ -1,6 +1,6 @@
-import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { requirePermission } from '../../shared/middlewares/require-permission'
+import { FastifyInstance } from "fastify";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
+import { requirePermission } from "../../shared/middlewares/require-permission";
 import {
   listUsersController,
   createUserController,
@@ -10,135 +10,135 @@ import {
   getUserStoresController,
   getUserPermissionsController,
   updateUserPermissionsController,
-} from './users.controller'
+} from "./users.controller";
 import {
   userParamsSchema,
   userQuerySchema,
   createUserBodySchema,
   updateUserBodySchema,
   updateUserPermissionsBodySchema,
-} from './users.schemas'
+} from "./users.schemas";
 
 export async function usersRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>()
+  const typedApp = app.withTypeProvider<ZodTypeProvider>();
 
   typedApp.get(
-    '/users',
+    "/users",
     {
-      preHandler: [app.authenticateUser, requirePermission('read', 'User')],
+      preHandler: [app.authenticateUser, requirePermission("read", "User")],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Listar usuários gestores',
+        tags: ["Users Management"],
+        summary: "Listar usuários gestores",
         security: [{ bearerAuth: [] }],
         querystring: userQuerySchema,
       },
     },
-    listUsersController
-  )
+    listUsersController,
+  );
 
   typedApp.post(
-    '/users',
+    "/users",
     {
-      preHandler: [app.authenticateUser, requirePermission('create', 'User')],
+      preHandler: [app.authenticateUser, requirePermission("create", "User")],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Criar novo usuário gestor',
+        tags: ["Users Management"],
+        summary: "Criar novo usuário gestor",
         security: [{ bearerAuth: [] }],
         body: createUserBodySchema,
       },
     },
-    createUserController
-  )
+    createUserController,
+  );
 
   typedApp.get(
-    '/users/:userId',
+    "/users/:userId",
     {
-      preHandler: [app.authenticateUser, requirePermission('read', 'User')],
+      preHandler: [app.authenticateUser, requirePermission("read", "User")],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Consultar detalhes de um usuário gestor',
+        tags: ["Users Management"],
+        summary: "Consultar detalhes de um usuário gestor",
         security: [{ bearerAuth: [] }],
         params: userParamsSchema,
       },
     },
-    getUserController
-  )
+    getUserController,
+  );
 
   typedApp.patch(
-    '/users/:userId',
+    "/users/:userId",
     {
-      preHandler: [app.authenticateUser, requirePermission('update', 'User')],
+      preHandler: [app.authenticateUser, requirePermission("update", "User")],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Atualizar dados de um usuário gestor',
+        tags: ["Users Management"],
+        summary: "Atualizar dados de um usuário gestor",
         security: [{ bearerAuth: [] }],
         params: userParamsSchema,
         body: updateUserBodySchema,
       },
     },
-    updateUserController
-  )
+    updateUserController,
+  );
 
   typedApp.delete(
-    '/users/:userId',
+    "/users/:userId",
     {
-      preHandler: [app.authenticateUser, requirePermission('delete', 'User')],
+      preHandler: [app.authenticateUser, requirePermission("delete", "User")],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Desativar um usuário gestor',
+        tags: ["Users Management"],
+        summary: "Desativar um usuário gestor",
         security: [{ bearerAuth: [] }],
         params: userParamsSchema,
       },
     },
-    deleteUserController
-  )
+    deleteUserController,
+  );
 
   typedApp.get(
-    '/users/:userId/stores',
+    "/users/:userId/stores",
     {
-      preHandler: [app.authenticateUser, requirePermission('read', 'User')],
+      preHandler: [app.authenticateUser, requirePermission("read", "User")],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Listar lojas vinculadas ao usuário gestor',
+        tags: ["Users Management"],
+        summary: "Listar lojas vinculadas ao usuário gestor",
         security: [{ bearerAuth: [] }],
         params: userParamsSchema,
       },
     },
-    getUserStoresController
-  )
+    getUserStoresController,
+  );
 
   typedApp.get(
-    '/users/:userId/permissions',
+    "/users/:userId/permissions",
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission('read', 'Permission'),
+        requirePermission("read", "Permission"),
       ],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Consultar exceções individuais de permissões do usuário',
+        tags: ["Users Management"],
+        summary: "Consultar exceções individuais de permissões do usuário",
         security: [{ bearerAuth: [] }],
         params: userParamsSchema,
       },
     },
-    getUserPermissionsController
-  )
+    getUserPermissionsController,
+  );
 
   typedApp.put(
-    '/users/:userId/permissions',
+    "/users/:userId/permissions",
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission('manage', 'Permission'),
+        requirePermission("manage", "Permission"),
       ],
       schema: {
-        tags: ['Users Management'],
-        summary: 'Definir exceções individuais de permissões do usuário',
+        tags: ["Users Management"],
+        summary: "Definir exceções individuais de permissões do usuário",
         security: [{ bearerAuth: [] }],
         params: userParamsSchema,
         body: updateUserPermissionsBodySchema,
       },
     },
-    updateUserPermissionsController
-  )
+    updateUserPermissionsController,
+  );
 }

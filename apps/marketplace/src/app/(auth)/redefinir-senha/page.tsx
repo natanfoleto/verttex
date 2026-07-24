@@ -8,6 +8,9 @@ import { useForm } from 'react-hook-form'
 import { RiLockPasswordLine } from 'react-icons/ri'
 import { z } from 'zod'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { apiClient, ApiError } from '../../../lib/api-client'
 
 const resetSchema = z
@@ -87,7 +90,7 @@ export default function CustomerResetPasswordPage() {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <input type="hidden" {...register('token')} />
+          <Input type="hidden" {...register('token')} />
 
           <div className="space-y-1">
             <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
@@ -95,11 +98,11 @@ export default function CustomerResetPasswordPage() {
             </label>
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
+              <Input
                 {...register('newPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="pl-10"
               />
             </div>
             {errors.newPassword && (
@@ -115,11 +118,11 @@ export default function CustomerResetPasswordPage() {
             </label>
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
+              <Input
                 {...register('confirmPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-4 pl-10 text-xs text-stone-900 placeholder-stone-400 transition-colors focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="pl-10"
               />
             </div>
             {errors.confirmPassword && (
@@ -129,17 +132,13 @@ export default function CustomerResetPasswordPage() {
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-emerald-800 px-4 py-3 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 disabled:opacity-50"
-          >
+          <Button type="submit" disabled={isLoading} className="w-full">
             {isLoading ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               'Salvar Nova Senha'
             )}
-          </button>
+          </Button>
 
           <div className="pt-2 text-center">
             <Link

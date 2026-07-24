@@ -1,13 +1,13 @@
-import { Resend } from 'resend'
-import { env } from '@verttex/env/api'
+import { Resend } from "resend";
+import { env } from "@verttex/env/api";
 
 function escapeHtml(str: string): string {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 /**
@@ -19,12 +19,12 @@ function escapeHtml(str: string): string {
  * @security SECRETS_MANAGEMENT.md
  */
 export class EmailService {
-  private resend: Resend | null = null
-  private defaultFrom = 'Verttex <no-reply@verttexloja.com.br>'
+  private resend: Resend | null = null;
+  private defaultFrom = "Verttex <no-reply@verttexloja.com.br>";
 
   constructor() {
     if (env.RESEND_API_KEY) {
-      this.resend = new Resend(env.RESEND_API_KEY)
+      this.resend = new Resend(env.RESEND_API_KEY);
     }
   }
 
@@ -32,21 +32,21 @@ export class EmailService {
    * Sends a password reset email to a management user or customer.
    */
   async sendPasswordResetEmail(options: {
-    to: string
-    userName: string
-    resetUrl: string
-    actorType?: 'user' | 'customer'
+    to: string;
+    userName: string;
+    resetUrl: string;
+    actorType?: "user" | "customer";
   }): Promise<boolean> {
     if (!this.resend) {
       console.warn(
-        `[EmailService] RESEND_API_KEY não configurada. E-mail de redefinição de senha para "${options.to}" ignorado.`
-      )
-      return false
+        `[EmailService] RESEND_API_KEY não configurada. E-mail de redefinição de senha para "${options.to}" ignorado.`,
+      );
+      return false;
     }
 
     try {
-      const sanitizedName = escapeHtml(options.userName)
-      const subject = 'Redefinição de Senha — Verttex'
+      const sanitizedName = escapeHtml(options.userName);
+      const subject = "Redefinição de Senha — Verttex";
       const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #18181b;">
           <h2 style="color: #059669; font-size: 20px;">Verttex</h2>
@@ -62,21 +62,21 @@ export class EmailService {
             Se você não solicitou a redefinição de senha, ignore este e-mail. Sua senha continuará a mesma.
           </p>
         </div>
-      `
+      `;
 
       await this.resend.emails.send({
         from: this.defaultFrom,
         to: [options.to],
         subject,
         html,
-      })
+      });
 
-      return true
+      return true;
     } catch (error) {
-      console.error('[EmailService] Falha ao enviar e-mail via Resend:', error)
-      return false
+      console.error("[EmailService] Falha ao enviar e-mail via Resend:", error);
+      return false;
     }
   }
 }
 
-export const emailService = new EmailService()
+export const emailService = new EmailService();

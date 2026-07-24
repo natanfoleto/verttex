@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .filter(
         (p): p is { permissionKey: string; effect: 'allow' | 'deny' } =>
-          p !== null
+          p !== null,
       )
 
     const userToken: UserToken = {
@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refetchUser: refetch,
       logout,
     }),
-    [user, ability, isLoading, isError, refetch, logout]
+    [user, ability, isLoading, isError, refetch, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

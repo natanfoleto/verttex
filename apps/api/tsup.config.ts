@@ -1,10 +1,10 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ['src/server.ts'],
+  entry: ["src/server.ts"],
   splitting: false,
   sourcemap: true,
   clean: true,
-  format: ['esm'],
-  target: 'node20',
-})
+  format: ["esm"],
+  target: "node20",
+});

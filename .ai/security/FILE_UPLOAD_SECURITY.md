@@ -36,10 +36,10 @@ Cliente
 
 Para imagens de produto e avatar:
 
-| Tipo | MIME | Magic Bytes |
-|:---|:---|:---|
-| JPEG | `image/jpeg` | `FF D8 FF` |
-| PNG | `image/png` | `89 50 4E 47 0D 0A 1A 0A` |
+| Tipo | MIME         | Magic Bytes                   |
+| :--- | :----------- | :---------------------------- |
+| JPEG | `image/jpeg` | `FF D8 FF`                    |
+| PNG  | `image/png`  | `89 50 4E 47 0D 0A 1A 0A`     |
 | WebP | `image/webp` | `52 49 46 46 ... 57 45 42 50` |
 
 **Bloqueados inicialmente:** SVG, HTML, XML, ZIP, executáveis, scripts, PDF, documentos Office, formatos não documentados.
@@ -50,10 +50,10 @@ Novos formatos somente após análise de ameaça documentada e testes.
 
 ## 4. Limites
 
-| Tipo | Limite de Tamanho | Pixels máx | Por usuário/dia |
-|:---|:---|:---|:---|
-| Avatar | 5 MB | 25 MP | 10 uploads |
-| Imagem de produto | 10 MB | 25 MP | 100 uploads |
+| Tipo              | Limite de Tamanho | Pixels máx | Por usuário/dia |
+| :---------------- | :---------------- | :--------- | :-------------- |
+| Avatar            | 5 MB              | 25 MP      | 10 uploads      |
+| Imagem de produto | 10 MB             | 25 MP      | 100 uploads     |
 
 ---
 

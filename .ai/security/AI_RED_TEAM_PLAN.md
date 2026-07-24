@@ -9,6 +9,7 @@
 ## Regras Absolutas
 
 É absolutamente proibido:
+
 - Atacar produção ou usuários reais
 - Atacar serviços de terceiros
 - Usar dados reais de usuários ou clientes
@@ -32,12 +33,14 @@
 ## Fases
 
 ### Fase 1 — Mapeamento
+
 - Inventariar todos os endpoints (OpenAPI/Swagger disponível em `/docs`)
 - Mapear autenticação de cada endpoint
 - Mapear permissões e ownership esperados
 - Documentar fluxos de upload quando implementado
 
 ### Fase 2 — Autenticação
+
 - Enumeração de usuários via timing
 - Brute force limitado (ambiente controlado)
 - Bypass de JWT (`alg: none`, assinatura inválida)
@@ -46,12 +49,14 @@
 - Logout sem invalidação de token
 
 ### Fase 3 — Autorização (IDOR/BOLA/BFLA)
+
 - Acessar objeto de outro usuário via ID na URL
 - Escalar privilégios via mass assignment
 - Cross-tenant: usuário de uma loja acessando outra
 - Funcionário acessando endpoint admin
 
 ### Fase 4 — Validação de Entrada
+
 - SQL Injection (mesmo com Prisma)
 - XSS em campos de texto (nome, descrição, slug)
 - Path traversal em parâmetros
@@ -60,6 +65,7 @@
 - Poluição de objetos JSON
 
 ### Fase 5 — Arquivos (quando implementado)
+
 - MIME spoofing
 - Arquivo polyglot (ex: JPG+ZIP)
 - Nome com path traversal
@@ -68,6 +74,7 @@
 - SVG com script
 
 ### Fase 6 — Lógica de Negócio
+
 - Repetição de requisição (replay)
 - Concorrência (duas requisições simultâneas para o mesmo recurso)
 - Transição de estado inválida
@@ -93,6 +100,7 @@ Status:
 ```
 
 ### Fase 8 — Correção e Reteste
+
 1. Criar teste que reproduz a vulnerabilidade
 2. Confirmar que o teste falha (vulnerabilidade reproduzida)
 3. Corrigir

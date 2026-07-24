@@ -25,7 +25,7 @@ Permitir que clientes que compraram produtos avaliem os itens (nota de 1 a 5 est
 
 ## 3. Principais Responsabilidades
 
-- Avaliações exclusivas de compradores confirmados (*verified purchase*).
+- Avaliações exclusivas de compradores confirmados (_verified purchase_).
 - Campo de perguntas & respostas entre visitantes e vendedores da loja no Marketplace.
 - Moderação no Manager para remoção de conteúdo ofensivo ou spam.
 

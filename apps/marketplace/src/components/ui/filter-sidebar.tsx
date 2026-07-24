@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { RiCloseLine, RiFilter3Line } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 export interface CategoryFilterItem {
   id: string
   name: string
@@ -36,13 +39,15 @@ export function FilterSidebar({
           <span>Filtros & Categorias</span>
         </h3>
         {(activeCategorySlug || activeSort !== 'relevancia') && onClearAll && (
-          <button
+          <Button
             type="button"
+            variant="link"
+            size="sm"
             onClick={onClearAll}
-            className="cursor-pointer text-xs font-semibold text-rose-600 transition-colors hover:text-rose-800 hover:underline"
+            className="p-0 text-rose-600 hover:text-rose-800 hover:underline text-xs font-semibold h-auto"
           >
             Limpar tudo
-          </button>
+          </Button>
         )}
       </div>
 
@@ -53,13 +58,15 @@ export function FilterSidebar({
             <span className="inline-flex items-center space-x-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
               <span>{activeCategory.name}</span>
               {onSelectCategory && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => onSelectCategory('')}
-                  className="cursor-pointer rounded-full p-0.5 text-emerald-800 hover:bg-emerald-200"
+                  className="h-4 w-4 p-0 rounded-full text-emerald-800 hover:bg-emerald-200"
                 >
                   <RiCloseLine className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               )}
             </span>
           )}
@@ -74,13 +81,15 @@ export function FilterSidebar({
                     : 'Mais Vendidos'}
               </span>
               {onSelectSort && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => onSelectSort('relevancia')}
-                  className="cursor-pointer rounded-full p-0.5 text-stone-600 hover:bg-stone-200"
+                  className="h-4 w-4 p-0 rounded-full text-stone-600 hover:bg-stone-200"
                 >
                   <RiCloseLine className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               )}
             </span>
           )}
@@ -94,17 +103,18 @@ export function FilterSidebar({
         </h4>
         <ul className="space-y-1 text-sm">
           <li>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => onSelectCategory && onSelectCategory('')}
-              className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left font-medium transition-colors ${
+              className={`flex w-full justify-between text-left font-medium ${
                 !activeCategorySlug
                   ? 'bg-emerald-50 font-bold text-emerald-800'
                   : 'text-stone-700 hover:bg-stone-100'
               }`}
             >
               <span>Todas as Categorias</span>
-            </button>
+            </Button>
           </li>
 
           {categories.map((cat) => {
@@ -112,10 +122,11 @@ export function FilterSidebar({
             return (
               <li key={cat.id || cat.slug}>
                 {onSelectCategory ? (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => onSelectCategory(cat.slug)}
-                    className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left transition-colors ${
+                    className={`flex w-full justify-between text-left ${
                       isSelected
                         ? 'bg-emerald-50 font-bold text-emerald-800'
                         : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
@@ -133,7 +144,7 @@ export function FilterSidebar({
                         ({cat.count})
                       </span>
                     )}
-                  </button>
+                  </Button>
                 ) : (
                   <Link
                     href={`/categorias/${cat.slug}`}
@@ -174,13 +185,13 @@ export function FilterSidebar({
                 key={option.id}
                 className="flex cursor-pointer items-center space-x-2 rounded-lg px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-100"
               >
-                <input
+                <Input
                   type="radio"
                   name="sort"
                   value={option.id}
                   checked={activeSort === option.id}
                   onChange={(e) => onSelectSort(e.target.value)}
-                  className="h-4 w-4 border-stone-300 text-emerald-700 focus:ring-emerald-600"
+                  className="h-4 w-4 border-stone-300 text-emerald-700 focus:ring-emerald-600 cursor-pointer"
                 />
                 <span
                   className={

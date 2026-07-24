@@ -1,6 +1,6 @@
-import './load-env'
-import { createEnv } from '@t3-oss/env-core'
-import { z } from 'zod'
+import "./load-env";
+import { createEnv } from "@t3-oss/env-core";
+import { z } from "zod";
 
 export const env = createEnv({
   server: {
@@ -30,6 +30,6 @@ export const env = createEnv({
     RESEND_API_KEY: process.env.RESEND_API_KEY,
   },
   emptyStringAsUndefined: true,
-})
-export type Env = typeof env
-export { env as apiEnv }
+});
+export type Env = typeof env;
+export { env as apiEnv };

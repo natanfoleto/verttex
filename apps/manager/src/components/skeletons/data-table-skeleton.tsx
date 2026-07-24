@@ -37,7 +37,7 @@ export function DataTableSkeleton({
                 key={`col-${colIndex}`}
                 className={cn(
                   'h-5 animate-pulse rounded-md bg-zinc-800/50',
-                  colIndex === 0 ? 'w-1/3 flex-none' : 'flex-1'
+                  colIndex === 0 ? 'w-1/3 flex-none' : 'flex-1',
                 )}
               />
             ))}

@@ -26,7 +26,7 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 2. **Produtos Simples e Variáveis:**
    - **Produto Simples:** Possui exatamente 1 variação padrão gerada automaticamente no backend.
    - **Produto Variável:** Possui 1 ou mais opções (ex: Cor, Tamanho, Peso) e 2 ou mais variações (combinações de valores).
-   - *Decisão técnica:* Todos os preços, SKUs e estoques residem obrigatoriamente na entidade de **Variação (`ProductVariation`)**. Isso evita código duplicado e unifica a lógica de pedidos e checkout.
+   - _Decisão técnica:_ Todos os preços, SKUs e estoques residem obrigatoriamente na entidade de **Variação (`ProductVariation`)**. Isso evita código duplicado e unifica a lógica de pedidos e checkout.
 3. **Ciclo de Vida do Produto:**
    - `draft` (Rascunho) ──> `active` (Ativo no cadastro) ──> `published` (Visível no Marketplace) / `inactive` / `archived` (Arquivado/Histórico).
 
@@ -35,6 +35,7 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 ## 2. Modelagem Proposta do Banco de Dados
 
 ### Tabela `products` (`Product`)
+
 - `id`: String (cuid, PK)
 - `storeId`: String (FK -> `Store`, onDelete: Cascade)
 - `categoryId`: String (FK -> `Category`)
@@ -60,6 +61,7 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 - `updatedAt`: DateTime (`@updatedAt`)
 
 ### Tabela `product_options` (`ProductOption`)
+
 - `id`: String (cuid, PK)
 - `productId`: String (FK -> `Product`, onDelete: Cascade)
 - `name`: String (ex: "Sabor", "Peso", "Tamanho")
@@ -67,12 +69,14 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 - `createdAt`: DateTime (`now()`)
 
 ### Tabela `product_option_values` (`ProductOptionValue`)
+
 - `id`: String (cuid, PK)
 - `optionId`: String (FK -> `ProductOption`, onDelete: Cascade)
 - `value`: String (ex: "Curado", "Meia Cura", "500g")
 - `position`: Int (`0`)
 
 ### Tabela `product_variations` (`ProductVariation`)
+
 - `id`: String (cuid, PK)
 - `productId`: String (FK -> `Product`, onDelete: Cascade)
 - `sku`: String (`@unique` — código SKU globalmente único)
@@ -92,11 +96,13 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 - `updatedAt`: DateTime (`@updatedAt`)
 
 ### Tabela `product_variation_values` (`ProductVariationValue`)
+
 - `id`: String (cuid, PK)
 - `variationId`: String (FK -> `ProductVariation`, onDelete: Cascade)
 - `optionValueId`: String (FK -> `ProductOptionValue`, onDelete: Cascade)
 
 ### Tabela `files` (`File` / Infraestrutura Reutilizável de Mídias)
+
 - `id`: String (cuid, PK)
 - `publicId`: String (`@unique` - UUID não previsível)
 - `provider`: String (`"cloudflare_r2"`)
@@ -118,6 +124,7 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 - `updatedAt`: DateTime (`@updatedAt`)
 
 ### Tabela `product_medias` (`ProductMedia`)
+
 - `id`: String (cuid, PK)
 - `productId`: String (FK -> `Product`, onDelete: Cascade)
 - `variationId`: String? (FK -> `ProductVariation`, onDelete: SetNull)
@@ -132,6 +139,7 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 ## 3. Infraestrutura Reutilizável de Uploads R2
 
 ### Arquitetura Escolhida: Modelo Híbrido com URL Assinada + Finalização
+
 1. **Solicitação de Upload:** Frontend faz POST `/files/presigned-url` informando `fileName`, `mimeType`, `size` e `purpose`.
 2. **Autorização & Validação:** API valida tamanho (máx 5 MB), extensão (allowlist: `jpg`, `png`, `webp`) e gera uma URL pré-assinada PUT direta para o Cloudflare R2 com expiração de 15 minutos.
 3. **Upload Direto:** Frontend faz PUT diretamente no R2 sem sobrecarregar a memória da API Node.js.
@@ -142,6 +150,7 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 ## 4. Condições Mínimas de Publicação no Marketplace
 
 Um produto somente transiciona para `isPublished = true` se cumprir todas as regras abaixo:
+
 1. Loja vinculada está ativa (`Store.status == "active"`).
 2. Produto marcado como ativo (`Product.status == "active"`).
 3. Categoria vinculada é válida e ativa.

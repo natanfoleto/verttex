@@ -1,23 +1,26 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
   RiCheckLine,
   RiComputerLine,
-  RiLockPasswordLine,
-  RiShieldLine,
-  RiUser3Line,
-  RiMacbookLine,
-  RiSmartphoneLine,
   RiDeleteBin7Line,
+  RiLockPasswordLine,
   RiLogoutBoxRLine,
+  RiMacbookLine,
+  RiShieldLine,
+  RiSmartphoneLine,
+  RiUser3Line,
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 import { z } from 'zod'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { apiClient, ApiError } from '../../../lib/api-client'
 import { useAuth } from '../../../providers/auth-provider'
@@ -140,9 +143,12 @@ export default function ProfilePage() {
   const handleRevokeOthers = async () => {
     try {
       setIsRevokingOthers(true)
-      const res = await apiClient<{ message: string }>('/auth/users/sessions/others', {
-        method: 'DELETE',
-      })
+      const res = await apiClient<{ message: string }>(
+        '/auth/users/sessions/others',
+        {
+          method: 'DELETE',
+        },
+      )
       toast.success(res?.message || 'Outras sessões encerradas com sucesso!')
       refetchSessions()
     } catch {
@@ -217,18 +223,17 @@ export default function ProfilePage() {
                 {profileSuccess}
               </div>
             )}
-
             <form onSubmit={handleUpdateName} className="max-w-2xl space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
                     E-mail
                   </label>
-                  <input
+                  <Input
                     type="email"
                     disabled
                     value={user?.email || ''}
-                    className="mt-1.5 w-full cursor-not-allowed rounded-xl border border-zinc-800/60 bg-zinc-950/60 px-4 py-2.5 text-sm text-zinc-400"
+                    className="mt-1.5 cursor-not-allowed text-zinc-400"
                   />
                 </div>
 
@@ -236,11 +241,11 @@ export default function ProfilePage() {
                   <label className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
                     Cargo de Sistema
                   </label>
-                  <input
+                  <Input
                     type="text"
                     disabled
                     value={user?.role?.name || ''}
-                    className="mt-1.5 w-full cursor-not-allowed rounded-xl border border-zinc-800/60 bg-zinc-950/60 px-4 py-2.5 text-sm text-zinc-400"
+                    className="mt-1.5 cursor-not-allowed text-zinc-400"
                   />
                 </div>
               </div>
@@ -249,60 +254,46 @@ export default function ProfilePage() {
                 <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
                   Nome Completo
                 </label>
-                <input
+                <Input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 transition-colors focus:border-emerald-500 focus:outline-none"
+                  className="mt-1.5"
                 />
               </div>
 
               <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isUpdatingProfile}
-                  className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-colors hover:bg-emerald-500"
-                >
+                <Button type="submit" disabled={isUpdatingProfile}>
                   <RiCheckLine className="h-4 w-4" />
                   <span>
                     {isUpdatingProfile ? 'Atualizando...' : 'Salvar Alterações'}
                   </span>
-                </button>
+                </Button>
               </div>
             </form>
           </div>
         </TabsContent>
 
-        {/* Tab 2: Segurança (Alterar Senha) */}
         <TabsContent value="seguranca" className="space-y-6">
-          <div
-            id="senha"
-            className="w-full space-y-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="rounded-xl border border-purple-800 bg-purple-950 p-2 text-purple-400">
-                <RiLockPasswordLine className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-zinc-200">
-                  Segurança & Credenciais
-                </h2>
-                <p className="text-xs text-zinc-400">
-                  Atualize sua senha de acesso periodicamente para manter sua
-                  conta protegida
-                </p>
-              </div>
+          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-xl space-y-6">
+            <div>
+              <h2 className="text-lg font-bold text-zinc-100">
+                Alteração de Senha
+              </h2>
+              <p className="text-xs text-zinc-400">
+                Atualize sua senha periodicamente para manter a conta segura
+              </p>
             </div>
 
-            {passwordSuccess && (
-              <div className="max-w-2xl rounded-xl border border-emerald-800/80 bg-emerald-950/60 p-3 text-xs text-emerald-300">
-                {passwordSuccess}
+            {passwordError && (
+              <div className="rounded-xl border border-rose-800/80 bg-rose-950/60 p-4 text-xs font-medium text-rose-300">
+                {passwordError}
               </div>
             )}
 
-            {passwordError && (
-              <div className="max-w-2xl rounded-xl border border-rose-800/80 bg-rose-950/60 p-3 text-xs text-rose-300">
-                {passwordError}
+            {passwordSuccess && (
+              <div className="rounded-xl border border-emerald-800/80 bg-emerald-950/60 p-4 text-xs font-medium text-emerald-300">
+                {passwordSuccess}
               </div>
             )}
 
@@ -314,11 +305,11 @@ export default function ProfilePage() {
                 <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
                   Senha Atual
                 </label>
-                <input
+                <Input
                   {...register('currentPassword')}
                   type="password"
                   placeholder="••••••••"
-                  className="mt-1.5 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 transition-colors focus:border-purple-500 focus:outline-none"
+                  className="mt-1.5 focus:border-purple-500"
                 />
                 {passwordErrors.currentPassword && (
                   <p className="mt-1 text-xs text-rose-400">
@@ -332,11 +323,11 @@ export default function ProfilePage() {
                   <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
                     Nova Senha
                   </label>
-                  <input
+                  <Input
                     {...register('newPassword')}
                     type="password"
                     placeholder="••••••••"
-                    className="mt-1.5 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 transition-colors focus:border-purple-500 focus:outline-none"
+                    className="mt-1.5 focus:border-purple-500"
                   />
                   {passwordErrors.newPassword && (
                     <p className="mt-1 text-xs text-rose-400">
@@ -349,11 +340,11 @@ export default function ProfilePage() {
                   <label className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
                     Confirmar Nova Senha
                   </label>
-                  <input
+                  <Input
                     {...register('confirmPassword')}
                     type="password"
                     placeholder="••••••••"
-                    className="mt-1.5 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 transition-colors focus:border-purple-500 focus:outline-none"
+                    className="mt-1.5 focus:border-purple-500"
                   />
                   {passwordErrors.confirmPassword && (
                     <p className="mt-1 text-xs text-rose-400">
@@ -364,13 +355,13 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-2">
-                <button
+                <Button
                   type="submit"
-                  className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-purple-600 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-colors hover:bg-purple-500"
+                  className="bg-purple-600 hover:bg-purple-500"
                 >
                   <RiLockPasswordLine className="h-4 w-4" />
                   <span>Atualizar Senha</span>
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -443,10 +434,11 @@ export default function ProfilePage() {
               </div>
 
               {sessions.filter((s) => !s.isCurrent).length > 0 && (
-                <button
+                <Button
+                  variant="destructive"
+                  size="sm"
                   onClick={handleRevokeOthers}
                   disabled={isRevokingOthers}
-                  className="flex cursor-pointer items-center space-x-2 rounded-xl border border-rose-800/80 bg-rose-950/60 px-4 py-2 text-xs font-medium text-rose-300 transition-colors hover:bg-rose-900/60 hover:text-rose-200"
                 >
                   <RiLogoutBoxRLine className="h-4 w-4" />
                   <span>
@@ -454,7 +446,7 @@ export default function ProfilePage() {
                       ? 'Encerrando...'
                       : 'Encerrar Outras Sessões'}
                   </span>
-                </button>
+                </Button>
               )}
             </div>
 
@@ -527,14 +519,14 @@ export default function ProfilePage() {
                                 year: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit',
-                              }
+                              },
                             )}
                             {session.lastActiveAt && (
                               <span>
                                 {' '}
                                 • Última atividade:{' '}
                                 {new Date(
-                                  session.lastActiveAt
+                                  session.lastActiveAt,
                                 ).toLocaleDateString('pt-BR', {
                                   day: '2-digit',
                                   month: '2-digit',
@@ -548,10 +540,12 @@ export default function ProfilePage() {
                       </div>
 
                       {!session.isCurrent && (
-                        <button
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleRevokeSession(session.id)}
                           disabled={revokingId === session.id}
-                          className="flex cursor-pointer items-center space-x-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-rose-400 transition-colors hover:border-rose-800/80 hover:bg-rose-950/60 hover:text-rose-300"
+                          className="text-rose-400 hover:text-rose-300"
                         >
                           <RiDeleteBin7Line className="h-3.5 w-3.5" />
                           <span>
@@ -559,7 +553,7 @@ export default function ProfilePage() {
                               ? 'Encerrando...'
                               : 'Encerrar Sessão'}
                           </span>
-                        </button>
+                        </Button>
                       )}
                     </div>
                   )

@@ -48,7 +48,7 @@ export interface AuditListResponse {
 }
 
 export async function listAuditLogs(
-  filters: AuditFilters
+  filters: AuditFilters,
 ): Promise<AuditListResponse> {
   const params = new URLSearchParams()
 
@@ -62,4 +62,3 @@ export async function listAuditLogs(
   // apiClient returns the full response when 'meta' is present (see api-client.ts)
   return apiClient<AuditListResponse>(`/audit?${params.toString()}`)
 }
-

@@ -12,7 +12,9 @@ import {
   RiUserSharedLine,
 } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
 import { apiClient } from '../../../../lib/api-client'
 import { storeQueryKeys } from '../../../../lib/query-keys'
 import { ProductsTable } from '../../produtos/components/products-table'
@@ -83,25 +85,27 @@ export default function StoreDetailPage({
             <RiUserSharedLine className="h-4 w-4" />
             <span>Gerenciar Membros</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => setIsEditOpen(true)}
-            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition-colors hover:bg-emerald-500"
-          >
+          <Button type="button" onClick={() => setIsEditOpen(true)}>
             <RiEditLine className="h-4 w-4" />
             <span>Editar Loja</span>
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 inline-flex bg-zinc-900/80 p-1">
-          <TabsTrigger value="overview" className="flex items-center space-x-2 text-xs">
+          <TabsTrigger
+            value="overview"
+            className="flex items-center space-x-2 text-xs"
+          >
             <RiInformationLine className="h-4 w-4" />
             <span>Visão Geral</span>
           </TabsTrigger>
-          <TabsTrigger value="products" className="flex items-center space-x-2 text-xs">
+          <TabsTrigger
+            value="products"
+            className="flex items-center space-x-2 text-xs"
+          >
             <RiShoppingBag3Line className="h-4 w-4" />
             <span>Produtos da Loja</span>
           </TabsTrigger>
@@ -117,7 +121,9 @@ export default function StoreDetailPage({
 
               <div className="space-y-3 text-sm">
                 <div>
-                  <span className="block text-xs text-zinc-500">Status Atual</span>
+                  <span className="block text-xs text-zinc-500">
+                    Status Atual
+                  </span>
                   <span
                     className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                       store.status === 'active'
@@ -193,7 +199,7 @@ export default function StoreDetailPage({
                           </span>
                         )}
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               ) : (

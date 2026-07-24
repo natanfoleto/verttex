@@ -1,5 +1,5 @@
-import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { FastifyInstance } from "fastify";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
   loginController,
   logoutController,
@@ -11,197 +11,197 @@ import {
   listSessionsController,
   revokeSessionController,
   revokeOtherSessionsController,
-} from './auth-users.controller'
+} from "./auth-users.controller";
 import {
   loginBodySchema,
   forgotPasswordBodySchema,
   resetPasswordBodySchema,
   changePasswordBodySchema,
-} from './auth-users.schemas'
+} from "./auth-users.schemas";
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === "development";
 
 export async function authUsersRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>()
+  const typedApp = app.withTypeProvider<ZodTypeProvider>();
 
   typedApp.post(
-    '/login',
+    "/login",
     {
       config: {
         rateLimit: {
           max: 20,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => `login:ip:${req.ip}`,
           allowList: () => isDev,
           errorResponseBuilder: (_req, context) => ({
             success: false,
-            error: 'RATE_LIMIT_EXCEEDED',
+            error: "RATE_LIMIT_EXCEEDED",
             message: `Muitas tentativas de login. Tente novamente em ${Math.ceil(context.ttl / 1000)} segundo(s).`,
             retryAfter: Math.ceil(context.ttl / 1000),
           }),
         },
       },
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Autenticar usuário gestor',
+        tags: ["Auth — Management Users"],
+        summary: "Autenticar usuário gestor",
         body: loginBodySchema,
       },
     },
-    loginController
-  )
+    loginController,
+  );
 
   typedApp.post(
-    '/logout',
+    "/logout",
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Encerrar sessão do usuário gestor',
+        tags: ["Auth — Management Users"],
+        summary: "Encerrar sessão do usuário gestor",
         security: [{ bearerAuth: [] }],
       },
     },
-    logoutController
-  )
+    logoutController,
+  );
 
   typedApp.post(
-    '/refresh',
+    "/refresh",
     {
       config: {
         rateLimit: {
           max: 30,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => `refresh:ip:${req.ip}`,
           allowList: () => isDev,
         },
       },
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Renovar token de acesso do usuário gestor',
+        tags: ["Auth — Management Users"],
+        summary: "Renovar token de acesso do usuário gestor",
       },
     },
-    refreshController
-  )
+    refreshController,
+  );
 
   typedApp.post(
-    '/forgot-password',
+    "/forgot-password",
     {
       config: {
         rateLimit: {
           max: 10,
-          timeWindow: '30 minutes',
+          timeWindow: "30 minutes",
           keyGenerator: (req) => `forgot:ip:${req.ip}`,
           allowList: () => isDev,
           errorResponseBuilder: (_req, context) => ({
             success: false,
-            error: 'RATE_LIMIT_EXCEEDED',
+            error: "RATE_LIMIT_EXCEEDED",
             message: `Muitas solicitações de recuperação. Tente novamente em ${Math.ceil(context.ttl / 60000)} minuto(s).`,
             retryAfter: Math.ceil(context.ttl / 1000),
           }),
         },
       },
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Solicitar recuperação de senha do usuário gestor',
+        tags: ["Auth — Management Users"],
+        summary: "Solicitar recuperação de senha do usuário gestor",
         body: forgotPasswordBodySchema,
       },
     },
-    forgotPasswordController
-  )
+    forgotPasswordController,
+  );
 
   typedApp.post(
-    '/reset-password',
+    "/reset-password",
     {
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => `reset:ip:${req.ip}`,
           allowList: () => isDev,
         },
       },
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Redefinir senha do usuário gestor via token',
+        tags: ["Auth — Management Users"],
+        summary: "Redefinir senha do usuário gestor via token",
         body: resetPasswordBodySchema,
       },
     },
-    resetPasswordController
-  )
+    resetPasswordController,
+  );
 
   typedApp.post(
-    '/change-password',
+    "/change-password",
     {
       preHandler: [app.authenticateUser],
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: '15 minutes',
+          timeWindow: "15 minutes",
           keyGenerator: (req) => {
-            const payload = (req as any).userPayload
-            return `change-pwd:user:${payload?.id ?? req.ip}`
+            const payload = (req as any).userPayload;
+            return `change-pwd:user:${payload?.id ?? req.ip}`;
           },
           allowList: () => isDev,
         },
       },
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Alterar própria senha do usuário gestor',
+        tags: ["Auth — Management Users"],
+        summary: "Alterar própria senha do usuário gestor",
         security: [{ bearerAuth: [] }],
         body: changePasswordBodySchema,
       },
     },
-    changePasswordController
-  )
+    changePasswordController,
+  );
 
   typedApp.get(
-    '/me',
+    "/me",
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Retornar dados do usuário gestor autenticado',
+        tags: ["Auth — Management Users"],
+        summary: "Retornar dados do usuário gestor autenticado",
         security: [{ bearerAuth: [] }],
       },
     },
-    meController
-  )
+    meController,
+  );
 
   typedApp.get(
-    '/sessions',
+    "/sessions",
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Listar sessões ativas do usuário gestor',
+        tags: ["Auth — Management Users"],
+        summary: "Listar sessões ativas do usuário gestor",
         security: [{ bearerAuth: [] }],
       },
     },
-    listSessionsController
-  )
+    listSessionsController,
+  );
 
   typedApp.delete(
-    '/sessions/others',
+    "/sessions/others",
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Encerrar todas as outras sessões ativas do usuário',
+        tags: ["Auth — Management Users"],
+        summary: "Encerrar todas as outras sessões ativas do usuário",
         security: [{ bearerAuth: [] }],
       },
     },
-    revokeOtherSessionsController
-  )
+    revokeOtherSessionsController,
+  );
 
   typedApp.delete(
-    '/sessions/:sessionId',
+    "/sessions/:sessionId",
     {
       preHandler: [app.authenticateUser],
       schema: {
-        tags: ['Auth — Management Users'],
-        summary: 'Encerrar uma sessão ativa específica',
+        tags: ["Auth — Management Users"],
+        summary: "Encerrar uma sessão ativa específica",
         security: [{ bearerAuth: [] }],
       },
     },
-    revokeSessionController
-  )
+    revokeSessionController,
+  );
 }

@@ -119,7 +119,7 @@ export default function RoleDetailPage({
                     {rp.permission.module}
                   </span>
                 </div>
-              )
+              ),
             )}
           </div>
         ) : (

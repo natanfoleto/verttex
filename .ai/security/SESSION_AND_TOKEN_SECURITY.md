@@ -28,6 +28,7 @@ UserSession / CustomerSession ← registra sessionId, ipAddress, userAgent, revo
 ```
 
 **Gaps (a implementar na Fase 4):**
+
 - `jti`: UUID v4 — necessário para denylist
 - `iss`: identificador do emissor
 - `aud`: audiência esperada (`manager` / `marketplace`)
@@ -58,28 +59,28 @@ UserSession / CustomerSession ← registra sessionId, ipAddress, userAgent, revo
 
 ### Eventos que devem revogar sessões
 
-| Evento | Ação |
-|:---|:---|
-| Logout | Revogar sessão atual + (Fase 4) jti na denylist |
-| Logout de todos dispositivos | Revogar todas as sessões |
-| Alteração de senha | Revogar todas as sessões |
-| Reset de senha | Revogar todas as sessões |
-| Desativação de usuário | Revogar todas as sessões |
-| Alteração crítica de cargo | Revogar todas as sessões (planejado) |
-| Detecção de comprometimento | Revogar todas as sessões |
-| Reutilização de refresh token | Revogar família inteira (Fase 5) |
+| Evento                        | Ação                                            |
+| :---------------------------- | :---------------------------------------------- |
+| Logout                        | Revogar sessão atual + (Fase 4) jti na denylist |
+| Logout de todos dispositivos  | Revogar todas as sessões                        |
+| Alteração de senha            | Revogar todas as sessões                        |
+| Reset de senha                | Revogar todas as sessões                        |
+| Desativação de usuário        | Revogar todas as sessões                        |
+| Alteração crítica de cargo    | Revogar todas as sessões (planejado)            |
+| Detecção de comprometimento   | Revogar todas as sessões                        |
+| Reutilização de refresh token | Revogar família inteira (Fase 5)                |
 
 ### Implementação atual
 
-| Evento | Status |
-|:---|:---|
-| Logout | ✅ `revokedAt` na sessão |
-| Logout de outros dispositivos | ✅ `revokeOtherSessions` |
-| Alteração de senha | ✅ Transação com `updateMany({ revokedAt })` |
-| Reset de senha | ✅ Transação com `updateMany({ revokedAt })` |
-| Desativação de usuário | ✅ `status !== 'active'` verificado em cada request |
-| Denylist de jti | ❌ Não implementado — VULN-004 — Fase 4 |
-| Detecção de refresh token reutilizado | ❌ Não implementado — VULN-006 — Fase 5 |
+| Evento                                | Status                                              |
+| :------------------------------------ | :-------------------------------------------------- |
+| Logout                                | ✅ `revokedAt` na sessão                            |
+| Logout de outros dispositivos         | ✅ `revokeOtherSessions`                            |
+| Alteração de senha                    | ✅ Transação com `updateMany({ revokedAt })`        |
+| Reset de senha                        | ✅ Transação com `updateMany({ revokedAt })`        |
+| Desativação de usuário                | ✅ `status !== 'active'` verificado em cada request |
+| Denylist de jti                       | ❌ Não implementado — VULN-004 — Fase 4             |
+| Detecção de refresh token reutilizado | ❌ Não implementado — VULN-006 — Fase 5             |
 
 ---
 
@@ -100,10 +101,10 @@ UserSession / CustomerSession ← registra sessionId, ipAddress, userAgent, revo
 
 ## 6. Armazenamento de Tokens no Cliente
 
-| Token | Armazenamento | Justificativa |
-|:---|:---|:---|
-| Access token | Cookie HttpOnly OU memory (JS) | Não em localStorage — XSS inacessível |
-| Refresh token | Cookie HttpOnly apenas | HttpOnly + path restrito + Secure |
+| Token         | Armazenamento                  | Justificativa                         |
+| :------------ | :----------------------------- | :------------------------------------ |
+| Access token  | Cookie HttpOnly OU memory (JS) | Não em localStorage — XSS inacessível |
+| Refresh token | Cookie HttpOnly apenas         | HttpOnly + path restrito + Secure     |
 
 **Configuração de cookies:**
 

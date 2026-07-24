@@ -191,7 +191,8 @@ Every feature screen must implement:
 
 ### 10.1 Independent Frontend Shadcn UI Architecture & Mandatory Component Policy
 
-> **MANDATORY POLICY & STRICT COMPONENT REUSE RULE**:  
+> **MANDATORY POLICY & STRICT COMPONENT REUSE RULE**:
+>
 > 1. **Shadcn UI is the Primary Component Library**: Every new page, modal, layout, form element, data table, menu, drawer, tab group, badge, card, or visual component **MUST first seek and reuse official Shadcn UI / Radix UI components** (`@/components/ui/...`). Building custom HTML/CSS controls (such as custom `<div>` modals, custom tab systems, or ad-hoc dropdowns) is strictly prohibited whenever an equivalent Shadcn component exists. Custom component creation is reserved strictly for rare, complex edge cases not covered by Shadcn/Radix.
 > 2. **Component Installation & Location**: Install and configure Shadcn components directly within the target frontend application (`apps/manager/src/components/ui/` or `apps/marketplace/src/components/ui/`).
 > 3. **Import Pattern Standard**:
@@ -202,6 +203,7 @@ Every feature screen must implement:
 ### 10.2 Modal & Dialog Standard (Shadcn UI Primitives)
 
 > **MANDATORY POLICY & STRICT PROHIBITION**:
+>
 > 1. **Zero Native Browser Dialogs (`confirm()`, `alert()`, `prompt()`)**: Native browser popups are strictly forbidden throughout the entire application. All destructive or confirmation prompts (such as archiving, deleting, or status changes) **MUST use the Shadcn UI `AlertDialog` component** (`AlertDialog`, `AlertDialogContent`, `AlertDialogHeader`, `AlertDialogTitle`, `AlertDialogDescription`, `AlertDialogFooter`, `AlertDialogCancel`, `AlertDialogAction` from `@/components/ui/alert-dialog`).
 > 2. **Zero Custom `<div>` Modals**: It is strictly forbidden to build custom popups using raw `<div>` overlays (`fixed inset-0 flex...`). All creation, editing, detail, or confirmation popups **MUST reuse the official Shadcn UI / Radix UI dialog primitives** (`Dialog`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription`, `DialogFooter`, `DialogClose` from `@/components/ui/dialog`, or `Sheet` / `AlertDialog`).
 > 3. **Mandatory `cursor-pointer`**: Every clickable element in modals, forms, tables, and dialog close/action/cancel buttons **MUST include `cursor-pointer`**.
@@ -298,8 +300,8 @@ Every feature screen must implement:
   1. **Painel Principal** (`/`)
   2. **Catálogo & Taxonomia** (`/categorias`, `/marcas`)
   3. **Lojas Parceiras** (`/lojas`)
-  4. **Gestão de Acessos** (`/usuarios`, `/cargos`) — *Sempre no final*
-  5. **Logs de Auditoria** (`/auditoria`) — *Sempre por último*
+  4. **Gestão de Acessos** (`/usuarios`, `/cargos`) — _Sempre no final_
+  5. **Logs de Auditoria** (`/auditoria`) — _Sempre por último_
 
 ### 10.6 Category Tabs (`Tabs`)
 
@@ -348,6 +350,7 @@ Every feature screen must implement:
 > **MANDATORY POLICY**: Technical infrastructure details **MUST NEVER appear in any text visible to the end user**. This includes labels, button text, form descriptions, toast notifications, error messages, tooltips, and any other UI element rendered to the user.
 
 **Prohibited examples (never use):**
+
 - ❌ `"Upload via Cloudflare R2"`
 - ❌ `"Sincronizando com Redis"`
 - ❌ `"Arquivo salvo no bucket S3"`
@@ -357,28 +360,65 @@ Every feature screen must implement:
 - ❌ `"Erro 500: Internal Server Error"`
 
 **Correct substitutions (always use friendly language):**
+
 - ✅ `"Imagem do Produto"` (instead of "Upload via Cloudflare R2 Direct")
 - ✅ `"Imagem enviada com sucesso!"` (instead of "Arquivo salvo no bucket")
 - ✅ `"Sua sessão expirou. Faça login novamente."` (instead of "Token JWT expirado")
 - ✅ `"Erro ao processar a solicitação."` (instead of "Erro 500: Internal Server Error")
 
 **Allowed locations for technical detail:**
+
 - Code comments (for developer context)
 - Internal logs and terminal output
 - Technical documentation (`.ai/` docs, `README.md`)
+
+### 10.13 Política Estrita de Componentes Shadcn UI e Proibição de HTML Nativo em Funcionalidades
+
+> **MANDATORY POLICY & NON-NEGOTIABLE ARCHITECTURAL RULE**:
+> 
+> 1. **Shadcn UI é a Única Fonte Principal de Componentes Visuais**: Todo e qualquer controle interativo, botão, campo de texto, caixa de seleção, menu dropdown, modal, popup de confirmação, painel lateral, tooltip, aba, badge, card ou elemento visual utilizado em páginas e componentes de funcionalidades de `apps/manager` e `apps/marketplace` **DEVE OBRIGATORIAMENTE utilizar os componentes do Shadcn UI / Radix UI** (`@/components/ui/...`).
+> 2. **Proibição Estrita de Controles Nativos**: É expressamente proibido escrever elementos HTML nativos (`<button>`, `<input>`, `<select>`, `<textarea>`, `<dialog>`, etc.) ou modais/popups improvisados (como `div` com `fixed inset-0`) nas telas de funcionalidade do sistema.
+> 3. **Organização Independente por App**: `apps/manager` possui seus próprios componentes shadcn (`apps/manager/src/components/ui/`) e `apps/marketplace` possui os seus (`apps/marketplace/src/components/ui/`). Não deve ser recriado pacote compartilhado de UI nem importados componentes entre apps.
+> 4. **Proteção Automatizada via Lint**: O projeto utiliza a regra ESLint `react/forbid-elements` configurada no pacote `@verttex/eslint-config/react.js`, bloqueando a compilação caso elementos nativos como `<button>`, `<input>`, `<select>`, `<textarea>`, `<dialog>` sejam utilizados fora do diretório `components/ui/`.
+
+#### Tabela de Equivalências Obrigatórias:
+
+| Elemento Nativo Proibido ❌ | Componente Shadcn Obrigatório ✅ | Import Padrão |
+|---|---|---|
+| `<button onClick={...}>` | `<Button onClick={...}>` | `import { Button } from '@/components/ui/button'` |
+| `<input type="text">` | `<Input type="text" />` | `import { Input } from '@/components/ui/input'` |
+| `<textarea>` | `<Textarea />` | `import { Textarea } from '@/components/ui/textarea'` |
+| `<select>` | `<Select>` / `<NativeSelect>` | `import { NativeSelect } from '@/components/ui/native-select'` |
+| `<input type="checkbox">` | `<Checkbox />` | `import { Checkbox } from '@/components/ui/checkbox'` |
+| `<dialog>` / custom `div` | `<Dialog>` / `<AlertDialog>` | `import { Dialog } from '@/components/ui/dialog'` |
+| custom menu `div` | `<DropdownMenu>` | `import { DropdownMenu } from '@/components/ui/dropdown-menu'` |
+| custom drawer `div` | `<Sheet>` | `import { Sheet } from '@/components/ui/sheet'` |
+
+#### Processo Obrigatório para Novos Componentes:
+
+Antes de implementar qualquer elemento de interface:
+1. **Verificar se já existe** na pasta `components/ui/` do aplicativo correspondente (`manager` ou `marketplace`).
+2. **Verificar se existe componente equivalente no Shadcn UI / Radix UI**.
+3. **Instalar o componente oficial do Shadcn** na aplicação correspondente quando necessário (`npx shadcn@latest add ...`).
+4. **Customizar por composição, propriedades ou variantes Tailwind**, mantendo as primitivas acessíveis e com `cursor-pointer` em elementos clicáveis.
+5. **Nunca criar abstrações artesanais ou tags HTML nativas** que concorram com componentes existentes.
+6. **Exceções Legítimas**: Elementos semânticos e estruturais de layout (`<main>`, `<section>`, `<article>`, `<header>`, `<footer>`, `<nav>`, `<div>`, `<p>`, `<span>`, `<h1>-<h6>`, `<a>`, `<ul>`, `<ol>`, `<li>`, `<img>`) são permitidos quando não representam controles de formulário nem componentes de UI padronizados. Elements nativos dentro da pasta `components/ui/` são permitidos apenas para a implementação interna das primitivas do Shadcn.
 
 ---
 
 ## 11. Marketplace Visual Identity & Design System (`apps/marketplace`)
 
 ### 11.1 Identity Concept
+
 The Verttex Marketplace connects regional consumers with artisan producers, farm-to-table food makers, and authentic local products. The visual language balances:
+
 - **Artesanal + Moderno**
 - **Humano + Tecnológico**
 - **Regional + Profissional**
 - **Bonito + Funcional**
 
 ### 11.2 Palette & Color Tokens
+
 - **Brand Primary**: Emerald (`#065f46` / `emerald-800`) — represents freshness, regional origin, and trust.
 - **Brand Secondary / Origin Highlights**: Warm Amber/Terracotta (`#b45309` / `amber-700`, `bg-amber-50`, `border-amber-200`) — represents craft, passion, and local heritage.
 - **Background Neutral**: Warm Off-White (`#faf8f5` / `stone-50`).
@@ -387,12 +427,13 @@ The Verttex Marketplace connects regional consumers with artisan producers, farm
 - **Feedback States**: Success (`emerald-700`), Alert (`amber-600`), Error (`rose-600`).
 
 ### 11.3 Core Component Standards
+
 - **Border Radius Scale**: Moderated border radius across all marketplace components (`rounded-xl` for cards/containers, `rounded-lg` for inputs, buttons, and inner elements, `rounded-full` for badges and avatar circles). Avoid overly rounded `rounded-3xl` radii.
 - **Micro-Interactions**: Clean color transitions (`hover:border-emerald-300`, `hover:bg-emerald-700`) without intrusive `scale-105`/`scale-110` transform shifts.
 - **Header (`MarketplaceHeader`) — Double-Tier Architecture**:
   - **Tier 1 (Announcement Bar)**: Slim dark utility bar (`bg-stone-900 text-stone-200 text-xs py-1.5`).
   - **Tier 2 (Main Header Row)**: Brand logo, wide global search input (center), and customer account / wishlist buttons (`rounded-lg`).
-  - **Tier 3 (Secondary Sub-Header Bar)**: Secondary navigation bar (`bg-stone-50/90 border-t border-stone-200/80`) featuring hover dropdown submenus (*"Todas as Categorias"*, *"Queijos Artesanais"*, *"Vinhos & Bebidas"*, *"Produtores & Lojas"*, *"Ofertas Regionais"*). Hovering any menu item displays a clean floating dropdown (`rounded-lg bg-white border border-stone-200 shadow-xl p-2`).
+  - **Tier 3 (Secondary Sub-Header Bar)**: Secondary navigation bar (`bg-stone-50/90 border-t border-stone-200/80`) featuring hover dropdown submenus (_"Todas as Categorias"_, _"Queijos Artesanais"_, _"Vinhos & Bebidas"_, _"Produtores & Lojas"_, _"Ofertas Regionais"_). Hovering any menu item displays a clean floating dropdown (`rounded-lg bg-white border border-stone-200 shadow-xl p-2`).
 - **Footer (`MarketplaceFooter`) — Mercado Livre Style**:
   - **Top Value Props**: Clean white section with 3 centered value columns (`Escolha como pagar`, `Frete e entrega na sua região`, `Segurança, do início ao fim`) with clean icons (`RiBankCardLine`, `RiTruckLine`, `RiShieldCheckLine`) and action links.
   - **Bottom Compact Bar**: Light gray background (`bg-stone-50`) featuring inline navigation links, copyright notice (`Copyright © 2026 Verttex Mercado Regional Ltda.`), and CNPJ / location info.
@@ -412,4 +453,3 @@ The Verttex Marketplace connects regional consumers with artisan producers, farm
   - Category list accordion with counts, sorting selector, active filter chips with quick remove buttons.
 - **Empty States & Skeletons (`EmptyState`, `SkeletonLoader`)**:
   - Clean illustrated empty states and pulse loading skeletons for grids.
-

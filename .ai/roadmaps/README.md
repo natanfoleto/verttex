@@ -43,6 +43,7 @@ Os arquivos utilizam numeração sequencial de três dígitos:
 ```
 
 Regras:
+
 - Letras minúsculas
 - Nomes técnicos claros em inglês ou português
 - Hífen separando palavras
@@ -53,25 +54,26 @@ Regras:
 
 ## 4. Status e Ciclo de Vida
 
-| Status | Pasta | Descrição |
-|:---|:---|:---|
-| `planned` | `planned/` | Definido, aprovado e aguardando início de implementação |
-| `active` | `active/` | Em desenvolvimento ativo (somente 1 por vez, salvo independência documentada) |
-| `completed` | `completed/` | Totalmente implementado, testado e validado com evidências |
-| `archived` | `archived/` | Cancelado, substituído ou descontinuado (motivo documentado) |
+| Status      | Pasta        | Descrição                                                                     |
+| :---------- | :----------- | :---------------------------------------------------------------------------- |
+| `planned`   | `planned/`   | Definido, aprovado e aguardando início de implementação                       |
+| `active`    | `active/`    | Em desenvolvimento ativo (somente 1 por vez, salvo independência documentada) |
+| `completed` | `completed/` | Totalmente implementado, testado e validado com evidências                    |
+| `archived`  | `archived/`  | Cancelado, substituído ou descontinuado (motivo documentado)                  |
 
 ---
 
 ## 5. Critérios Rigorosos de Conclusão
 
 Um roadmap somente poderá ser movido para `completed/` quando:
+
 1. Todas as etapas obrigatórias tiverem sido implementadas.
 2. Os testes tiverem sido executados e aprovados.
 3. A documentação relacionada tiver sido atualizada.
 4. Não existirem pendências bloqueadoras.
 5. Houver evidências verificáveis da conclusão.
 
-*Código gerado ou compilação bem-sucedida, isoladamente, não constituem conclusão de roadmap.*
+_Código gerado ou compilação bem-sucedida, isoladamente, não constituem conclusão de roadmap._
 
 ---
 
@@ -81,6 +83,7 @@ Um roadmap somente poderá ser movido para `completed/` quando:
 # Roadmap NNN — Nome do Roadmap
 
 ## Metadados
+
 - Status: [planned | active | completed | archived]
 - Prioridade: [critical | high | medium | low]
 - Criado em: YYYY-MM-DD
@@ -89,12 +92,20 @@ Um roadmap somente poderá ser movido para `completed/` quando:
 - Dependências: Roadmap XXX, Roadmap YYY
 
 ## Objetivos
+
 ## Escopo
+
 ## Fora do Escopo
+
 ## Regras de Negócio Aplicáveis
+
 ## Alterações na API / Banco de Dados / UI
+
 ## Passos de Implementação
+
 ## Testes e Validações
+
 ## Critérios de Aceite e Evidências
+
 ## Registro de Alterações
 ```

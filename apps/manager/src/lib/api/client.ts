@@ -2,7 +2,7 @@ import { managerEnv } from '@verttex/env/manager'
 
 export async function fetchApi<T>(
   path: string,
-  options?: RequestInit
+  options?: RequestInit,
 ): Promise<T> {
   const baseUrl = managerEnv.NEXT_PUBLIC_API_URL
   const response = await fetch(`${baseUrl}${path}`, {
@@ -21,7 +21,7 @@ export async function fetchApi<T>(
       errorData = { error: { message: 'Erro desconhecido' } }
     }
     throw new Error(
-      errorData?.error?.message || `HTTP error ${response.status}`
+      errorData?.error?.message || `HTTP error ${response.status}`,
     )
   }
 

@@ -9,10 +9,12 @@ import {
   RiShieldCheckLine,
 } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
+
 import { TableWrapper } from '../../../components/ui/table-wrapper'
-import { listAuditLogs } from '../../../lib/api/audit'
 import type { AuditLogEntry } from '../../../lib/api/audit'
+import { listAuditLogs } from '../../../lib/api/audit'
 import { auditQueryKeys } from '../../../lib/query-keys'
 
 // ─── Entity Labels ────────────────────────────────────────────────────────────
@@ -35,63 +37,61 @@ function getEntityLabel(entity: string): string {
 
 // ─── Action Badge ─────────────────────────────────────────────────────────────
 
-const actionBadgeConfig: Record<
-  string,
-  { label: string; className: string }
-> = {
-  CREATE: {
-    label: 'Criar',
-    className: 'border-emerald-800 bg-emerald-950 text-emerald-400',
-  },
-  UPDATE: {
-    label: 'Atualizar',
-    className: 'border-blue-800 bg-blue-950 text-blue-400',
-  },
-  DELETE: {
-    label: 'Excluir',
-    className: 'border-rose-800 bg-rose-950 text-rose-400',
-  },
-  LOGIN: {
-    label: 'Login',
-    className: 'border-violet-800 bg-violet-950 text-violet-400',
-  },
-  LOGOUT: {
-    label: 'Logout',
-    className: 'border-zinc-700 bg-zinc-800 text-zinc-300',
-  },
-  LOGIN_FAILED: {
-    label: 'Login Falhou',
-    className: 'border-orange-800 bg-orange-950 text-orange-400',
-  },
-  STATUS_CHANGE: {
-    label: 'Status',
-    className: 'border-amber-800 bg-amber-950 text-amber-400',
-  },
-  PERMISSION_CHANGE: {
-    label: 'Permissão',
-    className: 'border-purple-800 bg-purple-950 text-purple-400',
-  },
-  PASSWORD_RESET: {
-    label: 'Reset Senha',
-    className: 'border-zinc-700 bg-zinc-800 text-zinc-300',
-  },
-  PASSWORD_CHANGE: {
-    label: 'Alt. Senha',
-    className: 'border-zinc-700 bg-zinc-800 text-zinc-300',
-  },
-  MEMBER_ADD: {
-    label: 'Membro +',
-    className: 'border-emerald-800 bg-emerald-950 text-emerald-400',
-  },
-  MEMBER_REMOVE: {
-    label: 'Membro -',
-    className: 'border-rose-800 bg-rose-950 text-rose-400',
-  },
-  SYSTEM_ACTION: {
-    label: 'Sistema',
-    className: 'border-indigo-800 bg-indigo-950 text-indigo-400',
-  },
-}
+const actionBadgeConfig: Record<string, { label: string; className: string }> =
+  {
+    CREATE: {
+      label: 'Criar',
+      className: 'border-emerald-800 bg-emerald-950 text-emerald-400',
+    },
+    UPDATE: {
+      label: 'Atualizar',
+      className: 'border-blue-800 bg-blue-950 text-blue-400',
+    },
+    DELETE: {
+      label: 'Excluir',
+      className: 'border-rose-800 bg-rose-950 text-rose-400',
+    },
+    LOGIN: {
+      label: 'Login',
+      className: 'border-violet-800 bg-violet-950 text-violet-400',
+    },
+    LOGOUT: {
+      label: 'Logout',
+      className: 'border-zinc-700 bg-zinc-800 text-zinc-300',
+    },
+    LOGIN_FAILED: {
+      label: 'Login Falhou',
+      className: 'border-orange-800 bg-orange-950 text-orange-400',
+    },
+    STATUS_CHANGE: {
+      label: 'Status',
+      className: 'border-amber-800 bg-amber-950 text-amber-400',
+    },
+    PERMISSION_CHANGE: {
+      label: 'Permissão',
+      className: 'border-purple-800 bg-purple-950 text-purple-400',
+    },
+    PASSWORD_RESET: {
+      label: 'Reset Senha',
+      className: 'border-zinc-700 bg-zinc-800 text-zinc-300',
+    },
+    PASSWORD_CHANGE: {
+      label: 'Alt. Senha',
+      className: 'border-zinc-700 bg-zinc-800 text-zinc-300',
+    },
+    MEMBER_ADD: {
+      label: 'Membro +',
+      className: 'border-emerald-800 bg-emerald-950 text-emerald-400',
+    },
+    MEMBER_REMOVE: {
+      label: 'Membro -',
+      className: 'border-rose-800 bg-rose-950 text-rose-400',
+    },
+    SYSTEM_ACTION: {
+      label: 'Sistema',
+      className: 'border-indigo-800 bg-indigo-950 text-indigo-400',
+    },
+  }
 
 function ActionBadge({ action }: { action: string }) {
   const config = actionBadgeConfig[action.toUpperCase()] ?? {
@@ -140,10 +140,10 @@ type DiffLine = {
 
 function buildDiffLines(
   oldObj: Record<string, unknown>,
-  newObj: Record<string, unknown>
+  newObj: Record<string, unknown>,
 ): DiffLine[] {
   const allKeys = Array.from(
-    new Set([...Object.keys(oldObj), ...Object.keys(newObj)])
+    new Set([...Object.keys(oldObj), ...Object.keys(newObj)]),
   )
   const lines: DiffLine[] = [{ text: '{', type: 'unchanged' }]
 
@@ -279,9 +279,7 @@ function ExpandedRow({ log }: { log: AuditLogEntry }) {
               <dl className="space-y-2">
                 <div>
                   <dt className="font-semibold text-zinc-500">IP Address</dt>
-                  <dd className="text-zinc-300">
-                    {log.ipAddress ?? '—'}
-                  </dd>
+                  <dd className="text-zinc-300">{log.ipAddress ?? '—'}</dd>
                 </div>
                 <div>
                   <dt className="font-semibold text-zinc-500">User-Agent</dt>
@@ -342,7 +340,7 @@ export default function AuditPage() {
   const logs = data?.data?.logs ?? []
   const filterOptions = data?.data?.filters
   const hasActiveFilters = Boolean(
-    search || userIdFilter || actionFilter || entityFilter
+    search || userIdFilter || actionFilter || entityFilter,
   )
 
   const clearFilters = () => {
@@ -433,13 +431,14 @@ export default function AuditPage() {
             </NativeSelect>
 
             {hasActiveFilters && (
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={clearFilters}
-                className="cursor-pointer rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
               >
                 Limpar
-              </button>
+              </Button>
             )}
           </div>
         }

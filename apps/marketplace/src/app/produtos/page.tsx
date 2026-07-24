@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { RiFilter3Line, RiSearchLine } from 'react-icons/ri'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { EmptyState } from '../../components/ui/empty-state'
 import { FilterSidebar } from '../../components/ui/filter-sidebar'
 import { ProductCard, ProductCardProps } from '../../components/ui/product-card'
@@ -134,7 +137,7 @@ export default function ProductsListingPage() {
   const totalPages = Math.ceil(filteredProducts.length / perPage) || 1
   const paginatedProducts = filteredProducts.slice(
     (page - 1) * perPage,
-    page * perPage
+    page * perPage,
   )
 
   return (
@@ -160,14 +163,15 @@ export default function ProductsListingPage() {
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            className="inline-flex items-center space-x-2 rounded-lg border border-stone-200 bg-white px-4 py-2.5 text-xs font-semibold text-stone-700 shadow-xs lg:hidden"
+            className="lg:hidden"
           >
             <RiFilter3Line className="h-4 w-4 text-emerald-700" />
             <span>Filtrar Produtos</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -230,7 +234,7 @@ export default function ProductsListingPage() {
           <div className="flex flex-col items-stretch justify-between gap-4 rounded-xl border border-stone-200/80 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
+              <Input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => {
@@ -238,7 +242,7 @@ export default function ProductsListingPage() {
                   setPage(1)
                 }}
                 placeholder="Filtrar por nome de produto..."
-                className="h-10 w-full rounded-lg border border-stone-200 bg-stone-50 pr-4 pl-10 text-xs text-stone-900 focus:border-emerald-600 focus:bg-white focus:outline-none"
+                className="h-10 pl-10"
               />
             </div>
 
@@ -268,25 +272,30 @@ export default function ProductsListingPage() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t border-stone-200 pt-6 text-xs text-stone-600">
                   <span>
-                    Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+                    Página <strong>{page}</strong> de{' '}
+                    <strong>{totalPages}</strong>
                   </span>
                   <div className="flex items-center space-x-2">
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       disabled={page <= 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3.5 py-2 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       Anterior
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       disabled={page >= totalPages}
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      className="cursor-pointer rounded-lg border border-stone-200 bg-white px-3.5 py-2 font-medium transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
                     >
                       Próxima
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
