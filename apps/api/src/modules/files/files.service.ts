@@ -1,8 +1,9 @@
 import { FastifyRequest } from "fastify";
 import { prisma } from "../../infrastructure/database/prisma";
-import { UploadService } from "../../shared/services/upload.service";
+import { UploadService, DirectUploadParams } from "../../shared/services/upload.service";
 import { FinalizeUploadParams, RequestUploadBody } from "./files.schemas";
 import { logAudit } from "../../shared/utils/audit";
+import { r2Storage } from "../../infrastructure/storage/r2";
 
 export class FilesService {
   static async requestUpload(
@@ -28,6 +29,28 @@ export class FilesService {
         fileName: body.fileName,
         size: body.size,
         purpose: body.purpose,
+      },
+      req,
+    });
+
+    return result;
+  }
+
+  static async directUpload(
+    params: DirectUploadParams,
+    req?: FastifyRequest,
+  ) {
+    const result = await UploadService.directUpload(params);
+
+    await logAudit({
+      userId: params.userId || null,
+      action: "UPLOAD_FILE",
+      entity: "File",
+      entityId: result.id,
+      newValues: {
+        fileName: params.fileName,
+        size: params.buffer.length,
+        purpose: params.purpose,
       },
       req,
     });
@@ -61,6 +84,13 @@ export class FilesService {
         deletedAt: null,
       },
     });
-    return file;
+
+    if (!file) return null;
+
+    const publicUrl = await r2Storage.getFileUrl(file.objectKey);
+    return {
+      ...file,
+      publicUrl,
+    };
   }
 }

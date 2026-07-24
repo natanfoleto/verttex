@@ -310,7 +310,9 @@ export function ProductFormDialog({
         setMediaItems(
           productToEdit.medias.map((m) => ({
             fileId: m.fileId,
-            previewUrl: `https://pub-verttex.r2.dev/${m.file.objectKey}`,
+            previewUrl:
+              (m.file as any)?.publicUrl ||
+              `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${m.file.objectKey}`,
             originalName: m.file.originalName,
             isMain: m.isMain,
           })),
@@ -390,44 +392,70 @@ export function ProductFormDialog({
         const file = files[i]
         if (!file) continue
 
-        // 1. Request presigned URL
-        const presigned = await apiClient('/files/presigned-url', {
-          method: 'POST',
-          body: JSON.stringify({
-            fileName: file.name,
-            mimeType: file.type,
-            size: file.size,
-            purpose: 'product_image',
-            storeId: selectedStoreId,
-          }),
-        })
+        let fileId: string | null = null
+        let publicUrl: string | null = null
 
-        // 2. Upload file directly
-        await fetch(presigned.uploadUrl, {
-          method: 'PUT',
-          body: file,
-          headers: { 'Content-Type': file.type },
-        }).catch(() => null)
-
-        // 3. Finalize upload
-        const finalized = await apiClient(
-          `/files/${presigned.fileId}/finalize`,
-          {
+        // Try direct Presigned PUT upload first
+        try {
+          const presignedRes = await apiClient('/files/presigned-url', {
             method: 'POST',
-          },
-        )
+            body: JSON.stringify({
+              fileName: file.name,
+              mimeType: file.type,
+              size: file.size,
+              purpose: 'product_image',
+              storeId: selectedStoreId,
+            }),
+          })
+          const presigned = presignedRes.data || presignedRes
 
-        const localPreview = URL.createObjectURL(file)
+          const putRes = await fetch(presigned.uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: { 'Content-Type': file.type },
+          })
 
-        setMediaItems((prev) => [
-          ...prev,
-          {
-            fileId: finalized.id,
-            previewUrl: localPreview,
-            originalName: file.name,
-            isMain: prev.length === 0, // First uploaded is main by default
-          },
-        ])
+          if (putRes.ok) {
+            const finalizedRes = await apiClient(
+              `/files/${presigned.fileId}/finalize`,
+              { method: 'POST' },
+            )
+            const finalized = finalizedRes.data || finalizedRes
+            fileId = finalized.id || presigned.fileId
+            publicUrl = finalized.publicUrl || presigned.publicUrl
+          }
+        } catch {
+          // Presigned URL or direct PUT failed — proceed to API multipart fallback
+        }
+
+        // Fallback: Upload directly to Fastify API endpoint -> Cloudflare R2
+        if (!fileId) {
+          const formData = new FormData()
+          formData.append('file', file)
+          formData.append('purpose', 'product_image')
+          formData.append('storeId', selectedStoreId)
+
+          const uploadRes = await apiClient('/files/upload', {
+            method: 'POST',
+            body: formData,
+          })
+          const uploadedFile = uploadRes.data || uploadRes
+          fileId = uploadedFile.id
+          publicUrl = uploadedFile.publicUrl
+        }
+
+        if (fileId) {
+          const localPreview = publicUrl || URL.createObjectURL(file)
+          setMediaItems((prev) => [
+            ...prev,
+            {
+              fileId: fileId!,
+              previewUrl: localPreview,
+              originalName: file.name,
+              isMain: prev.length === 0,
+            },
+          ])
+        }
       }
 
       toast.success('Imagem(ns) enviada(s) com sucesso!')

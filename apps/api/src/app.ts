@@ -13,6 +13,7 @@ import { jwtPlugin } from "./plugins/jwt";
 import { cookiePlugin } from "./plugins/cookie";
 import { authPlugin } from "./plugins/auth";
 import { swaggerPlugin } from "./plugins/swagger";
+import { multipartPlugin } from "./plugins/multipart";
 
 import { httpErrorHandler } from "./shared/errors/http-error-handler";
 import { registerModules } from "./modules";
@@ -36,6 +37,7 @@ export function buildApp() {
   app.register(rateLimitPlugin);
 
   // Plugins
+  app.register(multipartPlugin);
   app.register(requestContextPlugin);
   app.register(corsPlugin);
   app.register(jwtPlugin);

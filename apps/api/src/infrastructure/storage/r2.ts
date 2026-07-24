@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { apiEnv } from "@verttex/env/api";
 
 export class R2Storage {
@@ -27,26 +28,51 @@ export class R2Storage {
     }
   }
 
+  get isConfigured(): boolean {
+    return Boolean(this.s3);
+  }
+
+  async getPresignedUploadUrl(
+    key: string,
+    contentType: string,
+  ): Promise<string> {
+    const cleanKey = key.replace(/^\//, "");
+
+    if (!this.s3) {
+      return `http://localhost:3333/files/local-upload/${encodeURIComponent(cleanKey)}`;
+    }
+
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: cleanKey,
+      ContentType: contentType,
+    });
+
+    return getSignedUrl(this.s3, command, { expiresIn: 900 });
+  }
+
   async uploadFile(
     key: string,
     body: Buffer,
     contentType: string,
   ): Promise<string> {
+    const cleanKey = key.replace(/^\//, "");
+
     if (!this.s3) {
       console.warn("R2 Client is not configured. Simulating file upload.");
-      return `http://localhost:3333/mock-storage/${key}`;
+      return this.getFileUrl(cleanKey);
     }
 
     await this.s3.send(
       new PutObjectCommand({
         Bucket: this.bucketName,
-        Key: key,
+        Key: cleanKey,
         Body: body,
         ContentType: contentType,
       }),
     );
 
-    return this.getFileUrl(key);
+    return this.getFileUrl(cleanKey);
   }
 
   async getFileUrl(key: string): Promise<string> {
@@ -66,6 +92,8 @@ export class R2Storage {
   }
 
   async deleteFile(key: string): Promise<void> {
+    const cleanKey = key.replace(/^\//, "");
+
     if (!this.s3) {
       console.warn("R2 Client is not configured. Simulating file delete.");
       return;
@@ -74,8 +102,10 @@ export class R2Storage {
     await this.s3.send(
       new DeleteObjectCommand({
         Bucket: this.bucketName,
-        Key: key,
+        Key: cleanKey,
       }),
     );
   }
 }
+
+export const r2Storage = new R2Storage();

@@ -193,8 +193,11 @@ export function ProductsTable({
 
   const getMainImage = (prod: ProductToEdit) => {
     const mainMedia = prod.medias?.find((m) => m.isMain) || prod.medias?.[0]
-    if (mainMedia?.file?.objectKey) {
-      return `https://pub-verttex.r2.dev/${mainMedia.file.objectKey}`
+    if (mainMedia?.file) {
+      if ((mainMedia.file as any).publicUrl) return (mainMedia.file as any).publicUrl
+      if (mainMedia.file.objectKey) {
+        return `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${mainMedia.file.objectKey}`
+      }
     }
     return null
   }

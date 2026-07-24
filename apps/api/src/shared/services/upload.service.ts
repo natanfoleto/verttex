@@ -1,11 +1,21 @@
 import { apiEnv } from "@verttex/env/api";
 import { AppError } from "../errors/app-error";
 import { prisma } from "../../infrastructure/database/prisma";
+import { r2Storage } from "../../infrastructure/storage/r2";
 
 export interface RequestUploadParams {
   fileName: string;
   mimeType: string;
   size: number;
+  purpose: "product_image" | "category_icon" | "brand_logo" | "store_logo";
+  storeId?: string | null;
+  userId?: string | null;
+}
+
+export interface DirectUploadParams {
+  fileName: string;
+  mimeType: string;
+  buffer: Buffer;
   purpose: "product_image" | "category_icon" | "brand_logo" | "store_logo";
   storeId?: string | null;
   userId?: string | null;
@@ -52,7 +62,7 @@ export class UploadService {
     // Create File database record in 'pending' status
     const file = await prisma.file.create({
       data: {
-        provider: apiEnv.R2_ENDPOINT ? "cloudflare_r2" : "local",
+        provider: r2Storage.isConfigured ? "cloudflare_r2" : "local",
         bucket,
         objectKey,
         originalName: fileName,
@@ -66,22 +76,76 @@ export class UploadService {
       },
     });
 
-    // Mock/Real presigned PUT URL
-    const uploadUrl = apiEnv.R2_PUBLIC_URL
-      ? `${apiEnv.R2_PUBLIC_URL.replace(/\/$/, "")}/${objectKey}`
-      : `http://localhost:3333/uploads/${objectKey}?fileId=${file.id}`;
+    const uploadUrl = await r2Storage.getPresignedUploadUrl(objectKey, mimeType);
+    const publicUrl = await r2Storage.getFileUrl(objectKey);
 
     return {
       fileId: file.id,
       publicId: file.publicId,
       uploadUrl,
+      publicUrl,
       objectKey,
       expiresInSeconds: 900, // 15 minutes
     };
   }
 
   /**
-   * Finalizes file upload server-side, verifying magic bytes signature and updating status to approved
+   * Direct multipart upload into Cloudflare R2
+   */
+  static async directUpload(params: DirectUploadParams) {
+    const { fileName, mimeType, buffer, purpose, storeId, userId } = params;
+    const size = buffer.length;
+
+    if (size > MAX_FILE_SIZE_BYTES) {
+      throw new AppError(
+        "VALIDATION_ERROR",
+        `O tamanho do arquivo excede o limite máximo permitido de 5 MB (${Math.round(size / 1024 / 1024)} MB enviado)`,
+        400,
+      );
+    }
+
+    const extension = ALLOWED_MIME_TYPES[mimeType.toLowerCase()];
+    if (!extension) {
+      throw new AppError(
+        "VALIDATION_ERROR",
+        `Formato de arquivo não suportado (${mimeType}). Formatos aceitos: JPEG, PNG, WebP. SVGs e scripts são desativados por segurança.`,
+        400,
+      );
+    }
+
+    const uniqueId =
+      Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+    const objectKey = `uploads/${purpose}/${uniqueId}.${extension}`;
+    const bucket = apiEnv.R2_BUCKET_NAME || "verttex";
+
+    // Upload to Cloudflare R2
+    const publicUrl = await r2Storage.uploadFile(objectKey, buffer, mimeType);
+
+    // Create File database record directly in 'approved' status
+    const file = await prisma.file.create({
+      data: {
+        provider: r2Storage.isConfigured ? "cloudflare_r2" : "local",
+        bucket,
+        objectKey,
+        originalName: fileName,
+        extension,
+        mimeType,
+        size,
+        status: "approved",
+        purpose,
+        storeId: storeId || null,
+        userId: userId || null,
+      },
+    });
+
+    return {
+      ...file,
+      publicUrl,
+    };
+  }
+
+  /**
+   * Finalizes file upload server-side, updating status to approved
    */
   static async finalizeUpload(fileId: string) {
     const file = await prisma.file.findUnique({
@@ -96,23 +160,25 @@ export class UploadService {
       );
     }
 
-    if (file.status === "approved") {
-      return file;
-    }
+    const publicUrl = await r2Storage.getFileUrl(file.objectKey);
 
-    // Generate SHA-256 checksum for audit and deduplication
-    const mockChecksum = Buffer.from(`${file.id}-${file.objectKey}`).toString(
-      "hex",
-    );
+    if (file.status === "approved") {
+      return {
+        ...file,
+        publicUrl,
+      };
+    }
 
     const updatedFile = await prisma.file.update({
       where: { id: fileId },
       data: {
         status: "approved",
-        checksum: mockChecksum,
       },
     });
 
-    return updatedFile;
+    return {
+      ...updatedFile,
+      publicUrl,
+    };
   }
 }

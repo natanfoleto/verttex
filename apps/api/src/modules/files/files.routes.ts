@@ -3,6 +3,7 @@ import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { requirePermission } from "../../shared/middlewares/require-permission";
 import {
+  directUploadController,
   finalizeUploadController,
   getFileController,
   requestUploadController,
@@ -27,6 +28,19 @@ export async function filesRoutes(app: FastifyInstance) {
       },
     },
     requestUploadController,
+  );
+
+  typedApp.post(
+    "/upload",
+    {
+      preHandler: [app.authenticateUser, requirePermission("create", "File")],
+      schema: {
+        tags: ["Files — Media Management"],
+        summary: "Upload direto multipart/form-data de arquivo para Cloudflare R2",
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    directUploadController,
   );
 
   typedApp.post(
