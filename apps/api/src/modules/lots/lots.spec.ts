@@ -16,7 +16,11 @@ describe("LotsService — Expiration Condition Analysis", () => {
     const warningDate = new Date();
     warningDate.setDate(warningDate.getDate() + 20);
 
-    const result = LotsService.calculateExpirationCondition(warningDate, 15, 30);
+    const result = LotsService.calculateExpirationCondition(
+      warningDate,
+      15,
+      30,
+    );
     expect(result.condition).toBe("warning");
     expect(result.isExpired).toBe(false);
   });
@@ -25,7 +29,11 @@ describe("LotsService — Expiration Condition Analysis", () => {
     const insufficientDate = new Date();
     insufficientDate.setDate(insufficientDate.getDate() + 10);
 
-    const result = LotsService.calculateExpirationCondition(insufficientDate, 15, 30);
+    const result = LotsService.calculateExpirationCondition(
+      insufficientDate,
+      15,
+      30,
+    );
     expect(result.condition).toBe("insufficient");
     expect(result.isExpired).toBe(false);
   });

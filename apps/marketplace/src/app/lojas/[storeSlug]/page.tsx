@@ -1,77 +1,77 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { use } from 'react'
+import Link from "next/link";
+import { use } from "react";
 import {
   RiArrowLeftLine,
   RiCheckLine,
   RiMapPinLine,
   RiShieldCheckLine,
   RiStore2Line,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
 import {
   ProductCard,
   ProductCardProps,
-} from '../../../components/ui/product-card'
+} from "../../../components/ui/product-card";
 
 const MOCK_STORE_PRODUCTS: ProductCardProps[] = [
   {
-    id: 'p1',
-    name: 'Queijo Colonial Meia Cura da Serra',
+    id: "p1",
+    name: "Queijo Colonial Meia Cura da Serra",
     price: 48.9,
     originalPrice: 58.9,
-    unit: 'peça (500g)',
+    unit: "peça (500g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Queijaria Alvorada',
-    storeSlug: 'queijaria-alvorada',
-    origin: 'Serra Gaúcha, RS',
+      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
+    storeName: "Queijaria Alvorada",
+    storeSlug: "queijaria-alvorada",
+    origin: "Serra Gaúcha, RS",
     rating: 4.9,
     reviewsCount: 38,
     isBestSeller: true,
   },
   {
-    id: 'p2',
-    name: 'Queijo Parmesão Artesanal Maturado 12 Meses',
+    id: "p2",
+    name: "Queijo Parmesão Artesanal Maturado 12 Meses",
     price: 78.0,
-    unit: 'peça (500g)',
+    unit: "peça (500g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Queijaria Alvorada',
-    storeSlug: 'queijaria-alvorada',
-    origin: 'Serra Gaúcha, RS',
+      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
+    storeName: "Queijaria Alvorada",
+    storeSlug: "queijaria-alvorada",
+    origin: "Serra Gaúcha, RS",
     rating: 5.0,
     reviewsCount: 42,
-    badge: 'Edição Especial',
+    badge: "Edição Especial",
   },
   {
-    id: 'p3',
-    name: 'Manteiga Colonial de Leite Cru',
+    id: "p3",
+    name: "Manteiga Colonial de Leite Cru",
     price: 22.9,
-    unit: 'pote (200g)',
+    unit: "pote (200g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Queijaria Alvorada',
-    storeSlug: 'queijaria-alvorada',
-    origin: 'Serra Gaúcha, RS',
+      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
+    storeName: "Queijaria Alvorada",
+    storeSlug: "queijaria-alvorada",
+    origin: "Serra Gaúcha, RS",
     rating: 4.8,
     reviewsCount: 19,
   },
-]
+];
 
 export default function StoreDetailPage({
   params,
 }: {
-  params: Promise<{ storeSlug: string }>
+  params: Promise<{ storeSlug: string }>;
 }) {
-  const resolvedParams = use(params)
-  const storeSlug = resolvedParams.storeSlug
+  const resolvedParams = use(params);
+  const storeSlug = resolvedParams.storeSlug;
 
   const formattedStoreName = storeSlug
-    .split('-')
+    .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+    .join(" ");
 
   return (
     <div className="space-y-8 pb-16 font-sans text-stone-900">
@@ -175,5 +175,5 @@ export default function StoreDetailPage({
         </div>
       </div>
     </div>
-  )
+  );
 }

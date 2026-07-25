@@ -1,41 +1,41 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { RiCheckLine, RiLockPasswordLine, RiUser3Line } from 'react-icons/ri'
+import Link from "next/link";
+import { useState } from "react";
+import { RiCheckLine, RiLockPasswordLine, RiUser3Line } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { CustomerAuthGuard } from '../../components/guards/customer-auth-guard'
-import { apiClient } from '../../lib/api-client'
-import { useCustomer } from '../../providers/customer-auth-provider'
+import { CustomerAuthGuard } from "../../components/guards/customer-auth-guard";
+import { apiClient } from "../../lib/api-client";
+import { useCustomer } from "../../providers/customer-auth-provider";
 
 export default function CustomerProfilePage() {
-  const { customer, refetchCustomer } = useCustomer()
+  const { customer, refetchCustomer } = useCustomer();
 
-  const [name, setName] = useState(customer?.name || '')
-  const [phone, setPhone] = useState(customer?.phone || '')
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [name, setName] = useState(customer?.name || "");
+  const [phone, setPhone] = useState(customer?.phone || "");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      setIsSubmitting(true)
-      await apiClient('/customer/profile', {
-        method: 'PATCH',
+      setIsSubmitting(true);
+      await apiClient("/customer/profile", {
+        method: "PATCH",
         body: JSON.stringify({ name, phone }),
-      })
-      refetchCustomer()
-      setSuccessMessage('Perfil atualizado com sucesso!')
-      setTimeout(() => setSuccessMessage(null), 3000)
+      });
+      refetchCustomer();
+      setSuccessMessage("Perfil atualizado com sucesso!");
+      setTimeout(() => setSuccessMessage(null), 3000);
     } catch {
-      setSuccessMessage('Erro ao atualizar perfil.')
+      setSuccessMessage("Erro ao atualizar perfil.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <CustomerAuthGuard>
@@ -83,7 +83,7 @@ export default function CustomerProfilePage() {
               <Input
                 type="email"
                 disabled
-                value={customer?.email || ''}
+                value={customer?.email || ""}
                 className="mt-1.5 cursor-not-allowed text-stone-500"
               />
             </div>
@@ -118,11 +118,11 @@ export default function CustomerProfilePage() {
               className="mt-4 w-full"
             >
               <RiCheckLine className="h-4 w-4" />
-              <span>{isSubmitting ? 'Salvando...' : 'Salvar Alterações'}</span>
+              <span>{isSubmitting ? "Salvando..." : "Salvar Alterações"}</span>
             </Button>
           </form>
         </div>
       </div>
     </CustomerAuthGuard>
-  )
+  );
 }

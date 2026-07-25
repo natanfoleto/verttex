@@ -28,7 +28,11 @@ export class StockService {
     });
 
     if (!variation || variation.product.storeId !== body.storeId) {
-      throw new AppError("NOT_FOUND", "Variação do produto não encontrada nesta loja", 404);
+      throw new AppError(
+        "NOT_FOUND",
+        "Variação do produto não encontrada nesta loja",
+        404,
+      );
     }
 
     const product = variation.product;
@@ -68,7 +72,11 @@ export class StockService {
             minReceivingDays,
             30,
           );
-          if (expAnalysis.isExpired || (expAnalysis.daysRemaining !== null && expAnalysis.daysRemaining < minReceivingDays)) {
+          if (
+            expAnalysis.isExpired ||
+            (expAnalysis.daysRemaining !== null &&
+              expAnalysis.daysRemaining < minReceivingDays)
+          ) {
             throw new AppError(
               "VALIDATION_ERROR",
               `Lote "${item.lotNumber}" rejeitado no recebimento: validade restante (${expAnalysis.daysRemaining || 0} dias) está abaixo do mínimo exigido no recebimento (${minReceivingDays} dias)`,
@@ -96,8 +104,12 @@ export class StockService {
               lotNumber: item.lotNumber.trim(),
               manufacturer: item.manufacturer?.trim() || null,
               supplier: item.supplier?.trim() || null,
-              manufacturingDate: item.manufacturingDate ? new Date(item.manufacturingDate) : null,
-              expirationDate: item.expirationDate ? new Date(item.expirationDate) : null,
+              manufacturingDate: item.manufacturingDate
+                ? new Date(item.manufacturingDate)
+                : null,
+              expirationDate: item.expirationDate
+                ? new Date(item.expirationDate)
+                : null,
               notes: item.notes?.trim() || null,
               createdBy: userId,
               updatedBy: userId,
@@ -137,7 +149,9 @@ export class StockService {
             targetLocationId: locationId,
             type: "RECEIVING",
             quantity: item.quantity,
-            reason: body.documentReference ? `Recebimento NFe/Doc: ${body.documentReference}` : "Recebimento de mercadoria",
+            reason: body.documentReference
+              ? `Recebimento NFe/Doc: ${body.documentReference}`
+              : "Recebimento de mercadoria",
             referenceId: body.documentReference || null,
             userId,
           },
@@ -180,7 +194,8 @@ export class StockService {
    * Query commercial availability using FEFO (First Expired, First Out)
    */
   static async queryCommercialAvailability(query: QueryAvailabilityQuery) {
-    const { storeId, variationId, estimatedDeliveryDate, requestedQuantity } = query;
+    const { storeId, variationId, estimatedDeliveryDate, requestedQuantity } =
+      query;
 
     const variation = await prisma.productVariation.findFirst({
       where: { id: variationId, deletedAt: null },
@@ -188,7 +203,11 @@ export class StockService {
     });
 
     if (!variation || variation.product.storeId !== storeId) {
-      throw new AppError("NOT_FOUND", "Variação do produto não encontrada", 404);
+      throw new AppError(
+        "NOT_FOUND",
+        "Variação do produto não encontrada",
+        404,
+      );
     }
 
     const product = variation.product;
@@ -206,14 +225,19 @@ export class StockService {
       },
     });
 
-    const deliveryTargetDate = estimatedDeliveryDate ? new Date(estimatedDeliveryDate) : new Date();
+    const deliveryTargetDate = estimatedDeliveryDate
+      ? new Date(estimatedDeliveryDate)
+      : new Date();
 
     // FEFO Filtering & Sorting
     const eligibleAllocations: any[] = [];
     let totalCommercialAvailable = 0;
 
     for (const item of stockItems) {
-      const netAvailable = Math.max(0, item.physicalQuantity - item.reservedQuantity);
+      const netAvailable = Math.max(
+        0,
+        item.physicalQuantity - item.reservedQuantity,
+      );
       if (netAvailable <= 0) continue;
 
       let isEligible = true;
@@ -236,7 +260,9 @@ export class StockService {
           isEligible = false;
         } else if (item.lot.expirationDate) {
           const expTime = new Date(item.lot.expirationDate).getTime();
-          const targetTimeWithMargin = deliveryTargetDate.getTime() + minDeliveryDays * 24 * 60 * 60 * 1000;
+          const targetTimeWithMargin =
+            deliveryTargetDate.getTime() +
+            minDeliveryDays * 24 * 60 * 60 * 1000;
           if (expTime < targetTimeWithMargin) {
             isEligible = false; // Insufficient shelf life for delivery
           }
@@ -261,11 +287,16 @@ export class StockService {
     // Sort by FEFO: 1) Earliest expiration ASC, 2) Earliest receivedAt ASC
     eligibleAllocations.sort((a, b) => {
       if (a.expirationDate && b.expirationDate) {
-        return new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime();
+        return (
+          new Date(a.expirationDate).getTime() -
+          new Date(b.expirationDate).getTime()
+        );
       }
       if (a.expirationDate) return -1;
       if (b.expirationDate) return 1;
-      return new Date(a.receivedAt).getTime() - new Date(b.receivedAt).getTime();
+      return (
+        new Date(a.receivedAt).getTime() - new Date(b.receivedAt).getTime()
+      );
     });
 
     // Fulfill requested quantity across FEFO allocations
@@ -353,7 +384,11 @@ export class StockService {
       entity: "StockItem",
       entityId: updatedItem.id,
       oldValues: { physicalQuantity: previousQty },
-      newValues: { physicalQuantity: body.newPhysicalQuantity, diff, reason: body.reason },
+      newValues: {
+        physicalQuantity: body.newPhysicalQuantity,
+        diff,
+        reason: body.reason,
+      },
       req,
     });
 
@@ -391,7 +426,8 @@ export class StockService {
       },
     });
 
-    const type = body.reason === "expired" ? "EXPIRATION_DISCARD" : "DAMAGE_DISCARD";
+    const type =
+      body.reason === "expired" ? "EXPIRATION_DISCARD" : "DAMAGE_DISCARD";
 
     await prisma.stockMovement.create({
       data: {

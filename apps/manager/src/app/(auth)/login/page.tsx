@@ -1,34 +1,34 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import Link from 'next/link'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   RiEyeLine,
   RiEyeOffLine,
   RiLockPasswordLine,
   RiMailLine,
   RiShieldCheckLine,
-} from 'react-icons/ri'
-import { z } from 'zod'
+} from "react-icons/ri";
+import { z } from "zod";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { apiClient, ApiError } from '../../../lib/api-client'
+import { apiClient, ApiError } from "../../../lib/api-client";
 
 const loginSchema = z.object({
-  email: z.string().email('Informe um e-mail válido'),
-  password: z.string().min(1, 'A senha é obrigatória'),
-})
+  email: z.string().email("Informe um e-mail válido"),
+  password: z.string().min(1, "A senha é obrigatória"),
+});
 
-type LoginFormData = z.infer<typeof loginSchema>
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const [serverError, setServerError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -37,30 +37,30 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'admin@verttexloja.com.br',
-      password: '',
+      email: "admin@verttexloja.com.br",
+      password: "",
     },
-  })
+  });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      setServerError(null)
-      setIsLoading(true)
-      await apiClient('/auth/users/login', {
-        method: 'POST',
+      setServerError(null);
+      setIsLoading(true);
+      await apiClient("/auth/users/login", {
+        method: "POST",
         body: JSON.stringify(data),
-      })
-      window.location.href = '/'
+      });
+      window.location.href = "/";
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        setServerError(err.message)
+        setServerError(err.message);
       } else {
-        setServerError('Falha na autenticação. Verifique suas credenciais.')
+        setServerError("Falha na autenticação. Verifique suas credenciais.");
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-zinc-950 px-4 font-sans text-zinc-100 antialiased selection:bg-emerald-500 selection:text-white">
@@ -104,7 +104,7 @@ export default function LoginPage() {
             <div className="relative">
               <RiMailLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-emerald-400" />
               <Input
-                {...register('email')}
+                {...register("email")}
                 id="email"
                 name="email"
                 type="email"
@@ -138,10 +138,10 @@ export default function LoginPage() {
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors" />
               <Input
-                {...register('password')}
+                {...register("password")}
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 className="pl-10 pr-11 h-11 rounded-2xl"
               />
@@ -152,7 +152,7 @@ export default function LoginPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute top-1/2 right-2.5 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
                 tabIndex={-1}
-                aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
+                aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
               >
                 {showPassword ? (
                   <RiEyeOffLine className="h-4 w-4" />
@@ -189,5 +189,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

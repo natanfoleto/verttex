@@ -1,83 +1,87 @@
-'use client'
+"use client";
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import Link from 'next/link'
-import { use, useState } from 'react'
-import { RiArrowLeftLine, RiDeleteBinLine, RiUserAddLine } from 'react-icons/ri'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { use, useState } from "react";
+import {
+  RiArrowLeftLine,
+  RiDeleteBinLine,
+  RiUserAddLine,
+} from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/components/ui/native-select'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 
-import { apiClient, ApiError } from '../../../../../lib/api-client'
-import { invalidateStores } from '../../../../../lib/query-keys'
+import { apiClient, ApiError } from "../../../../../lib/api-client";
+import { invalidateStores } from "../../../../../lib/query-keys";
 
 export default function StoreMembersPage({
   params,
 }: {
-  params: Promise<{ storeId: string }>
+  params: Promise<{ storeId: string }>;
 }) {
-  const resolvedParams = use(params)
-  const storeId = resolvedParams.storeId
-  const queryClient = useQueryClient()
+  const resolvedParams = use(params);
+  const storeId = resolvedParams.storeId;
+  const queryClient = useQueryClient();
 
-  const [selectedUserId, setSelectedUserId] = useState('')
-  const [isOwner, setIsOwner] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: store, isLoading: isLoadingStore } = useQuery({
-    queryKey: ['store-detail', storeId],
+    queryKey: ["store-detail", storeId],
     queryFn: () => apiClient(`/stores/${storeId}`),
-  })
+  });
 
   const { data: usersData } = useQuery({
-    queryKey: ['all-users-select'],
-    queryFn: () => apiClient('/users?perPage=100'),
-  })
+    queryKey: ["all-users-select"],
+    queryFn: () => apiClient("/users?perPage=100"),
+  });
 
   const addMemberMutation = useMutation({
     mutationFn: (body: { userId: string; isOwner: boolean }) =>
       apiClient(`/stores/${storeId}/users`, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(body),
       }),
     onSuccess: () => {
-      invalidateStores(queryClient, storeId)
-      setSelectedUserId('')
-      setIsOwner(false)
-      setErrorMessage(null)
+      invalidateStores(queryClient, storeId);
+      setSelectedUserId("");
+      setIsOwner(false);
+      setErrorMessage(null);
     },
     onError: (err: unknown) => {
       if (err instanceof ApiError) {
-        setErrorMessage(err.message)
+        setErrorMessage(err.message);
       } else {
-        setErrorMessage('Erro ao vincular membro')
+        setErrorMessage("Erro ao vincular membro");
       }
     },
-  })
+  });
 
   const removeMemberMutation = useMutation({
     mutationFn: (targetUserId: string) =>
       apiClient(`/stores/${storeId}/users/${targetUserId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       }),
     onSuccess: () => {
-      invalidateStores(queryClient, storeId)
+      invalidateStores(queryClient, storeId);
     },
-  })
+  });
 
   const handleAddMember = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedUserId) return
-    addMemberMutation.mutate({ userId: selectedUserId, isOwner })
-  }
+    e.preventDefault();
+    if (!selectedUserId) return;
+    addMemberMutation.mutate({ userId: selectedUserId, isOwner });
+  };
 
   if (isLoadingStore) {
     return (
       <div className="p-8 text-center text-zinc-400">
         <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
-    )
+    );
   }
 
   return (
@@ -145,7 +149,7 @@ export default function StoreMembersPage({
             type="submit"
             disabled={!selectedUserId || addMemberMutation.isPending}
           >
-            {addMemberMutation.isPending ? 'Adicionando...' : 'Vincular'}
+            {addMemberMutation.isPending ? "Adicionando..." : "Vincular"}
           </Button>
         </div>
       </form>
@@ -160,8 +164,8 @@ export default function StoreMembersPage({
           {store?.users && store.users.length > 0 ? (
             store.users.map(
               (su: {
-                isOwner: boolean
-                user: { id: string; name: string; email: string }
+                isOwner: boolean;
+                user: { id: string; name: string; email: string };
               }) => (
                 <div
                   key={su.user.id}
@@ -205,5 +209,5 @@ export default function StoreMembersPage({
         </div>
       </div>
     </div>
-  )
+  );
 }

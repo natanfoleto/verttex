@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
-import { RiCheckLine } from 'react-icons/ri'
+import { RiCheckLine } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,28 +13,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/components/ui/native-select'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
-import { invalidateStores } from '../../../../lib/query-keys'
-import { sanitizeSlug } from '../../../../lib/slug'
+import { apiClient, ApiError } from "../../../../lib/api-client";
+import { invalidateStores } from "../../../../lib/query-keys";
+import { sanitizeSlug } from "../../../../lib/slug";
 
 export interface StoreItem {
-  id: string
-  name: string
-  slug: string
-  description?: string | null
-  status: string
-  _count?: { users: number }
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  status: string;
+  _count?: { users: number };
 }
 
 interface StoreFormDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  storeToEdit?: StoreItem | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  storeToEdit?: StoreItem | null;
 }
 
 export function StoreFormDialog({
@@ -42,101 +42,101 @@ export function StoreFormDialog({
   onOpenChange,
   storeToEdit,
 }: StoreFormDialogProps) {
-  const queryClient = useQueryClient()
-  const isEditing = Boolean(storeToEdit)
+  const queryClient = useQueryClient();
+  const isEditing = Boolean(storeToEdit);
 
-  const [name, setName] = useState('')
-  const [slug, setSlug] = useState('')
-  const [isSlugUserModified, setIsSlugUserModified] = useState(false)
-  const [description, setDescription] = useState('')
-  const [status, setStatus] = useState('draft')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [isSlugUserModified, setIsSlugUserModified] = useState(false);
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("draft");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      setErrorMessage(null)
+      setErrorMessage(null);
       if (storeToEdit) {
-        setName(storeToEdit.name)
-        setSlug(storeToEdit.slug)
-        setIsSlugUserModified(true)
-        setDescription(storeToEdit.description || '')
-        setStatus(storeToEdit.status)
+        setName(storeToEdit.name);
+        setSlug(storeToEdit.slug);
+        setIsSlugUserModified(true);
+        setDescription(storeToEdit.description || "");
+        setStatus(storeToEdit.status);
       } else {
-        setName('')
-        setSlug('')
-        setIsSlugUserModified(false)
-        setDescription('')
-        setStatus('draft')
+        setName("");
+        setSlug("");
+        setIsSlugUserModified(false);
+        setDescription("");
+        setStatus("draft");
       }
     }
-  }, [open, storeToEdit])
+  }, [open, storeToEdit]);
 
   const handleNameChange = (value: string) => {
-    setName(value)
+    setName(value);
     if (!isSlugUserModified && !isEditing) {
-      setSlug(sanitizeSlug(value))
+      setSlug(sanitizeSlug(value));
     }
-  }
+  };
 
   const handleSlugChange = (value: string) => {
-    setIsSlugUserModified(true)
-    setSlug(sanitizeSlug(value))
-  }
+    setIsSlugUserModified(true);
+    setSlug(sanitizeSlug(value));
+  };
 
   const mutation = useMutation({
     mutationFn: async () => {
-      setErrorMessage(null)
+      setErrorMessage(null);
       if (isEditing && storeToEdit) {
         return apiClient(`/stores/${storeToEdit.id}`, {
-          method: 'PATCH',
+          method: "PATCH",
           body: JSON.stringify({
             name,
             description: description || null,
             status,
           }),
-        })
+        });
       }
 
-      return apiClient('/stores', {
-        method: 'POST',
+      return apiClient("/stores", {
+        method: "POST",
         body: JSON.stringify({
           name,
           slug,
           description: description || null,
         }),
-      })
+      });
     },
     onSuccess: () => {
-      invalidateStores(queryClient)
-      onOpenChange(false)
+      invalidateStores(queryClient);
+      onOpenChange(false);
     },
     onError: (err: unknown) => {
       if (err instanceof ApiError) {
-        setErrorMessage(err.message)
+        setErrorMessage(err.message);
       } else {
-        setErrorMessage('Erro ao salvar loja. Tente novamente.')
+        setErrorMessage("Erro ao salvar loja. Tente novamente.");
       }
     },
-  })
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
-            {isEditing ? 'Editar Loja Parceira' : 'Nova Loja Parceira'}
+            {isEditing ? "Editar Loja Parceira" : "Nova Loja Parceira"}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
             {isEditing
-              ? 'Atualize as informações cadastrais e o status da loja.'
-              : 'Cadastre uma nova loja de produtor ou parceiro na plataforma Verttex.'}
+              ? "Atualize as informações cadastrais e o status da loja."
+              : "Cadastre uma nova loja de produtor ou parceiro na plataforma Verttex."}
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            mutation.mutate()
+            e.preventDefault();
+            mutation.mutate();
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -238,15 +238,15 @@ export function StoreFormDialog({
               <RiCheckLine className="h-4 w-4" />
               <span>
                 {mutation.isPending
-                  ? 'Salvando...'
+                  ? "Salvando..."
                   : isEditing
-                    ? 'Salvar Alterações'
-                    : 'Criar Loja'}
+                    ? "Salvar Alterações"
+                    : "Criar Loja"}
               </span>
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from "react";
 
 export default function Loading() {
   return (
@@ -8,10 +8,8 @@ export default function Loading() {
           V
         </div>
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-300 dark:border-zinc-700 border-t-emerald-500" />
-        <p className="text-xs font-medium text-zinc-400">
-          Carregando...
-        </p>
+        <p className="text-xs font-medium text-zinc-400">Carregando...</p>
       </div>
     </div>
-  )
+  );
 }

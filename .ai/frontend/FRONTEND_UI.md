@@ -399,7 +399,7 @@ Every feature screen must implement:
 ### 10.13 Política Estrita de Componentes Shadcn UI e Proibição de HTML Nativo em Funcionalidades
 
 > **MANDATORY POLICY & NON-NEGOTIABLE ARCHITECTURAL RULE**:
-> 
+>
 > 1. **Shadcn UI é a Única Fonte Principal de Componentes Visuais**: Todo e qualquer controle interativo, botão, campo de texto, caixa de seleção, menu dropdown, modal, popup de confirmação, painel lateral, tooltip, aba, badge, card ou elemento visual utilizado em páginas e componentes de funcionalidades de `apps/manager` e `apps/marketplace` **DEVE OBRIGATORIAMENTE utilizar os componentes do Shadcn UI / Radix UI** (`@/components/ui/...`).
 > 2. **Proibição Estrita de Controles Nativos**: É expressamente proibido escrever elementos HTML nativos (`<button>`, `<input>`, `<select>`, `<textarea>`, `<dialog>`, etc.) ou modais/popups improvisados (como `div` com `fixed inset-0`) nas telas de funcionalidade do sistema.
 > 3. **Organização Independente por App**: `apps/manager` possui seus próprios componentes shadcn (`apps/manager/src/components/ui/`) e `apps/marketplace` possui os seus (`apps/marketplace/src/components/ui/`). Não deve ser recriado pacote compartilhado de UI nem importados componentes entre apps.
@@ -407,20 +407,21 @@ Every feature screen must implement:
 
 #### Tabela de Equivalências Obrigatórias:
 
-| Elemento Nativo Proibido ❌ | Componente Shadcn Obrigatório ✅ | Import Padrão |
-|---|---|---|
-| `<button onClick={...}>` | `<Button onClick={...}>` | `import { Button } from '@/components/ui/button'` |
-| `<input type="text">` | `<Input type="text" />` | `import { Input } from '@/components/ui/input'` |
-| `<textarea>` | `<Textarea />` | `import { Textarea } from '@/components/ui/textarea'` |
-| `<select>` | `<Select>` / `<NativeSelect>` | `import { NativeSelect } from '@/components/ui/native-select'` |
-| `<input type="checkbox">` | `<Checkbox />` | `import { Checkbox } from '@/components/ui/checkbox'` |
-| `<dialog>` / custom `div` | `<Dialog>` / `<AlertDialog>` | `import { Dialog } from '@/components/ui/dialog'` |
-| custom menu `div` | `<DropdownMenu>` | `import { DropdownMenu } from '@/components/ui/dropdown-menu'` |
-| custom drawer `div` | `<Sheet>` | `import { Sheet } from '@/components/ui/sheet'` |
+| Elemento Nativo Proibido ❌ | Componente Shadcn Obrigatório ✅ | Import Padrão                                                  |
+| --------------------------- | -------------------------------- | -------------------------------------------------------------- |
+| `<button onClick={...}>`    | `<Button onClick={...}>`         | `import { Button } from '@/components/ui/button'`              |
+| `<input type="text">`       | `<Input type="text" />`          | `import { Input } from '@/components/ui/input'`                |
+| `<textarea>`                | `<Textarea />`                   | `import { Textarea } from '@/components/ui/textarea'`          |
+| `<select>`                  | `<Select>` / `<NativeSelect>`    | `import { NativeSelect } from '@/components/ui/native-select'` |
+| `<input type="checkbox">`   | `<Checkbox />`                   | `import { Checkbox } from '@/components/ui/checkbox'`          |
+| `<dialog>` / custom `div`   | `<Dialog>` / `<AlertDialog>`     | `import { Dialog } from '@/components/ui/dialog'`              |
+| custom menu `div`           | `<DropdownMenu>`                 | `import { DropdownMenu } from '@/components/ui/dropdown-menu'` |
+| custom drawer `div`         | `<Sheet>`                        | `import { Sheet } from '@/components/ui/sheet'`                |
 
 #### Processo Obrigatório para Novos Componentes:
 
 Antes de implementar qualquer elemento de interface:
+
 1. **Verificar se já existe** na pasta `components/ui/` do aplicativo correspondente (`manager` ou `marketplace`).
 2. **Verificar se existe componente equivalente no Shadcn UI / Radix UI**.
 3. **Instalar o componente oficial do Shadcn** na aplicação correspondente quando necessário (`npx shadcn@latest add ...`).

@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import Link from 'next/link'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { RiArrowLeftLine, RiMailLine } from 'react-icons/ri'
-import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { RiArrowLeftLine, RiMailLine } from "react-icons/ri";
+import { z } from "zod";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { apiClient } from '../../../lib/api-client'
+import { apiClient } from "../../../lib/api-client";
 
 const forgotSchema = z.object({
-  email: z.string().email('Informe um e-mail válido'),
-})
+  email: z.string().email("Informe um e-mail válido"),
+});
 
-type ForgotFormData = z.infer<typeof forgotSchema>
+type ForgotFormData = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordPage() {
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -28,22 +28,22 @@ export default function ForgotPasswordPage() {
     formState: { errors },
   } = useForm<ForgotFormData>({
     resolver: zodResolver(forgotSchema),
-  })
+  });
 
   const onSubmit = async (data: ForgotFormData) => {
     try {
-      setIsLoading(true)
-      await apiClient('/auth/users/forgot-password', {
-        method: 'POST',
+      setIsLoading(true);
+      await apiClient("/auth/users/forgot-password", {
+        method: "POST",
         body: JSON.stringify(data),
-      })
-      setIsSubmitted(true)
+      });
+      setIsSubmitted(true);
     } catch {
-      setIsSubmitted(true)
+      setIsSubmitted(true);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 font-sans text-zinc-100 antialiased">
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
               <div className="relative">
                 <RiMailLine className="absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2 text-zinc-500" />
                 <Input
-                  {...register('email')}
+                  {...register("email")}
                   type="email"
                   placeholder="seu.email@verttex.com.br"
                   className="pl-11 h-11"
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
               {isLoading ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
-                'Enviar Instruções'
+                "Enviar Instruções"
               )}
             </Button>
 
@@ -114,5 +114,5 @@ export default function ForgotPasswordPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -76,7 +76,10 @@ export class UploadService {
       },
     });
 
-    const uploadUrl = await r2Storage.getPresignedUploadUrl(objectKey, mimeType);
+    const uploadUrl = await r2Storage.getPresignedUploadUrl(
+      objectKey,
+      mimeType,
+    );
     const publicUrl = await r2Storage.getFileUrl(objectKey);
 
     return {
@@ -195,11 +198,16 @@ export class UploadService {
     try {
       await r2Storage.deleteFile(file.objectKey);
     } catch (err) {
-      console.error(`Erro ao apagar arquivo ${file.objectKey} no Cloudflare R2:`, err);
+      console.error(
+        `Erro ao apagar arquivo ${file.objectKey} no Cloudflare R2:`,
+        err,
+      );
     }
 
-    await prisma.file.delete({
-      where: { id: fileId },
-    }).catch(() => null);
+    await prisma.file
+      .delete({
+        where: { id: fileId },
+      })
+      .catch(() => null);
   }
 }

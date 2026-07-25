@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { RiTimeLine } from 'react-icons/ri'
+import Link from "next/link";
+import { RiTimeLine } from "react-icons/ri";
 
 export default function SessionExpiredPage() {
   return (
@@ -23,5 +23,5 @@ export default function SessionExpiredPage() {
         </Link>
       </div>
     </div>
-  )
+  );
 }

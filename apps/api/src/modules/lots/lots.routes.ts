@@ -65,7 +65,8 @@ export async function lotsRoutes(app: FastifyInstance) {
       preHandler: [app.authenticateUser],
       schema: {
         tags: ["Lots — Batch Management"],
-        summary: "Alterar situação operacional do lote (disponível, quarentena, bloqueado, recolhido)",
+        summary:
+          "Alterar situação operacional do lote (disponível, quarentena, bloqueado, recolhido)",
         security: [{ bearerAuth: [] }],
         params: z.object({ lotId: z.string() }),
         body: updateLotStatusBodySchema,

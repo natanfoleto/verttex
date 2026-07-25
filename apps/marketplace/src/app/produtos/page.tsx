@@ -1,144 +1,147 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { RiFilter3Line, RiSearchLine } from 'react-icons/ri'
+import Link from "next/link";
+import { useState } from "react";
+import { RiFilter3Line, RiSearchLine } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { EmptyState } from '../../components/ui/empty-state'
-import { FilterSidebar } from '../../components/ui/filter-sidebar'
-import { ProductCard, ProductCardProps } from '../../components/ui/product-card'
+import { EmptyState } from "../../components/ui/empty-state";
+import { FilterSidebar } from "../../components/ui/filter-sidebar";
+import {
+  ProductCard,
+  ProductCardProps,
+} from "../../components/ui/product-card";
 
 const CATEGORIES = [
   {
-    id: '1',
-    name: 'Queijos Artesanais',
-    slug: 'queijos-artesanais',
+    id: "1",
+    name: "Queijos Artesanais",
+    slug: "queijos-artesanais",
     count: 14,
   },
-  { id: '2', name: 'Vinhos & Bebidas', slug: 'vinhos-bebidas', count: 22 },
-  { id: '3', name: 'Doces & Geleias', slug: 'doces-geleias', count: 18 },
-  { id: '4', name: 'Méis & Polens', slug: 'meis-polens', count: 9 },
+  { id: "2", name: "Vinhos & Bebidas", slug: "vinhos-bebidas", count: 22 },
+  { id: "3", name: "Doces & Geleias", slug: "doces-geleias", count: 18 },
+  { id: "4", name: "Méis & Polens", slug: "meis-polens", count: 9 },
   {
-    id: '5',
-    name: 'Embutidos Defumados',
-    slug: 'embutidos-defumados',
+    id: "5",
+    name: "Embutidos Defumados",
+    slug: "embutidos-defumados",
     count: 12,
   },
-  { id: '6', name: 'Cafés Especiais', slug: 'cafes-especiais', count: 8 },
-]
+  { id: "6", name: "Cafés Especiais", slug: "cafes-especiais", count: 8 },
+];
 
 const PRODUCTS_DATA: ProductCardProps[] = [
   {
-    id: 'p1',
-    name: 'Queijo Colonial Meia Cura da Serra',
+    id: "p1",
+    name: "Queijo Colonial Meia Cura da Serra",
     price: 48.9,
     originalPrice: 58.9,
-    unit: 'peça (500g)',
+    unit: "peça (500g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Queijaria Alvorada',
-    storeSlug: 'queijaria-alvorada',
-    origin: 'Serra Gaúcha, RS',
+      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
+    storeName: "Queijaria Alvorada",
+    storeSlug: "queijaria-alvorada",
+    origin: "Serra Gaúcha, RS",
     rating: 4.9,
     reviewsCount: 38,
     isBestSeller: true,
   },
   {
-    id: 'p2',
-    name: 'Vinho Tinto Colonial Merlot Reserva',
+    id: "p2",
+    name: "Vinho Tinto Colonial Merlot Reserva",
     price: 64.9,
-    unit: 'garrafa (750ml)',
+    unit: "garrafa (750ml)",
     imageUrl:
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Vinícola Família Rossi',
-    storeSlug: 'vinicola-familia-rossi',
-    origin: 'Bento Gonçalves, RS',
+      "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80",
+    storeName: "Vinícola Família Rossi",
+    storeSlug: "vinicola-familia-rossi",
+    origin: "Bento Gonçalves, RS",
     rating: 4.8,
     reviewsCount: 24,
-    badge: 'Produtor Local',
+    badge: "Produtor Local",
   },
   {
-    id: 'p3',
-    name: 'Mel Puro Silvestre Florada Nativa',
+    id: "p3",
+    name: "Mel Puro Silvestre Florada Nativa",
     price: 34.9,
     originalPrice: 39.9,
-    unit: 'pote (500g)',
+    unit: "pote (500g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Apiário Vale Verde',
-    storeSlug: 'apiario-vale-verde',
-    origin: 'Gramado, RS',
+      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
+    storeName: "Apiário Vale Verde",
+    storeSlug: "apiario-vale-verde",
+    origin: "Gramado, RS",
     rating: 5.0,
     reviewsCount: 52,
     isNew: true,
   },
   {
-    id: 'p4',
-    name: 'Salame Colonial Defumado na Lenha',
+    id: "p4",
+    name: "Salame Colonial Defumado na Lenha",
     price: 38.5,
-    unit: 'unidade (400g)',
+    unit: "unidade (400g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Embutidos Tradição',
-    storeSlug: 'embutidos-tradicao',
-    origin: 'Caxias do Sul, RS',
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+    storeName: "Embutidos Tradição",
+    storeSlug: "embutidos-tradicao",
+    origin: "Caxias do Sul, RS",
     rating: 4.7,
     reviewsCount: 19,
   },
   {
-    id: 'p5',
-    name: 'Geleia Artesanal de Uva Isabel',
+    id: "p5",
+    name: "Geleia Artesanal de Uva Isabel",
     price: 24.9,
-    unit: 'pote (300g)',
+    unit: "pote (300g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Doces da Colônia',
-    storeSlug: 'doces-da-colonia',
-    origin: 'Garibaldi, RS',
+      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
+    storeName: "Doces da Colônia",
+    storeSlug: "doces-da-colonia",
+    origin: "Garibaldi, RS",
     rating: 4.9,
     reviewsCount: 15,
   },
   {
-    id: 'p6',
-    name: 'Café Torrado em Grãos Especiais',
+    id: "p6",
+    name: "Café Torrado em Grãos Especiais",
     price: 42.0,
-    unit: 'pacote (500g)',
+    unit: "pacote (500g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Cafés da Serra',
-    storeSlug: 'cafes-da-serra',
-    origin: 'Nova Petrópolis, RS',
+      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+    storeName: "Cafés da Serra",
+    storeSlug: "cafes-da-serra",
+    origin: "Nova Petrópolis, RS",
     rating: 4.8,
     reviewsCount: 31,
   },
-]
+];
 
 export default function ProductsListingPage() {
-  const [selectedCategory, setSelectedCategory] = useState('')
-  const [selectedSort, setSelectedSort] = useState('relevancia')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
-  const [page, setPage] = useState(1)
-  const perPage = 6
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSort, setSelectedSort] = useState("relevancia");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const perPage = 6;
 
   const filteredProducts = PRODUCTS_DATA.filter((product) => {
     if (
       searchQuery &&
       !product.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
-      return false
+      return false;
     }
-    return true
-  })
+    return true;
+  });
 
-  const totalPages = Math.ceil(filteredProducts.length / perPage) || 1
+  const totalPages = Math.ceil(filteredProducts.length / perPage) || 1;
   const paginatedProducts = filteredProducts.slice(
     (page - 1) * perPage,
     page * perPage,
-  )
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 pb-28 font-sans text-stone-900 lg:pb-36 sm:px-6 lg:px-8">
@@ -185,18 +188,18 @@ export default function ProductsListingPage() {
               activeCategorySlug={selectedCategory}
               activeSort={selectedSort}
               onSelectCategory={(slug) => {
-                setSelectedCategory(slug)
-                setPage(1)
+                setSelectedCategory(slug);
+                setPage(1);
               }}
               onSelectSort={(sort) => {
-                setSelectedSort(sort)
-                setPage(1)
+                setSelectedSort(sort);
+                setPage(1);
               }}
               onClearAll={() => {
-                setSelectedCategory('')
-                setSelectedSort('relevancia')
-                setSearchQuery('')
-                setPage(1)
+                setSelectedCategory("");
+                setSelectedSort("relevancia");
+                setSearchQuery("");
+                setPage(1);
               }}
             />
           </div>
@@ -210,19 +213,19 @@ export default function ProductsListingPage() {
               activeCategorySlug={selectedCategory}
               activeSort={selectedSort}
               onSelectCategory={(slug) => {
-                setSelectedCategory(slug)
-                setMobileFilterOpen(false)
-                setPage(1)
+                setSelectedCategory(slug);
+                setMobileFilterOpen(false);
+                setPage(1);
               }}
               onSelectSort={(sort) => {
-                setSelectedSort(sort)
-                setPage(1)
+                setSelectedSort(sort);
+                setPage(1);
               }}
               onClearAll={() => {
-                setSelectedCategory('')
-                setSelectedSort('relevancia')
-                setSearchQuery('')
-                setPage(1)
+                setSelectedCategory("");
+                setSelectedSort("relevancia");
+                setSearchQuery("");
+                setPage(1);
               }}
             />
           </div>
@@ -238,8 +241,8 @@ export default function ProductsListingPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value)
-                  setPage(1)
+                  setSearchQuery(e.target.value);
+                  setPage(1);
                 }}
                 placeholder="Filtrar por nome de produto..."
                 className="h-10 pl-10"
@@ -247,14 +250,14 @@ export default function ProductsListingPage() {
             </div>
 
             <div className="shrink-0 text-xs font-medium text-stone-500">
-              Mostrando{' '}
+              Mostrando{" "}
               <strong className="font-bold text-stone-900">
                 {paginatedProducts.length}
-              </strong>{' '}
-              de{' '}
+              </strong>{" "}
+              de{" "}
               <strong className="font-bold text-stone-900">
                 {filteredProducts.length}
-              </strong>{' '}
+              </strong>{" "}
               produtos
             </div>
           </div>
@@ -272,7 +275,7 @@ export default function ProductsListingPage() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t border-stone-200 pt-6 text-xs text-stone-600">
                   <span>
-                    Página <strong>{page}</strong> de{' '}
+                    Página <strong>{page}</strong> de{" "}
                     <strong>{totalPages}</strong>
                   </span>
                   <div className="flex items-center space-x-2">
@@ -306,14 +309,14 @@ export default function ProductsListingPage() {
               description="Tente ajustar sua busca ou limpar os filtros selecionados para encontrar o que procura."
               actionLabel="Limpar Filtros"
               onActionClick={() => {
-                setSelectedCategory('')
-                setSearchQuery('')
-                setPage(1)
+                setSelectedCategory("");
+                setSearchQuery("");
+                setPage(1);
               }}
             />
           )}
         </main>
       </div>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { ReactNode, useEffect, useState } from 'react'
-import { IconType } from 'react-icons'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { IconType } from "react-icons";
 import {
   RiArrowDownSLine,
   RiArrowLeftSLine,
@@ -24,9 +24,9 @@ import {
   RiSunLine,
   RiUser3Line,
   RiUserLine,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,208 +34,209 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
+} from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 
-import { useAuth } from '../../providers/auth-provider'
-import { useTheme } from '../../providers/theme-provider'
+import { useAuth } from "../../providers/auth-provider";
+import { useTheme } from "../../providers/theme-provider";
 
 interface AdminLayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 interface NavItem {
-  label: string
-  href?: string
-  icon: IconType
-  show?: boolean
+  label: string;
+  href?: string;
+  icon: IconType;
+  show?: boolean;
   children?: {
-    label: string
-    href: string
-    icon: IconType
-    show?: boolean
-  }[]
+    label: string;
+    href: string;
+    icon: IconType;
+    show?: boolean;
+  }[];
 }
 
-const SIDEBAR_COLLAPSED_KEY = 'verttex_sidebar_collapsed'
-const SUBMENU_STATE_KEY = 'verttex_submenu_state'
+const SIDEBAR_COLLAPSED_KEY = "verttex_sidebar_collapsed";
+const SUBMENU_STATE_KEY = "verttex_submenu_state";
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, ability, logout } = useAuth()
-  const { theme, setTheme } = useTheme()
-  const pathname = usePathname()
+  const { user, ability, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
 
   // State to manage sidebar collapsed state
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
   // State to manage open submenus
-  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({})
+  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
 
   // Load saved sidebar state from localStorage on mount
   useEffect(() => {
-    const savedCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY)
+    const savedCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     if (savedCollapsed !== null) {
-      setIsCollapsed(savedCollapsed === 'true')
+      setIsCollapsed(savedCollapsed === "true");
     }
 
-    const savedSubmenus = localStorage.getItem(SUBMENU_STATE_KEY)
+    const savedSubmenus = localStorage.getItem(SUBMENU_STATE_KEY);
     if (savedSubmenus !== null) {
       try {
-        setOpenSubmenus(JSON.parse(savedSubmenus))
+        setOpenSubmenus(JSON.parse(savedSubmenus));
       } catch {
         // Ignore parse error
       }
     }
-  }, [])
+  }, []);
 
   // Toggle sidebar collapse state
   const toggleCollapse = () => {
-    const nextState = !isCollapsed
-    setIsCollapsed(nextState)
-    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(nextState))
-  }
+    const nextState = !isCollapsed;
+    setIsCollapsed(nextState);
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(nextState));
+  };
 
   // Toggle individual submenu
   const toggleSubmenu = (label: string) => {
     setOpenSubmenus((prev) => {
-      const nextState = { ...prev, [label]: !prev[label] }
-      localStorage.setItem(SUBMENU_STATE_KEY, JSON.stringify(nextState))
-      return nextState
-    })
-  }
+      const nextState = { ...prev, [label]: !prev[label] };
+      localStorage.setItem(SUBMENU_STATE_KEY, JSON.stringify(nextState));
+      return nextState;
+    });
+  };
 
   // Define navigation items with RBAC permissions
   const navItems: NavItem[] = [
     {
-      label: 'Dashboard',
-      href: '/',
+      label: "Dashboard",
+      href: "/",
       icon: RiDashboardLine,
     },
     {
-      label: 'Catálogo & Taxonomia',
+      label: "Catálogo & Taxonomia",
       icon: RiFolder3Line,
       show:
-        ability.can('read', 'Product') ||
-        ability.can('read', 'Category') ||
-        ability.can('read', 'Brand'),
+        ability.can("read", "Product") ||
+        ability.can("read", "Category") ||
+        ability.can("read", "Brand"),
       children: [
         {
-          label: 'Produtos',
-          href: '/produtos',
+          label: "Produtos",
+          href: "/produtos",
           icon: RiFolder3Line,
-          show: ability.can('read', 'Product'),
+          show: ability.can("read", "Product"),
         },
         {
-          label: 'Estoque & Lotes',
-          href: '/estoque',
+          label: "Estoque & Lotes",
+          href: "/estoque",
           icon: RiStackLine,
-          show: ability.can('read', 'Product') || ability.can('read', 'Inventory'),
+          show:
+            ability.can("read", "Product") || ability.can("read", "Inventory"),
         },
         {
-          label: 'Categorias',
-          href: '/categorias',
+          label: "Categorias",
+          href: "/categorias",
           icon: RiFolder3Line,
-          show: ability.can('read', 'Category'),
+          show: ability.can("read", "Category"),
         },
         {
-          label: 'Marcas',
-          href: '/marcas',
+          label: "Marcas",
+          href: "/marcas",
           icon: RiPriceTag3Line,
-          show: ability.can('read', 'Brand'),
+          show: ability.can("read", "Brand"),
         },
       ],
     },
     {
-      label: 'Lojas Parceiras',
-      href: '/lojas',
+      label: "Lojas Parceiras",
+      href: "/lojas",
       icon: RiStoreLine,
-      show: ability.can('read', 'Store'),
+      show: ability.can("read", "Store"),
     },
     {
-      label: 'Gestão de Acessos',
+      label: "Gestão de Acessos",
       icon: RiShieldLine,
-      show: ability.can('read', 'User') || ability.can('read', 'Role'),
+      show: ability.can("read", "User") || ability.can("read", "Role"),
       children: [
         {
-          label: 'Usuários Gestores',
-          href: '/usuarios',
+          label: "Usuários Gestores",
+          href: "/usuarios",
           icon: RiUserLine,
-          show: ability.can('read', 'User'),
+          show: ability.can("read", "User"),
         },
         {
-          label: 'Cargos e Permissões',
-          href: '/cargos',
+          label: "Cargos e Permissões",
+          href: "/cargos",
           icon: RiShieldLine,
-          show: ability.can('read', 'Role'),
+          show: ability.can("read", "Role"),
         },
       ],
     },
     {
-      label: 'Logs de Auditoria',
-      href: '/auditoria',
+      label: "Logs de Auditoria",
+      href: "/auditoria",
       icon: RiHistoryLine,
-      show: ability.can('read', 'AuditLog'),
+      show: ability.can("read", "AuditLog"),
     },
-  ]
+  ];
 
   // Filter items based on permissions
   const visibleNavItems = navItems.filter((item) => {
-    if (item.show === false) return false
+    if (item.show === false) return false;
     if (item.children) {
       const visibleChildren = item.children.filter(
         (child) => child.show !== false,
-      )
-      return visibleChildren.length > 0
+      );
+      return visibleChildren.length > 0;
     }
-    return true
-  })
+    return true;
+  });
 
   // Format breadcrumb title based on active path
   const getPageTitle = () => {
-    if (pathname === '/') return 'Dashboard'
-    if (pathname.startsWith('/produtos')) return 'Catálogo de Produtos'
-    if (pathname.startsWith('/estoque')) return 'Estoque & Lotes'
-    if (pathname.startsWith('/categorias')) return 'Taxonomia de Categorias'
-    if (pathname.startsWith('/marcas')) return 'Catálogo de Marcas'
-    if (pathname.startsWith('/usuarios')) return 'Usuários Gestores'
-    if (pathname.startsWith('/cargos')) return 'Cargos e Permissões'
-    if (pathname.startsWith('/lojas')) return 'Lojas Parceiras'
-    if (pathname.startsWith('/perfil')) return 'Meu Perfil'
-    if (pathname.startsWith('/auditoria')) return 'Logs de Auditoria'
-    return 'Painel Manager'
-  }
+    if (pathname === "/") return "Dashboard";
+    if (pathname.startsWith("/produtos")) return "Catálogo de Produtos";
+    if (pathname.startsWith("/estoque")) return "Estoque & Lotes";
+    if (pathname.startsWith("/categorias")) return "Taxonomia de Categorias";
+    if (pathname.startsWith("/marcas")) return "Catálogo de Marcas";
+    if (pathname.startsWith("/usuarios")) return "Usuários Gestores";
+    if (pathname.startsWith("/cargos")) return "Cargos e Permissões";
+    if (pathname.startsWith("/lojas")) return "Lojas Parceiras";
+    if (pathname.startsWith("/perfil")) return "Meu Perfil";
+    if (pathname.startsWith("/auditoria")) return "Logs de Auditoria";
+    return "Painel Manager";
+  };
 
   const renderNavLinks = (collapsed: boolean) => (
     <nav className="space-y-1 p-3">
       {visibleNavItems.map((item) => {
-        const Icon = item.icon
-        const hasChildren = Boolean(item.children && item.children.length > 0)
+        const Icon = item.icon;
+        const hasChildren = Boolean(item.children && item.children.length > 0);
         const visibleChildren =
-          item.children?.filter((child) => child.show !== false) || []
+          item.children?.filter((child) => child.show !== false) || [];
 
         const isChildActive = visibleChildren.some((child) =>
           pathname.startsWith(child.href),
-        )
+        );
         const isActive =
-          item.href === '/'
-            ? pathname === '/'
+          item.href === "/"
+            ? pathname === "/"
             : item.href
               ? pathname.startsWith(item.href)
-              : isChildActive
+              : isChildActive;
 
-        const isSubmenuOpen = openSubmenus[item.label] ?? isChildActive
+        const isSubmenuOpen = openSubmenus[item.label] ?? isChildActive;
 
         if (hasChildren) {
           if (collapsed) {
@@ -248,8 +249,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     onClick={() => toggleSubmenu(item.label)}
                     className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${
                       isActive
-                        ? 'bg-zinc-800 font-semibold text-emerald-400'
-                        : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
+                        ? "bg-zinc-800 font-semibold text-emerald-400"
+                        : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
                     }`}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
@@ -268,7 +269,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   ))}
                 </TooltipContent>
               </Tooltip>
-            )
+            );
           }
 
           return (
@@ -278,8 +279,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 onClick={() => toggleSubmenu(item.label)}
                 className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'font-semibold text-zinc-100'
-                    : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
+                    ? "font-semibold text-zinc-100"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -288,7 +289,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 </div>
                 <RiArrowDownSLine
                   className={`h-4 w-4 transition-transform duration-200 ${
-                    isSubmenuOpen ? 'rotate-180' : ''
+                    isSubmenuOpen ? "rotate-180" : ""
                   }`}
                 />
               </button>
@@ -296,27 +297,27 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               {isSubmenuOpen && (
                 <div className="ml-4 space-y-1 border-l border-zinc-800 pl-3">
                   {visibleChildren.map((child) => {
-                    const ChildIcon = child.icon
-                    const isSubActive = pathname.startsWith(child.href)
+                    const ChildIcon = child.icon;
+                    const isSubActive = pathname.startsWith(child.href);
                     return (
                       <Link
                         key={child.href}
                         href={child.href}
                         className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                           isSubActive
-                            ? 'bg-zinc-800 font-semibold text-emerald-400'
-                            : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
+                            ? "bg-zinc-800 font-semibold text-emerald-400"
+                            : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
                         }`}
                       >
                         <ChildIcon className="h-4 w-4 shrink-0" />
                         <span className="whitespace-nowrap">{child.label}</span>
                       </Link>
-                    )
+                    );
                   })}
                 </div>
               )}
             </div>
-          )
+          );
         }
 
         if (collapsed) {
@@ -324,11 +325,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <Tooltip key={item.href || item.label}>
               <TooltipTrigger asChild>
                 <Link
-                  href={item.href || '#'}
+                  href={item.href || "#"}
                   className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${
                     isActive
-                      ? 'bg-zinc-800 font-semibold text-emerald-400'
-                      : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
+                      ? "bg-zinc-800 font-semibold text-emerald-400"
+                      : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
                   }`}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
@@ -338,26 +339,26 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <p>{item.label}</p>
               </TooltipContent>
             </Tooltip>
-          )
+          );
         }
 
         return (
           <Link
             key={item.href || item.label}
-            href={item.href || '#'}
+            href={item.href || "#"}
             className={`flex items-center space-x-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
               isActive
-                ? 'bg-zinc-800 font-semibold text-emerald-400'
-                : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
+                ? "bg-zinc-800 font-semibold text-emerald-400"
+                : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
             }`}
           >
             <Icon className="h-5 w-5 shrink-0" />
             <span className="whitespace-nowrap">{item.label}</span>
           </Link>
-        )
+        );
       })}
     </nav>
-  )
+  );
 
   return (
     <TooltipProvider>
@@ -365,7 +366,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Desktop Sidebar (Fixed) */}
         <aside
           className={`hidden h-screen shrink-0 flex-col justify-between border-r border-zinc-800 bg-zinc-900/60 transition-all duration-300 lg:flex ${
-            isCollapsed ? 'w-16' : 'w-72'
+            isCollapsed ? "w-16" : "w-72"
           }`}
         >
           <div className="flex flex-1 flex-col overflow-y-auto">
@@ -391,9 +392,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 size="icon"
                 onClick={toggleCollapse}
                 className={`cursor-pointer rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 ${
-                  isCollapsed ? 'mx-auto' : 'ml-auto'
+                  isCollapsed ? "mx-auto" : "ml-auto"
                 }`}
-                title={isCollapsed ? 'Expandir menu' : 'Recolher menu'}
+                title={isCollapsed ? "Expandir menu" : "Recolher menu"}
               >
                 {isCollapsed ? (
                   <RiArrowRightSLine className="h-5 w-5" />
@@ -471,9 +472,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         size="icon"
                         className="h-9 w-9 cursor-pointer rounded-xl border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
                       >
-                        {theme === 'light' ? (
+                        {theme === "light" ? (
                           <RiSunLine className="h-4.5 w-4.5 text-amber-400" />
-                        ) : theme === 'dark' ? (
+                        ) : theme === "dark" ? (
                           <RiMoonLine className="h-4.5 w-4.5 text-emerald-400" />
                         ) : (
                           <RiComputerLine className="h-4.5 w-4.5 text-zinc-300" />
@@ -486,40 +487,49 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </TooltipContent>
                 </Tooltip>
 
-                <DropdownMenuContent align="end" className="w-40 bg-zinc-950 border-zinc-800 z-100">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-40 bg-zinc-950 border-zinc-800 z-100"
+                >
                   <DropdownMenuLabel className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                     Tema do Painel
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => setTheme('light')}
+                    onClick={() => setTheme("light")}
                     className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
                   >
                     <div className="flex items-center space-x-2">
                       <RiSunLine className="h-4 w-4 text-amber-400" />
                       <span>Claro</span>
                     </div>
-                    {theme === 'light' && <RiCheckLine className="h-4 w-4 text-emerald-400" />}
+                    {theme === "light" && (
+                      <RiCheckLine className="h-4 w-4 text-emerald-400" />
+                    )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => setTheme('dark')}
+                    onClick={() => setTheme("dark")}
                     className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
                   >
                     <div className="flex items-center space-x-2">
                       <RiMoonLine className="h-4 w-4 text-emerald-400" />
                       <span>Escuro</span>
                     </div>
-                    {theme === 'dark' && <RiCheckLine className="h-4 w-4 text-emerald-400" />}
+                    {theme === "dark" && (
+                      <RiCheckLine className="h-4 w-4 text-emerald-400" />
+                    )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => setTheme('system')}
+                    onClick={() => setTheme("system")}
                     className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
                   >
                     <div className="flex items-center space-x-2">
                       <RiComputerLine className="h-4 w-4 text-zinc-400" />
                       <span>Sistema</span>
                     </div>
-                    {theme === 'system' && <RiCheckLine className="h-4 w-4 text-emerald-400" />}
+                    {theme === "system" && (
+                      <RiCheckLine className="h-4 w-4 text-emerald-400" />
+                    )}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -544,9 +554,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </TooltipContent>
                 </Tooltip>
 
-                <DropdownMenuContent align="end" className="w-80 bg-zinc-950 border-zinc-800 z-100">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-80 bg-zinc-950 border-zinc-800 z-100"
+                >
                   <DropdownMenuLabel className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-zinc-100">Notificações</span>
+                    <span className="text-xs font-bold text-zinc-100">
+                      Notificações
+                    </span>
                     <span className="text-[10px] font-medium text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/40">
                       Sistema Ativo
                     </span>
@@ -556,7 +571,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 space-y-1">
                       <p className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
                         <span>Lote L-2026-CAN-02</span>
-                        <span className="text-[10px] text-amber-400 font-mono">18d rest.</span>
+                        <span className="text-[10px] text-amber-400 font-mono">
+                          18d rest.
+                        </span>
                       </p>
                       <p className="text-[11px] text-zinc-400">
                         Próximo do vencimento. Priorize saída via FEFO.
@@ -565,7 +582,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 space-y-1">
                       <p className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
                         <span>Auditoria & Segurança</span>
-                        <span className="text-[10px] text-zinc-500 font-mono">Hoje</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">
+                          Hoje
+                        </span>
                       </p>
                       <p className="text-[11px] text-zinc-400">
                         Todos os acessos e movimentações foram registrados.
@@ -586,24 +605,27 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     className="flex cursor-pointer items-center space-x-2.5 text-left outline-none rounded-xl p-1.5 transition-colors group bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent border-none shadow-none"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300 ring-1 ring-emerald-800/40 group-hover:ring-emerald-500/60 transition-all">
-                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                      {user?.name?.charAt(0).toUpperCase() || "U"}
                     </div>
                     <div className="hidden flex-col text-left sm:flex">
                       <span className="text-xs font-semibold whitespace-nowrap text-zinc-200 group-hover:text-emerald-500 transition-colors">
-                        {user?.name || 'Usuário'}
+                        {user?.name || "Usuário"}
                       </span>
                       <span className="text-[10px] whitespace-nowrap text-zinc-400 group-hover:text-emerald-600 transition-colors">
-                        {user?.role?.name || 'Gestor'}
+                        {user?.role?.name || "Gestor"}
                       </span>
                     </div>
                     <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="z-100 w-64 bg-zinc-950 border-zinc-800">
+                <DropdownMenuContent
+                  align="end"
+                  className="z-100 w-64 bg-zinc-950 border-zinc-800"
+                >
                   <DropdownMenuLabel className="font-normal text-zinc-100 normal-case">
                     <div className="flex flex-col space-y-0.5">
                       <span className="text-sm font-bold whitespace-nowrap text-zinc-100">
-                        {user?.name || 'Usuário'}
+                        {user?.name || "Usuário"}
                       </span>
                       <span className="truncate text-xs font-normal text-zinc-400">
                         {user?.email}
@@ -640,5 +662,5 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
-import { RiCheckLine } from 'react-icons/ri'
+import { RiCheckLine } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,28 +13,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/components/ui/native-select'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
-import { invalidateRoles } from '../../../../lib/query-keys'
-import { sanitizeSlug } from '../../../../lib/slug'
+import { apiClient, ApiError } from "../../../../lib/api-client";
+import { invalidateRoles } from "../../../../lib/query-keys";
+import { sanitizeSlug } from "../../../../lib/slug";
 
 export interface RoleItem {
-  id: string
-  name: string
-  key: string
-  description?: string | null
-  isSystem?: boolean
-  isActive: boolean
+  id: string;
+  name: string;
+  key: string;
+  description?: string | null;
+  isSystem?: boolean;
+  isActive: boolean;
 }
 
 interface RoleFormDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  roleToEdit?: RoleItem | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  roleToEdit?: RoleItem | null;
 }
 
 export function RoleFormDialog({
@@ -42,101 +42,101 @@ export function RoleFormDialog({
   onOpenChange,
   roleToEdit,
 }: RoleFormDialogProps) {
-  const queryClient = useQueryClient()
-  const isEditing = Boolean(roleToEdit)
+  const queryClient = useQueryClient();
+  const isEditing = Boolean(roleToEdit);
 
-  const [name, setName] = useState('')
-  const [key, setKey] = useState('')
-  const [isKeyManuallyEdited, setIsKeyManuallyEdited] = useState(false)
-  const [description, setDescription] = useState('')
-  const [isActive, setIsActive] = useState(true)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [name, setName] = useState("");
+  const [key, setKey] = useState("");
+  const [isKeyManuallyEdited, setIsKeyManuallyEdited] = useState(false);
+  const [description, setDescription] = useState("");
+  const [isActive, setIsActive] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (roleToEdit) {
-      setName(roleToEdit.name)
-      setKey(roleToEdit.key)
-      setDescription(roleToEdit.description || '')
-      setIsActive(roleToEdit.isActive)
-      setIsKeyManuallyEdited(true)
+      setName(roleToEdit.name);
+      setKey(roleToEdit.key);
+      setDescription(roleToEdit.description || "");
+      setIsActive(roleToEdit.isActive);
+      setIsKeyManuallyEdited(true);
     } else {
-      setName('')
-      setKey('')
-      setDescription('')
-      setIsActive(true)
-      setIsKeyManuallyEdited(false)
+      setName("");
+      setKey("");
+      setDescription("");
+      setIsActive(true);
+      setIsKeyManuallyEdited(false);
     }
-    setErrorMessage(null)
-  }, [roleToEdit, open])
+    setErrorMessage(null);
+  }, [roleToEdit, open]);
 
   const mutation = useMutation({
     mutationFn: async () => {
-      setErrorMessage(null)
-      const finalKey = key || sanitizeSlug(name).replace(/-/g, '_')
+      setErrorMessage(null);
+      const finalKey = key || sanitizeSlug(name).replace(/-/g, "_");
 
       if (isEditing && roleToEdit) {
         return apiClient(`/roles/${roleToEdit.id}`, {
-          method: 'PATCH',
+          method: "PATCH",
           body: JSON.stringify({
             name,
             description: description || undefined,
             isActive,
           }),
-        })
+        });
       } else {
-        return apiClient('/roles', {
-          method: 'POST',
+        return apiClient("/roles", {
+          method: "POST",
           body: JSON.stringify({
             name,
             key: finalKey,
             description: description || undefined,
           }),
-        })
+        });
       }
     },
     onSuccess: async () => {
-      await invalidateRoles(queryClient, roleToEdit?.id)
-      onOpenChange(false)
+      await invalidateRoles(queryClient, roleToEdit?.id);
+      onOpenChange(false);
     },
     onError: (err: unknown) => {
       if (err instanceof ApiError) {
-        setErrorMessage(err.message)
+        setErrorMessage(err.message);
       } else {
-        setErrorMessage('Erro ao salvar cargo. Tente novamente.')
+        setErrorMessage("Erro ao salvar cargo. Tente novamente.");
       }
     },
-  })
+  });
 
   const handleNameChange = (val: string) => {
-    setName(val)
+    setName(val);
     if (!isEditing && !isKeyManuallyEdited) {
-      setKey(sanitizeSlug(val).replace(/-/g, '_'))
+      setKey(sanitizeSlug(val).replace(/-/g, "_"));
     }
-  }
+  };
 
   const handleKeyChange = (val: string) => {
-    setIsKeyManuallyEdited(true)
-    setKey(sanitizeSlug(val).replace(/-/g, '_'))
-  }
+    setIsKeyManuallyEdited(true);
+    setKey(sanitizeSlug(val).replace(/-/g, "_"));
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
-            {isEditing ? 'Editar Cargo' : 'Novo Cargo'}
+            {isEditing ? "Editar Cargo" : "Novo Cargo"}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
             {isEditing
-              ? 'Atualize as informações do perfil de acesso selecionado.'
-              : 'Cadastre um novo perfil de acesso e permissões para o sistema.'}
+              ? "Atualize as informações do perfil de acesso selecionado."
+              : "Cadastre um novo perfil de acesso e permissões para o sistema."}
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            mutation.mutate()
+            e.preventDefault();
+            mutation.mutate();
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -214,8 +214,8 @@ export function RoleFormDialog({
                 <NativeSelect
                   id="role-status"
                   name="status"
-                  value={isActive ? 'active' : 'inactive'}
-                  onChange={(e) => setIsActive(e.target.value === 'active')}
+                  value={isActive ? "active" : "inactive"}
+                  onChange={(e) => setIsActive(e.target.value === "active")}
                 >
                   <option value="active">Ativo</option>
                   <option value="inactive">Inativo</option>
@@ -236,15 +236,15 @@ export function RoleFormDialog({
               <RiCheckLine className="h-4 w-4" />
               <span>
                 {mutation.isPending
-                  ? 'Salvando...'
+                  ? "Salvando..."
                   : isEditing
-                    ? 'Salvar Alterações'
-                    : 'Criar Cargo'}
+                    ? "Salvar Alterações"
+                    : "Criar Cargo"}
               </span>
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

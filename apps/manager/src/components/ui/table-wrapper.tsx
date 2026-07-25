@@ -1,45 +1,45 @@
-'use client'
+"use client";
 
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from "react";
 import {
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
   RiSearchLine,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
-import { DataTableSkeleton } from '../skeletons/data-table-skeleton'
-import { NativeSelect } from './native-select'
+import { DataTableSkeleton } from "../skeletons/data-table-skeleton";
+import { NativeSelect } from "./native-select";
 
 interface MetaData {
-  page: number
-  perPage: number
-  total: number
-  totalPages: number
-  hasNextPage: boolean
-  hasPreviousPage: boolean
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 interface TableWrapperProps {
-  title: string
-  description?: string
-  actionButton?: ReactNode
-  searchValue?: string
-  onSearchChange?: (value: string) => void
-  searchPlaceholder?: string
-  filters?: ReactNode
-  isLoading?: boolean
-  isError?: boolean
-  errorMessage?: string
-  meta?: MetaData
-  onPageChange?: (page: number) => void
-  perPageValue?: number
-  onPerPageChange?: (perPage: number) => void
-  children: ReactNode
-  isEmpty?: boolean
-  emptyTitle?: string
-  emptyDescription?: string
+  title: string;
+  description?: string;
+  actionButton?: ReactNode;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
+  filters?: ReactNode;
+  isLoading?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+  meta?: MetaData;
+  onPageChange?: (page: number) => void;
+  perPageValue?: number;
+  onPerPageChange?: (perPage: number) => void;
+  children: ReactNode;
+  isEmpty?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 export function TableWrapper({
@@ -48,42 +48,42 @@ export function TableWrapper({
   actionButton,
   searchValue,
   onSearchChange,
-  searchPlaceholder = 'Buscar...',
+  searchPlaceholder = "Buscar...",
   filters,
   isLoading,
   isError,
-  errorMessage = 'Ocorreu um erro ao carregar os dados.',
+  errorMessage = "Ocorreu um erro ao carregar os dados.",
   meta,
   onPageChange,
   perPageValue,
   onPerPageChange,
   children,
   isEmpty,
-  emptyTitle = 'Nenhum registro encontrado',
-  emptyDescription = 'Não existem itens correspondentes aos critérios informados.',
+  emptyTitle = "Nenhum registro encontrado",
+  emptyDescription = "Não existem itens correspondentes aos critérios informados.",
 }: TableWrapperProps) {
-  const [pageInput, setPageInput] = useState(String(meta?.page || 1))
+  const [pageInput, setPageInput] = useState(String(meta?.page || 1));
 
   useEffect(() => {
     if (meta?.page) {
-      setPageInput(String(meta.page))
+      setPageInput(String(meta.page));
     }
-  }, [meta?.page])
+  }, [meta?.page]);
 
   const handlePageSubmit = () => {
-    const parsed = parseInt(pageInput, 10)
+    const parsed = parseInt(pageInput, 10);
     if (!isNaN(parsed) && meta) {
-      const validPage = Math.max(1, Math.min(meta.totalPages, parsed))
-      setPageInput(String(validPage))
+      const validPage = Math.max(1, Math.min(meta.totalPages, parsed));
+      setPageInput(String(validPage));
       if (validPage !== meta.page) {
-        onPageChange?.(validPage)
+        onPageChange?.(validPage);
       }
     } else if (meta) {
-      setPageInput(String(meta.page))
+      setPageInput(String(meta.page));
     }
-  }
+  };
 
-  const currentPerPage = perPageValue || meta?.perPage || 10
+  const currentPerPage = perPageValue || meta?.perPage || 10;
 
   return (
     <div className="space-y-6 font-sans">
@@ -108,7 +108,7 @@ export function TableWrapper({
               <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500" />
               <input
                 type="text"
-                value={searchValue || ''}
+                value={searchValue || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
                 className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-2 pr-4 pl-10 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
@@ -156,16 +156,16 @@ export function TableWrapper({
           <div className="flex flex-col gap-4 border-t border-zinc-800/80 bg-zinc-900/60 px-6 py-3.5 text-xs text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
             {/* Left: Records summary */}
             <div>
-              Mostrando{' '}
+              Mostrando{" "}
               <span className="font-semibold text-zinc-200">
                 {meta.total > 0 ? (meta.page - 1) * meta.perPage + 1 : 0}
-              </span>{' '}
-              –{' '}
+              </span>{" "}
+              –{" "}
               <span className="font-semibold text-zinc-200">
                 {Math.min(meta.page * meta.perPage, meta.total)}
-              </span>{' '}
-              de{' '}
-              <span className="font-semibold text-zinc-200">{meta.total}</span>{' '}
+              </span>{" "}
+              de{" "}
+              <span className="font-semibold text-zinc-200">{meta.total}</span>{" "}
               registros
             </div>
 
@@ -224,8 +224,8 @@ export function TableWrapper({
                     value={pageInput}
                     onChange={(e) => setPageInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.currentTarget.blur()
+                      if (e.key === "Enter") {
+                        e.currentTarget.blur();
                       }
                     }}
                     onBlur={handlePageSubmit}
@@ -270,5 +270,5 @@ export function TableWrapper({
         )}
       </div>
     </div>
-  )
+  );
 }

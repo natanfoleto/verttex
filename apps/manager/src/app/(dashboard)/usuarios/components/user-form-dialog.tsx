@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
-import { RiCheckLine } from 'react-icons/ri'
+import { RiCheckLine } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,29 +13,29 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/components/ui/native-select'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
-import { invalidateUsers } from '../../../../lib/query-keys'
+import { apiClient, ApiError } from "../../../../lib/api-client";
+import { invalidateUsers } from "../../../../lib/query-keys";
 
 export interface UserItem {
-  id: string
-  name: string
-  email: string
-  status: string
+  id: string;
+  name: string;
+  email: string;
+  status: string;
   role?: {
-    id: string
-    name: string
-  } | null
-  roleId: string
+    id: string;
+    name: string;
+  } | null;
+  roleId: string;
 }
 
 interface UserFormDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  userToEdit?: UserItem | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  userToEdit?: UserItem | null;
 }
 
 export function UserFormDialog({
@@ -43,98 +43,98 @@ export function UserFormDialog({
   onOpenChange,
   userToEdit,
 }: UserFormDialogProps) {
-  const queryClient = useQueryClient()
-  const isEditing = Boolean(userToEdit)
+  const queryClient = useQueryClient();
+  const isEditing = Boolean(userToEdit);
 
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [roleId, setRoleId] = useState('')
-  const [status, setStatus] = useState('active')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [roleId, setRoleId] = useState("");
+  const [status, setStatus] = useState("active");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: roles } = useQuery({
-    queryKey: ['roles-dropdown'],
+    queryKey: ["roles-dropdown"],
     queryFn: async () => {
-      const res = await apiClient('/roles')
-      return Array.isArray(res) ? res : (res?.data ?? [])
+      const res = await apiClient("/roles");
+      return Array.isArray(res) ? res : (res?.data ?? []);
     },
     enabled: open,
-  })
+  });
 
   useEffect(() => {
     if (userToEdit) {
-      setName(userToEdit.name)
-      setEmail(userToEdit.email)
-      setPassword('')
-      setRoleId(userToEdit.role?.id || '')
-      setStatus(userToEdit.status)
+      setName(userToEdit.name);
+      setEmail(userToEdit.email);
+      setPassword("");
+      setRoleId(userToEdit.role?.id || "");
+      setStatus(userToEdit.status);
     } else {
-      setName('')
-      setEmail('')
-      setPassword('')
-      setRoleId(roles && roles.length > 0 ? roles[0].id : '')
-      setStatus('active')
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRoleId(roles && roles.length > 0 ? roles[0].id : "");
+      setStatus("active");
     }
-    setErrorMessage(null)
-  }, [userToEdit, open, roles])
+    setErrorMessage(null);
+  }, [userToEdit, open, roles]);
 
   const mutation = useMutation({
     mutationFn: async () => {
-      setErrorMessage(null)
+      setErrorMessage(null);
       if (isEditing && userToEdit) {
         return apiClient(`/users/${userToEdit.id}`, {
-          method: 'PATCH',
+          method: "PATCH",
           body: JSON.stringify({
             name,
             email,
             roleId,
             status,
           }),
-        })
+        });
       } else {
-        return apiClient('/users', {
-          method: 'POST',
+        return apiClient("/users", {
+          method: "POST",
           body: JSON.stringify({
             name,
             email,
             password,
             roleId,
           }),
-        })
+        });
       }
     },
     onSuccess: async () => {
-      await invalidateUsers(queryClient, userToEdit?.id)
-      onOpenChange(false)
+      await invalidateUsers(queryClient, userToEdit?.id);
+      onOpenChange(false);
     },
     onError: (err: unknown) => {
       if (err instanceof ApiError) {
-        setErrorMessage(err.message)
+        setErrorMessage(err.message);
       } else {
-        setErrorMessage('Erro ao salvar usuário. Tente novamente.')
+        setErrorMessage("Erro ao salvar usuário. Tente novamente.");
       }
     },
-  })
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
-            {isEditing ? 'Editar Usuário' : 'Novo Usuário Gestor'}
+            {isEditing ? "Editar Usuário" : "Novo Usuário Gestor"}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
             {isEditing
-              ? 'Atualize as informações do usuário administrativo.'
-              : 'Cadastre um novo usuário administrativo com acesso ao painel de gestão.'}
+              ? "Atualize as informações do usuário administrativo."
+              : "Cadastre um novo usuário administrativo com acesso ao painel de gestão."}
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={(e) => {
-            e.preventDefault()
-            mutation.mutate()
+            e.preventDefault();
+            mutation.mutate();
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -206,7 +206,8 @@ export function UserFormDialog({
                 htmlFor="user-roleId"
                 className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
               >
-                Cargo / Perfil de Acesso <span className="text-rose-400">*</span>
+                Cargo / Perfil de Acesso{" "}
+                <span className="text-rose-400">*</span>
               </label>
               <NativeSelect
                 id="user-roleId"
@@ -259,15 +260,15 @@ export function UserFormDialog({
               <RiCheckLine className="h-4 w-4 mr-2" />
               <span>
                 {mutation.isPending
-                  ? 'Salvando...'
+                  ? "Salvando..."
                   : isEditing
-                    ? 'Salvar Alterações'
-                    : 'Criar Usuário'}
+                    ? "Salvar Alterações"
+                    : "Criar Usuário"}
               </span>
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

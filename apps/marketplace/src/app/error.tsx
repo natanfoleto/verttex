@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { RiRefreshLine } from 'react-icons/ri'
+import * as React from "react";
+import { RiRefreshLine } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   React.useEffect(() => {
-    console.error(error)
-  }, [error])
+    console.error(error);
+  }, [error]);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 px-4 py-16 text-center font-sans text-stone-900">
@@ -32,5 +32,5 @@ export default function ErrorPage({
         </Button>
       </div>
     </div>
-  )
+  );
 }

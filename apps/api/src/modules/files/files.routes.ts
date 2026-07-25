@@ -37,7 +37,8 @@ export async function filesRoutes(app: FastifyInstance) {
       preHandler: [app.authenticateUser, requirePermission("create", "File")],
       schema: {
         tags: ["Files — Media Management"],
-        summary: "Upload direto multipart/form-data de arquivo para Cloudflare R2",
+        summary:
+          "Upload direto multipart/form-data de arquivo para Cloudflare R2",
         security: [{ bearerAuth: [] }],
       },
     },
@@ -78,7 +79,8 @@ export async function filesRoutes(app: FastifyInstance) {
       preHandler: [app.authenticateUser, requirePermission("delete", "File")],
       schema: {
         tags: ["Files — Media Management"],
-        summary: "Deletar arquivo permanentemente do Cloudflare R2 e do banco de dados",
+        summary:
+          "Deletar arquivo permanentemente do Cloudflare R2 e do banco de dados",
         security: [{ bearerAuth: [] }],
         params: z.object({ fileId: z.string() }),
       },

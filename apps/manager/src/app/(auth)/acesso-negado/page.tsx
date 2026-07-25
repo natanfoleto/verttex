@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { RiShieldCrossLine } from 'react-icons/ri'
+import Link from "next/link";
+import { RiShieldCrossLine } from "react-icons/ri";
 
 export default function AccessDeniedPage() {
   return (
@@ -23,5 +23,5 @@ export default function AccessDeniedPage() {
         </Link>
       </div>
     </div>
-  )
+  );
 }

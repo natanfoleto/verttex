@@ -1,22 +1,22 @@
-import Link from 'next/link'
+import Link from "next/link";
 import {
   RiArrowRightLine,
   RiMapPinLine,
   RiShieldCheckLine,
   RiStore2Line,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
 export interface StoreCardProps {
-  id: string
-  name: string
-  slug: string
-  description?: string
-  coverUrl?: string
-  logoUrl?: string
-  city?: string
-  state?: string
-  productsCount?: number
-  isVerified?: boolean
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  coverUrl?: string;
+  logoUrl?: string;
+  city?: string;
+  state?: string;
+  productsCount?: number;
+  isVerified?: boolean;
 }
 
 export function StoreCard({
@@ -25,8 +25,8 @@ export function StoreCard({
   description,
   coverUrl,
   logoUrl,
-  city = 'Serra Gaúcha',
-  state = 'RS',
+  city = "Serra Gaúcha",
+  state = "RS",
   productsCount = 0,
   isVerified = true,
 }: StoreCardProps) {
@@ -94,7 +94,7 @@ export function StoreCard({
         {/* Description */}
         <p className="mt-2.5 line-clamp-2 text-xs leading-relaxed text-stone-600">
           {description ||
-            'Produtor regional dedicado ao cultivo e elaboração de produtos artesanais autênticos.'}
+            "Produtor regional dedicado ao cultivo e elaboração de produtos artesanais autênticos."}
         </p>
 
         {/* Action Button */}
@@ -109,5 +109,5 @@ export function StoreCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

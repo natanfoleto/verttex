@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
-import { use, useState } from 'react'
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { use, useState } from "react";
 import {
   RiArrowLeftLine,
   RiEditLine,
@@ -10,26 +10,26 @@ import {
   RiInformationLine,
   RiShoppingBag3Line,
   RiUserSharedLine,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { apiClient } from '../../../../lib/api-client'
-import { storeQueryKeys } from '../../../../lib/query-keys'
-import { ProductsTable } from '../../produtos/components/products-table'
-import { StoreFormDialog } from '../components/store-form-dialog'
+import { apiClient } from "../../../../lib/api-client";
+import { storeQueryKeys } from "../../../../lib/query-keys";
+import { ProductsTable } from "../../produtos/components/products-table";
+import { StoreFormDialog } from "../components/store-form-dialog";
 
 export default function StoreDetailPage({
   params,
 }: {
-  params: Promise<{ storeId: string }>
+  params: Promise<{ storeId: string }>;
 }) {
-  const resolvedParams = use(params)
-  const storeId = resolvedParams.storeId
+  const resolvedParams = use(params);
+  const storeId = resolvedParams.storeId;
 
-  const [isEditOpen, setIsEditOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('overview')
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const {
     data: store,
@@ -38,14 +38,14 @@ export default function StoreDetailPage({
   } = useQuery({
     queryKey: storeQueryKeys.detail(storeId),
     queryFn: () => apiClient(`/stores/${storeId}`),
-  })
+  });
 
   if (isLoading) {
     return (
       <div className="p-8 text-center text-zinc-400">
         <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
-    )
+    );
   }
 
   if (isError || !store) {
@@ -53,7 +53,7 @@ export default function StoreDetailPage({
       <div className="p-8 text-center text-rose-400">
         Loja não encontrada ou erro de carregamento.
       </div>
-    )
+    );
   }
 
   return (
@@ -126,29 +126,29 @@ export default function StoreDetailPage({
                   </span>
                   <span
                     className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                      store.status === 'active'
-                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
-                        : store.status === 'draft'
-                          ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
-                          : store.status === 'suspended'
-                            ? 'border-rose-800 bg-rose-950 text-rose-400'
-                            : 'border-amber-800 bg-amber-950 text-amber-400'
+                      store.status === "active"
+                        ? "border-emerald-800 bg-emerald-950 text-emerald-400"
+                        : store.status === "draft"
+                          ? "border-zinc-700 bg-zinc-800 text-zinc-300"
+                          : store.status === "suspended"
+                            ? "border-rose-800 bg-rose-950 text-rose-400"
+                            : "border-amber-800 bg-amber-950 text-amber-400"
                     }`}
                   >
-                    {store.status === 'active'
-                      ? 'Ativa'
-                      : store.status === 'draft'
-                        ? 'Rascunho'
-                        : store.status === 'suspended'
-                          ? 'Suspensa'
-                          : 'Inativa'}
+                    {store.status === "active"
+                      ? "Ativa"
+                      : store.status === "draft"
+                        ? "Rascunho"
+                        : store.status === "suspended"
+                          ? "Suspensa"
+                          : "Inativa"}
                   </span>
                 </div>
 
                 <div>
                   <span className="block text-xs text-zinc-500">Descrição</span>
                   <p className="mt-0.5 text-zinc-300">
-                    {store.description || 'Sem descrição cadastrada'}
+                    {store.description || "Sem descrição cadastrada"}
                   </p>
                 </div>
 
@@ -159,7 +159,7 @@ export default function StoreDetailPage({
                   <div className="mt-0.5 flex items-center space-x-2">
                     <RiGlobalLine className="h-4 w-4 text-zinc-500" />
                     <span className="font-mono text-xs text-zinc-300">
-                      {store.customDomain || 'Nenhum cadastrado'}
+                      {store.customDomain || "Nenhum cadastrado"}
                     </span>
                   </div>
                 </div>
@@ -178,8 +178,8 @@ export default function StoreDetailPage({
                 <div className="space-y-2">
                   {store.users.map(
                     (su: {
-                      isOwner: boolean
-                      user: { id: string; name: string; email: string }
+                      isOwner: boolean;
+                      user: { id: string; name: string; email: string };
                     }) => (
                       <div
                         key={su.user.id}
@@ -222,5 +222,5 @@ export default function StoreDetailPage({
         storeToEdit={store}
       />
     </div>
-  )
+  );
 }

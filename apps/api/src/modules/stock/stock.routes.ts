@@ -24,7 +24,8 @@ export async function stockRoutes(app: FastifyInstance) {
       preHandler: [app.authenticateUser],
       schema: {
         tags: ["Stock — Inventory & FEFO Management"],
-        summary: "Recebimento de mercadorias com registro por lote e localização",
+        summary:
+          "Recebimento de mercadorias com registro por lote e localização",
         security: [{ bearerAuth: [] }],
         body: receiveStockBodySchema,
       },
@@ -64,7 +65,8 @@ export async function stockRoutes(app: FastifyInstance) {
       preHandler: [app.authenticateUser],
       schema: {
         tags: ["Stock — Inventory & FEFO Management"],
-        summary: "Descarte formal por vencimento ou dano com justificativa e destino",
+        summary:
+          "Descarte formal por vencimento ou dano com justificativa e destino",
         security: [{ bearerAuth: [] }],
         body: discardExpiredStockBodySchema,
       },

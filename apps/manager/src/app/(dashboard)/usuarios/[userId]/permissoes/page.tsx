@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import Link from 'next/link'
-import { use, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { use, useState } from "react";
 import {
   RiArrowLeftLine,
   RiCheckboxCircleLine,
@@ -15,309 +15,309 @@ import {
   RiSearchLine,
   RiShieldCheckLine,
   RiShieldCrossLine,
-} from 'react-icons/ri'
-import { toast } from 'sonner'
+} from "react-icons/ri";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { NativeSelect } from '@/components/ui/native-select'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 
-import { apiClient } from '../../../../../lib/api-client'
-import { invalidateUsers } from '../../../../../lib/query-keys'
+import { apiClient } from "../../../../../lib/api-client";
+import { invalidateUsers } from "../../../../../lib/query-keys";
 
 const MODULE_TRANSLATIONS: Record<string, string> = {
-  User: 'Usuários',
-  users: 'Usuários',
-  user: 'Usuários',
-  Store: 'Lojas',
-  stores: 'Lojas',
-  store: 'Lojas',
-  Role: 'Cargos',
-  roles: 'Cargos',
-  role: 'Cargos',
-  Permission: 'Permissões',
-  permissions: 'Permissões',
-  permission: 'Permissões',
-  Audit: 'Auditoria',
-  audit: 'Auditoria',
-  auditoria: 'Auditoria',
-  Product: 'Produtos',
-  products: 'Produtos',
-  product: 'Produtos',
-  Category: 'Categorias',
-  categories: 'Categorias',
-  category: 'Categorias',
-  Order: 'Pedidos',
-  orders: 'Pedidos',
-  order: 'Pedidos',
-  Customer: 'Clientes',
-  customers: 'Clientes',
-  customer: 'Clientes',
-}
+  User: "Usuários",
+  users: "Usuários",
+  user: "Usuários",
+  Store: "Lojas",
+  stores: "Lojas",
+  store: "Lojas",
+  Role: "Cargos",
+  roles: "Cargos",
+  role: "Cargos",
+  Permission: "Permissões",
+  permissions: "Permissões",
+  permission: "Permissões",
+  Audit: "Auditoria",
+  audit: "Auditoria",
+  auditoria: "Auditoria",
+  Product: "Produtos",
+  products: "Produtos",
+  product: "Produtos",
+  Category: "Categorias",
+  categories: "Categorias",
+  category: "Categorias",
+  Order: "Pedidos",
+  orders: "Pedidos",
+  order: "Pedidos",
+  Customer: "Clientes",
+  customers: "Clientes",
+  customer: "Clientes",
+};
 
 function getModuleLabel(mod: string) {
-  const pt = MODULE_TRANSLATIONS[mod] || mod
-  return `${pt} (${mod.toLowerCase()})`
+  const pt = MODULE_TRANSLATIONS[mod] || mod;
+  return `${pt} (${mod.toLowerCase()})`;
 }
 
 export default function UserPermissionsPage({
   params,
 }: {
-  params: Promise<{ userId: string }>
+  params: Promise<{ userId: string }>;
 }) {
-  const resolvedParams = use(params)
-  const userId = resolvedParams.userId
-  const queryClient = useQueryClient()
+  const resolvedParams = use(params);
+  const userId = resolvedParams.userId;
+  const queryClient = useQueryClient();
 
   // Filters State
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
-    'all' | 'granted' | 'denied'
-  >('all')
+    "all" | "granted" | "denied"
+  >("all");
   const [overrideFilter, setOverrideFilter] = useState<
-    'all' | 'inherit' | 'allow' | 'deny'
-  >('all')
+    "all" | "inherit" | "allow" | "deny"
+  >("all");
   const [actionTypeFilter, setActionTypeFilter] = useState<
-    'all' | 'read' | 'create' | 'update' | 'delete' | 'manage'
-  >('all')
-  const [moduleFilter, setModuleFilter] = useState<string>('all')
+    "all" | "read" | "create" | "update" | "delete" | "manage"
+  >("all");
+  const [moduleFilter, setModuleFilter] = useState<string>("all");
 
   const { data: user, isLoading: isLoadingUser } = useQuery({
-    queryKey: ['user-detail', userId],
+    queryKey: ["user-detail", userId],
     queryFn: () => apiClient(`/users/${userId}`),
-  })
+  });
 
   const { data: allPermissions, isLoading: isLoadingPerms } = useQuery({
-    queryKey: ['all-permissions'],
-    queryFn: () => apiClient('/permissions'),
-  })
+    queryKey: ["all-permissions"],
+    queryFn: () => apiClient("/permissions"),
+  });
 
   const updatePermissionsMutation = useMutation({
     mutationFn: (
-      overrides: Array<{ permissionId: string; effect: 'allow' | 'deny' }>,
+      overrides: Array<{ permissionId: string; effect: "allow" | "deny" }>,
     ) =>
       apiClient(`/users/${userId}/permissions`, {
-        method: 'PUT',
+        method: "PUT",
         body: JSON.stringify({ overrides }),
       }),
     onSuccess: () => {
-      invalidateUsers(queryClient, userId)
-      toast.success('Exceções de permissão atualizadas com sucesso!')
+      invalidateUsers(queryClient, userId);
+      toast.success("Exceções de permissão atualizadas com sucesso!");
     },
     onError: (err: Error) => {
-      toast.error('Erro ao atualizar permissões', {
+      toast.error("Erro ao atualizar permissões", {
         description: err.message,
-      })
+      });
     },
-  })
+  });
 
   if (isLoadingUser || isLoadingPerms) {
     return (
       <div className="p-8 text-center text-zinc-400">
         <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
-    )
+    );
   }
 
   // Build Role Permissions Sets
-  const rolePermissionIds = new Set<string>()
-  const rolePermissionKeys = new Set<string>()
-  const isSystemAdmin = user?.role?.key === 'admin'
+  const rolePermissionIds = new Set<string>();
+  const rolePermissionKeys = new Set<string>();
+  const isSystemAdmin = user?.role?.key === "admin";
 
   user?.role?.permissions?.forEach((rp: any) => {
-    if (rp.permissionId) rolePermissionIds.add(rp.permissionId)
-    if (rp.permission?.id) rolePermissionIds.add(rp.permission.id)
-    if (rp.permission?.key) rolePermissionKeys.add(rp.permission.key)
-  })
+    if (rp.permissionId) rolePermissionIds.add(rp.permissionId);
+    if (rp.permission?.id) rolePermissionIds.add(rp.permission.id);
+    if (rp.permission?.key) rolePermissionKeys.add(rp.permission.key);
+  });
 
   // Current Overrides Map
-  const currentOverridesMap = new Map<string, 'allow' | 'deny'>()
+  const currentOverridesMap = new Map<string, "allow" | "deny">();
   user?.permissions?.forEach(
-    (up: { permissionId: string; effect: 'allow' | 'deny' }) => {
-      currentOverridesMap.set(up.permissionId, up.effect)
+    (up: { permissionId: string; effect: "allow" | "deny" }) => {
+      currentOverridesMap.set(up.permissionId, up.effect);
     },
-  )
+  );
 
   // Helper function to resolve effective status and visual indicators
   const getEffectiveInfo = (perm: { id: string; key: string }) => {
-    const override = currentOverridesMap.get(perm.id)
+    const override = currentOverridesMap.get(perm.id);
     const isRoleGranted =
       isSystemAdmin ||
       rolePermissionIds.has(perm.id) ||
-      rolePermissionKeys.has(perm.key)
+      rolePermissionKeys.has(perm.key);
 
-    if (override === 'allow') {
+    if (override === "allow") {
       return {
         isGranted: true,
-        source: 'Exceção (Permitido)',
-        badgeClass: 'bg-emerald-950/80 border-emerald-700/80 text-emerald-300',
+        source: "Exceção (Permitido)",
+        badgeClass: "bg-emerald-950/80 border-emerald-700/80 text-emerald-300",
         icon: RiCheckboxCircleLine,
-        type: 'override_allow',
-      }
+        type: "override_allow",
+      };
     }
 
-    if (override === 'deny') {
+    if (override === "deny") {
       return {
         isGranted: false,
-        source: 'Exceção (Bloqueado)',
-        badgeClass: 'bg-rose-950/80 border-rose-700/80 text-rose-300',
+        source: "Exceção (Bloqueado)",
+        badgeClass: "bg-rose-950/80 border-rose-700/80 text-rose-300",
         icon: RiCloseCircleLine,
-        type: 'override_deny',
-      }
+        type: "override_deny",
+      };
     }
 
     if (isRoleGranted) {
       return {
         isGranted: true,
-        source: `Herdado (${user?.role?.name || 'Cargo'})`,
-        badgeClass: 'bg-emerald-950/40 border-emerald-800/50 text-emerald-400',
+        source: `Herdado (${user?.role?.name || "Cargo"})`,
+        badgeClass: "bg-emerald-950/40 border-emerald-800/50 text-emerald-400",
         icon: RiCheckboxCircleLine,
-        type: 'inherit_granted',
-      }
+        type: "inherit_granted",
+      };
     }
 
     return {
       isGranted: false,
-      source: `Sem acesso no cargo (${user?.role?.name || 'Cargo'})`,
-      badgeClass: 'bg-rose-950/40 border-rose-900/50 text-rose-400',
+      source: `Sem acesso no cargo (${user?.role?.name || "Cargo"})`,
+      badgeClass: "bg-rose-950/40 border-rose-900/50 text-rose-400",
       icon: RiCloseCircleLine,
-      type: 'inherit_denied',
-    }
-  }
+      type: "inherit_denied",
+    };
+  };
 
   // Calculate Global Metrics
-  const totalCount = allPermissions?.length || 0
-  let grantedCount = 0
-  let deniedCount = 0
-  const overrideCount = currentOverridesMap.size
+  const totalCount = allPermissions?.length || 0;
+  let grantedCount = 0;
+  let deniedCount = 0;
+  const overrideCount = currentOverridesMap.size;
 
-  const availableModulesSet = new Set<string>()
+  const availableModulesSet = new Set<string>();
 
   allPermissions?.forEach((perm: any) => {
-    if (perm.module) availableModulesSet.add(perm.module)
-    const info = getEffectiveInfo(perm)
-    if (info.isGranted) grantedCount++
-    else deniedCount++
-  })
+    if (perm.module) availableModulesSet.add(perm.module);
+    const info = getEffectiveInfo(perm);
+    if (info.isGranted) grantedCount++;
+    else deniedCount++;
+  });
 
-  const availableModules = Array.from(availableModulesSet).sort()
+  const availableModules = Array.from(availableModulesSet).sort();
 
   // Toggle Override Action
   const handleToggleOverride = (
     permissionId: string,
-    effect: 'allow' | 'deny' | 'inherit',
+    effect: "allow" | "deny" | "inherit",
   ) => {
     const newOverrides: Array<{
-      permissionId: string
-      effect: 'allow' | 'deny'
-    }> = []
+      permissionId: string;
+      effect: "allow" | "deny";
+    }> = [];
 
     allPermissions?.forEach((perm: { id: string }) => {
-      let currentEffect = currentOverridesMap.get(perm.id)
+      let currentEffect = currentOverridesMap.get(perm.id);
       if (perm.id === permissionId) {
-        if (effect === 'inherit') return
-        currentEffect = effect
+        if (effect === "inherit") return;
+        currentEffect = effect;
       }
       if (currentEffect) {
-        newOverrides.push({ permissionId: perm.id, effect: currentEffect })
+        newOverrides.push({ permissionId: perm.id, effect: currentEffect });
       }
-    })
+    });
 
-    updatePermissionsMutation.mutate(newOverrides)
-  }
+    updatePermissionsMutation.mutate(newOverrides);
+  };
 
   // Filter Permissions
   const filteredPermissions = allPermissions?.filter((perm: any) => {
-    const effective = getEffectiveInfo(perm)
-    const override = currentOverridesMap.get(perm.id)
+    const effective = getEffectiveInfo(perm);
+    const override = currentOverridesMap.get(perm.id);
 
     // Search query
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      const matchesKey = perm.key.toLowerCase().includes(q)
-      const matchesDesc = perm.description?.toLowerCase().includes(q)
-      const matchesMod = perm.module?.toLowerCase().includes(q)
-      if (!matchesKey && !matchesDesc && !matchesMod) return false
+      const q = searchQuery.toLowerCase();
+      const matchesKey = perm.key.toLowerCase().includes(q);
+      const matchesDesc = perm.description?.toLowerCase().includes(q);
+      const matchesMod = perm.module?.toLowerCase().includes(q);
+      if (!matchesKey && !matchesDesc && !matchesMod) return false;
     }
 
     // Status filter
-    if (statusFilter === 'granted' && !effective.isGranted) return false
-    if (statusFilter === 'denied' && effective.isGranted) return false
+    if (statusFilter === "granted" && !effective.isGranted) return false;
+    if (statusFilter === "denied" && effective.isGranted) return false;
 
     // Override action filter
-    if (overrideFilter === 'inherit' && override) return false
-    if (overrideFilter === 'allow' && override !== 'allow') return false
-    if (overrideFilter === 'deny' && override !== 'deny') return false
+    if (overrideFilter === "inherit" && override) return false;
+    if (overrideFilter === "allow" && override !== "allow") return false;
+    if (overrideFilter === "deny" && override !== "deny") return false;
 
     // Operation type filter
-    if (actionTypeFilter !== 'all') {
-      const k = perm.key.toLowerCase()
+    if (actionTypeFilter !== "all") {
+      const k = perm.key.toLowerCase();
       if (
-        actionTypeFilter === 'read' &&
-        !k.includes('read') &&
-        !k.includes('list')
+        actionTypeFilter === "read" &&
+        !k.includes("read") &&
+        !k.includes("list")
       )
-        return false
+        return false;
       if (
-        actionTypeFilter === 'create' &&
-        !k.includes('create') &&
-        !k.includes('add')
+        actionTypeFilter === "create" &&
+        !k.includes("create") &&
+        !k.includes("add")
       )
-        return false
+        return false;
       if (
-        actionTypeFilter === 'update' &&
-        !k.includes('update') &&
-        !k.includes('edit')
+        actionTypeFilter === "update" &&
+        !k.includes("update") &&
+        !k.includes("edit")
       )
-        return false
+        return false;
       if (
-        actionTypeFilter === 'delete' &&
-        !k.includes('delete') &&
-        !k.includes('remove')
+        actionTypeFilter === "delete" &&
+        !k.includes("delete") &&
+        !k.includes("remove")
       )
-        return false
+        return false;
       if (
-        actionTypeFilter === 'manage' &&
-        !k.includes('manage') &&
-        !k.includes('admin')
+        actionTypeFilter === "manage" &&
+        !k.includes("manage") &&
+        !k.includes("admin")
       )
-        return false
+        return false;
     }
 
     // Module filter
-    if (moduleFilter !== 'all' && perm.module !== moduleFilter) return false
+    if (moduleFilter !== "all" && perm.module !== moduleFilter) return false;
 
-    return true
-  })
+    return true;
+  });
 
   // Group filtered permissions by module
   const permissionsByModule = new Map<
     string,
     Array<{ id: string; key: string; module: string; description: string }>
-  >()
+  >();
 
   filteredPermissions?.forEach((perm: any) => {
-    const mod = perm.module || 'Outros'
+    const mod = perm.module || "Outros";
     if (!permissionsByModule.has(mod)) {
-      permissionsByModule.set(mod, [])
+      permissionsByModule.set(mod, []);
     }
-    permissionsByModule.get(mod)!.push(perm)
-  })
+    permissionsByModule.get(mod)!.push(perm);
+  });
 
   const hasActiveFilters =
-    searchQuery.trim() !== '' ||
-    statusFilter !== 'all' ||
-    overrideFilter !== 'all' ||
-    actionTypeFilter !== 'all' ||
-    moduleFilter !== 'all'
+    searchQuery.trim() !== "" ||
+    statusFilter !== "all" ||
+    overrideFilter !== "all" ||
+    actionTypeFilter !== "all" ||
+    moduleFilter !== "all";
 
   const resetFilters = () => {
-    setSearchQuery('')
-    setStatusFilter('all')
-    setOverrideFilter('all')
-    setActionTypeFilter('all')
-    setModuleFilter('all')
-  }
+    setSearchQuery("");
+    setStatusFilter("all");
+    setOverrideFilter("all");
+    setActionTypeFilter("all");
+    setModuleFilter("all");
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -335,7 +335,7 @@ export default function UserPermissionsPage({
               Permissões do Usuário — {user?.name}
             </h1>
             <p className="text-sm text-zinc-400">
-              Cargo Padrão:{' '}
+              Cargo Padrão:{" "}
               <strong className="text-zinc-200">{user?.role?.name}</strong> (
               {user?.role?.key})
             </p>
@@ -487,16 +487,16 @@ export default function UserPermissionsPage({
                     Módulo: {getModuleLabel(moduleName)}
                   </span>
                   <span className="rounded bg-zinc-900 px-2 py-0.5 text-xs text-zinc-400">
-                    {perms.length}{' '}
-                    {perms.length === 1 ? 'permissão' : 'permissões'}
+                    {perms.length}{" "}
+                    {perms.length === 1 ? "permissão" : "permissões"}
                   </span>
                 </div>
 
                 <div className="divide-y divide-zinc-800/60">
                   {perms.map((perm) => {
-                    const currentEffect = currentOverridesMap.get(perm.id)
-                    const effective = getEffectiveInfo(perm)
-                    const Icon = effective.icon
+                    const currentEffect = currentOverridesMap.get(perm.id);
+                    const effective = getEffectiveInfo(perm);
+                    const Icon = effective.icon;
 
                     return (
                       <div
@@ -516,8 +516,8 @@ export default function UserPermissionsPage({
                               <Icon className="h-3.5 w-3.5" />
                               <span>
                                 {effective.isGranted
-                                  ? 'Concedida'
-                                  : 'Bloqueada'}
+                                  ? "Concedida"
+                                  : "Bloqueada"}
                               </span>
                               <span className="opacity-75">
                                 ({effective.source})
@@ -535,17 +535,17 @@ export default function UserPermissionsPage({
                           <Button
                             type="button"
                             variant={
-                              currentEffect === 'allow' ? 'default' : 'outline'
+                              currentEffect === "allow" ? "default" : "outline"
                             }
                             size="sm"
                             onClick={() =>
-                              handleToggleOverride(perm.id, 'allow')
+                              handleToggleOverride(perm.id, "allow")
                             }
                             disabled={updatePermissionsMutation.isPending}
                             className={
-                              currentEffect === 'allow'
-                                ? 'bg-emerald-600 text-white hover:bg-emerald-500'
-                                : ''
+                              currentEffect === "allow"
+                                ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                                : ""
                             }
                           >
                             <RiCheckLine className="h-3.5 w-3.5" />
@@ -555,13 +555,13 @@ export default function UserPermissionsPage({
                           <Button
                             type="button"
                             variant={
-                              currentEffect === 'deny'
-                                ? 'destructive'
-                                : 'outline'
+                              currentEffect === "deny"
+                                ? "destructive"
+                                : "outline"
                             }
                             size="sm"
                             onClick={() =>
-                              handleToggleOverride(perm.id, 'deny')
+                              handleToggleOverride(perm.id, "deny")
                             }
                             disabled={updatePermissionsMutation.isPending}
                           >
@@ -574,7 +574,7 @@ export default function UserPermissionsPage({
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              handleToggleOverride(perm.id, 'inherit')
+                              handleToggleOverride(perm.id, "inherit")
                             }
                             disabled={updatePermissionsMutation.isPending}
                             title="Herdar permissão do cargo"
@@ -584,7 +584,7 @@ export default function UserPermissionsPage({
                           </Button>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -609,5 +609,5 @@ export default function UserPermissionsPage({
         )}
       </div>
     </div>
-  )
+  );
 }

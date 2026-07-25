@@ -144,7 +144,9 @@
       "Segoe UI",
       Roboto,
       sans-serif;
-    transition: background-color 200ms ease, color 200ms ease;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
   }
 
   /* Custom Verttex Checkbox Styles */

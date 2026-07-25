@@ -135,19 +135,55 @@ const permissionsData = [
   },
 
   // Lots module
-  { key: "lots.read", module: "lots", description: "Visualizar lotes e validade de produtos" },
+  {
+    key: "lots.read",
+    module: "lots",
+    description: "Visualizar lotes e validade de produtos",
+  },
   { key: "lots.create", module: "lots", description: "Cadastrar novos lotes" },
   { key: "lots.update", module: "lots", description: "Editar dados do lote" },
-  { key: "lots.quarantine", module: "lots", description: "Colocar ou liberar lotes da quarentena" },
-  { key: "lots.block", module: "lots", description: "Bloquear ou desbloquear lotes" },
-  { key: "lots.recall", module: "lots", description: "Executar ou gerenciar recolhimento (recall) de lotes" },
+  {
+    key: "lots.quarantine",
+    module: "lots",
+    description: "Colocar ou liberar lotes da quarentena",
+  },
+  {
+    key: "lots.block",
+    module: "lots",
+    description: "Bloquear ou desbloquear lotes",
+  },
+  {
+    key: "lots.recall",
+    module: "lots",
+    description: "Executar ou gerenciar recolhimento (recall) de lotes",
+  },
 
   // Stock module
-  { key: "stock.read", module: "stock", description: "Visualizar estoque, FEFO e movimentações" },
-  { key: "stock.receive", module: "stock", description: "Registrar recebimento de mercadorias por lote" },
-  { key: "stock.transfer", module: "stock", description: "Transferir lotes entre localizações" },
-  { key: "stock.adjust", module: "stock", description: "Realizar ajustes manuais de inventário" },
-  { key: "stock.discard", module: "stock", description: "Realizar descarte formal por vencimento ou dano" },
+  {
+    key: "stock.read",
+    module: "stock",
+    description: "Visualizar estoque, FEFO e movimentações",
+  },
+  {
+    key: "stock.receive",
+    module: "stock",
+    description: "Registrar recebimento de mercadorias por lote",
+  },
+  {
+    key: "stock.transfer",
+    module: "stock",
+    description: "Transferir lotes entre localizações",
+  },
+  {
+    key: "stock.adjust",
+    module: "stock",
+    description: "Realizar ajustes manuais de inventário",
+  },
+  {
+    key: "stock.discard",
+    module: "stock",
+    description: "Realizar descarte formal por vencimento ou dano",
+  },
   {
     key: "files.delete",
     module: "files",
@@ -460,7 +496,8 @@ async function main() {
       name: "Queijo Canastra Meia Cura 500g",
       slug: "queijo-canastra-meia-cura-500g",
       shortDescription: "Queijo artesanal da Canastra maturado por 14 dias",
-      fullDescription: "Produzido com leite cru de vaca na região da Serra da Canastra.",
+      fullDescription:
+        "Produzido com leite cru de vaca na região da Serra da Canastra.",
       type: "simple",
       status: "active",
       isPublished: true,
@@ -506,7 +543,8 @@ async function main() {
       name: "Mel Silvestre Orgânico 500g",
       slug: "mel-silvestre-organico-500g",
       shortDescription: "Mel 100% puro de florada nativa das serras de Minas",
-      fullDescription: "Extratado a frio preservando todos os minerais e enzimas naturais.",
+      fullDescription:
+        "Extratado a frio preservando todos os minerais e enzimas naturais.",
       type: "simple",
       status: "active",
       isPublished: true,
@@ -661,7 +699,8 @@ async function main() {
       manufacturingDate: new Date("2025-08-01"),
       expirationDate: expExpired,
       status: "available",
-      notes: "Lote vencido aguardando baixa e descarte com empresa terceirizada",
+      notes:
+        "Lote vencido aguardando baixa e descarte com empresa terceirizada",
       createdBy: adminUser.id,
       updatedBy: adminUser.id,
     },
@@ -699,10 +738,38 @@ async function main() {
 
   // 10. Seed Stock Items & Initial Movements
   const stockItemsData = [
-    { lot: lotValid, qty: 60, res: 5, varId: varQueijo.id, storeId: storeAlvorada.id, locId: locAlvorada.id },
-    { lot: lotWarning, qty: 25, res: 0, varId: varQueijo.id, storeId: storeAlvorada.id, locId: locAlvorada.id },
-    { lot: lotExpired, qty: 12, res: 0, varId: varQueijo.id, storeId: storeAlvorada.id, locId: locAlvorada.id },
-    { lot: lotQuarantine, qty: 40, res: 0, varId: varMel.id, storeId: storeMel.id, locId: locMel.id },
+    {
+      lot: lotValid,
+      qty: 60,
+      res: 5,
+      varId: varQueijo.id,
+      storeId: storeAlvorada.id,
+      locId: locAlvorada.id,
+    },
+    {
+      lot: lotWarning,
+      qty: 25,
+      res: 0,
+      varId: varQueijo.id,
+      storeId: storeAlvorada.id,
+      locId: locAlvorada.id,
+    },
+    {
+      lot: lotExpired,
+      qty: 12,
+      res: 0,
+      varId: varQueijo.id,
+      storeId: storeAlvorada.id,
+      locId: locAlvorada.id,
+    },
+    {
+      lot: lotQuarantine,
+      qty: 40,
+      res: 0,
+      varId: varMel.id,
+      storeId: storeMel.id,
+      locId: locMel.id,
+    },
   ];
 
   for (const item of stockItemsData) {
@@ -743,7 +810,9 @@ async function main() {
     });
   }
 
-  console.log("✅ Lotes de amostra, saldos de estoque e movimentações semeados com sucesso.");
+  console.log(
+    "✅ Lotes de amostra, saldos de estoque e movimentações semeados com sucesso.",
+  );
   console.log("🎉 Seed finished successfully!");
 }
 

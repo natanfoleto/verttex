@@ -2,7 +2,11 @@ import { FastifyRequest } from "fastify";
 import { AppError } from "../../shared/errors/app-error";
 import { prisma } from "../../infrastructure/database/prisma";
 import { logAudit } from "../../shared/utils/audit";
-import { CreateLotBody, ListLotsQuery, UpdateLotStatusBody } from "./lots.schemas";
+import {
+  CreateLotBody,
+  ListLotsQuery,
+  UpdateLotStatusBody,
+} from "./lots.schemas";
 
 export class LotsService {
   /**
@@ -116,8 +120,12 @@ export class LotsService {
         lotNumber: body.lotNumber.trim(),
         manufacturer: body.manufacturer?.trim() || null,
         supplier: body.supplier?.trim() || null,
-        manufacturingDate: body.manufacturingDate ? new Date(body.manufacturingDate) : null,
-        expirationDate: body.expirationDate ? new Date(body.expirationDate) : null,
+        manufacturingDate: body.manufacturingDate
+          ? new Date(body.manufacturingDate)
+          : null,
+        expirationDate: body.expirationDate
+          ? new Date(body.expirationDate)
+          : null,
         notes: body.notes?.trim() || null,
         createdBy: userId,
         updatedBy: userId,
@@ -148,7 +156,16 @@ export class LotsService {
    * List lots with pagination, status and expiration condition filters
    */
   static async listLots(query: ListLotsQuery) {
-    const { storeId, productId, variationId, status, expirationCondition, search, page, limit } = query;
+    const {
+      storeId,
+      productId,
+      variationId,
+      status,
+      expirationCondition,
+      search,
+      page,
+      limit,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -182,7 +199,9 @@ export class LotsService {
           },
           variation: { select: { id: true, sku: true } },
           stockItems: {
-            include: { location: { select: { id: true, name: true, code: true } } },
+            include: {
+              location: { select: { id: true, name: true, code: true } },
+            },
           },
         },
         orderBy: [{ expirationDate: "asc" }, { createdAt: "desc" }],
@@ -201,8 +220,14 @@ export class LotsService {
         warningDays,
       );
 
-      const totalPhysical = lot.stockItems.reduce((acc, s) => acc + s.physicalQuantity, 0);
-      const totalReserved = lot.stockItems.reduce((acc, s) => acc + s.reservedQuantity, 0);
+      const totalPhysical = lot.stockItems.reduce(
+        (acc, s) => acc + s.physicalQuantity,
+        0,
+      );
+      const totalReserved = lot.stockItems.reduce(
+        (acc, s) => acc + s.reservedQuantity,
+        0,
+      );
 
       return {
         ...lot,
@@ -210,17 +235,21 @@ export class LotsService {
         stockSummary: {
           physicalQuantity: totalPhysical,
           reservedQuantity: totalReserved,
-          availableQuantity: lot.status === "available" && !expAnalysis.isExpired
-            ? Math.max(0, totalPhysical - totalReserved)
-            : 0,
+          availableQuantity:
+            lot.status === "available" && !expAnalysis.isExpired
+              ? Math.max(0, totalPhysical - totalReserved)
+              : 0,
         },
       };
     });
 
     // Filter by expiration condition if provided
-    const filteredItems = expirationCondition === "all"
-      ? items
-      : items.filter((item) => item.expirationAnalysis.condition === expirationCondition);
+    const filteredItems =
+      expirationCondition === "all"
+        ? items
+        : items.filter(
+            (item) => item.expirationAnalysis.condition === expirationCondition,
+          );
 
     return {
       data: filteredItems,
@@ -241,7 +270,15 @@ export class LotsService {
       where: { id: lotId },
       include: {
         store: { select: { id: true, name: true, slug: true } },
-        product: { select: { id: true, name: true, slug: true, warningShelfLifeDays: true, minDeliveryShelfLifeDays: true } },
+        product: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            warningShelfLifeDays: true,
+            minDeliveryShelfLifeDays: true,
+          },
+        },
         variation: { select: { id: true, sku: true } },
         stockItems: {
           include: { location: true },

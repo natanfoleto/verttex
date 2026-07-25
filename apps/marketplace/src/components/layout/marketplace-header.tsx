@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
+import Link from "next/link";
+import { useState } from "react";
 import {
   RiArrowDownSLine,
   RiCloseLine,
@@ -14,23 +14,23 @@ import {
   RiStore2Line,
   RiUser3Line,
   RiUserAddLine,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { useCustomer } from '../../providers/customer-auth-provider'
+import { useCustomer } from "../../providers/customer-auth-provider";
 
 export function MarketplaceHeader() {
-  const { customer, logout, openAuthModal } = useCustomer()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const { customer, logout, openAuthModal } = useCustomer();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchQuery.trim()) return
-    window.location.href = `/produtos?q=${encodeURIComponent(searchQuery)}`
-  }
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    window.location.href = `/produtos?q=${encodeURIComponent(searchQuery)}`;
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white font-sans text-stone-900 antialiased shadow-2xs">
@@ -70,7 +70,7 @@ export function MarketplaceHeader() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => setSearchQuery('')}
+                onClick={() => setSearchQuery("")}
                 className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600"
               >
                 <RiCloseLine className="h-4 w-4" />
@@ -119,7 +119,7 @@ export function MarketplaceHeader() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => openAuthModal('login')}
+                onClick={() => openAuthModal("login")}
                 className="h-10.5 px-4"
               >
                 <RiLockLine className="h-3.5 w-3.5 text-emerald-700" />
@@ -127,7 +127,7 @@ export function MarketplaceHeader() {
               </Button>
               <Button
                 type="button"
-                onClick={() => openAuthModal('register')}
+                onClick={() => openAuthModal("register")}
                 className="h-10.5 px-4"
               >
                 <RiUserAddLine className="h-3.5 w-3.5" />
@@ -363,8 +363,8 @@ export function MarketplaceHeader() {
                 <Button
                   variant="ghost"
                   onClick={() => {
-                    logout()
-                    setMobileMenuOpen(false)
+                    logout();
+                    setMobileMenuOpen(false);
                   }}
                   className="flex w-full justify-start space-x-2 font-semibold text-rose-600 hover:bg-rose-50"
                 >
@@ -378,8 +378,8 @@ export function MarketplaceHeader() {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    setMobileMenuOpen(false)
-                    openAuthModal('login')
+                    setMobileMenuOpen(false);
+                    openAuthModal("login");
                   }}
                 >
                   Entrar
@@ -387,8 +387,8 @@ export function MarketplaceHeader() {
                 <Button
                   type="button"
                   onClick={() => {
-                    setMobileMenuOpen(false)
-                    openAuthModal('register')
+                    setMobileMenuOpen(false);
+                    openAuthModal("register");
                   }}
                 >
                   Criar Conta
@@ -399,5 +399,5 @@ export function MarketplaceHeader() {
         </div>
       )}
     </header>
-  )
+  );
 }

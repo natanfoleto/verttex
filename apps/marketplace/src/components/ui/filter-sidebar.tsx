@@ -1,34 +1,34 @@
-import Link from 'next/link'
-import { RiCloseLine, RiFilter3Line } from 'react-icons/ri'
+import Link from "next/link";
+import { RiCloseLine, RiFilter3Line } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export interface CategoryFilterItem {
-  id: string
-  name: string
-  slug: string
-  count?: number
+  id: string;
+  name: string;
+  slug: string;
+  count?: number;
 }
 
 export interface FilterSidebarProps {
-  categories: CategoryFilterItem[]
-  activeCategorySlug?: string
-  activeSort?: string
-  onSelectCategory?: (slug: string) => void
-  onSelectSort?: (sort: string) => void
-  onClearAll?: () => void
+  categories: CategoryFilterItem[];
+  activeCategorySlug?: string;
+  activeSort?: string;
+  onSelectCategory?: (slug: string) => void;
+  onSelectSort?: (sort: string) => void;
+  onClearAll?: () => void;
 }
 
 export function FilterSidebar({
   categories,
   activeCategorySlug,
-  activeSort = 'relevancia',
+  activeSort = "relevancia",
   onSelectCategory,
   onSelectSort,
   onClearAll,
 }: FilterSidebarProps) {
-  const activeCategory = categories.find((c) => c.slug === activeCategorySlug)
+  const activeCategory = categories.find((c) => c.slug === activeCategorySlug);
 
   return (
     <div className="w-full space-y-6">
@@ -38,7 +38,7 @@ export function FilterSidebar({
           <RiFilter3Line className="h-4 w-4 text-emerald-700" />
           <span>Filtros & Categorias</span>
         </h3>
-        {(activeCategorySlug || activeSort !== 'relevancia') && onClearAll && (
+        {(activeCategorySlug || activeSort !== "relevancia") && onClearAll && (
           <Button
             type="button"
             variant="link"
@@ -52,7 +52,7 @@ export function FilterSidebar({
       </div>
 
       {/* Active Filter Chips */}
-      {(activeCategory || activeSort !== 'relevancia') && (
+      {(activeCategory || activeSort !== "relevancia") && (
         <div className="flex flex-wrap gap-1.5 pt-1">
           {activeCategory && (
             <span className="inline-flex items-center space-x-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
@@ -62,7 +62,7 @@ export function FilterSidebar({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => onSelectCategory('')}
+                  onClick={() => onSelectCategory("")}
                   className="h-4 w-4 p-0 rounded-full text-emerald-800 hover:bg-emerald-200"
                 >
                   <RiCloseLine className="h-3.5 w-3.5" />
@@ -71,21 +71,21 @@ export function FilterSidebar({
             </span>
           )}
 
-          {activeSort !== 'relevancia' && (
+          {activeSort !== "relevancia" && (
             <span className="inline-flex items-center space-x-1 rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">
               <span>
-                {activeSort === 'menor-preco'
-                  ? 'Menor Preço'
-                  : activeSort === 'maior-preco'
-                    ? 'Maior Preço'
-                    : 'Mais Vendidos'}
+                {activeSort === "menor-preco"
+                  ? "Menor Preço"
+                  : activeSort === "maior-preco"
+                    ? "Maior Preço"
+                    : "Mais Vendidos"}
               </span>
               {onSelectSort && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => onSelectSort('relevancia')}
+                  onClick={() => onSelectSort("relevancia")}
                   className="h-4 w-4 p-0 rounded-full text-stone-600 hover:bg-stone-200"
                 >
                   <RiCloseLine className="h-3.5 w-3.5" />
@@ -106,11 +106,11 @@ export function FilterSidebar({
             <Button
               type="button"
               variant="ghost"
-              onClick={() => onSelectCategory && onSelectCategory('')}
+              onClick={() => onSelectCategory && onSelectCategory("")}
               className={`flex w-full justify-between text-left font-medium ${
                 !activeCategorySlug
-                  ? 'bg-emerald-50 font-bold text-emerald-800'
-                  : 'text-stone-700 hover:bg-stone-100'
+                  ? "bg-emerald-50 font-bold text-emerald-800"
+                  : "text-stone-700 hover:bg-stone-100"
               }`}
             >
               <span>Todas as Categorias</span>
@@ -118,7 +118,7 @@ export function FilterSidebar({
           </li>
 
           {categories.map((cat) => {
-            const isSelected = activeCategorySlug === cat.slug
+            const isSelected = activeCategorySlug === cat.slug;
             return (
               <li key={cat.id || cat.slug}>
                 {onSelectCategory ? (
@@ -128,8 +128,8 @@ export function FilterSidebar({
                     onClick={() => onSelectCategory(cat.slug)}
                     className={`flex w-full justify-between text-left ${
                       isSelected
-                        ? 'bg-emerald-50 font-bold text-emerald-800'
-                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                        ? "bg-emerald-50 font-bold text-emerald-800"
+                        : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
                     }`}
                   >
                     <span>{cat.name}</span>
@@ -137,8 +137,8 @@ export function FilterSidebar({
                       <span
                         className={`text-xs ${
                           isSelected
-                            ? 'font-semibold text-emerald-700'
-                            : 'text-stone-400'
+                            ? "font-semibold text-emerald-700"
+                            : "text-stone-400"
                         }`}
                       >
                         ({cat.count})
@@ -150,8 +150,8 @@ export function FilterSidebar({
                     href={`/categorias/${cat.slug}`}
                     className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-colors ${
                       isSelected
-                        ? 'bg-emerald-50 font-bold text-emerald-800'
-                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                        ? "bg-emerald-50 font-bold text-emerald-800"
+                        : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
                     }`}
                   >
                     <span>{cat.name}</span>
@@ -163,7 +163,7 @@ export function FilterSidebar({
                   </Link>
                 )}
               </li>
-            )
+            );
           })}
         </ul>
       </div>
@@ -176,10 +176,10 @@ export function FilterSidebar({
           </h4>
           <div className="space-y-1">
             {[
-              { id: 'relevancia', label: 'Mais Relevantes' },
-              { id: 'menor-preco', label: 'Menor Preço' },
-              { id: 'maior-preco', label: 'Maior Preço' },
-              { id: 'mais-vendidos', label: 'Mais Vendidos' },
+              { id: "relevancia", label: "Mais Relevantes" },
+              { id: "menor-preco", label: "Menor Preço" },
+              { id: "maior-preco", label: "Maior Preço" },
+              { id: "mais-vendidos", label: "Mais Vendidos" },
             ].map((option) => (
               <label
                 key={option.id}
@@ -196,8 +196,8 @@ export function FilterSidebar({
                 <span
                   className={
                     activeSort === option.id
-                      ? 'font-semibold text-stone-900'
-                      : ''
+                      ? "font-semibold text-stone-900"
+                      : ""
                   }
                 >
                   {option.label}
@@ -208,5 +208,5 @@ export function FilterSidebar({
         </div>
       )}
     </div>
-  )
+  );
 }

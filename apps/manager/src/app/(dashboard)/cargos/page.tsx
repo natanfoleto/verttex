@@ -1,45 +1,45 @@
-'use client'
+"use client";
 
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
-import { RiAddLine, RiEditLine, RiShieldLine } from 'react-icons/ri'
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { RiAddLine, RiEditLine, RiShieldLine } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
-import { TableWrapper } from '../../../components/ui/table-wrapper'
-import { apiClient } from '../../../lib/api-client'
-import { roleQueryKeys } from '../../../lib/query-keys'
-import { RoleFormDialog, RoleItem } from './components/role-form-dialog'
+import { TableWrapper } from "../../../components/ui/table-wrapper";
+import { apiClient } from "../../../lib/api-client";
+import { roleQueryKeys } from "../../../lib/query-keys";
+import { RoleFormDialog, RoleItem } from "./components/role-form-dialog";
 
 export default function RolesListPage() {
-  const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
-  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [search, setSearch] = useState("");
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingRole, setEditingRole] = useState<RoleItem | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<RoleItem | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: roleQueryKeys.list({ page, perPage, search }),
     queryFn: () => {
-      let url = `/roles?page=${page}&perPage=${perPage}`
-      if (search) url += `&search=${encodeURIComponent(search)}`
-      return apiClient(url)
+      let url = `/roles?page=${page}&perPage=${perPage}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+      return apiClient(url);
     },
-  })
+  });
 
   const openCreateModal = () => {
-    setEditingRole(null)
-    setIsDialogOpen(true)
-  }
+    setEditingRole(null);
+    setIsDialogOpen(true);
+  };
 
   const openEditModal = (role: RoleItem) => {
-    setEditingRole(role)
-    setIsDialogOpen(true)
-  }
+    setEditingRole(role);
+    setIsDialogOpen(true);
+  };
 
-  const hasActiveFilters = Boolean(search)
-  const roles = data?.data ?? []
+  const hasActiveFilters = Boolean(search);
+  const roles = data?.data ?? [];
 
   return (
     <div className="space-y-6 font-sans text-zinc-100">
@@ -54,8 +54,8 @@ export default function RolesListPage() {
         }
         searchValue={search}
         onSearchChange={(v) => {
-          setSearch(v)
-          setPage(1)
+          setSearch(v);
+          setPage(1);
         }}
         searchPlaceholder="Buscar por nome ou identificador..."
         isLoading={isLoading}
@@ -63,20 +63,20 @@ export default function RolesListPage() {
         isEmpty={!roles || roles.length === 0}
         emptyTitle={
           hasActiveFilters
-            ? 'Nenhum cargo encontrado para a busca'
-            : 'Nenhum cargo cadastrado'
+            ? "Nenhum cargo encontrado para a busca"
+            : "Nenhum cargo cadastrado"
         }
         emptyDescription={
           hasActiveFilters
-            ? 'Tente buscar com outro nome de cargo ou chave.'
+            ? "Tente buscar com outro nome de cargo ou chave."
             : "Clique em 'Novo Cargo' para definir a primeira regra de acesso do sistema."
         }
         meta={data?.meta}
         onPageChange={setPage}
         perPageValue={perPage}
         onPerPageChange={(newPerPage) => {
-          setPerPage(newPerPage)
-          setPage(1)
+          setPerPage(newPerPage);
+          setPage(1);
         }}
       >
         <table className="w-full border-collapse text-left text-sm">
@@ -105,22 +105,22 @@ export default function RolesListPage() {
                   <span
                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                       role.isSystem
-                        ? 'border-purple-800 bg-purple-950 text-purple-300'
-                        : 'border-zinc-700 bg-zinc-800 text-zinc-300'
+                        ? "border-purple-800 bg-purple-950 text-purple-300"
+                        : "border-zinc-700 bg-zinc-800 text-zinc-300"
                     }`}
                   >
-                    {role.isSystem ? 'Sistema' : 'Customizado'}
+                    {role.isSystem ? "Sistema" : "Customizado"}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                       role.isActive
-                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
-                        : 'border-rose-800 bg-rose-950 text-rose-400'
+                        ? "border-emerald-800 bg-emerald-950 text-emerald-400"
+                        : "border-rose-800 bg-rose-950 text-rose-400"
                     }`}
                   >
-                    {role.isActive ? 'Ativo' : 'Inativo'}
+                    {role.isActive ? "Ativo" : "Inativo"}
                   </span>
                 </td>
                 <td className="space-x-2 px-6 py-4 text-right">
@@ -153,11 +153,11 @@ export default function RolesListPage() {
       <RoleFormDialog
         open={isDialogOpen}
         onOpenChange={(open) => {
-          setIsDialogOpen(open)
-          if (!open) setEditingRole(null)
+          setIsDialogOpen(open);
+          if (!open) setEditingRole(null);
         }}
         roleToEdit={editingRole}
       />
     </div>
-  )
+  );
 }

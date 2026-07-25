@@ -12,7 +12,7 @@ export function ProductCardSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function StoreCardSkeleton() {
@@ -29,5 +29,5 @@ export function StoreCardSkeleton() {
         <div className="h-9 w-full rounded-lg bg-stone-200 pt-2" />
       </div>
     </div>
-  )
+  );
 }

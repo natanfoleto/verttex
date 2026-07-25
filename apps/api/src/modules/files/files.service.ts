@@ -1,6 +1,9 @@
 import { FastifyRequest } from "fastify";
 import { prisma } from "../../infrastructure/database/prisma";
-import { UploadService, DirectUploadParams } from "../../shared/services/upload.service";
+import {
+  UploadService,
+  DirectUploadParams,
+} from "../../shared/services/upload.service";
 import { FinalizeUploadParams, RequestUploadBody } from "./files.schemas";
 import { logAudit } from "../../shared/utils/audit";
 import { r2Storage } from "../../infrastructure/storage/r2";
@@ -36,10 +39,7 @@ export class FilesService {
     return result;
   }
 
-  static async directUpload(
-    params: DirectUploadParams,
-    req?: FastifyRequest,
-  ) {
+  static async directUpload(params: DirectUploadParams, req?: FastifyRequest) {
     const result = await UploadService.directUpload(params);
 
     await logAudit({

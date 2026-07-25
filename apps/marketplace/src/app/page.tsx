@@ -1,170 +1,170 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
+import Link from "next/link";
+import { useState } from "react";
 import {
   RiArrowRightLine,
   RiHeartLine,
   RiMapPinLine,
   RiShieldCheckLine,
   RiStore2Line,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
-import { CategoryCircleCard } from '../components/ui/category-card'
-import { ProductCard, ProductCardProps } from '../components/ui/product-card'
-import { StoreCard, StoreCardProps } from '../components/ui/store-card'
+import { CategoryCircleCard } from "../components/ui/category-card";
+import { ProductCard, ProductCardProps } from "../components/ui/product-card";
+import { StoreCard, StoreCardProps } from "../components/ui/store-card";
 
 const MOCK_CATEGORIES = [
   {
-    id: '1',
-    name: 'Queijos Artesanais',
-    slug: 'queijos-artesanais',
+    id: "1",
+    name: "Queijos Artesanais",
+    slug: "queijos-artesanais",
     imageUrl:
-      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80',
+      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80",
   },
   {
-    id: '2',
-    name: 'Vinhos & Bebidas',
-    slug: 'vinhos-bebidas',
+    id: "2",
+    name: "Vinhos & Bebidas",
+    slug: "vinhos-bebidas",
     imageUrl:
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80',
+      "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80",
   },
   {
-    id: '3',
-    name: 'Doces & Geleias',
-    slug: 'doces-geleias',
+    id: "3",
+    name: "Doces & Geleias",
+    slug: "doces-geleias",
     imageUrl:
-      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=400&q=80',
+      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=400&q=80",
   },
   {
-    id: '4',
-    name: 'Méis & Polens',
-    slug: 'meis-polens',
+    id: "4",
+    name: "Méis & Polens",
+    slug: "meis-polens",
     imageUrl:
-      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80',
+      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80",
   },
   {
-    id: '5',
-    name: 'Embutidos Defumados',
-    slug: 'embutidos-defumados',
+    id: "5",
+    name: "Embutidos Defumados",
+    slug: "embutidos-defumados",
     imageUrl:
-      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80',
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80",
   },
   {
-    id: '6',
-    name: 'Cafés Especiais',
-    slug: 'cafes-especiais',
+    id: "6",
+    name: "Cafés Especiais",
+    slug: "cafes-especiais",
     imageUrl:
-      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80',
+      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80",
   },
-]
+];
 
 const MOCK_PRODUCTS: ProductCardProps[] = [
   {
-    id: 'p1',
-    name: 'Queijo Colonial Meia Cura da Serra',
+    id: "p1",
+    name: "Queijo Colonial Meia Cura da Serra",
     price: 48.9,
     originalPrice: 58.9,
-    unit: 'peça (500g)',
+    unit: "peça (500g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Queijaria Alvorada',
-    storeSlug: 'queijaria-alvorada',
-    origin: 'Serra Gaúcha, RS',
+      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
+    storeName: "Queijaria Alvorada",
+    storeSlug: "queijaria-alvorada",
+    origin: "Serra Gaúcha, RS",
     rating: 4.9,
     reviewsCount: 38,
     isBestSeller: true,
   },
   {
-    id: 'p2',
-    name: 'Vinho Tinto Colonial Merlot Reserva',
+    id: "p2",
+    name: "Vinho Tinto Colonial Merlot Reserva",
     price: 64.9,
-    unit: 'garrafa (750ml)',
+    unit: "garrafa (750ml)",
     imageUrl:
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Vinícola Família Rossi',
-    storeSlug: 'vinicola-familia-rossi',
-    origin: 'Bento Gonçalves, RS',
+      "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80",
+    storeName: "Vinícola Família Rossi",
+    storeSlug: "vinicola-familia-rossi",
+    origin: "Bento Gonçalves, RS",
     rating: 4.8,
     reviewsCount: 24,
-    badge: 'Produtor Local',
+    badge: "Produtor Local",
   },
   {
-    id: 'p3',
-    name: 'Mel Puro Silvestre Florada Nativa',
+    id: "p3",
+    name: "Mel Puro Silvestre Florada Nativa",
     price: 34.9,
     originalPrice: 39.9,
-    unit: 'pote (500g)',
+    unit: "pote (500g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Apiário Vale Verde',
-    storeSlug: 'apiario-vale-verde',
-    origin: 'Gramado, RS',
+      "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80",
+    storeName: "Apiário Vale Verde",
+    storeSlug: "apiario-vale-verde",
+    origin: "Gramado, RS",
     rating: 5.0,
     reviewsCount: 52,
     isNew: true,
   },
   {
-    id: 'p4',
-    name: 'Salame Colonial Defumado na Lenha',
+    id: "p4",
+    name: "Salame Colonial Defumado na Lenha",
     price: 38.5,
-    unit: 'unidade (400g)',
+    unit: "unidade (400g)",
     imageUrl:
-      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
-    storeName: 'Embutidos Tradição',
-    storeSlug: 'embutidos-tradicao',
-    origin: 'Caxias do Sul, RS',
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
+    storeName: "Embutidos Tradição",
+    storeSlug: "embutidos-tradicao",
+    origin: "Caxias do Sul, RS",
     rating: 4.7,
     reviewsCount: 19,
   },
-]
+];
 
 const MOCK_STORES: StoreCardProps[] = [
   {
-    id: 's1',
-    name: 'Queijaria Alvorada',
-    slug: 'queijaria-alvorada',
+    id: "s1",
+    name: "Queijaria Alvorada",
+    slug: "queijaria-alvorada",
     description:
-      'Tradição familiar na produção de queijos artesanais de leite cru com maturação especial.',
-    city: 'Farroupilha',
-    state: 'RS',
+      "Tradição familiar na produção de queijos artesanais de leite cru com maturação especial.",
+    city: "Farroupilha",
+    state: "RS",
     productsCount: 14,
     isVerified: true,
     coverUrl:
-      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80',
+      "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80",
   },
   {
-    id: 's2',
-    name: 'Vinícola Família Rossi',
-    slug: 'vinicola-familia-rossi',
+    id: "s2",
+    name: "Vinícola Família Rossi",
+    slug: "vinicola-familia-rossi",
     description:
-      'Vinhos coloniais de pequena escala produzidos artesanalmente nos vales da serra.',
-    city: 'Bento Gonçalves',
-    state: 'RS',
+      "Vinhos coloniais de pequena escala produzidos artesanalmente nos vales da serra.",
+    city: "Bento Gonçalves",
+    state: "RS",
     productsCount: 22,
     isVerified: true,
     coverUrl:
-      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80',
+      "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80",
   },
   {
-    id: 's3',
-    name: 'Apiário Vale Verde',
-    slug: 'apiario-vale-verde',
+    id: "s3",
+    name: "Apiário Vale Verde",
+    slug: "apiario-vale-verde",
     description:
-      'Mel de florada nativa e produtos apícolas 100% puros e sem aditivos.',
-    city: 'Gramado',
-    state: 'RS',
+      "Mel de florada nativa e produtos apícolas 100% puros e sem aditivos.",
+    city: "Gramado",
+    state: "RS",
     productsCount: 9,
     isVerified: true,
     coverUrl:
-      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80',
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80",
   },
-]
+];
 
 export default function MarketplaceHomePage() {
-  const [activeTab, setActiveTab] = useState('todos')
+  const [activeTab, setActiveTab] = useState("todos");
 
   return (
     <div className="space-y-24 pb-28 lg:pb-36 font-sans text-stone-900 antialiased">
@@ -289,14 +289,14 @@ export default function MarketplaceHomePage() {
 
           <div className="flex items-center space-x-2 overflow-x-auto pb-1">
             {[
-              { id: 'todos', label: 'Todos' },
-              { id: 'queijos', label: 'Queijos' },
-              { id: 'vinhos', label: 'Vinhos' },
-              { id: 'meis', label: 'Méis' },
+              { id: "todos", label: "Todos" },
+              { id: "queijos", label: "Queijos" },
+              { id: "vinhos", label: "Vinhos" },
+              { id: "meis", label: "Méis" },
             ].map((tab) => (
               <Button
                 key={tab.id}
-                variant={activeTab === tab.id ? 'default' : 'outline'}
+                variant={activeTab === tab.id ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveTab(tab.id)}
                 className="rounded-full"
@@ -358,5 +358,5 @@ export default function MarketplaceHomePage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

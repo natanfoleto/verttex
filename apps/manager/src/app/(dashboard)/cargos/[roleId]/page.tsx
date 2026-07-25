@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
-import { use } from 'react'
-import { RiArrowLeftLine, RiEditLine, RiShieldLine } from 'react-icons/ri'
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { use } from "react";
+import { RiArrowLeftLine, RiEditLine, RiShieldLine } from "react-icons/ri";
 
-import { apiClient } from '../../../../lib/api-client'
-import { roleQueryKeys } from '../../../../lib/query-keys'
+import { apiClient } from "../../../../lib/api-client";
+import { roleQueryKeys } from "../../../../lib/query-keys";
 
 export default function RoleDetailPage({
   params,
 }: {
-  params: Promise<{ roleId: string }>
+  params: Promise<{ roleId: string }>;
 }) {
-  const resolvedParams = use(params)
-  const roleId = resolvedParams.roleId
+  const resolvedParams = use(params);
+  const roleId = resolvedParams.roleId;
 
   const {
     data: role,
@@ -23,14 +23,14 @@ export default function RoleDetailPage({
   } = useQuery({
     queryKey: roleQueryKeys.detail(roleId),
     queryFn: () => apiClient(`/roles/${roleId}`),
-  })
+  });
 
   if (isLoading) {
     return (
       <div className="p-8 text-center text-zinc-400">
         <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
-    )
+    );
   }
 
   if (isError || !role) {
@@ -38,7 +38,7 @@ export default function RoleDetailPage({
       <div className="p-8 text-center text-rose-400">
         Cargo não encontrado ou erro de carregamento.
       </div>
-    )
+    );
   }
 
   return (
@@ -61,7 +61,7 @@ export default function RoleDetailPage({
               </span>
             </div>
             <p className="mt-1 text-sm text-zinc-400">
-              {role.description || 'Sem descrição informada'}
+              {role.description || "Sem descrição informada"}
             </p>
           </div>
         </div>
@@ -97,11 +97,11 @@ export default function RoleDetailPage({
             {role.rolePermissions.map(
               (rp: {
                 permission: {
-                  id: string
-                  key: string
-                  description: string
-                  module: string
-                }
+                  id: string;
+                  key: string;
+                  description: string;
+                  module: string;
+                };
               }) => (
                 <div
                   key={rp.permission.id}
@@ -129,5 +129,5 @@ export default function RoleDetailPage({
         )}
       </div>
     </div>
-  )
+  );
 }

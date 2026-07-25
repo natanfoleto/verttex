@@ -1,87 +1,87 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { RiSearchLine, RiStore2Line } from 'react-icons/ri'
+import Link from "next/link";
+import { useState } from "react";
+import { RiSearchLine, RiStore2Line } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-import { EmptyState } from '../../components/ui/empty-state'
-import { StoreCard, StoreCardProps } from '../../components/ui/store-card'
+import { EmptyState } from "../../components/ui/empty-state";
+import { StoreCard, StoreCardProps } from "../../components/ui/store-card";
 
 const STORES_DATA: StoreCardProps[] = [
   {
-    id: 's1',
-    name: 'Queijaria Alvorada',
-    slug: 'queijaria-alvorada',
+    id: "s1",
+    name: "Queijaria Alvorada",
+    slug: "queijaria-alvorada",
     description:
-      'Tradição familiar na produção de queijos artesanais de leite cru com maturação especial na Serra Gaúcha.',
-    city: 'Farroupilha',
-    state: 'RS',
+      "Tradição familiar na produção de queijos artesanais de leite cru com maturação especial na Serra Gaúcha.",
+    city: "Farroupilha",
+    state: "RS",
     productsCount: 14,
     isVerified: true,
     coverUrl:
-      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80',
+      "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80",
   },
   {
-    id: 's2',
-    name: 'Vinícola Família Rossi',
-    slug: 'vinicola-familia-rossi',
+    id: "s2",
+    name: "Vinícola Família Rossi",
+    slug: "vinicola-familia-rossi",
     description:
-      'Vinhos coloniais de pequena escala produzidos artesanalmente nos vales da serra gaúcha.',
-    city: 'Bento Gonçalves',
-    state: 'RS',
+      "Vinhos coloniais de pequena escala produzidos artesanalmente nos vales da serra gaúcha.",
+    city: "Bento Gonçalves",
+    state: "RS",
     productsCount: 22,
     isVerified: true,
     coverUrl:
-      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80',
+      "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=600&q=80",
   },
   {
-    id: 's3',
-    name: 'Apiário Vale Verde',
-    slug: 'apiario-vale-verde',
+    id: "s3",
+    name: "Apiário Vale Verde",
+    slug: "apiario-vale-verde",
     description:
-      'Mel de florada nativa e produtos apícolas 100% puros e sem aditivos Químicos.',
-    city: 'Gramado',
-    state: 'RS',
+      "Mel de florada nativa e produtos apícolas 100% puros e sem aditivos Químicos.",
+    city: "Gramado",
+    state: "RS",
     productsCount: 9,
     isVerified: true,
     coverUrl:
-      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80',
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80",
   },
   {
-    id: 's4',
-    name: 'Embutidos Tradição',
-    slug: 'embutidos-tradicao',
+    id: "s4",
+    name: "Embutidos Tradição",
+    slug: "embutidos-tradicao",
     description:
-      'Salames, lombos e embutidos suínos curados e defumados em lenha de macieira.',
-    city: 'Caxias do Sul',
-    state: 'RS',
+      "Salames, lombos e embutidos suínos curados e defumados em lenha de macieira.",
+    city: "Caxias do Sul",
+    state: "RS",
     productsCount: 12,
     isVerified: true,
     coverUrl:
-      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
   },
-]
+];
 
 export default function StoresListingPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [page, setPage] = useState(1)
-  const perPage = 6
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const perPage = 6;
 
   const filteredStores = STORES_DATA.filter(
     (store) =>
       store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (store.city &&
         store.city.toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  );
 
-  const totalPages = Math.ceil(filteredStores.length / perPage) || 1
+  const totalPages = Math.ceil(filteredStores.length / perPage) || 1;
   const paginatedStores = filteredStores.slice(
     (page - 1) * perPage,
     page * perPage,
-  )
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 pb-28 font-sans text-stone-900 lg:pb-36 sm:px-6 lg:px-8">
@@ -112,8 +112,8 @@ export default function StoresListingPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => {
-                setSearchQuery(e.target.value)
-                setPage(1)
+                setSearchQuery(e.target.value);
+                setPage(1);
               }}
               placeholder="Buscar por nome ou cidade..."
               className="h-10 pl-10"
@@ -135,7 +135,7 @@ export default function StoresListingPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-stone-200 pt-6 text-xs text-stone-600">
               <span>
-                Página <strong>{page}</strong> de <strong>{totalPages}</strong>{' '}
+                Página <strong>{page}</strong> de <strong>{totalPages}</strong>{" "}
                 ({filteredStores.length} lojas)
               </span>
               <div className="flex items-center space-x-2">
@@ -168,11 +168,11 @@ export default function StoresListingPage() {
           description="Não encontramos produtores correspondentes à sua pesquisa. Tente buscar com outros termos."
           actionLabel="Limpar Pesquisa"
           onActionClick={() => {
-            setSearchQuery('')
-            setPage(1)
+            setSearchQuery("");
+            setPage(1);
           }}
         />
       )}
     </div>
-  )
+  );
 }

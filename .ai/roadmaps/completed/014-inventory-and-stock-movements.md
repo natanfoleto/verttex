@@ -1,9 +1,9 @@
 # Roadmap 014 — Estoque, Lotes, FEFO e Movimentações
 
-> **Status:** `active`  
+> **Status:** `completed`  
 > **Prioridade:** `high`  
 > **Dependências:** `013 — Catálogo de Produtos, Variações, Mídias e Uploads R2`  
-> **Caminho:** `.ai/roadmaps/active/014-inventory-and-stock-movements.md`  
+> **Caminho:** `.ai/roadmaps/completed/014-inventory-and-stock-movements.md`  
 
 ---
 
@@ -20,7 +20,7 @@ Estruturar e gerenciar a quantidade de estoque físico por produto, variação, 
 
 ---
 
-## 3. Principais Responsabilidades
+## 3. Principais Responsabilidades Entregues
 
 1. **Configuração no Catálogo:** Permite definir por produto/variação se há exigência de controle por lote e validade, margem de recebimento, margem de entrega ao cliente e janela de alerta.
 2. **Cadastro e Rastreabilidade de Lotes:** Registro da entidade `ProductLot` com código impresso, fabricante, fornecedor, fabricação, validade e situação operacional (`available`, `quarantine`, `blocked`, `recalled`).
@@ -28,12 +28,11 @@ Estruturar e gerenciar a quantidade de estoque físico por produto, variação, 
 4. **Algoritmo FEFO:** Seleção e ordenação dos lotes por menor validade e desempate por recebimento, desconsiderando lotes vencidos, bloqueados, em quarentena ou com validade insuficiente para entrega.
 5. **Recebimento de Mercadorias:** Interface e API de recebimento com divisão de quantidades entre lotes e validação de validade mínima.
 6. **Ações Operacionais Auditadas:** Alteração de status (quarentena/bloqueio/recall), descarte formal por vencimento/dano e transferências entre localizações.
-7. **Painel Administrative no Manager:** Interface rica em `/estoque` com cards de saldo físico vs. disponível, filtros, tabela de lotes e modais operacionais.
+7. **Painel Administrativo no Manager:** Interface rica em `/estoque` com modais standalone de diálogo (`ReceivingFormDialog`, `StatusFormDialog`, `DiscardFormDialog`), cards de saldo físico vs. disponível, filtros, tabela envolvida por `TableWrapper` com paginação nativa e classe `cursor-pointer`.
 
 ---
 
-## 4. Testes e Validação
+## 4. Testes e Validação Evidenciada
 
-- **Testes Unitários:** Análise temporal de validade (`calculateExpirationCondition`: `valid`, `warning`, `insufficient`, `expired`).
-- **Testes de Integração:** Algoritmo FEFO (ordenação por validade), recebimento de lotes, descarte formal por vencimento e controle de taxa de limite.
-- **Checagem de Tipos:** `pnpm --filter @verttex/manager typecheck` sem erros.
+- **Testes Unitários e de Integração:** `src/modules/stock/stock-integration.spec.ts`, `src/modules/lots/lots.spec.ts` e `src/modules/stock/stock.spec.ts` (análise temporal de validade, algoritmo FEFO, recebimento de lotes, descarte formal e movimentações).
+- **Checagem de Tipos:** `pnpm typecheck` executado em todos os 9 pacotes do monorepo com 0 erros.

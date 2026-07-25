@@ -1,28 +1,28 @@
-import Link from 'next/link'
+import Link from "next/link";
 import {
   RiHeartLine,
   RiMapPinLine,
   RiShoppingBag3Line,
   RiStarFill,
-} from 'react-icons/ri'
+} from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
 export interface ProductCardProps {
-  id: string
-  name: string
-  price: number
-  originalPrice?: number
-  unit?: string
-  imageUrl?: string
-  storeName: string
-  storeSlug: string
-  origin?: string
-  rating?: number
-  reviewsCount?: number
-  badge?: string
-  isNew?: boolean
-  isBestSeller?: boolean
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  unit?: string;
+  imageUrl?: string;
+  storeName: string;
+  storeSlug: string;
+  origin?: string;
+  rating?: number;
+  reviewsCount?: number;
+  badge?: string;
+  isNew?: boolean;
+  isBestSeller?: boolean;
 }
 
 export function ProductCard({
@@ -40,22 +40,22 @@ export function ProductCard({
   isNew,
   isBestSeller,
 }: ProductCardProps) {
-  const formattedPrice = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(price)
+  const formattedPrice = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(price);
 
   const formattedOriginalPrice = originalPrice
-    ? new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
+    ? new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
       }).format(originalPrice)
-    : null
+    : null;
 
   const discountPercent =
     originalPrice && originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
-      : null
+      : null;
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-xs transition-colors hover:border-emerald-300 hover:shadow-sm">
@@ -166,5 +166,5 @@ export function ProductCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

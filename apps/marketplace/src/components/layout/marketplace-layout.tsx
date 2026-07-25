@@ -1,10 +1,10 @@
-import { ReactNode } from 'react'
+import { ReactNode } from "react";
 
-import { MarketplaceFooter } from './marketplace-footer'
-import { MarketplaceHeader } from './marketplace-header'
+import { MarketplaceFooter } from "./marketplace-footer";
+import { MarketplaceHeader } from "./marketplace-header";
 
 interface MarketplaceLayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function MarketplaceLayout({ children }: MarketplaceLayoutProps) {
@@ -14,5 +14,5 @@ export function MarketplaceLayout({ children }: MarketplaceLayoutProps) {
       <main className="w-full flex-1">{children}</main>
       <MarketplaceFooter />
     </div>
-  )
+  );
 }

@@ -1,16 +1,16 @@
-import Link from 'next/link'
-import { IconType } from 'react-icons'
-import { RiSearchLine } from 'react-icons/ri'
+import Link from "next/link";
+import { IconType } from "react-icons";
+import { RiSearchLine } from "react-icons/ri";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
 export interface EmptyStateProps {
-  icon?: IconType
-  title: string
-  description: string
-  actionLabel?: string
-  actionHref?: string
-  onActionClick?: () => void
+  icon?: IconType;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  actionHref?: string;
+  onActionClick?: () => void;
 }
 
 export function EmptyState({
@@ -47,5 +47,5 @@ export function EmptyState({
         </Button>
       )}
     </div>
-  )
+  );
 }

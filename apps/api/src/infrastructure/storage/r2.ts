@@ -48,7 +48,7 @@ export class R2Storage {
       ContentType: contentType,
     });
 
-    return getSignedUrl(this.s3, command, { expiresIn: 900 });
+    return getSignedUrl(this.s3 as any, command, { expiresIn: 900 });
   }
 
   async uploadFile(

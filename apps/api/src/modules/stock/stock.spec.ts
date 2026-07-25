@@ -25,7 +25,9 @@ describe("Stock & FEFO Integration Logic", () => {
 
     const items = [lotA, lotB, lotC];
 
-    items.sort((a, b) => a.expirationDate.getTime() - b.expirationDate.getTime());
+    items.sort(
+      (a, b) => a.expirationDate.getTime() - b.expirationDate.getTime(),
+    );
 
     expect(items[0]!.id).toBe("lot-b"); // August 1st comes before September 1st
     expect(items[1]!.id).toBe("lot-a"); // September 1st

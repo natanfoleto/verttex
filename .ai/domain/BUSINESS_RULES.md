@@ -212,11 +212,13 @@ Do NOT implement without a confirmed follow-up specification:
 ## 14. Regras de Lote, Validade, FEFO e Rastreabilidade de Estoque
 
 ### 1. Separação de Conceitos (Produto vs. Lote vs. Estoque)
+
 - **Produto/Variação (`Product` / `ProductVariation`):** Define as regras de controle de catálogo (`hasBatchControl`, `hasExpirationControl`, `isExpirationRequired`, `minReceivingShelfLifeDays`, `minDeliveryShelfLifeDays`, `warningShelfLifeDays`).
 - **Lote (`ProductLot`):** Contém a validade real declarada pelo fabricante, código impresso no produto, data de fabricação e situação operacional (`available`, `quarantine`, `blocked`, `recalled`).
 - **Estoque (`StockItem`):** Contém as quantidades de cada lote em cada localização física (`physicalQuantity`, `reservedQuantity`).
 
-### 2. Algoritmo FEFO (*First Expired, First Out*)
+### 2. Algoritmo FEFO (_First Expired, First Out_)
+
 - Na reserva e seleção de estoque, a plataforma prioriza os lotes com **menor data de validade**.
 - **Regra de Elegibilidade Comercial:**
   - `status == 'available'`
@@ -224,7 +226,7 @@ Do NOT implement without a confirmed follow-up specification:
   - `expirationDate >= dataEstimadaEntrega + minDeliveryShelfLifeDays`
 
 ### 3. Gestão de Lotes Vencidos, Quarentena e Descarte
+
 - Lotes vencidos deixam de compor o estoque comercializável imediatamente.
 - Lotes vencidos permanecem no estoque físico até a execução de uma movimentação de **descarte formal ou devolução ao fornecedor**, com justificativa, destino e registro de auditoria.
 - Devoluções de produtos alimentícios por clientes devem ser encaminhadas para **quarentena obrigatória**.
-

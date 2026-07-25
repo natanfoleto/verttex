@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { RiBankCardLine, RiShieldCheckLine, RiTruckLine } from 'react-icons/ri'
+import Link from "next/link";
+import { RiBankCardLine, RiShieldCheckLine, RiTruckLine } from "react-icons/ri";
 
 export function MarketplaceFooter() {
   return (
@@ -96,5 +96,5 @@ export function MarketplaceFooter() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

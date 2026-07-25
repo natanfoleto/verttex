@@ -2,7 +2,11 @@ import { FastifyReply } from "fastify";
 import { FastifyZodRequest } from "../../@types/fastify";
 import { AppError } from "../../shared/errors/app-error";
 import { LotsService } from "./lots.service";
-import { CreateLotBody, ListLotsQuery, UpdateLotStatusBody } from "./lots.schemas";
+import {
+  CreateLotBody,
+  ListLotsQuery,
+  UpdateLotStatusBody,
+} from "./lots.schemas";
 
 export async function createLotController(
   request: FastifyZodRequest,
