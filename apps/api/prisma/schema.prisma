@@ -7,29 +7,30 @@ datasource db {
 }
 
 model User {
-  id                  String                   @id @default(cuid())
-  name                String
-  email               String                   @unique
-  phone               String?
-  passwordHash        String
-  status              String                   @default("active") // active, inactive, suspended
-  roleId              String
-  role                Role                     @relation(fields: [roleId], references: [id])
-  permissions         UserPermission[]
-  stores              StoreUser[]
-  sessions            UserSession[]
-  passwordResetTokens UserPasswordResetToken[]
-  auditLogs           AuditLog[]
-  files               File[]
-  emailVerifiedAt     DateTime?
-  lastLoginAt         DateTime?
-  twoFactorSecret     String?
-  twoFactorEnabled    Boolean                  @default(false)
+  id                   String                   @id @default(cuid())
+  name                 String
+  email                String                   @unique
+  phone                String?
+  passwordHash         String
+  status               String                   @default("active") // active, inactive, suspended
+  roleId               String
+  role                 Role                     @relation(fields: [roleId], references: [id])
+  permissions          UserPermission[]
+  stores               StoreUser[]
+  sessions             UserSession[]
+  passwordResetTokens  UserPasswordResetToken[]
+  auditLogs            AuditLog[]
+  files                File[]
+  stockMovements       StockMovement[]
+  emailVerifiedAt      DateTime?
+  lastLoginAt          DateTime?
+  twoFactorSecret      String?
+  twoFactorEnabled     Boolean                  @default(false)
   twoFactorBackupCodes String[]
-  deletedAt           DateTime?
-  deletedBy           String?
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
+  deletedAt            DateTime?
+  deletedBy            String?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
 
   @@map("users")
 }
@@ -90,21 +91,25 @@ model UserPermission {
 }
 
 model Store {
-  id           String      @id @default(cuid())
-  name         String
-  slug         String      @unique
-  description  String?
-  logoUrl      String?
-  coverUrl     String?
-  customDomain String?
-  status       String      @default("draft") // draft, active, inactive, suspended
-  users        StoreUser[]
-  products     Product[]
-  files        File[]
-  deletedAt    DateTime?
-  deletedBy    String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String              @unique
+  description        String?
+  logoUrl            String?
+  coverUrl           String?
+  customDomain       String?
+  status             String              @default("draft") // draft, active, inactive, suspended
+  users              StoreUser[]
+  products           Product[]
+  files              File[]
+  lots               ProductLot[]
+  inventoryLocations InventoryLocation[]
+  stockItems         StockItem[]
+  stockMovements     StockMovement[]
+  deletedAt          DateTime?
+  deletedBy          String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 
   @@map("stores")
 }
@@ -224,8 +229,8 @@ model AuditLog {
 }
 
 model RevokedToken {
-  jti       String   @id          // JWT ID (jti claim) — unique per access token
-  expiresAt DateTime             // Original token expiration — used for periodic cleanup
+  jti       String   @id // JWT ID (jti claim) — unique per access token
+  expiresAt DateTime // Original token expiration — used for periodic cleanup
   revokedAt DateTime @default(now())
 
   @@index([expiresAt])
@@ -286,37 +291,45 @@ model Brand {
 }
 
 model Product {
-  id               String             @id @default(cuid())
-  storeId          String
-  store            Store              @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  categoryId       String
-  category         Category           @relation(fields: [categoryId], references: [id])
-  brandId          String?
-  brand            Brand?             @relation(fields: [brandId], references: [id], onDelete: SetNull)
-  name             String
-  slug             String
-  shortDescription String?
-  fullDescription  String?            @db.Text
-  type             String             @default("simple") // simple, variable
-  status           String             @default("draft") // draft, active, inactive, archived
-  isPublished      Boolean            @default(false)
-  isFeatured       Boolean            @default(false)
-  weight           Float?             // em gramas
-  width            Float?             // em cm
-  height           Float?             // em cm
-  length           Float?             // em cm
-  metaTitle        String?
-  metaDescription  String?
-  createdBy        String?
-  updatedBy        String?
-  deletedAt        DateTime?
-  deletedBy        String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  id                        String             @id @default(cuid())
+  storeId                   String
+  store                     Store              @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId                String
+  category                  Category           @relation(fields: [categoryId], references: [id])
+  brandId                   String?
+  brand                     Brand?             @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  name                      String
+  slug                      String
+  shortDescription          String?
+  fullDescription           String?            @db.Text
+  type                      String             @default("simple") // simple, variable
+  status                    String             @default("draft") // draft, active, inactive, archived
+  isPublished               Boolean            @default(false)
+  isFeatured                Boolean            @default(false)
+  weight                    Float? // em gramas
+  width                     Float? // em cm
+  height                    Float? // em cm
+  length                    Float? // em cm
+  metaTitle                 String?
+  metaDescription           String?
+  hasBatchControl           Boolean            @default(false)
+  hasExpirationControl      Boolean            @default(false)
+  isExpirationRequired      Boolean            @default(false)
+  defaultShelfLifeDays      Int?
+  minReceivingShelfLifeDays Int?
+  minDeliveryShelfLifeDays  Int?
+  warningShelfLifeDays      Int?
+  createdBy                 String?
+  updatedBy                 String?
+  deletedAt                 DateTime?
+  deletedBy                 String?
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime           @updatedAt
 
-  options          ProductOption[]
-  variations       ProductVariation[]
-  medias           ProductMedia[]
+  options    ProductOption[]
+  variations ProductVariation[]
+  medias     ProductMedia[]
+  lots       ProductLot[]
 
   @@unique([storeId, slug])
   @@index([storeId])
@@ -331,7 +344,7 @@ model ProductOption {
   id        String               @id @default(cuid())
   productId String
   product   Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
-  name      String               // ex: "Sabor", "Tamanho", "Peso"
+  name      String // ex: "Sabor", "Tamanho", "Peso"
   position  Int                  @default(0)
   createdAt DateTime             @default(now())
   values    ProductOptionValue[]
@@ -344,7 +357,7 @@ model ProductOptionValue {
   id              String                  @id @default(cuid())
   optionId        String
   option          ProductOption           @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  value           String                  // ex: "500g", "Curado", "Meia Cura"
+  value           String // ex: "500g", "Curado", "Meia Cura"
   position        Int                     @default(0)
   variationValues ProductVariationValue[]
 
@@ -353,28 +366,38 @@ model ProductOptionValue {
 }
 
 model ProductVariation {
-  id               String                  @id @default(cuid())
-  productId        String
-  product          Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku              String                  @unique
-  barcode          String?
-  price            Decimal                 @db.Decimal(10, 2)
-  promotionalPrice Decimal?                @db.Decimal(10, 2)
-  costPrice        Decimal?                @db.Decimal(10, 2)
-  isDefault        Boolean                 @default(false)
-  status           String                  @default("active") // active, inactive
-  weight           Float?
-  width            Float?
-  height           Float?
-  length           Float?
-  position         Int                     @default(0)
-  deletedAt        DateTime?
-  deletedBy        String?
-  createdAt        DateTime                @default(now())
-  updatedAt        DateTime                @updatedAt
+  id                        String                  @id @default(cuid())
+  productId                 String
+  product                   Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku                       String                  @unique
+  barcode                   String?
+  price                     Decimal                 @db.Decimal(10, 2)
+  promotionalPrice          Decimal?                @db.Decimal(10, 2)
+  costPrice                 Decimal?                @db.Decimal(10, 2)
+  isDefault                 Boolean                 @default(false)
+  status                    String                  @default("active") // active, inactive
+  weight                    Float?
+  width                     Float?
+  height                    Float?
+  length                    Float?
+  position                  Int                     @default(0)
+  hasBatchControl           Boolean?
+  hasExpirationControl      Boolean?
+  isExpirationRequired      Boolean?
+  defaultShelfLifeDays      Int?
+  minReceivingShelfLifeDays Int?
+  minDeliveryShelfLifeDays  Int?
+  warningShelfLifeDays      Int?
+  deletedAt                 DateTime?
+  deletedBy                 String?
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
 
-  values           ProductVariationValue[]
-  medias           ProductMedia[]
+  values         ProductVariationValue[]
+  medias         ProductMedia[]
+  lots           ProductLot[]
+  stockItems     StockItem[]
+  stockMovements StockMovement[]
 
   @@index([productId])
   @@index([sku])
@@ -440,4 +463,101 @@ model ProductMedia {
   @@index([productId])
   @@index([fileId])
   @@map("product_medias")
+}
+
+model ProductLot {
+  id                String            @id @default(cuid())
+  storeId           String
+  store             Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId         String
+  product           Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variationId       String?
+  variation         ProductVariation? @relation(fields: [variationId], references: [id], onDelete: SetNull)
+  lotNumber         String            // Código do lote impresso no produto
+  manufacturer      String?           // Fabricante
+  supplier          String?           // Fornecedor
+  manufacturingDate DateTime?         // Data de fabricação
+  expirationDate    DateTime?         // Data de validade
+  receivedAt        DateTime          @default(now())
+  status            String            @default("available") // available, quarantine, blocked, recalled
+  notes             String?           @db.Text
+  createdBy         String?
+  updatedBy         String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  stockItems     StockItem[]
+  stockMovements StockMovement[]
+
+  @@unique([storeId, productId, variationId, lotNumber])
+  @@index([storeId])
+  @@index([expirationDate])
+  @@index([status])
+  @@map("product_lots")
+}
+
+model InventoryLocation {
+  id        String   @id @default(cuid())
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name      String   // ex: "Depósito Principal", "Câmara Fria 01"
+  code      String   // ex: "DEP-01"
+  isDefault Boolean  @default(false)
+  status    String   @default("active") // active, inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stockItems      StockItem[]
+  sourceMovements StockMovement[] @relation("SourceLocation")
+  targetMovements StockMovement[] @relation("TargetLocation")
+
+  @@unique([storeId, code])
+  @@map("inventory_locations")
+}
+
+model StockItem {
+  id               String            @id @default(cuid())
+  storeId          String
+  store            Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  variationId      String
+  variation        ProductVariation  @relation(fields: [variationId], references: [id], onDelete: Cascade)
+  lotId            String?
+  lot              ProductLot?       @relation(fields: [lotId], references: [id], onDelete: SetNull)
+  locationId       String
+  location         InventoryLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  physicalQuantity Int               @default(0)
+  reservedQuantity Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([storeId, variationId, lotId, locationId])
+  @@map("stock_items")
+}
+
+model StockMovement {
+  id               String             @id @default(cuid())
+  storeId          String
+  store            Store              @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  variationId      String
+  variation        ProductVariation   @relation(fields: [variationId], references: [id])
+  lotId            String?
+  lot              ProductLot?        @relation(fields: [lotId], references: [id])
+  sourceLocationId String?
+  sourceLocation   InventoryLocation? @relation("SourceLocation", fields: [sourceLocationId], references: [id])
+  targetLocationId String?
+  targetLocation   InventoryLocation? @relation("TargetLocation", fields: [targetLocationId], references: [id])
+  type             String             // RECEIVING, TRANSFER, RESERVATION, RELEASE_RESERVATION, DISPATCH, CUSTOMER_RETURN, SUPPLIER_RETURN, EXPIRATION_DISCARD, DAMAGE_DISCARD, QUARANTINE_ENTRY, QUARANTINE_RELEASE, BLOCK, RECALL, INVENTORY_ADJUSTMENT
+  quantity         Int
+  reason           String?
+  referenceId      String?            // ID do pedido ou nota fiscal de referência
+  userId           String?
+  user             User?              @relation(fields: [userId], references: [id])
+  createdAt        DateTime           @default(now())
+
+  @@index([storeId])
+  @@index([variationId])
+  @@index([lotId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("stock_movements")
 }

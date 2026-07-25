@@ -60,12 +60,26 @@ Examples: `users.read`, `stores.create`, `permissions.manage`
 | `products.update` | Edit products   |
 | `products.delete` | Delete products |
 
-### Inventory (future)
+### Lots
 
-| Permission         | Description             |
-| ------------------ | ----------------------- |
-| `inventory.read`   | View inventory          |
-| `inventory.update` | Update inventory levels |
+| Permission        | Description                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| `lots.read`       | Visualizar lotes e validade de produtos                      |
+| `lots.create`     | Cadastrar novos lotes de produtos                            |
+| `lots.update`     | Editar dados do lote                                         |
+| `lots.quarantine` | Colocar ou liberar lotes da quarentena                       |
+| `lots.block`      | Bloquear ou desbloquear lotes                                |
+| `lots.recall`     | Executar ou gerenciar recolhimento (recall) sanitário        |
+
+### Stock & FEFO
+
+| Permission       | Description                                                  |
+| ---------------- | ------------------------------------------------------------ |
+| `stock.read`     | Visualizar estoque, posições por localização e FEFO          |
+| `stock.receive`  | Registrar recebimento de mercadorias por lote                |
+| `stock.transfer` | Transferir lotes entre localizações                          |
+| `stock.adjust`   | Realizar ajustes manuais de inventário                      |
+| `stock.discard`  | Realizar descarte formal por vencimento ou dano auditados    |
 
 ### Sales & Reports (future)
 

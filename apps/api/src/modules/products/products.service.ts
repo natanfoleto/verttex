@@ -232,6 +232,13 @@ export class ProductsService {
           length: body.length || null,
           metaTitle: body.metaTitle || null,
           metaDescription: body.metaDescription || null,
+          hasBatchControl: body.hasBatchControl ?? false,
+          hasExpirationControl: body.hasExpirationControl ?? false,
+          isExpirationRequired: body.isExpirationRequired ?? false,
+          defaultShelfLifeDays: body.defaultShelfLifeDays || null,
+          minReceivingShelfLifeDays: body.minReceivingShelfLifeDays || null,
+          minDeliveryShelfLifeDays: body.minDeliveryShelfLifeDays || null,
+          warningShelfLifeDays: body.warningShelfLifeDays || null,
           createdBy: userId,
           updatedBy: userId,
         },
@@ -400,6 +407,20 @@ export class ProductsService {
     if (body.width !== undefined) payload.width = body.width;
     if (body.height !== undefined) payload.height = body.height;
     if (body.length !== undefined) payload.length = body.length;
+    if (body.hasBatchControl !== undefined)
+      payload.hasBatchControl = body.hasBatchControl;
+    if (body.hasExpirationControl !== undefined)
+      payload.hasExpirationControl = body.hasExpirationControl;
+    if (body.isExpirationRequired !== undefined)
+      payload.isExpirationRequired = body.isExpirationRequired;
+    if (body.defaultShelfLifeDays !== undefined)
+      payload.defaultShelfLifeDays = body.defaultShelfLifeDays;
+    if (body.minReceivingShelfLifeDays !== undefined)
+      payload.minReceivingShelfLifeDays = body.minReceivingShelfLifeDays;
+    if (body.minDeliveryShelfLifeDays !== undefined)
+      payload.minDeliveryShelfLifeDays = body.minDeliveryShelfLifeDays;
+    if (body.warningShelfLifeDays !== undefined)
+      payload.warningShelfLifeDays = body.warningShelfLifeDays;
 
     if (body.slug !== undefined) {
       const finalSlug = slugify(body.slug);

@@ -18,6 +18,7 @@ import {
   RiStoreLine,
   RiUser3Line,
   RiUserLine,
+  RiStackLine,
 } from 'react-icons/ri'
 
 import { Button } from '@/components/ui/button'
@@ -122,6 +123,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           href: '/produtos',
           icon: RiPriceTag3Line,
           show: ability.can('read', 'Product'),
+        },
+        {
+          label: 'Estoque & Lotes',
+          href: '/estoque',
+          icon: RiStackLine,
+          show: true,
         },
         {
           label: 'Categorias',

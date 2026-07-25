@@ -15,6 +15,7 @@ import {
   RiStarLine,
   RiTruckLine,
   RiUpload2Line,
+  RiCalendarEventLine,
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 
@@ -92,6 +93,13 @@ export interface ProductToEdit {
   length?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
+  hasBatchControl?: boolean
+  hasExpirationControl?: boolean
+  isExpirationRequired?: boolean
+  defaultShelfLifeDays?: number | null
+  minReceivingShelfLifeDays?: number | null
+  minDeliveryShelfLifeDays?: number | null
+  warningShelfLifeDays?: number | null
   variations?: Array<{
     id: string
     sku: string
@@ -173,6 +181,15 @@ export function ProductFormDialog({
   const [metaTitle, setMetaTitle] = useState('')
   const [metaDescription, setMetaDescription] = useState('')
 
+  // Batch & Expiration Control
+  const [hasBatchControl, setHasBatchControl] = useState(false)
+  const [hasExpirationControl, setHasExpirationControl] = useState(false)
+  const [isExpirationRequired, setIsExpirationRequired] = useState(false)
+  const [defaultShelfLifeDays, setDefaultShelfLifeDays] = useState('')
+  const [minReceivingShelfLifeDays, setMinReceivingShelfLifeDays] = useState('')
+  const [minDeliveryShelfLifeDays, setMinDeliveryShelfLifeDays] = useState('')
+  const [warningShelfLifeDays, setWarningShelfLifeDays] = useState('')
+
   // Options & Variations
   const [options, setOptions] = useState<ProductOptionItem[]>([])
   const [newOptionName, setNewOptionName] = useState('')
@@ -239,6 +256,14 @@ export function ProductFormDialog({
       setLength(productToEdit.length ? String(productToEdit.length) : '')
       setMetaTitle(productToEdit.metaTitle || '')
       setMetaDescription(productToEdit.metaDescription || '')
+
+      setHasBatchControl(Boolean(productToEdit.hasBatchControl))
+      setHasExpirationControl(Boolean(productToEdit.hasExpirationControl))
+      setIsExpirationRequired(Boolean(productToEdit.isExpirationRequired))
+      setDefaultShelfLifeDays(productToEdit.defaultShelfLifeDays ? String(productToEdit.defaultShelfLifeDays) : '')
+      setMinReceivingShelfLifeDays(productToEdit.minReceivingShelfLifeDays ? String(productToEdit.minReceivingShelfLifeDays) : '')
+      setMinDeliveryShelfLifeDays(productToEdit.minDeliveryShelfLifeDays ? String(productToEdit.minDeliveryShelfLifeDays) : '')
+      setWarningShelfLifeDays(productToEdit.warningShelfLifeDays ? String(productToEdit.warningShelfLifeDays) : '')
 
       // Simple product prices
       const defaultVar =
@@ -347,6 +372,14 @@ export function ProductFormDialog({
       setLength('')
       setMetaTitle('')
       setMetaDescription('')
+
+      setHasBatchControl(false)
+      setHasExpirationControl(false)
+      setIsExpirationRequired(false)
+      setDefaultShelfLifeDays('')
+      setMinReceivingShelfLifeDays('')
+      setMinDeliveryShelfLifeDays('')
+      setWarningShelfLifeDays('')
 
       setOptions([])
       setNewOptionName('')
@@ -703,6 +736,14 @@ export function ProductFormDialog({
       metaTitle: metaTitle.trim() || null,
       metaDescription: metaDescription.trim() || null,
 
+      hasBatchControl,
+      hasExpirationControl,
+      isExpirationRequired,
+      defaultShelfLifeDays: defaultShelfLifeDays ? Number(defaultShelfLifeDays) : null,
+      minReceivingShelfLifeDays: minReceivingShelfLifeDays ? Number(minReceivingShelfLifeDays) : null,
+      minDeliveryShelfLifeDays: minDeliveryShelfLifeDays ? Number(minDeliveryShelfLifeDays) : null,
+      warningShelfLifeDays: warningShelfLifeDays ? Number(warningShelfLifeDays) : null,
+
       mediaFileIds,
       mainMediaFileId: mainMedia?.fileId || null,
     }
@@ -767,7 +808,7 @@ export function ProductFormDialog({
               onValueChange={setActiveTab}
               className="w-full flex-1 flex flex-col"
             >
-              <TabsList className="mb-5 grid w-full grid-cols-5 bg-zinc-900/80 p-1 shrink-0">
+              <TabsList className="mb-5 grid w-full grid-cols-6 bg-zinc-900/80 p-1 shrink-0">
                 <TabsTrigger
                   value="geral"
                   className="flex items-center space-x-1.5 text-xs"
@@ -780,7 +821,14 @@ export function ProductFormDialog({
                   className="flex items-center space-x-1.5 text-xs"
                 >
                   <RiPriceTag3Line className="h-4 w-4" />
-                  <span>Preço & Estoque</span>
+                  <span>Preço</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="validade"
+                  className="flex items-center space-x-1.5 text-xs"
+                >
+                  <RiCalendarEventLine className="h-4 w-4" />
+                  <span>Lote & Validade</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="variacoes"
@@ -1063,6 +1111,146 @@ export function ProductFormDialog({
                     />
                   </div>
                 </div>
+              </TabsContent>
+
+              {/* TAB: LOTE & VALIDADE */}
+              <TabsContent
+                value="validade"
+                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5.5 space-y-4"
+              >
+                <div className="rounded-xl border border-emerald-950/60 bg-emerald-950/20 p-4">
+                  <h4 className="text-xs font-semibold text-emerald-400">
+                    Controle de Lotes, Validade e Rastreabilidade (FEFO)
+                  </h4>
+                  <p className="mt-1 text-[11px] text-zinc-400">
+                    Defina se este produto exige identificação de lote e rastreamento de data de validade. Produtos alimentícios devem, como padrão, exigir controle de lote e validade.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 flex items-center justify-between">
+                    <div>
+                      <span className="block text-xs font-semibold text-zinc-200">
+                        Controle por Lote
+                      </span>
+                      <span className="text-[11px] text-zinc-500">
+                        Exigir código do lote no recebimento
+                      </span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={hasBatchControl}
+                      onChange={(e) => setHasBatchControl(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer rounded border-zinc-700 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 flex items-center justify-between">
+                    <div>
+                      <span className="block text-xs font-semibold text-zinc-200">
+                        Controle de Validade
+                      </span>
+                      <span className="text-[11px] text-zinc-500">
+                        Rastrear vencimento de lotes (FEFO)
+                      </span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={hasExpirationControl}
+                      onChange={(e) => setHasExpirationControl(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer rounded border-zinc-700 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 flex items-center justify-between">
+                    <div>
+                      <span className="block text-xs font-semibold text-zinc-200">
+                        Validade Obrigatória
+                      </span>
+                      <span className="text-[11px] text-zinc-500">
+                        Bloquear recebimento sem validade
+                      </span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={isExpirationRequired}
+                      onChange={(e) => setIsExpirationRequired(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer rounded border-zinc-700 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {(hasBatchControl || hasExpirationControl) && (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-zinc-300">
+                        Validade Padrão (dias)
+                      </label>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Ex: 180"
+                        value={defaultShelfLifeDays}
+                        onChange={(e) => setDefaultShelfLifeDays(e.target.value)}
+                        className="font-mono text-zinc-200"
+                      />
+                      <span className="mt-1 block text-[11px] text-zinc-500">
+                        Sugestão no cadastro do lote.
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-zinc-300">
+                        Mínimo no Recebimento (dias)
+                      </label>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Ex: 60"
+                        value={minReceivingShelfLifeDays}
+                        onChange={(e) => setMinReceivingShelfLifeDays(e.target.value)}
+                        className="font-mono text-zinc-200"
+                      />
+                      <span className="mt-1 block text-[11px] text-zinc-500">
+                        Validade mínima aceita ao receber.
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-zinc-300">
+                        Mínimo na Entrega (dias)
+                      </label>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Ex: 15"
+                        value={minDeliveryShelfLifeDays}
+                        onChange={(e) => setMinDeliveryShelfLifeDays(e.target.value)}
+                        className="font-mono text-zinc-200"
+                      />
+                      <span className="mt-1 block text-[11px] text-zinc-500">
+                        Margem mínima ao enviar ao cliente.
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-zinc-300">
+                        Janela de Alerta (dias)
+                      </label>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Ex: 30"
+                        value={warningShelfLifeDays}
+                        onChange={(e) => setWarningShelfLifeDays(e.target.value)}
+                        className="font-mono text-amber-400"
+                      />
+                      <span className="mt-1 block text-[11px] text-zinc-500">
+                        Faixa de aviso "Próximo do Vencimento".
+                      </span>
+                    </div>
+                  </div>
+                )}
               </TabsContent>
 
               {/* TAB 3: VARIAÇÕES */}

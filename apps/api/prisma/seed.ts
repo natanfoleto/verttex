@@ -129,10 +129,25 @@ const permissionsData = [
     description: "Visualizar mídias e arquivos",
   },
   {
-    key: "files.upload",
+    key: "files.create",
     module: "files",
-    description: "Fazer upload de mídias e arquivos",
+    description: "Fazer upload de arquivos",
   },
+
+  // Lots module
+  { key: "lots.read", module: "lots", description: "Visualizar lotes e validade de produtos" },
+  { key: "lots.create", module: "lots", description: "Cadastrar novos lotes" },
+  { key: "lots.update", module: "lots", description: "Editar dados do lote" },
+  { key: "lots.quarantine", module: "lots", description: "Colocar ou liberar lotes da quarentena" },
+  { key: "lots.block", module: "lots", description: "Bloquear ou desbloquear lotes" },
+  { key: "lots.recall", module: "lots", description: "Executar ou gerenciar recolhimento (recall) de lotes" },
+
+  // Stock module
+  { key: "stock.read", module: "stock", description: "Visualizar estoque, FEFO e movimentações" },
+  { key: "stock.receive", module: "stock", description: "Registrar recebimento de mercadorias por lote" },
+  { key: "stock.transfer", module: "stock", description: "Transferir lotes entre localizações" },
+  { key: "stock.adjust", module: "stock", description: "Realizar ajustes manuais de inventário" },
+  { key: "stock.discard", module: "stock", description: "Realizar descarte formal por vencimento ou dano" },
   {
     key: "files.delete",
     module: "files",

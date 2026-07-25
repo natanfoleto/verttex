@@ -21,6 +21,13 @@ export const productVariationSchema = z.object({
   height: z.number().optional().nullable(),
   length: z.number().optional().nullable(),
   position: z.number().optional().default(0),
+  hasBatchControl: z.boolean().optional().nullable(),
+  hasExpirationControl: z.boolean().optional().nullable(),
+  isExpirationRequired: z.boolean().optional().nullable(),
+  defaultShelfLifeDays: z.number().int().min(1).optional().nullable(),
+  minReceivingShelfLifeDays: z.number().int().min(1).optional().nullable(),
+  minDeliveryShelfLifeDays: z.number().int().min(1).optional().nullable(),
+  warningShelfLifeDays: z.number().int().min(1).optional().nullable(),
   optionValues: z.record(z.string()).optional().default({}), // e.g. { "Sabor": "Meia Cura", "Peso": "500g" }
 });
 
@@ -42,6 +49,15 @@ export const createProductBodySchema = z.object({
   length: z.number().optional().nullable(),
   metaTitle: z.string().optional().nullable(),
   metaDescription: z.string().optional().nullable(),
+
+  // Configurações de Controle de Lote e Validade
+  hasBatchControl: z.boolean().optional().default(false),
+  hasExpirationControl: z.boolean().optional().default(false),
+  isExpirationRequired: z.boolean().optional().default(false),
+  defaultShelfLifeDays: z.number().int().min(1).optional().nullable(),
+  minReceivingShelfLifeDays: z.number().int().min(1).optional().nullable(),
+  minDeliveryShelfLifeDays: z.number().int().min(1).optional().nullable(),
+  warningShelfLifeDays: z.number().int().min(1).optional().nullable(),
 
   // Preço e SKU base (obrigatórios para produto simples)
   price: z.number().positive("Preço deve ser maior que zero").optional(),
@@ -78,6 +94,14 @@ export const productListQuerySchema = z.object({
     .enum(["draft", "active", "inactive", "archived", "all"])
     .optional()
     .default("all"),
+  hasBatchControl: z
+    .string()
+    .transform((val) => val === "true")
+    .optional(),
+  hasExpirationControl: z
+    .string()
+    .transform((val) => val === "true")
+    .optional(),
   isPublished: z
     .string()
     .transform((val) => val === "true")
