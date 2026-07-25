@@ -304,6 +304,10 @@ export default function StockAndLotsPage() {
     ])
   }
 
+  const handleRemoveLotRow = (index: number) => {
+    setRecLots((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const handleUpdateLotRow = (index: number, field: string, value: string) => {
     setRecLots((prev) => {
       const next = [...prev]
@@ -322,8 +326,7 @@ export default function StockAndLotsPage() {
             <span>Gestão de Lotes, Validade & Estoque</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Controle por lotes, datas de vencimento, política FEFO (*First
-            Expired, First Out*), quarentena e descarte auditado.
+            Controle por lotes, datas de vencimento, quarentena e descarte auditado.
           </p>
         </div>
 
@@ -394,63 +397,74 @@ export default function StockAndLotsPage() {
       </div>
 
       {/* FILTER BAR */}
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 flex flex-wrap gap-4 items-center justify-between">
-        <div className="flex flex-wrap items-center gap-3 flex-1 min-w-75">
-          <div className="relative flex-1 min-w-50">
-            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 flex-1">
+          {/* 1. Busca por Texto */}
+          <div className="relative flex-1 min-w-60">
+            <RiSearchLine className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
             <Input
               placeholder="Buscar por lote, produto, fabricante..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-zinc-900/80 border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-500 rounded-xl"
+              className="pl-10 bg-zinc-900/80 border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-500 rounded-xl"
             />
           </div>
 
-          <NativeSelect
-            value={selectedStoreId}
-            onChange={(e) => setSelectedStoreId(e.target.value)}
-            className="w-44 bg-zinc-900/80 border-zinc-800 text-xs rounded-xl"
-          >
-            <option value="">Todas as Lojas</option>
-            {stores.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </NativeSelect>
+          {/* 2. Filtro de Loja */}
+          <div className="w-full sm:w-44">
+            <NativeSelect
+              value={selectedStoreId}
+              onChange={(e) => setSelectedStoreId(e.target.value)}
+              className="w-full bg-zinc-900/80 border-zinc-800 text-xs rounded-xl"
+            >
+              <option value="">Todas as Lojas</option>
+              {stores.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
 
-          <NativeSelect
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-40 bg-zinc-900/80 border-zinc-800 text-xs rounded-xl"
-          >
-            <option value="all">Status: Todos</option>
-            <option value="available">Disponível</option>
-            <option value="quarantine">Quarentena</option>
-            <option value="blocked">Bloqueado</option>
-            <option value="recalled">Recolhido (Recall)</option>
-          </NativeSelect>
+          {/* 3. Filtro de Validade */}
+          <div className="w-full sm:w-48">
+            <NativeSelect
+              value={expirationFilter}
+              onChange={(e) => setExpirationFilter(e.target.value)}
+              className="w-full bg-zinc-900/80 border-zinc-800 text-xs rounded-xl"
+            >
+              <option value="all">Validade: Todas</option>
+              <option value="valid">Válidos</option>
+              <option value="warning">Próximos do Vencimento</option>
+              <option value="insufficient">Prazo Insuficiente</option>
+              <option value="expired">Vencidos</option>
+            </NativeSelect>
+          </div>
 
-          <NativeSelect
-            value={expirationFilter}
-            onChange={(e) => setExpirationFilter(e.target.value)}
-            className="w-44 bg-zinc-900/80 border-zinc-800 text-xs rounded-xl"
-          >
-            <option value="all">Validade: Todas</option>
-            <option value="valid">Válidos</option>
-            <option value="warning">Próximos do Vencimento</option>
-            <option value="insufficient">Prazo Insuficiente</option>
-            <option value="expired">Vencidos</option>
-          </NativeSelect>
+          {/* 4. Filtro de Status Operacional */}
+          <div className="w-full sm:w-44">
+            <NativeSelect
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full bg-zinc-900/80 border-zinc-800 text-xs rounded-xl"
+            >
+              <option value="all">Status: Todos</option>
+              <option value="available">Disponível</option>
+              <option value="quarantine">Quarentena</option>
+              <option value="blocked">Bloqueado</option>
+              <option value="recalled">Recolhido (Recall)</option>
+            </NativeSelect>
+          </div>
         </div>
 
+        {/* Botão de Atualizar */}
         <Button
           variant="outline"
           size="sm"
           onClick={() =>
             queryClient.invalidateQueries({ queryKey: ['lots-list'] })
           }
-          className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs"
+          className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs shrink-0 self-start md:self-center"
         >
           <RiRefreshLine className="mr-1.5 h-4 w-4" />
           Atualizar
@@ -878,8 +892,25 @@ export default function StockAndLotsPage() {
                 {recLots.map((row, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-3"
+                    className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-3 relative group"
                   >
+                    <div className="flex items-center justify-between border-b border-zinc-800/60 pb-2.5">
+                      <span className="text-xs font-semibold text-zinc-400">
+                        Lote #{idx + 1}
+                      </span>
+                      {recLots.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveLotRow(idx)}
+                          className="h-7 w-7 p-0 text-zinc-500 hover:text-rose-400 hover:bg-rose-950/50 rounded-lg transition-colors"
+                          title="Remover este lote do recebimento"
+                        >
+                          <RiDeleteBin6Line className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                       <div>
                         <label className="mb-1 block text-[11px] font-semibold text-zinc-300">
