@@ -308,8 +308,8 @@ export default function BrandsPage() {
                       variant="outline"
                       size="icon"
                       onClick={() => setDeletingBrand(brand)}
-                      className="h-8 w-8 p-1.5 border-rose-900/50 text-rose-400 hover:bg-rose-950"
-                      title="Arquivar"
+                      className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors"
+                      title="Arquivar Marca"
                     >
                       <RiArchiveLine className="h-4 w-4" />
                     </Button>

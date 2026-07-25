@@ -8,17 +8,22 @@ import {
   RiArrowDownSLine,
   RiArrowLeftSLine,
   RiArrowRightSLine,
+  RiCheckLine,
+  RiComputerLine,
   RiDashboardLine,
   RiFolder3Line,
   RiHistoryLine,
   RiLogoutBoxRLine,
   RiMenuLine,
+  RiMoonLine,
+  RiNotification3Line,
   RiPriceTag3Line,
   RiShieldLine,
+  RiStackLine,
   RiStoreLine,
+  RiSunLine,
   RiUser3Line,
   RiUserLine,
-  RiStackLine,
 } from 'react-icons/ri'
 
 import { Button } from '@/components/ui/button'
@@ -45,70 +50,78 @@ import {
 } from '@/components/ui/tooltip'
 
 import { useAuth } from '../../providers/auth-provider'
-
-export interface NavChildItem {
-  label: string
-  href: string
-  icon?: IconType
-  show?: boolean
-}
-
-export interface NavItem {
-  label: string
-  href?: string
-  icon: IconType
-  show?: boolean
-  children?: NavChildItem[]
-}
+import { useTheme } from '../../providers/theme-provider'
 
 interface AdminLayoutProps {
   children: ReactNode
 }
 
+interface NavItem {
+  label: string
+  href?: string
+  icon: IconType
+  show?: boolean
+  children?: {
+    label: string
+    href: string
+    icon: IconType
+    show?: boolean
+  }[]
+}
+
+const SIDEBAR_COLLAPSED_KEY = 'verttex_sidebar_collapsed'
+const SUBMENU_STATE_KEY = 'verttex_submenu_state'
+
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { user, ability, logout } = useAuth()
+  const { theme, setTheme } = useTheme()
   const pathname = usePathname()
 
+  // State to manage sidebar collapsed state
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
+
+  // State to manage open submenus
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({})
 
-  // Load sidebar collapsed state from localStorage
+  // Load saved sidebar state from localStorage on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('verttex:sidebar-collapsed')
-      if (saved !== null) {
-        setIsCollapsed(JSON.parse(saved))
+    const savedCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY)
+    if (savedCollapsed !== null) {
+      setIsCollapsed(savedCollapsed === 'true')
+    }
+
+    const savedSubmenus = localStorage.getItem(SUBMENU_STATE_KEY)
+    if (savedSubmenus !== null) {
+      try {
+        setOpenSubmenus(JSON.parse(savedSubmenus))
+      } catch {
+        // Ignore parse error
       }
-    } catch {
-      // Ignore storage errors
     }
   }, [])
 
+  // Toggle sidebar collapse state
   const toggleCollapse = () => {
-    setIsCollapsed((prev) => {
-      const next = !prev
-      try {
-        localStorage.setItem('verttex:sidebar-collapsed', JSON.stringify(next))
-      } catch {
-        // Ignore storage errors
-      }
-      return next
+    const nextState = !isCollapsed
+    setIsCollapsed(nextState)
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(nextState))
+  }
+
+  // Toggle individual submenu
+  const toggleSubmenu = (label: string) => {
+    setOpenSubmenus((prev) => {
+      const nextState = { ...prev, [label]: !prev[label] }
+      localStorage.setItem(SUBMENU_STATE_KEY, JSON.stringify(nextState))
+      return nextState
     })
   }
 
-  const toggleSubmenu = (label: string) => {
-    setOpenSubmenus((prev) => ({
-      ...prev,
-      [label]: !prev[label],
-    }))
-  }
-
+  // Define navigation items with RBAC permissions
   const navItems: NavItem[] = [
     {
-      label: 'Painel Principal',
+      label: 'Dashboard',
       href: '/',
       icon: RiDashboardLine,
-      show: true,
     },
     {
       label: 'Catálogo & Taxonomia',
@@ -121,14 +134,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {
           label: 'Produtos',
           href: '/produtos',
-          icon: RiPriceTag3Line,
+          icon: RiFolder3Line,
           show: ability.can('read', 'Product'),
         },
         {
           label: 'Estoque & Lotes',
           href: '/estoque',
           icon: RiStackLine,
-          show: true,
+          show: ability.can('read', 'Product') || ability.can('read', 'Inventory'),
         },
         {
           label: 'Categorias',
@@ -193,6 +206,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const getPageTitle = () => {
     if (pathname === '/') return 'Dashboard'
     if (pathname.startsWith('/produtos')) return 'Catálogo de Produtos'
+    if (pathname.startsWith('/estoque')) return 'Estoque & Lotes'
     if (pathname.startsWith('/categorias')) return 'Taxonomia de Categorias'
     if (pathname.startsWith('/marcas')) return 'Catálogo de Marcas'
     if (pathname.startsWith('/usuarios')) return 'Usuários Gestores'
@@ -259,12 +273,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
           return (
             <div key={item.label} className="space-y-1">
-              <Button
-                variant="ghost"
+              <button
+                type="button"
                 onClick={() => toggleSubmenu(item.label)}
                 className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-zinc-800/80 font-semibold text-emerald-400'
+                    ? 'font-semibold text-zinc-100'
                     : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
                 }`}
               >
@@ -272,32 +286,29 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Icon className="h-5 w-5 shrink-0" />
                   <span className="whitespace-nowrap">{item.label}</span>
                 </div>
-                <RiArrowRightSLine
-                  className={`h-4 w-4 shrink-0 transition-transform ${
-                    isSubmenuOpen
-                      ? 'rotate-90 text-emerald-400'
-                      : 'text-zinc-500'
+                <RiArrowDownSLine
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isSubmenuOpen ? 'rotate-180' : ''
                   }`}
                 />
-              </Button>
+              </button>
 
               {isSubmenuOpen && (
-                <div className="ml-3 space-y-1 border-l border-zinc-800/80 pr-2 pl-4">
+                <div className="ml-4 space-y-1 border-l border-zinc-800 pl-3">
                   {visibleChildren.map((child) => {
-                    const ChildIcon = child.icon || RiArrowRightSLine
-                    const isChildRouteActive = pathname.startsWith(child.href)
-
+                    const ChildIcon = child.icon
+                    const isSubActive = pathname.startsWith(child.href)
                     return (
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex items-center space-x-2.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-                          isChildRouteActive
-                            ? 'border-emerald-800/50 bg-emerald-950/50 font-semibold text-emerald-400'
-                            : 'border-transparent text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
+                        className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                          isSubActive
+                            ? 'bg-zinc-800 font-semibold text-emerald-400'
+                            : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
                         }`}
                       >
-                        <ChildIcon className="h-3.5 w-3.5 shrink-0" />
+                        <ChildIcon className="h-4 w-4 shrink-0" />
                         <span className="whitespace-nowrap">{child.label}</span>
                       </Link>
                     )
@@ -314,7 +325,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <TooltipTrigger asChild>
                 <Link
                   href={item.href || '#'}
-                  className={`flex items-center justify-center rounded-xl p-2.5 transition-colors ${
+                  className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${
                     isActive
                       ? 'bg-zinc-800 font-semibold text-emerald-400'
                       : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
@@ -448,29 +459,147 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
 
-            {/* User Profile Dropdown Menu */}
-            <div className="flex items-center space-x-4">
+            {/* Header Right Actions */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Theme Toggle Dropdown */}
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 cursor-pointer rounded-xl border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+                      >
+                        {theme === 'light' ? (
+                          <RiSunLine className="h-4.5 w-4.5 text-amber-400" />
+                        ) : theme === 'dark' ? (
+                          <RiMoonLine className="h-4.5 w-4.5 text-emerald-400" />
+                        ) : (
+                          <RiComputerLine className="h-4.5 w-4.5 text-zinc-300" />
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Alterar tema da aplicação</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <DropdownMenuContent align="end" className="w-40 bg-zinc-950 border-zinc-800 z-100">
+                  <DropdownMenuLabel className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                    Tema do Painel
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setTheme('light')}
+                    className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RiSunLine className="h-4 w-4 text-amber-400" />
+                      <span>Claro</span>
+                    </div>
+                    {theme === 'light' && <RiCheckLine className="h-4 w-4 text-emerald-400" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setTheme('dark')}
+                    className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RiMoonLine className="h-4 w-4 text-emerald-400" />
+                      <span>Escuro</span>
+                    </div>
+                    {theme === 'dark' && <RiCheckLine className="h-4 w-4 text-emerald-400" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setTheme('system')}
+                    className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RiComputerLine className="h-4 w-4 text-zinc-400" />
+                      <span>Sistema</span>
+                    </div>
+                    {theme === 'system' && <RiCheckLine className="h-4 w-4 text-emerald-400" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Notifications Dropdown */}
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="relative h-9 w-9 cursor-pointer rounded-xl border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+                      >
+                        <RiNotification3Line className="h-4.5 w-4.5" />
+                        <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-zinc-900" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Notificações</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <DropdownMenuContent align="end" className="w-80 bg-zinc-950 border-zinc-800 z-100">
+                  <DropdownMenuLabel className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-100">Notificações</span>
+                    <span className="text-[10px] font-medium text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/40">
+                      Sistema Ativo
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <div className="p-3 space-y-2.5">
+                    <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 space-y-1">
+                      <p className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
+                        <span>Lote L-2026-CAN-02</span>
+                        <span className="text-[10px] text-amber-400 font-mono">18d rest.</span>
+                      </p>
+                      <p className="text-[11px] text-zinc-400">
+                        Próximo do vencimento. Priorize saída via FEFO.
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 space-y-1">
+                      <p className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
+                        <span>Auditoria & Segurança</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">Hoje</span>
+                      </p>
+                      <p className="text-[11px] text-zinc-400">
+                        Todos os acessos e movimentações foram registrados.
+                      </p>
+                    </div>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Vertical Divider */}
+              <div className="h-5 w-px bg-zinc-800/80 shrink-0 mx-1" />
+
+              {/* User Profile Dropdown Menu (No Gray Hover Background Block) */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="flex cursor-pointer items-center space-x-2.5 text-left outline-none h-auto p-1"
+                  <button
+                    type="button"
+                    className="flex cursor-pointer items-center space-x-2.5 text-left outline-none rounded-xl p-1.5 transition-colors group bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent border-none shadow-none"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300 ring-1 ring-emerald-800/40 group-hover:ring-emerald-500/60 transition-all">
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div className="hidden flex-col text-left sm:flex">
-                      <span className="text-xs font-semibold whitespace-nowrap text-zinc-200">
+                      <span className="text-xs font-semibold whitespace-nowrap text-zinc-200 group-hover:text-emerald-500 transition-colors">
                         {user?.name || 'Usuário'}
                       </span>
-                      <span className="text-[10px] whitespace-nowrap text-zinc-400">
+                      <span className="text-[10px] whitespace-nowrap text-zinc-400 group-hover:text-emerald-600 transition-colors">
                         {user?.role?.name || 'Gestor'}
                       </span>
                     </div>
-                    <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400" />
-                  </Button>
+                    <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="z-100 w-64">
+                <DropdownMenuContent align="end" className="z-100 w-64 bg-zinc-950 border-zinc-800">
                   <DropdownMenuLabel className="font-normal text-zinc-100 normal-case">
                     <div className="flex flex-col space-y-0.5">
                       <span className="text-sm font-bold whitespace-nowrap text-zinc-100">
@@ -485,7 +614,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/perfil"
-                      className="flex items-center space-x-2"
+                      className="flex items-center space-x-2 cursor-pointer"
                     >
                       <RiUser3Line className="h-4 w-4 text-zinc-400" />
                       <span>Meu perfil</span>
@@ -494,7 +623,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => logout()}
-                    className="flex items-center space-x-2 text-rose-400 focus:bg-rose-950/50 focus:text-rose-300"
+                    className="flex items-center space-x-2 text-rose-400 focus:bg-rose-950/50 focus:text-rose-300 cursor-pointer"
                   >
                     <RiLogoutBoxRLine className="h-4 w-4" />
                     <span>Encerrar sessão</span>

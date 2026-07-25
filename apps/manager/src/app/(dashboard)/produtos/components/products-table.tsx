@@ -537,7 +537,7 @@ export function ProductsTable({
                                 size="icon"
                                 title="Arquivar Produto"
                                 onClick={() => setDeletingProduct(prod)}
-                                className="h-8 w-8 p-1.5 text-zinc-400 hover:text-rose-400"
+                                className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors"
                               >
                                 <RiArchiveLine className="h-4 w-4" />
                               </Button>
