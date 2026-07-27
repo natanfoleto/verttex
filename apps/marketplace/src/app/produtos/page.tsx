@@ -81,6 +81,7 @@ export default function ProductsListingPage() {
   const mappedProducts: ProductCardProps[] = productsList.map((p) => ({
     id: p.id,
     name: p.name,
+    slug: p.slug,
     price: p.promotionalPrice || p.price,
     originalPrice: p.promotionalPrice ? p.price : undefined,
     imageUrl:

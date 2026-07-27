@@ -25,6 +25,13 @@ import { CartSheet, CartSummary } from "../cart/cart-sheet";
 import { apiClient } from "../../lib/api-client";
 import { useCustomer } from "../../providers/customer-auth-provider";
 
+interface PublicCategory {
+  id: string;
+  name: string;
+  slug: string;
+  productsCount: number;
+}
+
 export function MarketplaceHeader() {
   const { customer, logout, openAuthModal } = useCustomer();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,6 +42,14 @@ export function MarketplaceHeader() {
     queryKey: ["cart-summary"],
     queryFn: async () => {
       const res = await apiClient<CartSummary>("/cart");
+      return res;
+    },
+  });
+
+  const { data: categories } = useQuery<PublicCategory[]>({
+    queryKey: ["public-categories"],
+    queryFn: async () => {
+      const res = await apiClient<PublicCategory[]>("/public/catalog/categories");
       return res;
     },
   });
@@ -199,146 +214,48 @@ export function MarketplaceHeader() {
 
               {/* Hover Dropdown Content */}
               <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-64 rounded-lg border border-stone-200 bg-white p-2 shadow-xl">
-                  <Link
-                    href="/categorias/queijos-artesanais"
-                    className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
-                  >
-                    <span>🧀 Queijos Artesanais</span>
-                    <span className="text-[10px] text-stone-400">14 itens</span>
-                  </Link>
-                  <Link
-                    href="/categorias/vinhos-bebidas"
-                    className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
-                  >
-                    <span>🍷 Vinhos & Bebidas</span>
-                    <span className="text-[10px] text-stone-400">22 itens</span>
-                  </Link>
-                  <Link
-                    href="/categorias/doces-geleias"
-                    className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
-                  >
-                    <span>🍯 Doces & Geleias</span>
-                    <span className="text-[10px] text-stone-400">18 itens</span>
-                  </Link>
-                  <Link
-                    href="/categorias/meis-polens"
-                    className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
-                  >
-                    <span>🐝 Méis & Polens</span>
-                    <span className="text-[10px] text-stone-400">9 itens</span>
-                  </Link>
-                  <Link
-                    href="/categorias/embutidos-defumados"
-                    className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
-                  >
-                    <span>🥓 Embutidos Defumados</span>
-                    <span className="text-[10px] text-stone-400">12 itens</span>
-                  </Link>
-                  <Link
-                    href="/categorias/cafes-especiais"
-                    className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900"
-                  >
-                    <span>☕ Cafés Especiais</span>
-                    <span className="text-[10px] text-stone-400">8 itens</span>
-                  </Link>
+                <div className="w-64 rounded-lg border border-stone-200 bg-white p-2 shadow-xl space-y-1">
+                  {categories && categories.length > 0 ? (
+                    categories.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/produtos?categorySlug=${cat.slug}`}
+                        className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer"
+                      >
+                        <span className="truncate">{cat.name}</span>
+                        <span className="text-[10px] text-stone-400 font-mono ml-2">
+                          {cat.productsCount} itens
+                        </span>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-stone-400 text-xs text-center">
+                      Nenhuma categoria
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Direct Category 1: Queijos Submenu */}
-            <div className="group relative">
+            {/* Dynamic Category Quick Links */}
+            {categories?.slice(0, 4).map((cat) => (
               <Link
-                href="/categorias/queijos-artesanais"
-                className="flex items-center space-x-1 rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900"
+                key={cat.id}
+                href={`/produtos?categorySlug=${cat.slug}`}
+                className="flex items-center space-x-1 rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900 cursor-pointer"
               >
-                <span>Queijos Artesanais</span>
-                <RiArrowDownSLine className="h-3.5 w-3.5 text-stone-400 transition-transform group-hover:rotate-180" />
+                <span>{cat.name}</span>
               </Link>
-              <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-52 rounded-lg border border-stone-200 bg-white p-2 shadow-lg">
-                  <Link
-                    href="/produtos?q=meia+cura"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Queijo Meia Cura Colonial
-                  </Link>
-                  <Link
-                    href="/produtos?q=parmesao"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Parmesão Maturado 12m
-                  </Link>
-                  <Link
-                    href="/produtos?q=manteiga"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Manteiga de Leite Cru
-                  </Link>
-                </div>
-              </div>
-            </div>
+            ))}
 
-            {/* Direct Category 2: Vinhos Submenu */}
-            <div className="group relative">
-              <Link
-                href="/categorias/vinhos-bebidas"
-                className="flex items-center space-x-1 rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900"
-              >
-                <span>Vinhos & Bebidas</span>
-                <RiArrowDownSLine className="h-3.5 w-3.5 text-stone-400 transition-transform group-hover:rotate-180" />
-              </Link>
-              <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-52 rounded-lg border border-stone-200 bg-white p-2 shadow-lg">
-                  <Link
-                    href="/produtos?q=merlot"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Vinhos Coloniais Merlot
-                  </Link>
-                  <Link
-                    href="/produtos?q=espumante"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Espumantes da Serra
-                  </Link>
-                  <Link
-                    href="/produtos?q=suco"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Sucos 100% Integrais
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Direct Link 3: Produtores & Lojas Submenu */}
-            <div className="group relative">
-              <Link
-                href="/lojas"
-                className="flex items-center space-x-1 rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900"
-              >
-                <RiStore2Line className="h-3.5 w-3.5 text-emerald-700" />
-                <span>Produtores & Lojas</span>
-                <RiArrowDownSLine className="h-3.5 w-3.5 text-stone-400 transition-transform group-hover:rotate-180" />
-              </Link>
-              <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-56 rounded-lg border border-stone-200 bg-white p-2 shadow-lg">
-                  <Link
-                    href="/lojas"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Todos os Produtores
-                  </Link>
-                  <Link
-                    href="/lojas?regiao=serra-gaucha"
-                    className="block rounded-md px-3 py-2 text-stone-700 hover:bg-stone-100 hover:text-emerald-900"
-                  >
-                    Produtores da Serra Gaúcha
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* Produtores & Lojas Link */}
+            <Link
+              href="/produtores"
+              className="flex items-center space-x-1 rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900 cursor-pointer"
+            >
+              <RiStore2Line className="h-3.5 w-3.5 text-emerald-700" />
+              <span>Produtores Locais</span>
+            </Link>
           </div>
         </div>
       </nav>

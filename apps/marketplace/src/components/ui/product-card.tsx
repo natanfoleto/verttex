@@ -1,16 +1,14 @@
 import Link from "next/link";
 import {
-  RiHeartLine,
   RiMapPinLine,
   RiShoppingBag3Line,
   RiStarFill,
 } from "react-icons/ri";
 
-import { Button } from "@/components/ui/button";
-
 export interface ProductCardProps {
   id: string;
   name: string;
+  slug?: string;
   price: number;
   originalPrice?: number;
   unit?: string;
@@ -27,6 +25,7 @@ export interface ProductCardProps {
 
 export function ProductCard({
   name,
+  slug,
   price,
   originalPrice,
   unit,
@@ -40,6 +39,9 @@ export function ProductCard({
   isNew,
   isBestSeller,
 }: ProductCardProps) {
+  const productUrl = slug ? `/produtos/${slug}` : `/produtos`;
+  const storeUrl = storeSlug ? `/produtores/${storeSlug}` : `/produtos`;
+
   const formattedPrice = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
@@ -60,12 +62,12 @@ export function ProductCard({
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-xs transition-colors hover:border-emerald-300 hover:shadow-sm">
       {/* Image Container */}
-      <div className="relative aspect-4/3 w-full overflow-hidden bg-stone-100">
+      <Link href={productUrl} className="relative aspect-4/3 w-full overflow-hidden bg-stone-100 block cursor-pointer">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-stone-100 to-amber-50/40 text-stone-300">
@@ -97,17 +99,6 @@ export function ProductCard({
           )}
         </div>
 
-        {/* Wishlist Button */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="absolute top-3 right-3 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/90 text-stone-600 shadow-xs backdrop-blur-xs transition-colors hover:bg-white hover:text-rose-500 p-0"
-          title="Salvar nos favoritos"
-        >
-          <RiHeartLine className="h-4 w-4" />
-        </Button>
-
         {/* Origin tag at bottom of image */}
         {origin && (
           <div className="absolute bottom-2 left-3 flex items-center space-x-1 rounded-md bg-stone-900/70 px-2 py-0.5 text-[10px] font-medium text-stone-100 backdrop-blur-xs">
@@ -115,22 +106,25 @@ export function ProductCard({
             <span>{origin}</span>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Card Body Content */}
       <div className="flex flex-1 flex-col p-4">
         {/* Store Link */}
         <Link
-          href={`/lojas/${storeSlug}`}
-          className="text-[11px] font-medium text-stone-500 transition-colors hover:text-emerald-700 hover:underline"
+          href={storeUrl}
+          className="text-[11px] font-medium text-stone-500 transition-colors hover:text-emerald-700 hover:underline cursor-pointer"
         >
           {storeName}
         </Link>
 
         {/* Title */}
-        <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-stone-900 transition-colors group-hover:text-emerald-800">
+        <Link
+          href={productUrl}
+          className="mt-1 line-clamp-2 text-sm font-semibold text-stone-900 transition-colors group-hover:text-emerald-800 cursor-pointer"
+        >
           {name}
-        </h3>
+        </Link>
 
         {/* Rating & Review */}
         <div className="mt-2 flex items-center space-x-1 text-xs">
