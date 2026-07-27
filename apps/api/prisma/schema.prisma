@@ -106,6 +106,8 @@ model Store {
   inventoryLocations InventoryLocation[]
   stockItems         StockItem[]
   stockMovements     StockMovement[]
+  cartItems          CartItem[]
+  coupons            Coupon[]
   deletedAt          DateTime?
   deletedBy          String?
   createdAt          DateTime            @default(now())
@@ -141,6 +143,7 @@ model Customer {
   sessions            CustomerSession[]
   passwordResetTokens CustomerPasswordResetToken[]
   addresses           CustomerAddress[]
+  carts               Cart[]
   emailVerifiedAt     DateTime?
   lastLoginAt         DateTime?
   deletedAt           DateTime?
@@ -423,6 +426,7 @@ model ProductVariation {
   lots           ProductLot[]
   stockItems     StockItem[]
   stockMovements StockMovement[]
+  cartItems      CartItem[]
 
   @@index([productId])
   @@index([sku])
@@ -585,4 +589,72 @@ model StockMovement {
   @@index([type])
   @@index([createdAt])
   @@map("stock_movements")
+}
+
+model Cart {
+  id         String       @id @default(cuid())
+  customerId String?
+  customer   Customer?    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sessionId  String?
+  status     String       @default("active") // active, completed, abandoned
+  items      CartItem[]
+  coupons    CartCoupon[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([customerId])
+  @@index([sessionId])
+  @@map("carts")
+}
+
+model CartItem {
+  id          String           @id @default(cuid())
+  cartId      String
+  cart        Cart             @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variationId String
+  variation   ProductVariation @relation(fields: [variationId], references: [id], onDelete: Cascade)
+  storeId     String
+  store       Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  quantity    Int
+  unitPrice   Decimal          @db.Decimal(10, 2)
+  discount    Decimal          @default(0) @db.Decimal(10, 2)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([cartId])
+  @@index([variationId])
+  @@index([storeId])
+  @@map("cart_items")
+}
+
+model Coupon {
+  id                String       @id @default(cuid())
+  code              String       @unique
+  type              String       // PERCENTAGE, FIXED
+  value             Decimal      @db.Decimal(10, 2)
+  minOrderValue     Decimal?     @db.Decimal(10, 2)
+  maxDiscountAmount Decimal?     @db.Decimal(10, 2)
+  storeId           String?
+  store             Store?       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  usageLimit        Int?
+  usedCount         Int          @default(0)
+  status            String       @default("active") // active, inactive
+  expiresAt         DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  cartCoupons       CartCoupon[]
+
+  @@map("coupons")
+}
+
+model CartCoupon {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  couponId  String
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  appliedAt DateTime @default(now())
+
+  @@unique([cartId, couponId])
+  @@map("cart_coupons")
 }

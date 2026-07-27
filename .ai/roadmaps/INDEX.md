@@ -26,7 +26,7 @@
 | 014 | Estoque, Lotes, FEFO e Movimentações                 | `completed` | high       | 013           | [`completed/014-inventory-and-stock-movements.md`](.ai/roadmaps/completed/014-inventory-and-stock-movements.md)           |
 | 015 | Publicação e Catálogo do Marketplace                 | `completed` | high       | 013, 014      | [`completed/015-marketplace-catalog-publishing.md`](.ai/roadmaps/completed/015-marketplace-catalog-publishing.md)         |
 | 016 | Clientes e Endereços                                 | `completed` | high       | 004           | [`completed/016-customers-and-addresses.md`](.ai/roadmaps/completed/016-customers-and-addresses.md)                     |
-| 017 | Carrinho e Regras de Preço                           | `planned`   | high       | 013, 016      | [`planned/017-cart-and-pricing-rules.md`](.ai/roadmaps/planned/017-cart-and-pricing-rules.md)                           |
+| 017 | Carrinho e Regras de Preço                           | `completed` | high       | 013, 016      | [`completed/017-cart-and-pricing-rules.md`](.ai/roadmaps/completed/017-cart-and-pricing-rules.md)                       |
 | 018 | Pedidos e Checkout                                   | `planned`   | high       | 016, 017      | [`planned/018-orders-and-checkout.md`](.ai/roadmaps/planned/018-orders-and-checkout.md)                                 |
 | 019 | Pagamentos                                           | `planned`   | high       | 018           | [`planned/019-payments.md`](.ai/roadmaps/planned/019-payments.md)                                                       |
 | 020 | Entregas e Rastreamento                              | `planned`   | high       | 018           | [`planned/020-shipping-and-tracking.md`](.ai/roadmaps/planned/020-shipping-and-tracking.md)                             |
@@ -41,9 +41,9 @@
 
 | Status      | Quantidade | Observação                                  |
 | :---------- | :--------- | :------------------------------------------ |
-| `completed` | 16         | Roadmaps 001 a 016 concluídos e validados   |
+| `completed` | 17         | Roadmaps 001 a 017 concluídos e validados   |
 | `active`    | 0          | Nenhum roadmap ativo                        |
-| `planned`   | 8          | Roadmaps 017 a 024 planejados e registrados |
+| `planned`   | 7          | Roadmaps 018 a 024 planejados e registrados |
 | `archived`  | 0          | Nenhum roadmap arquivado                    |
 
 ---

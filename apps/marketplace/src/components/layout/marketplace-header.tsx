@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -11,6 +12,7 @@ import {
   RiMenu3Line,
   RiMenuLine,
   RiSearchLine,
+  RiShoppingBag3Line,
   RiStore2Line,
   RiUser3Line,
   RiUserAddLine,
@@ -19,12 +21,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { CartSheet, CartSummary } from "../cart/cart-sheet";
+import { apiClient } from "../../lib/api-client";
 import { useCustomer } from "../../providers/customer-auth-provider";
 
 export function MarketplaceHeader() {
   const { customer, logout, openAuthModal } = useCustomer();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const { data: cartSummary } = useQuery<CartSummary>({
+    queryKey: ["cart-summary"],
+    queryFn: async () => {
+      const res = await apiClient<CartSummary>("/cart");
+      return res;
+    },
+  });
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,12 +97,28 @@ export function MarketplaceHeader() {
           {/* Wishlist Link */}
           <Link
             href="/produtos"
-            className="h-10.5 inline-flex items-center space-x-1.5 rounded-lg border border-stone-200/80 bg-white px-3.5 text-stone-700 transition-colors hover:border-emerald-300 hover:text-emerald-800"
+            className="h-10.5 inline-flex items-center space-x-1.5 rounded-lg border border-stone-200/80 bg-white px-3.5 text-stone-700 transition-colors hover:border-emerald-300 hover:text-emerald-800 cursor-pointer"
             title="Favoritos"
           >
             <RiHeartLine className="h-4 w-4 text-rose-600" />
             <span>Favoritos</span>
           </Link>
+
+          {/* Cart Button */}
+          <button
+            type="button"
+            onClick={() => setIsCartOpen(true)}
+            className="relative h-10.5 inline-flex items-center space-x-1.5 rounded-lg border border-stone-200/80 bg-white px-3.5 text-stone-700 transition-colors hover:border-emerald-700 hover:text-emerald-800 cursor-pointer"
+            title="Ver Carrinho"
+          >
+            <RiShoppingBag3Line className="h-4 w-4 text-emerald-800" />
+            <span>Carrinho</span>
+            {cartSummary && cartSummary.itemCount > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-800 px-1 text-[10px] font-bold text-white">
+                {cartSummary.itemCount}
+              </span>
+            )}
+          </button>
 
           {/* User Auth Buttons or Account Dropdown */}
           {customer ? (
@@ -398,6 +427,9 @@ export function MarketplaceHeader() {
           </div>
         </div>
       )}
+
+      {/* Cart Sheet Drawer */}
+      <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />
     </header>
   );
 }
