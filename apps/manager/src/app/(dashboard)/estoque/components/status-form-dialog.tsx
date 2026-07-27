@@ -114,16 +114,16 @@ export function StatusFormDialog({
                 required
               >
                 <option value="available">
-                  🟢 Disponível (Comercializável)
+                  Disponível (Comercializável)
                 </option>
                 <option value="quarantine">
-                  🟡 Em Quarentena (Bloqueio Temporário)
+                  Em Quarentena (Bloqueio Temporário)
                 </option>
                 <option value="blocked">
-                  🔴 Bloqueado (Impeditivo Sanitário/Operacional)
+                  Bloqueado (Impeditivo Sanitário/Operacional)
                 </option>
                 <option value="recalled">
-                  🚨 Recolhimento Sanitário (Recall)
+                  Recolhimento Sanitário (Recall)
                 </option>
               </NativeSelect>
             </div>

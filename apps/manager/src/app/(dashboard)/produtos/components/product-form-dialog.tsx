@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -1000,15 +1001,18 @@ export function ProductFormDialog({
                     </NativeSelect>
                   </div>
 
-                  <div className="flex items-center space-x-4 pt-6">
-                    <label className="flex cursor-pointer items-center space-x-2 text-xs font-medium text-zinc-300">
-                      <Input
-                        type="checkbox"
-                        checked={isFeatured}
-                        onChange={(e) => setIsFeatured(e.target.checked)}
-                        className="h-4 w-4 cursor-pointer rounded border-zinc-800 bg-zinc-900 text-emerald-500 focus:ring-emerald-500"
-                      />
-                      <span>Produto em Destaque</span>
+                  <div className="flex items-center space-x-2.5 pt-6">
+                    <Checkbox
+                      id="isFeatured"
+                      checked={isFeatured}
+                      onCheckedChange={(checked) => setIsFeatured(Boolean(checked))}
+                      className="cursor-pointer"
+                    />
+                    <label
+                      htmlFor="isFeatured"
+                      className="cursor-pointer text-xs font-medium text-zinc-300 select-none whitespace-nowrap"
+                    >
+                      Produto em Destaque
                     </label>
                   </div>
                 </div>

@@ -14,7 +14,7 @@ import {
   RiLockLine,
   RiSearchLine,
   RiSendPlaneLine,
-  RiStarFill,
+  RiStarLine,
 } from "react-icons/ri";
 import { toast } from "sonner";
 
@@ -28,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -393,12 +394,6 @@ export function ProductsTable({
                           <div>
                             <div className="flex items-center space-x-1.5 font-semibold text-zinc-100">
                               <span>{prod.name}</span>
-                              {prod.isFeatured && (
-                                <RiStarFill
-                                  className="h-3.5 w-3.5 text-amber-400"
-                                  title="Destaque"
-                                />
-                              )}
                             </div>
                             <div className="flex items-center space-x-2 text-[11px] text-zinc-500 font-mono">
                               <span>{prod.slug}</span>
@@ -481,13 +476,13 @@ export function ProductsTable({
                           <span
                             className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                               prod.isPublished
-                                ? "border-emerald-900/60 bg-emerald-950/60 text-emerald-400"
+                                ? "border-sky-800/80 bg-sky-950/80 text-sky-400"
                                 : "border-zinc-800 bg-zinc-900 text-zinc-400"
                             }`}
                           >
                             {prod.isPublished ? (
                               <>
-                                <RiGlobalLine className="h-3 w-3 text-emerald-400" />
+                                <RiGlobalLine className="h-3 w-3 text-sky-400" />
                                 <span>Publicado</span>
                               </>
                             ) : (
@@ -497,6 +492,13 @@ export function ProductsTable({
                               </>
                             )}
                           </span>
+
+                          {prod.isFeatured && (
+                            <Badge className="inline-flex items-center gap-1 border-amber-800/80 bg-amber-950/80 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
+                              <RiStarLine className="h-3 w-3 text-amber-400" />
+                              <span>Destaque</span>
+                            </Badge>
+                          )}
                         </div>
                       </td>
 

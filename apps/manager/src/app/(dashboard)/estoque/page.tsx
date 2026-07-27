@@ -434,7 +434,7 @@ export default function StockAndLotsPage() {
                         Status
                       </Button>
 
-                      {exp.isExpired && (
+                      {exp.isExpired && lot.stockSummary.physicalQuantity > 0 && (
                         <Button
                           variant="destructive"
                           size="sm"
