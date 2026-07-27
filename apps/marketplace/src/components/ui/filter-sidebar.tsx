@@ -23,12 +23,13 @@ export interface FilterSidebarProps {
 export function FilterSidebar({
   categories,
   activeCategorySlug,
-  activeSort = "relevancia",
+  activeSort = "featured",
   onSelectCategory,
   onSelectSort,
   onClearAll,
 }: FilterSidebarProps) {
   const activeCategory = categories.find((c) => c.slug === activeCategorySlug);
+  const isDefaultSort = activeSort === "featured" || activeSort === "relevancia";
 
   return (
     <div className="w-full space-y-6">
@@ -38,7 +39,7 @@ export function FilterSidebar({
           <RiFilter3Line className="h-4 w-4 text-emerald-700" />
           <span>Filtros & Categorias</span>
         </h3>
-        {(activeCategorySlug || activeSort !== "relevancia") && onClearAll && (
+        {(activeCategorySlug || !isDefaultSort) && onClearAll && (
           <Button
             type="button"
             variant="link"
@@ -52,7 +53,7 @@ export function FilterSidebar({
       </div>
 
       {/* Active Filter Chips */}
-      {(activeCategory || activeSort !== "relevancia") && (
+      {(activeCategory || !isDefaultSort) && (
         <div className="flex flex-wrap gap-1.5 pt-1">
           {activeCategory && (
             <span className="inline-flex items-center space-x-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
@@ -71,21 +72,21 @@ export function FilterSidebar({
             </span>
           )}
 
-          {activeSort !== "relevancia" && (
+          {!isDefaultSort && (
             <span className="inline-flex items-center space-x-1 rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">
               <span>
-                {activeSort === "menor-preco"
+                {activeSort === "price_asc" || activeSort === "menor-preco"
                   ? "Menor Preço"
-                  : activeSort === "maior-preco"
+                  : activeSort === "price_desc" || activeSort === "maior-preco"
                     ? "Maior Preço"
-                    : "Mais Vendidos"}
+                    : "Lançamentos"}
               </span>
               {onSelectSort && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => onSelectSort("relevancia")}
+                  onClick={() => onSelectSort("featured")}
                   className="h-4 w-4 p-0 rounded-full text-stone-600 hover:bg-stone-200"
                 >
                   <RiCloseLine className="h-3.5 w-3.5" />
@@ -176,10 +177,10 @@ export function FilterSidebar({
           </h4>
           <div className="space-y-1">
             {[
-              { id: "relevancia", label: "Mais Relevantes" },
-              { id: "menor-preco", label: "Menor Preço" },
-              { id: "maior-preco", label: "Maior Preço" },
-              { id: "mais-vendidos", label: "Mais Vendidos" },
+              { id: "featured", label: "Mais Relevantes / Destaques" },
+              { id: "price_asc", label: "Menor Preço" },
+              { id: "price_desc", label: "Maior Preço" },
+              { id: "newest", label: "Lançamentos" },
             ].map((option) => (
               <label
                 key={option.id}

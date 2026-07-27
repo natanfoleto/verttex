@@ -36,6 +36,7 @@ async function refreshTokenSilent(): Promise<boolean> {
       const res = await fetch(`${API_URL}/auth/customers/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
         credentials: "include",
       });
       const body = await res.json().catch(() => null);
@@ -57,8 +58,13 @@ export async function apiClient<T = any>(
 ): Promise<T> {
   const url = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
 
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(options.body && !isFormData
+      ? { "Content-Type": "application/json" }
+      : {}),
     ...(options.headers as Record<string, string>),
   };
 
@@ -74,7 +80,8 @@ export async function apiClient<T = any>(
   const isAuthEndpoint =
     endpoint.includes("/auth/customers/login") ||
     endpoint.includes("/auth/customers/refresh") ||
-    endpoint.includes("/auth/customers/logout");
+    endpoint.includes("/auth/customers/logout") ||
+    endpoint.includes("/auth/customers/me");
 
   if (response.status === 401 && !isAuthEndpoint) {
     try {
@@ -102,5 +109,14 @@ export async function apiClient<T = any>(
     );
   }
 
-  return data?.data !== undefined ? data.data : data;
+  if (data && typeof data === "object") {
+    if (data.meta !== undefined) {
+      return data;
+    }
+    if (data.data !== undefined) {
+      return data.data;
+    }
+  }
+
+  return data;
 }

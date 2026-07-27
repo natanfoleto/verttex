@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { RiFilter3Line, RiSearchLine } from "react-icons/ri";
@@ -13,135 +14,84 @@ import {
   ProductCard,
   ProductCardProps,
 } from "../../components/ui/product-card";
-
-const CATEGORIES = [
-  {
-    id: "1",
-    name: "Queijos Artesanais",
-    slug: "queijos-artesanais",
-    count: 14,
-  },
-  { id: "2", name: "Vinhos & Bebidas", slug: "vinhos-bebidas", count: 22 },
-  { id: "3", name: "Doces & Geleias", slug: "doces-geleias", count: 18 },
-  { id: "4", name: "Méis & Polens", slug: "meis-polens", count: 9 },
-  {
-    id: "5",
-    name: "Embutidos Defumados",
-    slug: "embutidos-defumados",
-    count: 12,
-  },
-  { id: "6", name: "Cafés Especiais", slug: "cafes-especiais", count: 8 },
-];
-
-const PRODUCTS_DATA: ProductCardProps[] = [
-  {
-    id: "p1",
-    name: "Queijo Colonial Meia Cura da Serra",
-    price: 48.9,
-    originalPrice: 58.9,
-    unit: "peça (500g)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
-    storeName: "Queijaria Alvorada",
-    storeSlug: "queijaria-alvorada",
-    origin: "Serra Gaúcha, RS",
-    rating: 4.9,
-    reviewsCount: 38,
-    isBestSeller: true,
-  },
-  {
-    id: "p2",
-    name: "Vinho Tinto Colonial Merlot Reserva",
-    price: 64.9,
-    unit: "garrafa (750ml)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80",
-    storeName: "Vinícola Família Rossi",
-    storeSlug: "vinicola-familia-rossi",
-    origin: "Bento Gonçalves, RS",
-    rating: 4.8,
-    reviewsCount: 24,
-    badge: "Produtor Local",
-  },
-  {
-    id: "p3",
-    name: "Mel Puro Silvestre Florada Nativa",
-    price: 34.9,
-    originalPrice: 39.9,
-    unit: "pote (500g)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
-    storeName: "Apiário Vale Verde",
-    storeSlug: "apiario-vale-verde",
-    origin: "Gramado, RS",
-    rating: 5.0,
-    reviewsCount: 52,
-    isNew: true,
-  },
-  {
-    id: "p4",
-    name: "Salame Colonial Defumado na Lenha",
-    price: 38.5,
-    unit: "unidade (400g)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80",
-    storeName: "Embutidos Tradição",
-    storeSlug: "embutidos-tradicao",
-    origin: "Caxias do Sul, RS",
-    rating: 4.7,
-    reviewsCount: 19,
-  },
-  {
-    id: "p5",
-    name: "Geleia Artesanal de Uva Isabel",
-    price: 24.9,
-    unit: "pote (300g)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80",
-    storeName: "Doces da Colônia",
-    storeSlug: "doces-da-colonia",
-    origin: "Garibaldi, RS",
-    rating: 4.9,
-    reviewsCount: 15,
-  },
-  {
-    id: "p6",
-    name: "Café Torrado em Grãos Especiais",
-    price: 42.0,
-    unit: "pacote (500g)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
-    storeName: "Cafés da Serra",
-    storeSlug: "cafes-da-serra",
-    origin: "Nova Petrópolis, RS",
-    rating: 4.8,
-    reviewsCount: 31,
-  },
-];
+import { ProductCardSkeleton } from "../../components/ui/skeleton-loader";
+import { apiClient } from "../../lib/api-client";
 
 export default function ProductsListingPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedSort, setSelectedSort] = useState("relevancia");
+  const [selectedSort, setSelectedSort] = useState("featured");
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const perPage = 6;
+  const perPage = 12;
 
-  const filteredProducts = PRODUCTS_DATA.filter((product) => {
-    if (
-      searchQuery &&
-      !product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return false;
-    }
-    return true;
+  // Query Public Categories
+  const { data: categories = [] } = useQuery<
+    Array<{ id: string; name: string; slug: string; productsCount: number }>
+  >({
+    queryKey: ["public-categories"],
+    queryFn: async () => {
+      const res = await apiClient("/public/catalog/categories");
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
   });
 
-  const totalPages = Math.ceil(filteredProducts.length / perPage) || 1;
-  const paginatedProducts = filteredProducts.slice(
-    (page - 1) * perPage,
-    page * perPage,
-  );
+  // Query Public Products Catalog
+  const { data: catalogRes, isLoading } = useQuery<{
+    data: any[];
+    meta: {
+      page: number;
+      perPage: number;
+      total: number;
+      totalPages: number;
+    };
+  }>({
+    queryKey: [
+      "public-products",
+      page,
+      perPage,
+      searchQuery,
+      selectedCategory,
+      selectedSort,
+    ],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.append("page", String(page));
+      params.append("perPage", String(perPage));
+      if (searchQuery) params.append("search", searchQuery);
+      if (selectedCategory) params.append("categorySlug", selectedCategory);
+      if (selectedSort) params.append("sort", selectedSort);
+
+      const res = await apiClient(`/public/catalog/products?${params.toString()}`);
+      return res;
+    },
+  });
+
+  const productsList = catalogRes?.data ?? [];
+  const meta = catalogRes?.meta;
+  const totalPages = meta?.totalPages || 1;
+
+  const categoriesFormatted = categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    count: c.productsCount,
+  }));
+
+  const mappedProducts: ProductCardProps[] = productsList.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.promotionalPrice || p.price,
+    originalPrice: p.promotionalPrice ? p.price : undefined,
+    imageUrl:
+      p.mainImageUrl ||
+      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
+    storeName: p.store?.name || "Produtor Local",
+    storeSlug: p.store?.slug || "",
+    origin: "Serra Gaúcha, RS",
+    badge: p.isFeatured ? "Destaque" : undefined,
+    isBestSeller: p.isFeatured,
+  }));
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 pb-28 font-sans text-stone-900 lg:pb-36 sm:px-6 lg:px-8">
@@ -170,7 +120,7 @@ export default function ProductsListingPage() {
             type="button"
             variant="outline"
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            className="lg:hidden"
+            className="lg:hidden cursor-pointer"
           >
             <RiFilter3Line className="h-4 w-4 text-emerald-700" />
             <span>Filtrar Produtos</span>
@@ -184,7 +134,7 @@ export default function ProductsListingPage() {
         <aside className="hidden lg:col-span-1 lg:block">
           <div className="sticky top-24 rounded-xl border border-stone-200/80 bg-white p-6 shadow-xs">
             <FilterSidebar
-              categories={CATEGORIES}
+              categories={categoriesFormatted}
               activeCategorySlug={selectedCategory}
               activeSort={selectedSort}
               onSelectCategory={(slug) => {
@@ -197,7 +147,7 @@ export default function ProductsListingPage() {
               }}
               onClearAll={() => {
                 setSelectedCategory("");
-                setSelectedSort("relevancia");
+                setSelectedSort("featured");
                 setSearchQuery("");
                 setPage(1);
               }}
@@ -205,11 +155,11 @@ export default function ProductsListingPage() {
           </div>
         </aside>
 
-        {/* Mobile Filter Modal / Accordion */}
+        {/* Mobile Filter Modal */}
         {mobileFilterOpen && (
           <div className="space-y-4 rounded-xl border border-stone-200 bg-white p-6 shadow-md lg:hidden">
             <FilterSidebar
-              categories={CATEGORIES}
+              categories={categoriesFormatted}
               activeCategorySlug={selectedCategory}
               activeSort={selectedSort}
               onSelectCategory={(slug) => {
@@ -223,7 +173,7 @@ export default function ProductsListingPage() {
               }}
               onClearAll={() => {
                 setSelectedCategory("");
-                setSelectedSort("relevancia");
+                setSelectedSort("featured");
                 setSearchQuery("");
                 setPage(1);
               }}
@@ -244,29 +194,35 @@ export default function ProductsListingPage() {
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                placeholder="Filtrar por nome de produto..."
-                className="h-10 pl-10"
+                placeholder="Buscar produtos por nome ou descrição..."
+                className="h-10 pl-10 text-xs"
               />
             </div>
 
             <div className="shrink-0 text-xs font-medium text-stone-500">
               Mostrando{" "}
               <strong className="font-bold text-stone-900">
-                {paginatedProducts.length}
+                {mappedProducts.length}
               </strong>{" "}
               de{" "}
               <strong className="font-bold text-stone-900">
-                {filteredProducts.length}
+                {meta?.total || 0}
               </strong>{" "}
               produtos
             </div>
           </div>
 
-          {/* Product Cards Grid */}
-          {paginatedProducts.length > 0 ? (
+          {/* Product Cards Grid / Skeleton / Empty State */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : mappedProducts.length > 0 ? (
             <div className="space-y-8">
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {paginatedProducts.map((product) => (
+                {mappedProducts.map((product) => (
                   <ProductCard key={product.id} {...product} />
                 ))}
               </div>
@@ -285,6 +241,7 @@ export default function ProductsListingPage() {
                       size="sm"
                       disabled={page <= 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      className="cursor-pointer"
                     >
                       Anterior
                     </Button>
@@ -296,6 +253,7 @@ export default function ProductsListingPage() {
                       onClick={() =>
                         setPage((p) => Math.min(totalPages, p + 1))
                       }
+                      className="cursor-pointer"
                     >
                       Próxima
                     </Button>

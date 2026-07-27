@@ -33,6 +33,22 @@ interface CustomerAuthContextType {
   closeAuthModal: () => void;
 }
 
+const HAS_SESSION_KEY = "verttex_customer_has_session";
+
+function getHasSessionIndicator(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(HAS_SESSION_KEY) === "true";
+}
+
+function setHasSessionIndicator(hasSession: boolean) {
+  if (typeof window === "undefined") return;
+  if (hasSession) {
+    localStorage.setItem(HAS_SESSION_KEY, "true");
+  } else {
+    localStorage.removeItem(HAS_SESSION_KEY);
+  }
+}
+
 const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(
   undefined,
 );
@@ -59,6 +75,15 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
 
+  const [hasSession, setHasSessionState] = useState<boolean>(() => {
+    return getHasSessionIndicator();
+  });
+
+  const updateHasSession = useCallback((value: boolean) => {
+    setHasSessionIndicator(value);
+    setHasSessionState(value);
+  }, []);
+
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
@@ -84,20 +109,28 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     queryFn: async () => {
       try {
         const data = await apiClient<CustomerProfile>("/auth/customers/me");
+        updateHasSession(true);
         return data;
       } catch (err: unknown) {
         if (err instanceof ApiError && err.status === 401) {
+          updateHasSession(false);
           return null;
         }
         throw err;
       }
     },
-    enabled: !isPublicAuthRoute,
+    enabled: !isPublicAuthRoute && hasSession,
     retry: false,
     refetchOnWindowFocus: false,
   });
 
+  const refetchCustomer = useCallback(() => {
+    updateHasSession(true);
+    refetch();
+  }, [updateHasSession, refetch]);
+
   const logout = useCallback(async () => {
+    updateHasSession(false);
     queryClient.setQueryData(["auth-customer-me"], null);
     queryClient.cancelQueries();
     router.replace("/");
@@ -109,14 +142,14 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     } finally {
       queryClient.clear();
     }
-  }, [queryClient, router]);
+  }, [updateHasSession, queryClient, router]);
 
   const value = useMemo(
     () => ({
       customer: customer || null,
       isLoading,
       isError,
-      refetchCustomer: refetch,
+      refetchCustomer,
       logout,
       openAuthModal,
       closeAuthModal,
@@ -125,7 +158,7 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       customer,
       isLoading,
       isError,
-      refetch,
+      refetchCustomer,
       logout,
       openAuthModal,
       closeAuthModal,
