@@ -199,6 +199,7 @@ export const authPlugin = fp(async (app) => {
           email: session.customer.email,
           sessionId: session.id,
         };
+        (request as any).customer = request.customerPayload;
       } catch (err) {
         if (err instanceof AppError) throw err;
         throw new AppError("UNAUTHORIZED", "Sessão inválida ou expirada", 401);

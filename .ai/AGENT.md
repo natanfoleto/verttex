@@ -3,7 +3,7 @@
 > **Versão:** 2.0 — Centralizada em `.ai/`  
 > **Status:** Documento Mandatório para todas as IAs e Desenvolvedores que colaboram com o projeto
 
-Bem-vindo! Este documento define as regras obrigatórias de conduta, a hierarquia de leitura e as restrições de execução para qualquer inteligência artificial ou desenvolvedor no projeto **VERTTEX NF**.
+Bem-vindo! Este documento define as regras obrigatórias de conduta, a hierarquia de leitura e as restrições de execução para qualquer inteligência artificial ou desenvolvedor no projeto **VERTTEX**.
 
 ---
 
@@ -25,7 +25,7 @@ Antes de iniciar a análise ou alteração de qualquer código, você **DEVE** l
 
 ## 2. Regras Absolutas de Execução para a IA
 
-- **Criação Obrigatória de Testes Automatizados:** Toda nova funcionalidade, rota, endpoint, serviço, alteração de regra de negócio ou correção de bug **DEVE obrigatoriamente incluir a criação ou atualização de testes automatizados (Vitest)**. Nenhuma tarefa é considerada concluída sem a presença e execução bem-sucedida de testes automatizados cobrindo o caminho feliz (sucesso) e caminhos de exceção (validação, erro e autorização).
+- **Criação Obrigatória de Testes Automatizados:** Toda nova funcionalidade, rota, endpoint, serviço, módulo, alteração de regra de negócio, roadmap ou correção de bug **DEVE obrigatoriamente incluir a criação ou atualização de testes automatizados (Vitest)**. Nenhuma tarefa ou roadmap é considerado concluído sem a presença, execução e aprovação dos testes automatizados correspondentes cobrindo o caminho feliz (sucesso) e caminhos de exceção (validação, erro e autorização).
 - **Seguir o Roadmap Ativo:** A IA deve seguir o roadmap ativo. Quando uma solicitação estiver fora do roadmap, deverá informar que a atividade está fora do roadmap e registrar essa condição antes da implementação.
 - **Não Pular Etapas:** Não implementar tarefas de fases ou roadmaps futuros sem autorização explícita.
 - **Evidências Reais de Conclusão:** Nunca marcar um roadmap ou etapa como concluído sem executar os testes e apresentar evidências verificáveis. Código gerado ou compilação simples **não constituem conclusão**.

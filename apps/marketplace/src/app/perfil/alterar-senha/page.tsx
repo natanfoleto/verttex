@@ -1,16 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { RiArrowLeftLine, RiLockPasswordLine } from "react-icons/ri";
+import { RiLockPasswordLine } from "react-icons/ri";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { CustomerAuthGuard } from "../../../components/guards/customer-auth-guard";
+import { ProfileHeader } from "../../../components/profile/profile-header";
 import { apiClient, ApiError } from "../../../lib/api-client";
 
 const changePasswordSchema = z
@@ -70,108 +70,114 @@ export default function CustomerChangePasswordPage() {
 
   return (
     <CustomerAuthGuard>
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-12 font-sans text-stone-900 antialiased">
-        <div className="flex items-center space-x-4">
-          <Link
-            href="/perfil"
-            className="rounded-lg border border-stone-200 p-2.5 text-stone-600 transition-colors hover:bg-stone-100"
+      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
+        <ProfileHeader />
+
+        {/* Change Password Container Box */}
+        <div className="space-y-6 rounded-2xl border border-stone-200/80 bg-white p-8 shadow-xs">
+          <div className="flex items-center space-x-3 border-b border-stone-200 pb-4">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-emerald-800">
+              <RiLockPasswordLine className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-stone-900">
+                Segurança da Conta
+              </h2>
+              <p className="text-xs text-stone-500">
+                Atualize sua senha de acesso periodicamente para manter sua conta protegida.
+              </p>
+            </div>
+          </div>
+
+          {successMessage && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-semibold text-emerald-800">
+              {successMessage}
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700">
+              {errorMessage}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 max-w-md"
           >
-            <RiArrowLeftLine className="h-5 w-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-stone-900">
-              Alterar Senha
-            </h1>
-            <p className="text-xs text-stone-500">
-              Atualize sua senha de acesso à conta Verttex.
-            </p>
-          </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
+                Senha Atual
+              </label>
+              <div className="relative">
+                <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                <Input
+                  {...register("currentPassword")}
+                  type="password"
+                  placeholder="••••••••"
+                  className="pl-10 text-xs"
+                />
+              </div>
+              {errors.currentPassword && (
+                <p className="mt-1 text-xs text-rose-600 font-medium">
+                  {errors.currentPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
+                Nova Senha
+              </label>
+              <div className="relative">
+                <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                <Input
+                  {...register("newPassword")}
+                  type="password"
+                  placeholder="••••••••"
+                  className="pl-10 text-xs"
+                />
+              </div>
+              {errors.newPassword && (
+                <p className="mt-1 text-xs text-rose-600 font-medium">
+                  {errors.newPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
+                Confirmar Nova Senha
+              </label>
+              <div className="relative">
+                <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                <Input
+                  {...register("confirmPassword")}
+                  type="password"
+                  placeholder="••••••••"
+                  className="pl-10 text-xs"
+                />
+              </div>
+              {errors.confirmPassword && (
+                <p className="mt-1 text-xs text-rose-600 font-medium">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="mt-2 cursor-pointer"
+            >
+              {isLoading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                "Atualizar Senha"
+              )}
+            </Button>
+          </form>
         </div>
-
-        {successMessage && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800">
-            {successMessage}
-          </div>
-        )}
-
-        {errorMessage && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-700">
-            {errorMessage}
-          </div>
-        )}
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-sm"
-        >
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
-              Senha Atual
-            </label>
-            <div className="relative">
-              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
-                {...register("currentPassword")}
-                type="password"
-                placeholder="••••••••"
-                className="pl-10"
-              />
-            </div>
-            {errors.currentPassword && (
-              <p className="mt-1 text-xs text-rose-600">
-                {errors.currentPassword.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
-              Nova Senha
-            </label>
-            <div className="relative">
-              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
-                {...register("newPassword")}
-                type="password"
-                placeholder="••••••••"
-                className="pl-10"
-              />
-            </div>
-            {errors.newPassword && (
-              <p className="mt-1 text-xs text-rose-600">
-                {errors.newPassword.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
-              Confirmar Nova Senha
-            </label>
-            <div className="relative">
-              <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
-                {...register("confirmPassword")}
-                type="password"
-                placeholder="••••••••"
-                className="pl-10"
-              />
-            </div>
-            {errors.confirmPassword && (
-              <p className="mt-1 text-xs text-rose-600">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
-
-          <Button type="submit" disabled={isLoading} className="mt-2 w-full">
-            {isLoading ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            ) : (
-              "Atualizar Senha"
-            )}
-          </Button>
-        </form>
       </div>
     </CustomerAuthGuard>
   );

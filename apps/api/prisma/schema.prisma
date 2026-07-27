@@ -134,10 +134,13 @@ model Customer {
   name                String
   email               String                       @unique
   phone               String?
+  cpfCnpj             String?
+  birthDate           DateTime?
   passwordHash        String
   status              String                       @default("active") // active, inactive, suspended
   sessions            CustomerSession[]
   passwordResetTokens CustomerPasswordResetToken[]
+  addresses           CustomerAddress[]
   emailVerifiedAt     DateTime?
   lastLoginAt         DateTime?
   deletedAt           DateTime?
@@ -146,6 +149,28 @@ model Customer {
   updatedAt           DateTime                     @updatedAt
 
   @@map("customers")
+}
+
+model CustomerAddress {
+  id           String   @id @default(cuid())
+  customerId   String
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label        String?  // Ex: "Casa", "Trabalho", "Sítio"
+  recipient    String   // Nome do destinatário da entrega
+  phone        String?  // Telefone de contato para entrega
+  zipCode      String   // CEP (8 dígitos)
+  street       String   // Rua / Logradouro
+  number       String   // Número
+  complement   String?  // Complemento (Apto, Bloco, etc.)
+  neighborhood String   // Bairro
+  city         String   // Cidade
+  state        String   // Estado / UF (2 letras)
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([customerId])
+  @@map("customer_addresses")
 }
 
 model UserSession {

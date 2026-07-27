@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { MarketplaceLayout } from "../components/layout/marketplace-layout";
 import { CustomerAuthProvider } from "../providers/customer-auth-provider";
 import { QueryProvider } from "../providers/query-provider";
+import { ThemeProvider } from "../providers/theme-provider";
 
 export const metadata: Metadata = {
   title: "Verttex — Mercado Regional & Produtos Artesanais",
@@ -23,14 +24,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body>
-        <QueryProvider>
-          <CustomerAuthProvider>
-            <MarketplaceLayout>{children}</MarketplaceLayout>
-          </CustomerAuthProvider>
-          <Toaster position="bottom-right" theme="dark" richColors />
-        </QueryProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <QueryProvider>
+            <CustomerAuthProvider>
+              <MarketplaceLayout>{children}</MarketplaceLayout>
+            </CustomerAuthProvider>
+            <Toaster position="bottom-right" richColors />
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

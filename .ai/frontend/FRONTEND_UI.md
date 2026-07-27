@@ -209,6 +209,14 @@ Every feature screen must implement:
 > 3. **Mandatory `cursor-pointer`**: Every clickable element in modals, forms, tables, and dialog close/action/cancel buttons **MUST include `cursor-pointer`**.
 > 4. **Click-Outside & Keyboard Accessibility**: By using Radix UI `Dialog` and `AlertDialog`, popups automatically support backdrop click-outside dismissal (`DialogOverlay`), ESC key closure, focus trap, and ARIA screen reader accessibility.
 
+### 10.3 Mandatory Skeleton Loading Standard (Regra Mandatória de Skeleton Loading)
+
+> **MANDATORY POLICY & VISUAL STANDARD**:
+>
+> 1. **Uso Obrigatório de Skeleton Loading**: Toda e qualquer página, aba, modal ou componente que realize carregamento assíncrono de dados (ex: Perfil do Cliente, Listagem do Catálogo, Cartões de Endereço, Tabelas de Gestão do Manager, etc.) **DEVE obrigatoriamente implementar componentes visuais de Skeleton Loading (`animate-pulse`)**.
+> 2. **Fidelidade Visual do Skeleton**: O Skeleton Loading deve espelhar com precisão o layout, o tamanho de largura (`max-w-7xl`), os cartões, cabeçalhos, formulários e abas da interface final carregada, evitando sobressaltos ou saltos de layout (*Layout Shift / CLS*).
+> 3. **Prevenção de Erros de Hidratação (SSR)**: Em componentes Client com Guards de Rota (ex: `CustomerAuthGuard`), é obrigatório utilizar o padrão de controle `mounted` exibindo o Skeleton Loading como fallback de carregamento inicial, garantindo 100% de paridade entre o HTML gerado pelo servidor (SSR) e a hidratação no cliente.
+
 - **Form Display Standard**: All creation and editing forms for entities (`Cargos`, `Usuários`, `Lojas`, `Categorias`, `Marcas`) must be displayed inside `Dialog` modals directly on their listing pages, instead of using separate page routes (`/novo`, `/[id]/editar`). All legacy `/novo` and `/editar` subfolder routes must be completely removed.
 - **Standalone Dialog Component Architecture**:
   - Form dialog modals must be isolated in standalone component files located inside a `components/` subdirectory adjacent to the target page (e.g., `app/(dashboard)/cargos/components/role-form-dialog.tsx`, `app/(dashboard)/usuarios/components/user-form-dialog.tsx`, `app/(dashboard)/lojas/components/store-form-dialog.tsx`).
