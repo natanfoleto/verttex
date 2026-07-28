@@ -38,6 +38,22 @@ export function resolveStockMode(
 }
 
 export class StockService {
+  static resolveStockMode(
+    product: {
+      stockMode?: string | null;
+      hasBatchControl?: boolean;
+      hasExpirationControl?: boolean;
+      isExpirationRequired?: boolean;
+    },
+    variation?: {
+      stockMode?: string | null;
+      hasBatchControl?: boolean | null;
+      hasExpirationControl?: boolean | null;
+      isExpirationRequired?: boolean | null;
+    },
+  ) {
+    return resolveStockMode(product, variation);
+  }
   /**
    * Receive stock batch into inventory (supports multiple lots)
    */

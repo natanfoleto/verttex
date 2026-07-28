@@ -110,6 +110,8 @@ model Store {
   stockTransfers     StockTransfer[]
   cartItems          CartItem[]
   coupons            Coupon[]
+  orders             Order[]
+  stockReservations  StockReservation[]
   deletedAt          DateTime?
   deletedBy          String?
   createdAt          DateTime            @default(now())
@@ -146,6 +148,7 @@ model Customer {
   passwordResetTokens CustomerPasswordResetToken[]
   addresses           CustomerAddress[]
   carts               Cart[]
+  orders              Order[]
   emailVerifiedAt     DateTime?
   lastLoginAt         DateTime?
   deletedAt           DateTime?
@@ -173,6 +176,8 @@ model CustomerAddress {
   isDefault    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  orders Order[]
 
   @@index([customerId])
   @@map("customer_addresses")
@@ -366,6 +371,7 @@ model Product {
   variations ProductVariation[]
   medias     ProductMedia[]
   lots       ProductLot[]
+  orderItems OrderItem[]
 
   @@unique([storeId, slug])
   @@index([storeId])
@@ -438,13 +444,15 @@ model ProductVariation {
   createdAt                 DateTime                @default(now())
   updatedAt                 DateTime                @updatedAt
 
-  values         ProductVariationValue[]
-  medias         ProductMedia[]
-  lots           ProductLot[]
-  stockItems     StockItem[]
-  stockMovements StockMovement[]
-  stockTransfers StockTransfer[]
-  cartItems      CartItem[]
+  values            ProductVariationValue[]
+  medias            ProductMedia[]
+  lots              ProductLot[]
+  stockItems        StockItem[]
+  stockMovements    StockMovement[]
+  stockTransfers    StockTransfer[]
+  cartItems         CartItem[]
+  orderItems        OrderItem[]
+  stockReservations StockReservation[]
 
   @@unique([storeId, sku])
   @@index([productId])
@@ -536,9 +544,11 @@ model ProductLot {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
-  stockItems     StockItem[]
-  stockMovements StockMovement[]
-  transfers      StockTransfer[]
+  stockItems        StockItem[]
+  stockMovements    StockMovement[]
+  transfers         StockTransfer[]
+  orderItemLots     OrderItemLot[]
+  stockReservations StockReservation[]
 
   @@unique([storeId, productId, variationId, lotNumber])
   @@index([storeId])
@@ -558,11 +568,12 @@ model InventoryLocation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  stockItems      StockItem[]
-  sourceMovements StockMovement[] @relation("SourceLocation")
-  targetMovements StockMovement[] @relation("TargetLocation")
-  sourceTransfers StockTransfer[] @relation("TransferSource")
-  targetTransfers StockTransfer[] @relation("TransferTarget")
+  stockItems        StockItem[]
+  sourceMovements   StockMovement[] @relation("SourceLocation")
+  targetMovements   StockMovement[] @relation("TargetLocation")
+  sourceTransfers   StockTransfer[] @relation("TransferSource")
+  targetTransfers   StockTransfer[] @relation("TransferTarget")
+  stockReservations StockReservation[]
 
   @@unique([storeId, code])
   @@map("inventory_locations")
@@ -706,4 +717,103 @@ model CartCoupon {
 
   @@unique([cartId, couponId])
   @@map("cart_coupons")
+}
+
+model Order {
+  id                String          @id @default(cuid())
+  code              String          @unique // Código legível público ex: VTX-20260728-8912
+  storeId           String
+  store             Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customerId        String
+  customer          Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerAddressId String
+  address           CustomerAddress @relation(fields: [customerAddressId], references: [id])
+  status            String          @default("PENDING") // PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+  subtotal          Decimal         @db.Decimal(10, 2)
+  shippingFee       Decimal         @default(0) @db.Decimal(10, 2)
+  discount          Decimal         @default(0) @db.Decimal(10, 2)
+  totalAmount       Decimal         @db.Decimal(10, 2)
+  paymentMethod     String          @default("pix") // pix, credit_card, boleto
+  paymentStatus     String          @default("pending") // pending, approved, failed, refunded
+  notes             String?         @db.Text
+  cancelReason      String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  items             OrderItem[]
+  stockReservations StockReservation[]
+
+  @@index([storeId])
+  @@index([customerId])
+  @@index([status])
+  @@index([code])
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String           @id @default(cuid())
+  orderId        String
+  order          Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product          @relation(fields: [productId], references: [id])
+  variationId    String
+  variation      ProductVariation @relation(fields: [variationId], references: [id])
+  productName    String           // Snapshot do nome do produto no ato da compra
+  variationName  String           // Snapshot das opções escolhidas ex: "Curado / 500g"
+  sku            String           // Snapshot do SKU
+  price          Decimal          @db.Decimal(10, 2) // Snapshot do preço unitário cobrado
+  costPrice      Decimal?         @db.Decimal(10, 2) // Snapshot do custo
+  quantity       Int
+  subtotal       Decimal          @db.Decimal(10, 2)
+  imageUrl       String?          // Snapshot da foto do produto
+  ncm            String?          // Snapshot fiscal
+  cest           String?          // Snapshot fiscal
+  fiscalOrigin   Int?             // Snapshot fiscal
+  commercialUnit String?
+  taxableUnit    String?
+
+  itemLots OrderItemLot[]
+
+  @@index([orderId])
+  @@index([variationId])
+  @@map("order_items")
+}
+
+model OrderItemLot {
+  id          String     @id @default(cuid())
+  orderItemId String
+  orderItem   OrderItem  @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  lotId       String
+  lot         ProductLot @relation(fields: [lotId], references: [id])
+  quantity    Int
+
+  @@index([orderItemId])
+  @@index([lotId])
+  @@map("order_item_lots")
+}
+
+model StockReservation {
+  id               String            @id @default(cuid())
+  storeId          String
+  store            Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orderId          String
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variationId      String
+  variation        ProductVariation  @relation(fields: [variationId], references: [id])
+  lotId            String?
+  lot              ProductLot?       @relation(fields: [lotId], references: [id])
+  locationId       String
+  location         InventoryLocation @relation(fields: [locationId], references: [id])
+  reservedQuantity Int
+  status           String            @default("ACTIVE") // ACTIVE, CONFIRMED, RELEASED, EXPIRED
+  expiresAt        DateTime
+  idempotencyKey   String?           @unique
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([storeId])
+  @@index([orderId])
+  @@index([variationId])
+  @@index([status])
+  @@map("stock_reservations")
 }

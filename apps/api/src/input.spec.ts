@@ -14,6 +14,9 @@ describe("INPUT-001: Global Body Limit & Payload Flood Protection", () => {
     const response = await app.inject({
       method: "POST",
       url: "/auth/users/forgot-password",
+      headers: {
+        "x-forwarded-for": "10.255.255.1",
+      },
       payload: largePayload,
     });
 

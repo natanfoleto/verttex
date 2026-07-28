@@ -16,6 +16,7 @@ import { lotsRoutes } from "./lots/lots.routes";
 import { stockRoutes } from "./stock/stock.routes";
 import { catalogRoutes } from "./catalog/catalog.routes";
 import { cartRoutes } from "./cart/cart.routes";
+import { ordersRoutes } from "./orders/orders.routes";
 
 export async function registerModules(app: FastifyInstance) {
   await app.register(healthRoutes);
@@ -35,4 +36,5 @@ export async function registerModules(app: FastifyInstance) {
   await app.register(stockRoutes, { prefix: "/stock" });
   await app.register(catalogRoutes, { prefix: "/public/catalog" });
   await app.register(cartRoutes, { prefix: "/cart" });
+  await app.register(ordersRoutes, { prefix: "/orders" });
 }
