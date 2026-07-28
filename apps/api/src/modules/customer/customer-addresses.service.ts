@@ -1,5 +1,6 @@
 import { prisma } from "../../infrastructure/database/prisma";
 import { AppError } from "../../shared/errors/app-error";
+import { logAudit } from "../../shared/utils/audit";
 import { CreateAddressBody, UpdateAddressBody } from "./customer-addresses.schemas";
 
 export class CustomerAddressesService {
@@ -31,7 +32,7 @@ export class CustomerAddressesService {
       });
     }
 
-    return prisma.customerAddress.create({
+    const created = await prisma.customerAddress.create({
       data: {
         customerId,
         label: body.label?.trim() || null,
@@ -47,6 +48,16 @@ export class CustomerAddressesService {
         isDefault: shouldBeDefault,
       },
     });
+
+    await logAudit({
+      userId: customerId,
+      action: "CUSTOMER_ADDRESS_CREATE",
+      entity: "CustomerAddress",
+      entityId: created.id,
+      newValues: created,
+    });
+
+    return created;
   }
 
   /**
@@ -81,7 +92,7 @@ export class CustomerAddressesService {
       });
     }
 
-    return prisma.customerAddress.update({
+    const updated = await prisma.customerAddress.update({
       where: { id: addressId },
       data: {
         ...(body.label !== undefined ? { label: body.label?.trim() || null } : {}),
@@ -97,6 +108,16 @@ export class CustomerAddressesService {
         ...(body.isDefault !== undefined ? { isDefault: body.isDefault } : {}),
       },
     });
+
+    await logAudit({
+      userId: customerId,
+      action: "CUSTOMER_ADDRESS_UPDATE",
+      entity: "CustomerAddress",
+      entityId: addressId,
+      newValues: body,
+    });
+
+    return updated;
   }
 
   /**
@@ -110,10 +131,19 @@ export class CustomerAddressesService {
       data: { isDefault: false },
     });
 
-    return prisma.customerAddress.update({
+    const updated = await prisma.customerAddress.update({
       where: { id: addressId },
       data: { isDefault: true },
     });
+
+    await logAudit({
+      userId: customerId,
+      action: "CUSTOMER_ADDRESS_SET_DEFAULT",
+      entity: "CustomerAddress",
+      entityId: addressId,
+    });
+
+    return updated;
   }
 
   /**
@@ -140,6 +170,13 @@ export class CustomerAddressesService {
         });
       }
     }
+
+    await logAudit({
+      userId: customerId,
+      action: "CUSTOMER_ADDRESS_DELETE",
+      entity: "CustomerAddress",
+      entityId: addressId,
+    });
 
     return { message: "Endereço removido com sucesso" };
   }

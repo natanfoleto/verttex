@@ -8,6 +8,7 @@ import {
   generateRandomToken,
 } from "../../shared/utils/crypto";
 import { emailService } from "../../infrastructure/email/email.service";
+import { logAudit } from "../../shared/utils/audit";
 import {
   CustomerRegisterBody,
   CustomerLoginBody,
@@ -100,6 +101,14 @@ export class AuthCustomersService {
     await prisma.customer.update({
       where: { id: customer.id },
       data: { lastLoginAt: new Date() },
+    });
+
+    await logAudit({
+      userId: customer.id,
+      action: "CUSTOMER_LOGIN",
+      entity: "CustomerSession",
+      entityId: session.id,
+      newValues: { ipAddress, userAgent },
     });
 
     const accessToken = app.jwt.sign(
@@ -285,6 +294,13 @@ export class AuthCustomersService {
       }),
     ]);
 
+    await logAudit({
+      userId: resetToken.customerId,
+      action: "CUSTOMER_PASSWORD_RESET",
+      entity: "Customer",
+      entityId: resetToken.customerId,
+    });
+
     return { message: "Senha redefinida com sucesso!" };
   }
 
@@ -317,6 +333,13 @@ export class AuthCustomersService {
         data: { revokedAt: new Date() },
       }),
     ]);
+
+    await logAudit({
+      userId: customerId,
+      action: "CUSTOMER_PASSWORD_CHANGE",
+      entity: "Customer",
+      entityId: customerId,
+    });
 
     return { message: "Senha alterada com sucesso!" };
   }
@@ -359,6 +382,14 @@ export class AuthCustomersService {
         name: body.name ? body.name.trim() : undefined,
         phone: body.phone !== undefined ? body.phone.trim() : undefined,
       },
+    });
+
+    await logAudit({
+      userId: customerId,
+      action: "CUSTOMER_PROFILE_UPDATE",
+      entity: "Customer",
+      entityId: customerId,
+      newValues: { name: updated.name, phone: updated.phone },
     });
 
     return {

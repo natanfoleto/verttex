@@ -38,6 +38,14 @@ Antes de iniciar a análise ou alteração de qualquer código, você **DEVE** l
 - **Nunca Inventar o Estado do Projeto:** Inspecione sempre o código e banco reais antes de fazer afirmações sobre o sistema.
 - **Atualização de Documentação:** Toda alteração de funcionalidade deve ser acompanhada da atualização dos documentos relacionados em `.ai/`.
 
+### 2.1 Regra Mandatória de Testes Automatizados (Vitest)
+
+Toda nova implementação, endpoint, serviço, funcionalidade, correção de bug ou roadmap **DEVE obrigatoriamente incluir a criação e execução de testes automatizados (Vitest)**. Nenhuma tarefa é considerada finalizada ou marcada como concluída sem a presença, execução e aprovação dos testes automatizados correspondentes cobrindo os cenários de sucesso e exceção.
+
+### 2.2 Regra Mandatória de Skeleton Loading no Frontend
+
+Toda e qualquer página, modal, listagem ou tela com carregamento assíncrono de dados **DEVE obrigatoriamente utilizar componentes de Skeleton Loading (`animate-pulse`)** que espelhem com precisão o layout final da tela, eliminando telas em branco e spinners genéricos soltos.
+
 ---
 
 ## 3. Diretrizes de Arquitetura e Monorepo

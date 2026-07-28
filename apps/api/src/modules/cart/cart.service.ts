@@ -1,5 +1,6 @@
 import { prisma } from "../../infrastructure/database/prisma";
 import { AppError } from "../../shared/errors/app-error";
+import { logAudit } from "../../shared/utils/audit";
 
 export interface CartOwner {
   customerId?: string;
@@ -233,6 +234,16 @@ export class CartService {
       });
     }
 
+    if (owner.customerId) {
+      await logAudit({
+        userId: owner.customerId,
+        action: "CART_ADD_ITEM",
+        entity: "CartItem",
+        entityId: variationId,
+        newValues: { variationId, quantity },
+      });
+    }
+
     return this.getCartSummary(owner);
   }
 
@@ -303,6 +314,15 @@ export class CartService {
       where: { cartId: cart.id },
     });
 
+    if (owner.customerId) {
+      await logAudit({
+        userId: owner.customerId,
+        action: "CART_CLEAR",
+        entity: "Cart",
+        entityId: cart.id,
+      });
+    }
+
     return this.getCartSummary(owner);
   }
 
@@ -342,6 +362,16 @@ export class CartService {
       },
       update: {},
     });
+
+    if (owner.customerId) {
+      await logAudit({
+        userId: owner.customerId,
+        action: "CART_APPLY_COUPON",
+        entity: "CartCoupon",
+        entityId: coupon.id,
+        newValues: { code: coupon.code },
+      });
+    }
 
     return this.getCartSummary(owner);
   }
