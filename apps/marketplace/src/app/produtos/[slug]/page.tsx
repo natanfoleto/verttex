@@ -201,7 +201,7 @@ export default function ProductDetailPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-8 font-sans text-stone-900 antialiased">
+    <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8 py-6 font-sans text-stone-900 antialiased">
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center space-x-2 text-xs font-semibold text-stone-500">
         <Link href="/" className="hover:text-emerald-800 transition-colors">
@@ -225,11 +225,11 @@ export default function ProductDetailPage({
       </nav>
 
       {/* Main 3-Column Mercado Livre Layout Grid */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
         {/* Left & Center Main Area (span 8) */}
-        <div className="space-y-8 lg:col-span-8">
-          <div className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xs">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
+        <div className="space-y-4 lg:col-span-8">
+          <div className="rounded-3xl border border-stone-200/80 bg-white p-5 shadow-xs">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
               {/* Column 1: Photos & Thumbnails Below (md:col-span-6) */}
               <div className="space-y-4 md:col-span-6">
                 {/* Main Large Image Container */}
@@ -399,7 +399,7 @@ export default function ProductDetailPage({
 
             {/* Detailed Description Below Main Card */}
             {product.fullDescription && (
-              <div className="border-t border-stone-200 mt-8 pt-8 space-y-4">
+              <div className="border-t border-stone-200 mt-5 pt-5 space-y-3">
                 <h2 className="text-lg font-bold text-stone-900">
                   Descrição detalhada do produto
                 </h2>
@@ -410,7 +410,7 @@ export default function ProductDetailPage({
             )}
 
             {/* Product Reviews & Verified Purchases Section (Roadmap 023) */}
-            <div className="border-t border-stone-200 mt-8 pt-8 space-y-6">
+            <div className="border-t border-stone-200 mt-5 pt-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-stone-900 flex items-center space-x-2">
                   <RiStarFill className="h-5 w-5 text-amber-500" />
@@ -464,9 +464,9 @@ export default function ProductDetailPage({
         </div>
 
         {/* Right Sidebar Column: Buying Box, Shipping & Seller Profile (span 4) */}
-        <div className="space-y-6 lg:col-span-4">
+        <div className="space-y-4 lg:col-span-4">
           {/* Card 1: Shipping & Buying Box */}
-          <div className="space-y-6 rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xs">
+          <div className="space-y-4 rounded-3xl border border-stone-200/80 bg-white p-5 shadow-xs">
             {/* Free Shipping Badge */}
             <div className="rounded-xl bg-emerald-50 p-3 border border-emerald-200 text-xs font-bold text-emerald-900 flex items-center space-x-2">
               <RiTruckLine className="h-5 w-5 text-emerald-700 shrink-0" />
@@ -589,7 +589,7 @@ export default function ProductDetailPage({
           </div>
 
           {/* Card 2: Seller / Producer Info Box Below Buying Box */}
-          <div className="space-y-4 rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xs">
+          <div className="space-y-4 rounded-3xl border border-stone-200/80 bg-white p-5 shadow-xs">
             <div className="text-xs font-bold uppercase tracking-wider text-stone-500">
               Informações sobre o vendedor
             </div>

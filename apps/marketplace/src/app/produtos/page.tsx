@@ -95,9 +95,9 @@ export default function ProductsListingPage() {
   }));
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 pb-28 font-sans text-stone-900 lg:pb-36 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl space-y-5 px-4 py-6 pb-20 font-sans text-stone-900 lg:pb-24 sm:px-6 lg:px-8">
       {/* Breadcrumb & Page Title Header */}
-      <div className="space-y-3 border-b border-stone-200/80 pb-6">
+      <div className="space-y-2 border-b border-stone-200/80 pb-4">
         <div className="flex items-center space-x-2 text-xs text-stone-500">
           <Link href="/" className="hover:text-emerald-800">
             Início
@@ -130,10 +130,10 @@ export default function ProductsListingPage() {
       </div>
 
       {/* Main Catalog Layout: Sidebar + Grid */}
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         {/* Desktop Sidebar Filters */}
         <aside className="hidden lg:col-span-1 lg:block">
-          <div className="sticky top-24 rounded-xl border border-stone-200/80 bg-white p-6 shadow-xs">
+          <div className="sticky top-24 rounded-xl border border-stone-200/80 bg-white p-5 shadow-xs">
             <FilterSidebar
               categories={categoriesFormatted}
               activeCategorySlug={selectedCategory}
@@ -158,7 +158,7 @@ export default function ProductsListingPage() {
 
         {/* Mobile Filter Modal */}
         {mobileFilterOpen && (
-          <div className="space-y-4 rounded-xl border border-stone-200 bg-white p-6 shadow-md lg:hidden">
+          <div className="space-y-4 rounded-xl border border-stone-200 bg-white p-5 shadow-md lg:hidden">
             <FilterSidebar
               categories={categoriesFormatted}
               activeCategorySlug={selectedCategory}
@@ -183,9 +183,9 @@ export default function ProductsListingPage() {
         )}
 
         {/* Product Grid Area */}
-        <main className="space-y-8 lg:col-span-3">
+        <main className="space-y-4 lg:col-span-3">
           {/* Top Search & Results Counter */}
-          <div className="flex flex-col items-stretch justify-between gap-4 rounded-xl border border-stone-200/80 bg-white p-4 shadow-xs sm:flex-row sm:items-center">
+          <div className="flex flex-col items-stretch justify-between gap-3 rounded-xl border border-stone-200/80 bg-white p-3.5 shadow-xs sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <Input
@@ -215,14 +215,14 @@ export default function ProductsListingPage() {
 
           {/* Product Cards Grid / Skeleton / Empty State */}
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <ProductCardSkeleton key={i} />
               ))}
             </div>
           ) : mappedProducts.length > 0 ? (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {mappedProducts.map((product) => (
                   <ProductCard key={product.id} {...product} />
                 ))}
