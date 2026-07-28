@@ -514,9 +514,15 @@ async function main() {
   });
 
   const varQueijo = await prisma.productVariation.upsert({
-    where: { sku: "CANASTRA-MC-500G" },
+    where: {
+      storeId_sku: {
+        storeId: storeAlvorada.id,
+        sku: "CANASTRA-MC-500G",
+      },
+    },
     update: {},
     create: {
+      storeId: storeAlvorada.id,
       productId: prodQueijo.id,
       sku: "CANASTRA-MC-500G",
       price: 49.9,
@@ -561,9 +567,15 @@ async function main() {
   });
 
   const varMel = await prisma.productVariation.upsert({
-    where: { sku: "MEL-SILVESTRE-500G" },
+    where: {
+      storeId_sku: {
+        storeId: storeMel.id,
+        sku: "MEL-SILVESTRE-500G",
+      },
+    },
     update: {},
     create: {
+      storeId: storeMel.id,
       productId: prodMel.id,
       sku: "MEL-SILVESTRE-500G",
       price: 38.0,

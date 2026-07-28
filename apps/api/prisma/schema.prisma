@@ -101,11 +101,13 @@ model Store {
   status             String              @default("draft") // draft, active, inactive, suspended
   users              StoreUser[]
   products           Product[]
+  variations         ProductVariation[]
   files              File[]
   lots               ProductLot[]
   inventoryLocations InventoryLocation[]
   stockItems         StockItem[]
   stockMovements     StockMovement[]
+  stockTransfers     StockTransfer[]
   cartItems          CartItem[]
   coupons            Coupon[]
   deletedAt          DateTime?
@@ -340,6 +342,7 @@ model Product {
   length                    Float? // em cm
   metaTitle                 String?
   metaDescription           String?
+  stockMode                 String             @default("SIMPLE") // NOT_TRACKED, SIMPLE, BATCH, BATCH_WITH_EXPIRATION
   hasBatchControl           Boolean            @default(false)
   hasExpirationControl      Boolean            @default(false)
   isExpirationRequired      Boolean            @default(false)
@@ -347,6 +350,11 @@ model Product {
   minReceivingShelfLifeDays Int?
   minDeliveryShelfLifeDays  Int?
   warningShelfLifeDays      Int?
+  ncm                       String?
+  cest                      String?
+  fiscalOrigin              Int?
+  commercialUnit            String?
+  taxableUnit               String?
   createdBy                 String?
   updatedBy                 String?
   deletedAt                 DateTime?
@@ -395,9 +403,12 @@ model ProductOptionValue {
 
 model ProductVariation {
   id                        String                  @id @default(cuid())
+  publicId                  String                  @unique @default(uuid())
+  storeId                   String
+  store                     Store                   @relation(fields: [storeId], references: [id], onDelete: Cascade)
   productId                 String
   product                   Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku                       String                  @unique
+  sku                       String
   barcode                   String?
   price                     Decimal                 @db.Decimal(10, 2)
   promotionalPrice          Decimal?                @db.Decimal(10, 2)
@@ -409,6 +420,7 @@ model ProductVariation {
   height                    Float?
   length                    Float?
   position                  Int                     @default(0)
+  stockMode                 String?                 // NOT_TRACKED, SIMPLE, BATCH, BATCH_WITH_EXPIRATION
   hasBatchControl           Boolean?
   hasExpirationControl      Boolean?
   isExpirationRequired      Boolean?
@@ -416,6 +428,11 @@ model ProductVariation {
   minReceivingShelfLifeDays Int?
   minDeliveryShelfLifeDays  Int?
   warningShelfLifeDays      Int?
+  ncm                       String?
+  cest                      String?
+  fiscalOrigin              Int?
+  commercialUnit            String?
+  taxableUnit               String?
   deletedAt                 DateTime?
   deletedBy                 String?
   createdAt                 DateTime                @default(now())
@@ -426,9 +443,13 @@ model ProductVariation {
   lots           ProductLot[]
   stockItems     StockItem[]
   stockMovements StockMovement[]
+  stockTransfers StockTransfer[]
   cartItems      CartItem[]
 
+  @@unique([storeId, sku])
   @@index([productId])
+  @@index([storeId])
+  @@index([publicId])
   @@index([sku])
   @@index([status])
   @@map("product_variations")
@@ -517,6 +538,7 @@ model ProductLot {
 
   stockItems     StockItem[]
   stockMovements StockMovement[]
+  transfers      StockTransfer[]
 
   @@unique([storeId, productId, variationId, lotNumber])
   @@index([storeId])
@@ -539,9 +561,36 @@ model InventoryLocation {
   stockItems      StockItem[]
   sourceMovements StockMovement[] @relation("SourceLocation")
   targetMovements StockMovement[] @relation("TargetLocation")
+  sourceTransfers StockTransfer[] @relation("TransferSource")
+  targetTransfers StockTransfer[] @relation("TransferTarget")
 
   @@unique([storeId, code])
   @@map("inventory_locations")
+}
+
+model StockTransfer {
+  id               String            @id @default(cuid())
+  storeId          String
+  store            Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  variationId      String
+  variation        ProductVariation  @relation(fields: [variationId], references: [id])
+  lotId            String?
+  lot              ProductLot?       @relation(fields: [lotId], references: [id])
+  sourceLocationId String
+  sourceLocation   InventoryLocation @relation("TransferSource", fields: [sourceLocationId], references: [id])
+  targetLocationId String
+  targetLocation   InventoryLocation @relation("TransferTarget", fields: [targetLocationId], references: [id])
+  quantity         Int
+  status           String            @default("CREATED") // CREATED, SEPARATED, IN_TRANSIT, RECEIVED, CANCELLED, REJECTED
+  reason           String?
+  createdById      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([storeId])
+  @@index([variationId])
+  @@index([status])
+  @@map("stock_transfers")
 }
 
 model StockItem {

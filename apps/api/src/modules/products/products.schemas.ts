@@ -64,6 +64,7 @@ export const createProductBodySchema = z.object({
   promotionalPrice: z.number().positive().optional().nullable(),
   costPrice: z.number().positive().optional().nullable(),
   sku: z.string().optional(),
+  barcode: z.string().optional().nullable(),
 
   // Opções e variações (para produto variável)
   options: z.array(productOptionSchema).optional().default([]),

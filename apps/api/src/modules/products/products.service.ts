@@ -2,6 +2,7 @@ import { FastifyRequest } from "fastify";
 import { AppError } from "../../shared/errors/app-error";
 import { prisma } from "../../infrastructure/database/prisma";
 import { logAudit } from "../../shared/utils/audit";
+import { isValidGtin } from "../../shared/utils/barcode-validator";
 import {
   CreateProductBody,
   ProductListQuery,
@@ -249,10 +250,21 @@ export class ProductsService {
         const generatedSku =
           body.sku ||
           `${finalSlug.toUpperCase().slice(0, 8)}-${Date.now().toString(36).toUpperCase()}`;
+        
+        if (body.barcode && !isValidGtin(body.barcode)) {
+          throw new AppError(
+            "VALIDATION_ERROR",
+            "Código de barras GTIN/EAN inválido: dígito verificador ou tamanho incorreto",
+            400,
+          );
+        }
+
         await tx.productVariation.create({
           data: {
+            storeId: body.storeId,
             productId: createdProduct.id,
             sku: generatedSku,
+            barcode: body.barcode || null,
             price: body.price!,
             promotionalPrice: body.promotionalPrice || null,
             costPrice: body.costPrice || null,
@@ -265,6 +277,35 @@ export class ProductsService {
           },
         });
       } else if (body.type === "variable") {
+        // Validate duplicate option combinations & EAN barcodes
+        const seenCombinations = new Set<string>();
+
+        for (const varItem of body.variations) {
+          if (varItem.barcode && !isValidGtin(varItem.barcode)) {
+            throw new AppError(
+              "VALIDATION_ERROR",
+              `Código de barras GTIN/EAN inválido para a variação SKU "${varItem.sku}"`,
+              400,
+            );
+          }
+
+          if (varItem.optionValues) {
+            const comboKey = Object.entries(varItem.optionValues)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([k, v]) => `${k}:${v}`)
+              .join("|");
+            
+            if (seenCombinations.has(comboKey)) {
+              throw new AppError(
+                "VALIDATION_ERROR",
+                `Combinação de opções duplicada encontrada na variação SKU "${varItem.sku}"`,
+                400,
+              );
+            }
+            seenCombinations.add(comboKey);
+          }
+        }
+
         // Create options & values
         const optionValueMap = new Map<string, string>();
 
@@ -302,6 +343,7 @@ export class ProductsService {
 
           const createdVar = await tx.productVariation.create({
             data: {
+              storeId: body.storeId,
               productId: createdProduct.id,
               sku: varItem.sku,
               barcode: varItem.barcode || null,
@@ -634,5 +676,25 @@ export class ProductsService {
     });
 
     return { message: "Produto arquivado com sucesso" };
+  }
+
+  /**
+   * Resolve effective fiscal parameters (variation values override parent product defaults)
+   */
+  static async resolveEffectiveFiscalData(variationId: string) {
+    const variation = await prisma.productVariation.findUnique({
+      where: { id: variationId },
+      include: { product: true },
+    });
+
+    if (!variation) return null;
+
+    return {
+      ncm: variation.ncm || variation.product.ncm || null,
+      cest: variation.cest || variation.product.cest || null,
+      fiscalOrigin: variation.fiscalOrigin ?? variation.product.fiscalOrigin ?? 0,
+      commercialUnit: variation.commercialUnit || variation.product.commercialUnit || "UN",
+      taxableUnit: variation.taxableUnit || variation.product.taxableUnit || "UN",
+    };
   }
 }

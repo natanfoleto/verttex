@@ -25,6 +25,9 @@ import { Button } from "@/components/ui/button";
 import { ProductDetailSkeleton } from "../../../components/products/product-detail-skeleton";
 import { apiClient, ApiError } from "../../../lib/api-client";
 
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+
 interface ProductDetailsResponse {
   id: string;
   name: string;
@@ -48,6 +51,7 @@ interface ProductDetailsResponse {
   options: { id: string; name: string; values: { id: string; value: string }[] }[];
   variations: {
     id: string;
+    publicId?: string;
     sku: string;
     price: number;
     promotionalPrice?: number;
@@ -65,6 +69,7 @@ export default function ProductDetailPage({
 }) {
   const resolvedParams = use(params);
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
 
   const [selectedVariationId, setSelectedVariationId] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -80,6 +85,41 @@ export default function ProductDetailPage({
       return res;
     },
   });
+
+  // Sync variation from URL query param (?variant=<publicId|id> or ?sku=<sku>)
+  useEffect(() => {
+    if (!product || !product.variations || product.variations.length === 0) return;
+
+    const variantQuery = searchParams.get("variant") || searchParams.get("sku");
+    if (variantQuery) {
+      const matched = product.variations.find(
+        (v) =>
+          v.publicId === variantQuery ||
+          v.id === variantQuery ||
+          v.sku.toLowerCase() === variantQuery.toLowerCase(),
+      );
+      if (matched) {
+        setSelectedVariationId(matched.id);
+        return;
+      }
+    }
+
+    if (!selectedVariationId) {
+      const defaultVar = product.variations.find((v) => v.isDefault) || product.variations[0];
+      if (defaultVar) setSelectedVariationId(defaultVar.id);
+    }
+  }, [product, searchParams, selectedVariationId]);
+
+  const handleSelectVariation = (varId: string) => {
+    setSelectedVariationId(varId);
+    if (!product) return;
+    const targetVar = product.variations.find((v) => v.id === varId);
+    if (targetVar) {
+      const targetQuery = targetVar.publicId || targetVar.sku || targetVar.id;
+      const newUrl = `${window.location.pathname}?variant=${encodeURIComponent(targetQuery)}`;
+      window.history.replaceState(null, "", newUrl);
+    }
+  };
 
   const addToCartMutation = useMutation({
     mutationFn: async ({ variationId, qty }: { variationId: string; qty: number }) => {
@@ -316,14 +356,17 @@ export default function ProductDetailPage({
                           <button
                             key={v.id}
                             type="button"
-                            onClick={() => setSelectedVariationId(v.id)}
+                            onClick={() => handleSelectVariation(v.id)}
+                            disabled={!v.isAvailable}
                             className={`rounded-xl border px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
                               isSelected
                                 ? "border-emerald-800 bg-emerald-800 text-white shadow-xs"
-                                : "border-stone-200 bg-white text-stone-700 hover:border-stone-400"
+                                : v.isAvailable
+                                  ? "border-stone-200 bg-white text-stone-700 hover:border-stone-400"
+                                  : "border-stone-100 bg-stone-100 text-stone-400 line-through opacity-60 cursor-not-allowed"
                             }`}
                           >
-                            {labelText}
+                            {labelText} {!v.isAvailable && "(Esgotado)"}
                           </button>
                         );
                       })}
@@ -405,13 +448,19 @@ export default function ProductDetailPage({
             <div className="space-y-3 border-t border-stone-100 pt-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-stone-900">Estoque disponível</span>
-                {isAvailable ? (
+                {stockAvailable > 5 ? (
                   <span className="text-xs font-bold text-emerald-700 flex items-center space-x-1">
                     <RiCheckLine className="h-4 w-4" />
-                    <span>Em estoque ({stockAvailable})</span>
+                    <span>Em estoque ({stockAvailable} un.)</span>
+                  </span>
+                ) : stockAvailable > 0 ? (
+                  <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 flex items-center space-x-1">
+                    <span>Últimas {stockAvailable} unidades!</span>
                   </span>
                 ) : (
-                  <span className="text-xs font-bold text-rose-600">Esgotado</span>
+                  <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                    Esgotado
+                  </span>
                 )}
               </div>
 

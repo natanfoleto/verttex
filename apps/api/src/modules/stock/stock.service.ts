@@ -11,6 +11,32 @@ import {
   TransferStockBody,
 } from "./stock.schemas";
 
+export function resolveStockMode(
+  product: {
+    stockMode?: string | null;
+    hasBatchControl?: boolean;
+    hasExpirationControl?: boolean;
+    isExpirationRequired?: boolean;
+  },
+  variation?: {
+    stockMode?: string | null;
+    hasBatchControl?: boolean | null;
+    hasExpirationControl?: boolean | null;
+    isExpirationRequired?: boolean | null;
+  },
+): "NOT_TRACKED" | "SIMPLE" | "BATCH" | "BATCH_WITH_EXPIRATION" {
+  if (variation?.stockMode) return variation.stockMode as any;
+  if (product.stockMode) return product.stockMode as any;
+
+  const hasExp = variation?.hasExpirationControl ?? product.hasExpirationControl;
+  const isExpReq = variation?.isExpirationRequired ?? product.isExpirationRequired;
+  const hasBatch = variation?.hasBatchControl ?? product.hasBatchControl;
+
+  if (hasExp && isExpReq) return "BATCH_WITH_EXPIRATION";
+  if (hasBatch || hasExp) return "BATCH";
+  return "SIMPLE";
+}
+
 export class StockService {
   /**
    * Receive stock batch into inventory (supports multiple lots)
@@ -36,6 +62,15 @@ export class StockService {
     }
 
     const product = variation.product;
+    const effectiveStockMode = resolveStockMode(product, variation);
+
+    if (effectiveStockMode === "NOT_TRACKED") {
+      return {
+        success: true,
+        message: "Produto configurado como NOT_TRACKED. Saldo de estoque não é gerenciado.",
+        items: [],
+      };
+    }
 
     // Get or create default inventory location
     let locationId = body.locationId;
@@ -65,6 +100,23 @@ export class StockService {
       const createdLotRecords: any[] = [];
 
       for (const item of body.lots) {
+        // Mode-based lot & expiration requirements
+        let finalLotNumber = item.lotNumber?.trim();
+
+        if (effectiveStockMode === "BATCH" || effectiveStockMode === "BATCH_WITH_EXPIRATION") {
+          if (!finalLotNumber) {
+            // Auto-generate internal lot code
+            finalLotNumber = LotsService.generateInternalLotNumber();
+          }
+          if (effectiveStockMode === "BATCH_WITH_EXPIRATION" && !item.expirationDate) {
+            throw new AppError(
+              "VALIDATION_ERROR",
+              `Data de validade é obrigatória para produtos no modo BATCH_WITH_EXPIRATION (lote: ${finalLotNumber})`,
+              400,
+            );
+          }
+        }
+
         // Validate receiving shelf life policy if expiration control is required
         if (item.expirationDate && minReceivingDays > 0) {
           const expAnalysis = LotsService.calculateExpirationCondition(
@@ -79,11 +131,13 @@ export class StockService {
           ) {
             throw new AppError(
               "VALIDATION_ERROR",
-              `Lote "${item.lotNumber}" rejeitado no recebimento: validade restante (${expAnalysis.daysRemaining || 0} dias) está abaixo do mínimo exigido no recebimento (${minReceivingDays} dias)`,
+              `Lote "${finalLotNumber}" rejeitado no recebimento: validade restante (${expAnalysis.daysRemaining || 0} dias) está abaixo do mínimo exigido no recebimento (${minReceivingDays} dias)`,
               400,
             );
           }
         }
+
+        const lotSearchNumber = finalLotNumber || "PADRAO";
 
         // Find or create lot
         let lot = await tx.productLot.findFirst({
@@ -91,7 +145,7 @@ export class StockService {
             storeId: body.storeId,
             productId: product.id,
             variationId: variation.id,
-            lotNumber: item.lotNumber.trim(),
+            lotNumber: lotSearchNumber,
           },
         });
 
@@ -101,7 +155,7 @@ export class StockService {
               storeId: body.storeId,
               productId: product.id,
               variationId: variation.id,
-              lotNumber: item.lotNumber.trim(),
+              lotNumber: lotSearchNumber,
               manufacturer: item.manufacturer?.trim() || null,
               supplier: item.supplier?.trim() || null,
               manufacturingDate: item.manufacturingDate

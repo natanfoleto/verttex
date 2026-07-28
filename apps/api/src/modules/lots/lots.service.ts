@@ -345,4 +345,16 @@ export class LotsService {
 
     return updatedLot;
   }
+
+  /**
+   * Generates a unique internal lot number in format INT-YYYYMMDD-XXXX
+   */
+  static generateInternalLotNumber(): string {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `INT-${yyyy}${mm}${dd}-${random}`;
+  }
 }
