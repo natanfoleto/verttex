@@ -75,6 +75,8 @@ export default function OrderDetailPage({
   const queryClient = useQueryClient();
   const [cancelReason, setCancelReason] = useState("");
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [returnReason, setReturnReason] = useState("");
+  const [showReturnModal, setShowReturnModal] = useState(false);
 
   const { data: order, isLoading } = useQuery<OrderDetailResponse>({
     queryKey: ["order-detail", resolvedParams.code],
@@ -96,6 +98,24 @@ export default function OrderDetailPage({
     },
     onError: (err: any) => {
       toast.error(err.message || "Erro ao cancelar pedido");
+    },
+  });
+
+  const returnMutation = useMutation({
+    mutationFn: async () => {
+      if (!order) return;
+      return apiClient("/returns/request", {
+        method: "POST",
+        body: JSON.stringify({ orderId: order.id, reason: returnReason }),
+      });
+    },
+    onSuccess: () => {
+      toast.success("Solicitação de devolução/troca enviada com sucesso! Acompanhe o processo em Devoluções.");
+      queryClient.invalidateQueries({ queryKey: ["order-detail", resolvedParams.code] });
+      setShowReturnModal(false);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Erro ao solicitar devolução");
     },
   });
 
@@ -169,6 +189,18 @@ export default function OrderDetailPage({
               className="text-xs text-rose-600 border-rose-200 hover:bg-rose-50 cursor-pointer"
             >
               Cancelar Pedido
+            </Button>
+          )}
+
+          {order.status === "DELIVERED" && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowReturnModal(true)}
+              className="text-xs text-amber-700 border-amber-300 bg-amber-50 hover:bg-amber-100 cursor-pointer font-bold"
+            >
+              Solicitar Troca / Devolução
             </Button>
           )}
         </div>
@@ -324,6 +356,46 @@ export default function OrderDetailPage({
                 className="bg-rose-600 hover:bg-rose-700 text-white cursor-pointer text-xs"
               >
                 {cancelMutation.isPending ? "Cancelando..." : "Confirmar Cancelamento"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Solicitacão de Devolução / Troca */}
+      {showReturnModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 shadow-xl">
+            <h3 className="text-base font-bold text-stone-900">Solicitar Devolução / Troca #{order.code}</h3>
+            <p className="text-xs text-stone-600">
+              Descreva o motivo da devolução. O item passará por entrada compulsória em Quarentena Sanitária de Inspeção.
+            </p>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-stone-700 block">Motivo da Devolução</label>
+              <textarea
+                rows={3}
+                placeholder="Ex: Embalagem danificada no transporte, produto com defeito ou divergência..."
+                value={returnReason}
+                onChange={(e) => setReturnReason(e.target.value)}
+                className="w-full rounded-xl border border-stone-200 p-2.5 text-xs focus:border-emerald-800 focus:outline-none"
+              />
+            </div>
+            <div className="flex justify-end space-x-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowReturnModal(false)}
+                className="cursor-pointer text-xs"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={() => returnMutation.mutate()}
+                disabled={returnMutation.isPending || !returnReason.trim()}
+                className="bg-amber-700 hover:bg-amber-800 text-white cursor-pointer text-xs font-bold"
+              >
+                {returnMutation.isPending ? "Solicitando..." : "Enviar Solicitação"}
               </Button>
             </div>
           </div>

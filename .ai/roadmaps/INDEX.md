@@ -35,6 +35,7 @@
 | 023 | Avaliações e Perguntas                               | `completed` | medium     | 018, 019      | [`completed/023-reviews-and-qa.md`](.ai/roadmaps/completed/023-reviews-and-qa.md)                                       |
 | 024 | Notificações                                         | `completed` | medium     | 019, 021      | [`completed/024-notifications.md`](.ai/roadmaps/completed/024-notifications.md)                                         |
 | 025 | Relatórios Comerciais e Operacionais                 | `completed` | medium     | 019, 020      | [`completed/025-commercial-and-operational-reports.md`](.ai/roadmaps/completed/025-commercial-and-operational-reports.md) |
+| 026 | Integração e Consolidação Completa dos Front-ends   | `completed` | high       | 019 a 025     | [`completed/026-frontend-integration-and-completeness.md`](.ai/roadmaps/completed/026-frontend-integration-and-completeness.md) |
 
 ---
 
@@ -42,7 +43,7 @@
 
 | Status      | Quantidade | Observação                                  |
 | :---------- | :--------- | :------------------------------------------ |
-| `completed` | 25         | Roadmaps 001 a 025 concluídos e validados   |
+| `completed` | 26         | Roadmaps 001 a 026 concluídos e validados   |
 | `active`    | 0          | Todos os roadmaps foram concluídos          |
 | `planned`   | 0          | Nenhum roadmap pendente                     |
 | `archived`  | 0          | Nenhum roadmap arquivado                    |

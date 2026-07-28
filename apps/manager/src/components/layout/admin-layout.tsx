@@ -8,6 +8,7 @@ import {
   RiArrowDownSLine,
   RiArrowLeftSLine,
   RiArrowRightSLine,
+  RiBarChartBoxLine,
   RiCheckLine,
   RiComputerLine,
   RiDashboardLine,
@@ -18,7 +19,9 @@ import {
   RiMoonLine,
   RiNotification3Line,
   RiPriceTag3Line,
+  RiRefreshLine,
   RiShieldLine,
+  RiShoppingBag3Line,
   RiStackLine,
   RiStoreLine,
   RiSunLine,
@@ -124,6 +127,30 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       icon: RiDashboardLine,
     },
     {
+      label: "Gestão de Pedidos",
+      href: "/pedidos",
+      icon: RiShoppingBag3Line,
+      show: true,
+    },
+    {
+      label: "Devoluções & Quarentena",
+      href: "/devolucoes",
+      icon: RiRefreshLine,
+      show: true,
+    },
+    {
+      label: "Relatórios & BI",
+      href: "/relatorios",
+      icon: RiBarChartBoxLine,
+      show: true,
+    },
+    {
+      label: "Notificações",
+      href: "/notificacoes",
+      icon: RiNotification3Line,
+      show: true,
+    },
+    {
       label: "Catálogo & Taxonomia",
       icon: RiFolder3Line,
       show:
@@ -206,6 +233,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   // Format breadcrumb title based on active path
   const getPageTitle = () => {
     if (pathname === "/") return "Dashboard";
+    if (pathname.startsWith("/pedidos")) return "Gestão de Pedidos & Expedição";
+    if (pathname.startsWith("/devolucoes")) return "Trocas, Devoluções & Quarentena";
+    if (pathname.startsWith("/relatorios")) return "Relatórios Comerciais & Curva ABC";
+    if (pathname.startsWith("/notificacoes")) return "Central de Notificações";
     if (pathname.startsWith("/produtos")) return "Catálogo de Produtos";
     if (pathname.startsWith("/estoque")) return "Estoque & Lotes";
     if (pathname.startsWith("/categorias")) return "Taxonomia de Categorias";

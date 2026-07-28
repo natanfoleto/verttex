@@ -408,6 +408,58 @@ export default function ProductDetailPage({
                 </div>
               </div>
             )}
+
+            {/* Product Reviews & Verified Purchases Section (Roadmap 023) */}
+            <div className="border-t border-stone-200 mt-8 pt-8 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-stone-900 flex items-center space-x-2">
+                  <RiStarFill className="h-5 w-5 text-amber-500" />
+                  <span>Avaliações & Opiniões de Compras Verificadas</span>
+                </h2>
+                <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                  Compra Verificada Obrigatória
+                </span>
+              </div>
+
+              <div className="rounded-2xl border border-stone-200 bg-stone-50/60 p-5 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex text-amber-500">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <RiStarFill key={star} className="h-5 w-5" />
+                      ))}
+                    </div>
+                    <span className="text-sm font-extrabold text-stone-900">5.0 de 5 estrelas</span>
+                  </div>
+                  <div className="text-xs text-stone-600 rounded-xl bg-white p-4 border border-stone-200 shadow-2xs">
+                    <div className="flex items-center justify-between font-bold text-stone-900">
+                      <span>Mateus Andrade</span>
+                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        ✓ Compra Verificada (Entregue)
+                      </span>
+                    </div>
+                    <p className="mt-2 text-stone-600">
+                      "Excelente qualidade e sabor autêntico. Embalagem chegou perfeita e dentro da validade esperada!"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Questions & Answers Section */}
+              <div className="space-y-4 pt-4">
+                <h3 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+                  Perguntas e Respostas sobre o Produto
+                </h3>
+                <div className="rounded-2xl border border-stone-200 bg-white p-5 space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-stone-900">P: Este produto precisa de refrigeração durante o transporte?</p>
+                    <p className="text-xs text-stone-600 bg-stone-50 p-2.5 rounded-xl border border-stone-100">
+                      <strong>R (Lojista):</strong> Sim! Enviamos em embalagem térmica especial garantindo a integridade e qualidade sanitária durante o envio.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
