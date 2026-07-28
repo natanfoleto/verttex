@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { randomUUID } from "node:crypto";
+import { env } from "@verttex/env/api";
 import { prisma } from "../../infrastructure/database/prisma";
 import { AppError } from "../../shared/errors/app-error";
 import { logAudit } from "../../shared/utils/audit";
@@ -362,7 +363,7 @@ export class AuthUsersService {
 
     console.log(`🔑 [DEV RESET TOKEN] Email: ${email} | Token: ${rawToken}`);
 
-    const resetUrl = `http://localhost:3000/redefinir-senha?token=${rawToken}`;
+    const resetUrl = `${env.MANAGER_APP_URL}/redefinir-senha?token=${rawToken}`;
     await emailService.sendPasswordResetEmail({
       to: email,
       userName: user.name,

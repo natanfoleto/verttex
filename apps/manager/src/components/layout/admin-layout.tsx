@@ -119,7 +119,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     });
   };
 
-  // Define navigation items with RBAC permissions
+  // Define navigation items with RBAC permissions (Enterprise Hierarchy)
   const navItems: NavItem[] = [
     {
       label: "Dashboard",
@@ -127,31 +127,26 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       icon: RiDashboardLine,
     },
     {
-      label: "Gestão de Pedidos",
-      href: "/pedidos",
+      label: "Vendas & Operações",
       icon: RiShoppingBag3Line,
       show: true,
+      children: [
+        {
+          label: "Pedidos & Expedição",
+          href: "/pedidos",
+          icon: RiShoppingBag3Line,
+          show: true,
+        },
+        {
+          label: "Trocas & Quarentena",
+          href: "/devolucoes",
+          icon: RiRefreshLine,
+          show: true,
+        },
+      ],
     },
     {
-      label: "Devoluções & Quarentena",
-      href: "/devolucoes",
-      icon: RiRefreshLine,
-      show: true,
-    },
-    {
-      label: "Relatórios & BI",
-      href: "/relatorios",
-      icon: RiBarChartBoxLine,
-      show: true,
-    },
-    {
-      label: "Notificações",
-      href: "/notificacoes",
-      icon: RiNotification3Line,
-      show: true,
-    },
-    {
-      label: "Catálogo & Taxonomia",
+      label: "Catálogo & Inventário",
       icon: RiFolder3Line,
       show:
         ability.can("read", "Product") ||
@@ -165,7 +160,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           show: ability.can("read", "Product"),
         },
         {
-          label: "Estoque & Lotes",
+          label: "Estoque & Lotes FEFO",
           href: "/estoque",
           icon: RiStackLine,
           show:
@@ -186,10 +181,22 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       ],
     },
     {
+      label: "Relatórios & BI",
+      href: "/relatorios",
+      icon: RiBarChartBoxLine,
+      show: true,
+    },
+    {
       label: "Lojas Parceiras",
       href: "/lojas",
       icon: RiStoreLine,
       show: ability.can("read", "Store"),
+    },
+    {
+      label: "Central de Notificações",
+      href: "/notificacoes",
+      icon: RiNotification3Line,
+      show: true,
     },
     {
       label: "Gestão de Acessos",

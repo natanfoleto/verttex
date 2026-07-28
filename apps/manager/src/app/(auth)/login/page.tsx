@@ -97,7 +97,7 @@ export default function LoginPage() {
           <div className="space-y-1.5">
             <label
               htmlFor="email"
-              className="text-[11px] font-semibold tracking-wider text-zinc-300 uppercase"
+              className="block text-[11px] font-semibold tracking-wider text-zinc-300 uppercase"
             >
               E-mail
             </label>
@@ -121,7 +121,7 @@ export default function LoginPage() {
 
           {/* Password Field */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-baseline justify-between">
               <label
                 htmlFor="password"
                 className="text-[11px] font-semibold tracking-wider text-zinc-300 uppercase"

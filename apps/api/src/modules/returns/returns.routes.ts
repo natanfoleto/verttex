@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import {
+  listReturnsController,
   requestReturnController,
   receiveReturnInQuarantineController,
   inspectAndReleaseQuarantineController,
@@ -16,6 +17,20 @@ import {
 
 export async function returnsRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>();
+
+  // GET /returns — Protected for Management Users
+  typedApp.get(
+    "/",
+    {
+      preHandler: [app.authenticateUser],
+      schema: {
+        tags: ["Returns & Quarantine"],
+        summary: "Listar solicitações de devolução para o Verttex Manager",
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    listReturnsController,
+  );
 
   // POST /returns/request — Protected for Customers
   typedApp.post(

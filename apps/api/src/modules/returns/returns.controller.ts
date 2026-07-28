@@ -7,6 +7,17 @@ import {
   processRefundSchema,
 } from "./returns.schemas";
 
+export async function listReturnsController(
+  _req: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const result = await ReturnsService.listReturns();
+  return reply.status(200).send({
+    success: true,
+    data: result,
+  });
+}
+
 export async function requestReturnController(
   req: FastifyRequest,
   reply: FastifyReply,

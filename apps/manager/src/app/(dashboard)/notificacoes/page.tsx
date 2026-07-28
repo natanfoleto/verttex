@@ -93,9 +93,8 @@ export default function NotificationsCenterPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center space-x-2">
-            <RiNotification3Line className="h-7 w-7 text-emerald-400" />
-            <span>Central de Notificações & Alertas Sanitários de Validade</span>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Central de Notificações & Alertas Sanitários de Validade
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Acompanhe alertas de vencimento de lotes por faixas de dias e avisos transacionais do ecossistema VERTTEX.

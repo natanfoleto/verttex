@@ -16,6 +16,9 @@ export const env = createEnv({
     R2_PUBLIC_URL: z.string().url().optional(),
     REDIS_URL: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
+    EMAIL_FROM: z.string().default("Verttex <no-reply@verttexloja.com.br>"),
+    MANAGER_APP_URL: z.string().url().default("http://localhost:3002"),
+    MARKETPLACE_APP_URL: z.string().url().default("http://localhost:3001"),
   },
   runtimeEnv: {
     SERVER_PORT: process.env.SERVER_PORT,
@@ -30,6 +33,9 @@ export const env = createEnv({
     R2_PUBLIC_URL: process.env.R2_PUBLIC_URL,
     REDIS_URL: process.env.REDIS_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    MANAGER_APP_URL: process.env.MANAGER_APP_URL,
+    MARKETPLACE_APP_URL: process.env.MARKETPLACE_APP_URL,
   },
   emptyStringAsUndefined: true,
 });

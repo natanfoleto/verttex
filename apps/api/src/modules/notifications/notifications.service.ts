@@ -13,7 +13,46 @@ interface NotificationItem {
   createdAt: Date;
 }
 
-const notificationsStore = new Map<string, NotificationItem>();
+const notificationsStore = new Map<string, NotificationItem>([
+  [
+    "notif-1",
+    {
+      id: "notif-1",
+      userId: "system-manager",
+      title: "Alerta Sanitário de Validade — Lote L-2026-CAN-02",
+      message:
+        "Aviso: O lote L-2026-CAN-02 do produto 'Queijo Canastra Meia Cura 500g' atinge a faixa de aviso de 30 dias para vencimento.",
+      type: "EXPIRATION_ALERT",
+      isRead: false,
+      createdAt: new Date(),
+    },
+  ],
+  [
+    "notif-2",
+    {
+      id: "notif-2",
+      userId: "system-manager",
+      title: "Pedido Expedido com Sucesso",
+      message: "O pedido VTX-9822 foi expedido com validação sanitária FEFO.",
+      type: "TRANSACTIONAL",
+      isRead: true,
+      createdAt: new Date(),
+    },
+  ],
+  [
+    "notif-3",
+    {
+      id: "notif-3",
+      userId: "system-manager",
+      title: "Alerta Sanitário de Validade — Lote L-2026-CAN-03",
+      message:
+        "ATENÇÃO: O lote L-2026-CAN-03 do produto 'Queijo Canastra Meia Cura 500g' VENCEU há 6 dias. Ação de recolhimento/quarentena requerida.",
+      type: "EXPIRATION_ALERT",
+      isRead: false,
+      createdAt: new Date(),
+    },
+  ],
+]);
 const triggeredAlerts = new Set<string>(); // Unique key format: `${lotId}:${bracketDay}`
 
 export class NotificationsService {
@@ -48,12 +87,12 @@ export class NotificationsService {
    */
   static async listUserNotifications(userId: string, query: ListNotificationsQueryInput) {
     const userNotifications = Array.from(notificationsStore.values())
-      .filter((n) => n.userId === userId)
+      .filter((n) => n.userId === userId || n.userId === "system-manager")
       .filter((n) => (query.unreadOnly ? !n.isRead : true))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     const unreadCount = Array.from(notificationsStore.values()).filter(
-      (n) => n.userId === userId && !n.isRead,
+      (n) => (n.userId === userId || n.userId === "system-manager") && !n.isRead,
     ).length;
 
     return {

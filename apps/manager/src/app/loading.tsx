@@ -7,8 +7,9 @@ export default function Loading() {
         <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600 font-bold text-white shadow-lg shadow-emerald-950/30">
           V
         </div>
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-300 dark:border-zinc-700 border-t-emerald-500" />
-        <p className="text-xs font-medium text-zinc-400">Carregando...</p>
+        <span className="text-xs font-medium text-zinc-400">
+          Carregando...
+        </span>
       </div>
     </div>
   );

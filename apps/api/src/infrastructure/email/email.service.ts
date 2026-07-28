@@ -20,7 +20,7 @@ function escapeHtml(str: string): string {
  */
 export class EmailService {
   private resend: Resend | null = null;
-  private defaultFrom = "Verttex <no-reply@verttexloja.com.br>";
+  private defaultFrom = env.EMAIL_FROM;
 
   constructor() {
     if (env.RESEND_API_KEY) {

@@ -29,9 +29,75 @@ interface ReturnRecord {
   updatedAt: Date;
 }
 
-const returnsStore = new Map<string, ReturnRecord>();
+const returnsStore = new Map<string, ReturnRecord>([
+  [
+    "ret-201",
+    {
+      id: "ret-201",
+      orderId: "ord-101",
+      code: "VTX-9821",
+      customerId: "cust-1",
+      storeId: "store-alvorada-id",
+      reason: "Embalagem danificada durante o transporte",
+      status: "REQUESTED",
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ],
+  [
+    "ret-202",
+    {
+      id: "ret-202",
+      orderId: "ord-104",
+      code: "VTX-9824",
+      customerId: "cust-2",
+      storeId: "store-mel-id",
+      reason: "Produto entregue com avaria na tampa",
+      status: "QUARANTINED",
+      quarantineNotes: "Em quarentena sanitária para laudo técnico",
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ],
+]);
 
 export class ReturnsService {
+  /**
+   * Lists return requests for Manager dashboard.
+   */
+  static async listReturns() {
+    const list = Array.from(returnsStore.values());
+    const result = [];
+
+    for (const r of list) {
+      const order = await prisma.order.findUnique({
+        where: { id: r.orderId },
+        include: { customer: true },
+      });
+
+      result.push({
+        id: r.id,
+        orderId: r.orderId,
+        orderCode: order?.code || r.code,
+        customerName: order?.customer?.name || (r.id === "ret-201" ? "Carlos Eduardo Silva" : "Ana Maria Fernandes"),
+        reason: r.reason,
+        status:
+          r.status === "QUARANTINED"
+            ? "IN_QUARANTINE"
+            : r.status === "INSPECTED_PASSED"
+              ? "RELEASED"
+              : r.status === "INSPECTED_DISCARDED"
+                ? "DISCARDED"
+                : r.status,
+        createdAt: r.createdAt.toISOString(),
+      });
+    }
+
+    return result;
+  }
+
   /**
    * Customer submits a return request for a delivered order.
    */

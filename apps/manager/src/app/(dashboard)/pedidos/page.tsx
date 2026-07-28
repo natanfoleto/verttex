@@ -97,9 +97,8 @@ export default function OrdersManagementPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center space-x-2">
-            <RiShoppingBag3Line className="h-7 w-7 text-emerald-400" />
-            <span>Gestão de Pedidos & Expedição Sanitária FEFO</span>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Gestão de Pedidos & Expedição Sanitária FEFO
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Acompanhe pedidos, execute a expedição com validação de lotes FEFO e gerencie entregas em domicílio.

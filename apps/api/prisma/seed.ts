@@ -825,6 +825,347 @@ async function main() {
   console.log(
     "✅ Lotes de amostra, saldos de estoque e movimentações semeados com sucesso.",
   );
+
+  // 11. Seed Customers & Addresses
+  const customer1 = await prisma.customer.upsert({
+    where: { email: "carlos@exemplo.com.br" },
+    update: {},
+    create: {
+      name: "Carlos Eduardo Silva",
+      email: "carlos@exemplo.com.br",
+      cpfCnpj: "123.456.789-00",
+      passwordHash: defaultPasswordHash,
+      status: "active",
+    },
+  });
+
+  const address1 = await prisma.customerAddress.create({
+    data: {
+      customerId: customer1.id,
+      label: "Casa",
+      recipient: "Carlos Eduardo Silva",
+      street: "Rua da Canastra",
+      number: "100",
+      neighborhood: "Centro",
+      city: "Passos",
+      state: "MG",
+      zipCode: "37900-000",
+      isDefault: true,
+    },
+  });
+
+  const customer2 = await prisma.customer.upsert({
+    where: { email: "ana@exemplo.com.br" },
+    update: {},
+    create: {
+      name: "Ana Maria Fernandes",
+      email: "ana@exemplo.com.br",
+      cpfCnpj: "987.654.321-11",
+      passwordHash: defaultPasswordHash,
+      status: "active",
+    },
+  });
+
+  const address2 = await prisma.customerAddress.create({
+    data: {
+      customerId: customer2.id,
+      label: "Trabalho",
+      recipient: "Ana Maria Fernandes",
+      street: "Av. dos Produtores",
+      number: "500",
+      neighborhood: "Savassi",
+      city: "Belo Horizonte",
+      state: "MG",
+      zipCode: "30100-000",
+      isDefault: true,
+    },
+  });
+
+  console.log("✅ Compradores e endereços de teste semeados.");
+
+  // 12. Seed Sample Orders with Various Statuses for Test Plan
+  const orderPaid = await prisma.order.upsert({
+    where: { code: "VTX-9821" },
+    update: {},
+    create: {
+      id: "ord-101",
+      code: "VTX-9821",
+      storeId: storeAlvorada.id,
+      customerId: customer1.id,
+      customerAddressId: address1.id,
+      status: "PAID",
+      subtotal: 89.8,
+      shippingFee: 0,
+      discount: 0,
+      totalAmount: 89.8,
+      paymentMethod: "pix",
+      paymentStatus: "approved",
+    },
+  });
+
+  const itemOrder1 = await prisma.orderItem.create({
+    data: {
+      orderId: orderPaid.id,
+      productId: prodQueijo.id,
+      variationId: varQueijo.id,
+      productName: prodQueijo.name,
+      variationName: "Padrão / 500g",
+      sku: varQueijo.sku,
+      price: 44.9,
+      costPrice: 28.0,
+      quantity: 2,
+      subtotal: 89.8,
+    },
+  });
+
+  await prisma.orderItemLot.create({
+    data: {
+      orderItemId: itemOrder1.id,
+      lotId: lotWarning.id,
+      quantity: 2,
+    },
+  });
+
+  await prisma.stockReservation.create({
+    data: {
+      storeId: storeAlvorada.id,
+      orderId: orderPaid.id,
+      variationId: varQueijo.id,
+      lotId: lotWarning.id,
+      locationId: locAlvorada.id,
+      reservedQuantity: 2,
+      status: "ACTIVE",
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const orderShipped = await prisma.order.upsert({
+    where: { code: "VTX-9822" },
+    update: {},
+    create: {
+      id: "ord-102",
+      code: "VTX-9822",
+      storeId: storeMel.id,
+      customerId: customer2.id,
+      customerAddressId: address2.id,
+      status: "SHIPPED",
+      subtotal: 104.7,
+      shippingFee: 15.0,
+      discount: 0,
+      totalAmount: 119.7,
+      paymentMethod: "credit_card",
+      paymentStatus: "approved",
+      notes: "Transportadora: VERTTEX Express | Rastreio: BR987654321BR",
+    },
+  });
+
+  await prisma.orderItem.create({
+    data: {
+      orderId: orderShipped.id,
+      productId: prodMel.id,
+      variationId: varMel.id,
+      productName: prodMel.name,
+      variationName: "Padrão / 500g",
+      sku: varMel.sku,
+      price: 34.9,
+      costPrice: 18.5,
+      quantity: 3,
+      subtotal: 104.7,
+    },
+  });
+
+  const orderPending = await prisma.order.upsert({
+    where: { code: "VTX-9823" },
+    update: {},
+    create: {
+      id: "ord-103",
+      code: "VTX-9823",
+      storeId: storeAlvorada.id,
+      customerId: customer1.id,
+      customerAddressId: address1.id,
+      status: "PENDING",
+      subtotal: 44.9,
+      shippingFee: 12.0,
+      discount: 0,
+      totalAmount: 56.9,
+      paymentMethod: "pix",
+      paymentStatus: "pending",
+    },
+  });
+
+  await prisma.orderItem.create({
+    data: {
+      orderId: orderPending.id,
+      productId: prodQueijo.id,
+      variationId: varQueijo.id,
+      productName: prodQueijo.name,
+      variationName: "Padrão / 500g",
+      sku: varQueijo.sku,
+      price: 44.9,
+      costPrice: 28.0,
+      quantity: 1,
+      subtotal: 44.9,
+    },
+  });
+
+  const orderDelivered = await prisma.order.upsert({
+    where: { code: "VTX-9824" },
+    update: {},
+    create: {
+      id: "ord-104",
+      code: "VTX-9824",
+      storeId: storeMel.id,
+      customerId: customer2.id,
+      customerAddressId: address2.id,
+      status: "DELIVERED",
+      subtotal: 69.8,
+      shippingFee: 10.0,
+      discount: 0,
+      totalAmount: 79.8,
+      paymentMethod: "credit_card",
+      paymentStatus: "approved",
+    },
+  });
+
+  await prisma.orderItem.create({
+    data: {
+      orderId: orderDelivered.id,
+      productId: prodMel.id,
+      variationId: varMel.id,
+      productName: prodMel.name,
+      variationName: "Padrão / 500g",
+      sku: varMel.sku,
+      price: 34.9,
+      costPrice: 18.5,
+      quantity: 2,
+      subtotal: 69.8,
+    },
+  });
+
+  const orderCancelled = await prisma.order.upsert({
+    where: { code: "VTX-9825" },
+    update: {},
+    create: {
+      id: "ord-105",
+      code: "VTX-9825",
+      storeId: storeAlvorada.id,
+      customerId: customer1.id,
+      customerAddressId: address1.id,
+      status: "CANCELLED",
+      subtotal: 44.9,
+      shippingFee: 0,
+      discount: 0,
+      totalAmount: 44.9,
+      paymentMethod: "boleto",
+      paymentStatus: "failed",
+      cancelReason: "Desistência do comprador no ato do pagamento",
+    },
+  });
+
+  await prisma.orderItem.create({
+    data: {
+      orderId: orderCancelled.id,
+      productId: prodQueijo.id,
+      variationId: varQueijo.id,
+      productName: prodQueijo.name,
+      variationName: "Padrão / 500g",
+      sku: varQueijo.sku,
+      price: 44.9,
+      costPrice: 28.0,
+      quantity: 1,
+      subtotal: 44.9,
+    },
+  });
+
+  console.log("✅ Pedidos de teste semeados com múltiplos status (PAID, SHIPPED, PENDING, DELIVERED, CANCELLED).");
+
+  // 13. Seed Sanitary Discard Stock Movements (For Losses & Curva ABC Reports)
+  await prisma.stockMovement.create({
+    data: {
+      storeId: storeAlvorada.id,
+      variationId: varQueijo.id,
+      lotId: lotExpired.id,
+      sourceLocationId: locAlvorada.id,
+      type: "EXPIRATION_DISCARD",
+      quantity: 12,
+      reason: "Descarte sanitário formal por vencimento do lote L-2026-CAN-03",
+      userId: adminUser.id,
+    },
+  });
+
+  await prisma.stockMovement.create({
+    data: {
+      storeId: storeAlvorada.id,
+      variationId: varQueijo.id,
+      lotId: lotValid.id,
+      sourceLocationId: locAlvorada.id,
+      type: "DAMAGE_DISCARD",
+      quantity: 3,
+      reason: "Descarte por avaria na embalagem durante movimentação interna",
+      userId: adminUser.id,
+    },
+  });
+
+  console.log("✅ Movimentações de perda sanitária registradas.");
+
+  // 14. Seed Audit Logs
+  const auditLogsData = [
+    {
+      userId: adminUser.id,
+      action: "USER_LOGIN",
+      entity: "User",
+      entityId: adminUser.id,
+      newValues: { status: "success", role: "admin", ip: "127.0.0.1" },
+      ipAddress: "127.0.0.1",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    },
+    {
+      userId: adminUser.id,
+      action: "ORDER_CHECKOUT",
+      entity: "Order",
+      entityId: orderPaid.id,
+      newValues: { code: orderPaid.code, totalAmount: 89.8, itemsCount: 2 },
+      ipAddress: "127.0.0.1",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    },
+    {
+      userId: adminUser.id,
+      action: "ORDER_DISPATCH",
+      entity: "Order",
+      entityId: orderShipped.id,
+      oldValues: { status: "PAID" },
+      newValues: { status: "SHIPPED", trackingCode: "BR987654321BR" },
+      ipAddress: "127.0.0.1",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    },
+    {
+      userId: adminUser.id,
+      action: "LOT_QUARANTINE_ENTRY",
+      entity: "ProductLot",
+      entityId: lotQuarantine.id,
+      oldValues: { status: "available" },
+      newValues: { status: "quarantine", notes: "Análise laboratorial de cristalização" },
+      ipAddress: "127.0.0.1",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    },
+    {
+      userId: adminUser.id,
+      action: "REPORT_EXPORT",
+      entity: "Report",
+      newValues: { format: "csv", reportType: "abc_curve" },
+      ipAddress: "127.0.0.1",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    },
+  ];
+
+  for (const log of auditLogsData) {
+    await prisma.auditLog.create({
+      data: log,
+    });
+  }
+
+  console.log("✅ Logs de auditoria inicializados.");
+
   console.log("🎉 Seed finished successfully!");
 }
 

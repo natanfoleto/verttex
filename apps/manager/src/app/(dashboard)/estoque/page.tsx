@@ -11,7 +11,6 @@ import {
   RiErrorWarningLine,
   RiLockLine,
   RiRefreshLine,
-  RiStackLine,
 } from "react-icons/ri";
 
 import { Badge } from "@/components/ui/badge";
@@ -142,13 +141,12 @@ export default function StockAndLotsPage() {
   ).length;
 
   return (
-    <div className="space-y-6 p-8 text-zinc-100">
+    <div className="space-y-6 text-zinc-100 antialiased">
       {/* HEADER */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
-            <RiStackLine className="h-7 w-7 text-emerald-500" />
-            <span>Gestão de Lotes, Validade & Estoque</span>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Gestão de Lotes, Validade & Estoque
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Controle por lotes, datas de vencimento, quarentena e descarte

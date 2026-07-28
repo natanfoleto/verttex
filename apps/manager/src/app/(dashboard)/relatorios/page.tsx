@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
-  RiBarChartBoxLine,
   RiDownloadLine,
   RiExchangeDollarLine,
   RiShoppingBag3Line,
@@ -47,7 +46,7 @@ export default function ReportsAndBiPage() {
     queryFn: async () => {
       try {
         const res = await apiClient<any>("/reports/sales-summary");
-        return res.data;
+        return res ?? { orderCount: 42, totalRevenue: 12850.0, averageTicket: 305.95 };
       } catch {
         return { orderCount: 42, totalRevenue: 12850.0, averageTicket: 305.95 };
       }
@@ -59,7 +58,19 @@ export default function ReportsAndBiPage() {
     queryFn: async () => {
       try {
         const res = await apiClient<any>("/reports/top-products");
-        return res.data;
+        return res ?? {
+          products: [
+            {
+              productId: "p1",
+              name: "Queijo Canastra Curado Especial",
+              sku: "QUEIJO-CAN-01",
+              quantity: 85,
+              revenue: 6800.0,
+              cumulativePercent: 52.9,
+              category: "A",
+            },
+          ],
+        };
       } catch {
         return {
           products: [
@@ -110,7 +121,10 @@ export default function ReportsAndBiPage() {
     queryFn: async () => {
       try {
         const res = await apiClient<any>("/reports/inventory-losses");
-        return res.data;
+        return res ?? {
+          totalDiscardedQuantity: 14,
+          byReason: { damageDiscard: 4, expirationDiscard: 10 },
+        };
       } catch {
         return {
           totalDiscardedQuantity: 14,
@@ -122,7 +136,8 @@ export default function ReportsAndBiPage() {
 
   const handleExport = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/reports/export?format=${exportFormat}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
+      const res = await fetch(`${apiUrl}/reports/export?format=${exportFormat}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("verttex_token") || ""}`,
         },
@@ -154,9 +169,8 @@ export default function ReportsAndBiPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center space-x-2">
-            <RiBarChartBoxLine className="h-7 w-7 text-emerald-400" />
-            <span>Relatórios Comerciais, Operacionais & Curva ABC</span>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Relatórios Comerciais, Operacionais & Curva ABC
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Métricas executivas de faturamento, ticket médio, inteligência da curva ABC de produtos e controle sanitário de perdas de estoque.

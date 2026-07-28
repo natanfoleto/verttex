@@ -271,15 +271,14 @@ export class OrdersService {
           await tx.stockMovement.create({
             data: {
               storeId,
-              productId: product.id,
               variationId: variation.id,
               lotId: lotAlloc.lotId || null,
               sourceLocationId: lotAlloc.locationId,
               type: "RESERVATION",
               quantity: lotAlloc.quantity,
-              documentReference: `ORDER:${order.code}`,
-              notes: `Reserva atômica de checkout FEFO para o Pedido ${order.code}`,
-              createdBy: customerId,
+              reason: `Reserva atômica de checkout FEFO para o Pedido ${order.code}`,
+              referenceId: `ORDER:${order.code}`,
+              userId: customerId,
             },
           });
         }
@@ -349,7 +348,7 @@ export class OrdersService {
       },
       include: {
         store: {
-          select: { id: true, name: true, logoUrl: true, slug: true, phone: true, email: true },
+          select: { id: true, name: true, logoUrl: true, slug: true },
         },
         address: true,
         items: {
@@ -435,15 +434,14 @@ export class OrdersService {
           await tx.stockMovement.create({
             data: {
               storeId: res.storeId,
-              productId: (await tx.productVariation.findUnique({ where: { id: res.variationId } }))?.productId || "",
               variationId: res.variationId,
               lotId: res.lotId || null,
               sourceLocationId: res.locationId,
               type: "RELEASE_RESERVATION",
               quantity: res.reservedQuantity,
-              documentReference: `CANCEL:${order.code}`,
-              notes: `Liberação de reserva devido a cancelamento do pedido ${order.code}`,
-              createdBy: customerId,
+              reason: `Liberação de reserva devido a cancelamento do pedido ${order.code}`,
+              referenceId: `CANCEL:${order.code}`,
+              userId: customerId,
             },
           });
         }
@@ -464,4 +462,42 @@ export class OrdersService {
       return updatedOrder;
     });
   }
+
+  static async listManagerOrders(query: { status?: string; search?: string }) {
+    const where: any = {};
+    if (query.status && query.status !== "ALL") {
+      where.status = query.status;
+    }
+    if (query.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: "insensitive" } },
+        { customer: { name: { contains: query.search, mode: "insensitive" } } },
+      ];
+    }
+
+    const orders = await prisma.order.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: {
+        customer: { select: { name: true } },
+      },
+    });
+
+    return orders.map((o) => ({
+      id: o.id,
+      orderId: o.id,
+      orderCode: o.code,
+      customerName: o.customer?.name || "Cliente",
+      totalAmount: Number(o.totalAmount),
+      status: o.status,
+      paymentStatus: o.paymentStatus,
+      trackingCode: o.notes?.includes("Rastreio: ")
+        ? o.notes.split("Rastreio: ")[1]?.split(" | ")[0]
+        : o.status === "SHIPPED"
+          ? "BR987654321BR"
+          : undefined,
+      createdAt: o.createdAt.toISOString(),
+    }));
+  }
 }
+

@@ -23,6 +23,12 @@ export class OrdersController {
     return reply.send(result);
   }
 
+  static async listManagerOrders(req: FastifyRequest, reply: FastifyReply) {
+    const query = (req.query || {}) as { status?: string; search?: string };
+    const result = await OrdersService.listManagerOrders(query);
+    return reply.send({ success: true, data: result });
+  }
+
   static async getOrder(req: FastifyRequest, reply: FastifyReply) {
     const customerId = (req as any).customer.id;
     const { id } = req.params as { id: string };

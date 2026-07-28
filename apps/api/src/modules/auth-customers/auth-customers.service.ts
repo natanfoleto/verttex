@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { env } from "@verttex/env/api";
 import { prisma } from "../../infrastructure/database/prisma";
 import { AppError } from "../../shared/errors/app-error";
 import {
@@ -245,7 +246,7 @@ export class AuthCustomersService {
       `🔑 [DEV CUSTOMER RESET TOKEN] Email: ${email} | Token: ${rawToken}`,
     );
 
-    const resetUrl = `http://localhost:3001/redefinir-senha?token=${rawToken}`;
+    const resetUrl = `${env.MARKETPLACE_APP_URL}/redefinir-senha?token=${rawToken}`;
     await emailService.sendPasswordResetEmail({
       to: email,
       userName: customer.name,

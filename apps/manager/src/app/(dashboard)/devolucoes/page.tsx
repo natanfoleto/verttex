@@ -99,9 +99,8 @@ export default function ReturnsManagementPage() {
     <div className="space-y-6 font-sans text-zinc-100 antialiased">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center space-x-2">
-          <RiRefreshLine className="h-7 w-7 text-amber-400" />
-          <span>Gestão de Trocas, Devoluções & Quarentena Sanitária</span>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+          Gestão de Trocas, Devoluções & Quarentena Sanitária
         </h1>
         <p className="text-xs text-zinc-400 mt-1">
           Processe solicitações de devolução de compradores com controle compulsório de quarentena sanitária e emissão de laudos.
