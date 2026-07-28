@@ -1,17 +1,18 @@
-# 020 — Entregas e Rastreamento
+# 021 — Entregas e Rastreamento
 
 ## Metadata
 
-- Status: Planned
+- Status: active
 - Priority: High
 - Created at: 2026-07-23
-- Dependencies: [`planned/018-orders-and-checkout.md`](.ai/roadmaps/planned/018-orders-and-checkout.md), [`active/014-inventory-and-stock-movements.md`](.ai/roadmaps/active/014-inventory-and-stock-movements.md)
+- Activated at: 2026-07-28
+- Dependencies: [`completed/019-orders-and-checkout.md`](.ai/roadmaps/completed/019-orders-and-checkout.md), [`completed/020-payments.md`](.ai/roadmaps/completed/020-payments.md)
 
 ---
 
 ## 1. Objetivo Geral
 
-Gerenciar fretes, expedição e rastreamento de entregas aos compradores.
+Gerenciar fretes, expedição de mercadorias e rastreamento de entregas aos compradores no VERTTEX.
 
 ---
 

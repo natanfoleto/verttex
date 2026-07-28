@@ -1,11 +1,12 @@
-# 018 — Pedidos e Checkout
+# 019 — Pedidos e Checkout
 
 ## Metadata
 
-- Status: active
+- Status: completed
 - Priority: High
 - Created at: 2026-07-23
 - Activated at: 2026-07-28
+- Completed at: 2026-07-28
 - Dependencies: [`completed/016-customers-and-addresses.md`](.ai/roadmaps/completed/016-customers-and-addresses.md), [`completed/017-cart-and-pricing-rules.md`](.ai/roadmaps/completed/017-cart-and-pricing-rules.md), [`completed/018-marketplace-product-page-and-dynamic-catalog.md`](.ai/roadmaps/completed/018-marketplace-product-page-and-dynamic-catalog.md)
 
 ---
@@ -23,4 +24,4 @@ Executar o fluxo de checkout e criação de pedidos no VERTTEX, realizando a **r
 - **Rastreabilidade Sanitária (`OrderItemLot`)**: Registro de quais lotes específicos e quantidades atenderam cada item do pedido para fins de rastreabilidade e recall.
 - **Liberação por Cancelamento**: Cancelamento de pedido ou expiração de checkout libera o lote reservado (`StockMovement.type = 'RELEASE_RESERVATION'`).
 - **Marketplace UI**: Páginas `/checkout`, `/pedidos` e `/pedidos/[code]` com componentes Shadcn UI e Skeleton Loading (`animate-pulse`).
-- **Testes Automatizados Vitest**: Suíte de testes automatizados cobrindo sucesso, exceções, snapshot e concorrência.
+- **Testes Automatizados Vitest**: Suíte de testes automatizados cobrindo sucesso, exceções, snapshot e concorrência (`apps/api/src/modules/orders/orders.spec.ts`).

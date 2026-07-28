@@ -28,9 +28,9 @@
 | 016 | Clientes e Endereços                                 | `completed` | high       | 004           | [`completed/016-customers-and-addresses.md`](.ai/roadmaps/completed/016-customers-and-addresses.md)                     |
 | 017 | Carrinho e Regras de Preço                           | `completed` | high       | 013, 016      | [`completed/017-cart-and-pricing-rules.md`](.ai/roadmaps/completed/017-cart-and-pricing-rules.md)                       |
 | 018 | Página do Produto e Integração Dinâmica do Catálogo | `completed` | high       | 013, 015, 017 | [`completed/018-marketplace-product-page-and-dynamic-catalog.md`](.ai/roadmaps/completed/018-marketplace-product-page-and-dynamic-catalog.md) |
-| 019 | Pedidos e Checkout                                   | `planned`   | high       | 016, 017, 018 | [`planned/019-orders-and-checkout.md`](.ai/roadmaps/planned/019-orders-and-checkout.md)                                 |
-| 020 | Pagamentos                                           | `planned`   | high       | 019           | [`planned/020-payments.md`](.ai/roadmaps/planned/020-payments.md)                                                       |
-| 021 | Entregas e Rastreamento                              | `planned`   | high       | 019           | [`planned/021-shipping-and-tracking.md`](.ai/roadmaps/planned/021-shipping-and-tracking.md)                             |
+| 019 | Pedidos e Checkout                                   | `completed` | high       | 016, 017, 018 | [`completed/019-orders-and-checkout.md`](.ai/roadmaps/completed/019-orders-and-checkout.md)                             |
+| 020 | Pagamentos                                           | `completed` | high       | 019           | [`completed/020-payments.md`](.ai/roadmaps/completed/020-payments.md)                                                   |
+| 021 | Entregas e Rastreamento                              | `active`    | high       | 019, 020      | [`active/021-shipping-and-tracking.md`](.ai/roadmaps/active/021-shipping-and-tracking.md)                               |
 | 022 | Cancelamentos, Trocas e Reembolsos                   | `planned`   | medium     | 019, 020      | [`planned/022-cancellations-returns-refunds.md`](.ai/roadmaps/planned/022-cancellations-returns-refunds.md)             |
 | 023 | Avaliações e Perguntas                               | `planned`   | medium     | 013, 019      | [`planned/023-reviews-and-qa.md`](.ai/roadmaps/planned/023-reviews-and-qa.md)                                           |
 | 024 | Notificações                                         | `planned`   | medium     | 019, 021      | [`planned/024-notifications.md`](.ai/roadmaps/planned/024-notifications.md)                                             |
@@ -42,9 +42,9 @@
 
 | Status      | Quantidade | Observação                                  |
 | :---------- | :--------- | :------------------------------------------ |
-| `completed` | 18         | Roadmaps 001 a 018 concluídos e validados   |
-| `active`    | 0          | Nenhum roadmap ativo                        |
-| `planned`   | 7          | Roadmaps 019 a 025 planejados e registrados |
+| `completed` | 20         | Roadmaps 001 a 020 concluídos e validados   |
+| `active`    | 1          | Roadmap 021 em desenvolvimento ativo        |
+| `planned`   | 5          | Roadmaps 022 a 025 planejados e registrados |
 | `archived`  | 0          | Nenhum roadmap arquivado                    |
 
 ---
