@@ -18,6 +18,11 @@ import { catalogRoutes } from "./catalog/catalog.routes";
 import { cartRoutes } from "./cart/cart.routes";
 import { ordersRoutes } from "./orders/orders.routes";
 import { paymentsRoutes } from "./payments/payments.routes";
+import { shippingRoutes } from "./shipping/shipping.routes";
+import { returnsRoutes } from "./returns/returns.routes";
+import { reviewsRoutes } from "./reviews/reviews.routes";
+import { notificationsRoutes } from "./notifications/notifications.routes";
+import { reportsRoutes } from "./reports/reports.routes";
 
 export async function registerModules(app: FastifyInstance) {
   await app.register(healthRoutes);
@@ -39,4 +44,9 @@ export async function registerModules(app: FastifyInstance) {
   await app.register(cartRoutes, { prefix: "/cart" });
   await app.register(ordersRoutes, { prefix: "/orders" });
   await app.register(paymentsRoutes, { prefix: "/payments" });
+  await app.register(shippingRoutes, { prefix: "/shipping" });
+  await app.register(returnsRoutes, { prefix: "/returns" });
+  await app.register(reviewsRoutes, { prefix: "/reviews" });
+  await app.register(notificationsRoutes, { prefix: "/notifications" });
+  await app.register(reportsRoutes, { prefix: "/reports" });
 }

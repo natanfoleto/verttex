@@ -19,3 +19,33 @@ Toda nova implementação, endpoint, serviço, funcionalidade, correção de bug
 ## Regra Mandatória de Skeleton Loading no Frontend
 
 Toda e qualquer página, modal, listagem ou tela com carregamento assíncrono de dados **DEVE obrigatoriamente utilizar componentes de Skeleton Loading (`animate-pulse`)** que espelhem com precisão o layout final da tela, eliminando telas em branco e spinners genéricos soltos.
+
+
+# NO FINAL DOS ROADMAPS
+
+Tudo está auditado?
+Tudo está documentado?
+Tudo tem testes?
+
+
+### **CRITICAL VALIDATION: TEST COVERAGE (VITEST)**
+
+Before considering any development cycle **complete**, you MUST verify and ensure the following regarding test coverage:
+
+1. **Automated Tests Exist and Pass:**
+   - Every new feature, endpoint, service, or bug fix **MUST include new or updated automated tests (Vitest)**.
+   - The tests must execute successfully and pass the CI/CD pipeline.
+   - No implementation should be marked as "finished" without passing tests.
+
+2. **Test Documentation:**
+   - All test scenarios (success, edge cases, error handling) must be documented in the respective test files.
+   - Test behavior must be intuitive and easy to understand.
+
+3. **Full Integration Coverage:**
+   - Consider **integration tests** for flows involving multiple services (e.g., Order -> Payment -> Shipping).
+   - Ensure database transactions are properly mocked or tested.
+
+4. **No Test Coverage Bypass:**
+   - Do not skip creating or updating tests to save time.
+   - Test coverage is a **mandatory requirement** for considering a task completed.
+

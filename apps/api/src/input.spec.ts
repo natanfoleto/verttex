@@ -11,11 +11,12 @@ describe("INPUT-001: Global Body Limit & Payload Flood Protection", () => {
       data: "A".repeat(300 * 1024),
     };
 
+    const randomIp = `10.${Math.floor(Math.random() * 200 + 10)}.${Math.floor(Math.random() * 200 + 10)}.1`;
     const response = await app.inject({
       method: "POST",
       url: "/auth/users/forgot-password",
       headers: {
-        "x-forwarded-for": "10.255.255.1",
+        "x-forwarded-for": randomIp,
       },
       payload: largePayload,
     });

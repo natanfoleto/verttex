@@ -30,11 +30,11 @@
 | 018 | Página do Produto e Integração Dinâmica do Catálogo | `completed` | high       | 013, 015, 017 | [`completed/018-marketplace-product-page-and-dynamic-catalog.md`](.ai/roadmaps/completed/018-marketplace-product-page-and-dynamic-catalog.md) |
 | 019 | Pedidos e Checkout                                   | `completed` | high       | 016, 017, 018 | [`completed/019-orders-and-checkout.md`](.ai/roadmaps/completed/019-orders-and-checkout.md)                             |
 | 020 | Pagamentos                                           | `completed` | high       | 019           | [`completed/020-payments.md`](.ai/roadmaps/completed/020-payments.md)                                                   |
-| 021 | Entregas e Rastreamento                              | `active`    | high       | 019, 020      | [`active/021-shipping-and-tracking.md`](.ai/roadmaps/active/021-shipping-and-tracking.md)                               |
-| 022 | Cancelamentos, Trocas e Reembolsos                   | `planned`   | medium     | 019, 020      | [`planned/022-cancellations-returns-refunds.md`](.ai/roadmaps/planned/022-cancellations-returns-refunds.md)             |
-| 023 | Avaliações e Perguntas                               | `planned`   | medium     | 013, 019      | [`planned/023-reviews-and-qa.md`](.ai/roadmaps/planned/023-reviews-and-qa.md)                                           |
-| 024 | Notificações                                         | `planned`   | medium     | 019, 021      | [`planned/024-notifications.md`](.ai/roadmaps/planned/024-notifications.md)                                             |
-| 025 | Relatórios Comerciais e Operacionais                 | `planned`   | medium     | 019, 020      | [`planned/025-commercial-and-operational-reports.md`](.ai/roadmaps/planned/025-commercial-and-operational-reports.md)   |
+| 021 | Entregas e Rastreamento                              | `completed` | high       | 019, 020      | [`completed/021-shipping-and-tracking.md`](.ai/roadmaps/completed/021-shipping-and-tracking.md)                         |
+| 022 | Cancelamentos, Trocas e Reembolsos                   | `completed` | medium     | 019, 020, 021 | [`completed/022-cancellations-returns-refunds.md`](.ai/roadmaps/completed/022-cancellations-returns-refunds.md)         |
+| 023 | Avaliações e Perguntas                               | `completed` | medium     | 018, 019      | [`completed/023-reviews-and-qa.md`](.ai/roadmaps/completed/023-reviews-and-qa.md)                                       |
+| 024 | Notificações                                         | `completed` | medium     | 019, 021      | [`completed/024-notifications.md`](.ai/roadmaps/completed/024-notifications.md)                                         |
+| 025 | Relatórios Comerciais e Operacionais                 | `completed` | medium     | 019, 020      | [`completed/025-commercial-and-operational-reports.md`](.ai/roadmaps/completed/025-commercial-and-operational-reports.md) |
 
 ---
 
@@ -42,9 +42,9 @@
 
 | Status      | Quantidade | Observação                                  |
 | :---------- | :--------- | :------------------------------------------ |
-| `completed` | 20         | Roadmaps 001 a 020 concluídos e validados   |
-| `active`    | 1          | Roadmap 021 em desenvolvimento ativo        |
-| `planned`   | 5          | Roadmaps 022 a 025 planejados e registrados |
+| `completed` | 25         | Roadmaps 001 a 025 concluídos e validados   |
+| `active`    | 0          | Todos os roadmaps foram concluídos          |
+| `planned`   | 0          | Nenhum roadmap pendente                     |
 | `archived`  | 0          | Nenhum roadmap arquivado                    |
 
 ---
