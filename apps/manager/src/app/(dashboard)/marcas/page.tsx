@@ -35,6 +35,10 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 import { apiClient, ApiError } from "../../../lib/api-client";
+import {
+  brandQueryKeys,
+  invalidateBrands,
+} from "../../../lib/query-keys";
 import { useAuth } from "../../../providers/auth-provider";
 
 import { TableWrapper } from "@/components/ui/table-wrapper";
@@ -79,7 +83,7 @@ export default function BrandsPage() {
 
   // Queries
   const { data: listRes, isLoading } = useQuery({
-    queryKey: ["brands-list", search, statusFilter, page, perPage],
+    queryKey: brandQueryKeys.list({ search, status: statusFilter, page, perPage }),
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append("page", String(page));
@@ -102,8 +106,8 @@ export default function BrandsPage() {
         method: "POST",
         body: JSON.stringify(body),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["brands-list"] });
+    onSuccess: async () => {
+      await invalidateBrands(queryClient);
       toast.success("Marca criada com sucesso!");
       closeModal();
     },
@@ -120,8 +124,8 @@ export default function BrandsPage() {
         method: "PATCH",
         body: JSON.stringify(body),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["brands-list"] });
+    onSuccess: async () => {
+      await invalidateBrands(queryClient);
       toast.success("Marca atualizada com sucesso!");
       closeModal();
     },
@@ -137,8 +141,8 @@ export default function BrandsPage() {
       apiClient(`/brands/${id}`, {
         method: "DELETE",
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["brands-list"] });
+    onSuccess: async () => {
+      await invalidateBrands(queryClient);
       toast.success("Marca arquivada com sucesso!");
       setDeletingBrand(null);
     },

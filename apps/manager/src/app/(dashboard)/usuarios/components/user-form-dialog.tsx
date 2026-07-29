@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 
 import { apiClient, ApiError } from "../../../../lib/api-client";
-import { invalidateUsers } from "../../../../lib/query-keys";
+import { roleQueryKeys, invalidateUsers } from "../../../../lib/query-keys";
 
 export interface UserItem {
   id: string;
@@ -54,12 +54,13 @@ export function UserFormDialog({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: roles } = useQuery({
-    queryKey: ["roles-dropdown"],
+    queryKey: roleQueryKeys.dropdown(),
     queryFn: async () => {
       const res = await apiClient("/roles");
       return Array.isArray(res) ? res : (res?.data ?? []);
     },
     enabled: open,
+    staleTime: 0, // Always refetch when opened so new roles appear immediately
   });
 
   useEffect(() => {

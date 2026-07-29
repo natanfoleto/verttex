@@ -300,10 +300,43 @@ Every feature screen must implement:
 
 - **Location**: `src/lib/query-keys.ts`.
 - **Rule**: Never use ad-hoc string arrays or `window.location.reload()`. Use query key factories:
-  - `storeQueryKeys.all`, `storeQueryKeys.list(filters)`, `storeQueryKeys.detail(id)`.
-  - `userQueryKeys.all`, `userQueryKeys.list(filters)`, `userQueryKeys.detail(id)`.
-  - `roleQueryKeys.all`, `roleQueryKeys.list(filters)`, `roleQueryKeys.detail(id)`.
+  - `storeQueryKeys.all`, `storeQueryKeys.list(filters)`, `storeQueryKeys.detail(id)`, `storeQueryKeys.dropdown()`
+  - `userQueryKeys.all`, `userQueryKeys.list(filters)`, `userQueryKeys.detail(id)`
+  - `roleQueryKeys.all`, `roleQueryKeys.list(filters)`, `roleQueryKeys.detail(id)`, `roleQueryKeys.dropdown()`
+  - `categoryQueryKeys.all`, `categoryQueryKeys.list(filters)`, `categoryQueryKeys.tree()`, `categoryQueryKeys.dropdown()`
+  - `brandQueryKeys.all`, `brandQueryKeys.list(filters)`, `brandQueryKeys.dropdown()`
 - **Invalidation Policy**: Mutations MUST call `await queryClient.invalidateQueries({ queryKey: entityKeys.all })` on success to ensure real-time UI updates without page reloads.
+
+### 10.6.1 Regra Mandatória de Invalidação Cross-Módulo e Reatividade de Dados
+
+> **MANDATORY POLICY — PLATAFORMA PROFISSIONAL**: Todo formulário com selects de dados de outros módulos (ex: seletor de Categoria no formulário de Produto) **DEVE reagir imediatamente** a mutations realizadas em outras telas, sem nenhum `window.location.reload()` ou refresh manual.
+
+**Regras:**
+
+1. **Hierarquia de QueryKeys por domínio**: Toda entidade possui uma chave raiz (`all`) e sub-chaves funcionais (`list`, `dropdown`, `tree`, `detail`). Invalidar a raiz (`entityKeys.all`) invalida todos os filhos automaticamente.
+
+2. **Helpers Centralizados Obrigatórios**: Toda mutation **DEVE** usar os helpers centralizados em `src/lib/query-keys.ts`:
+   - `invalidateCategories(queryClient)` — invalida list + tree + dropdown
+   - `invalidateBrands(queryClient)` — invalida list + dropdown
+   - `invalidateRoles(queryClient, roleId?)` — invalida list + detail + dropdown
+   - `invalidateStores(queryClient, storeId?)` — invalida list + detail + dropdown
+
+3. **`staleTime: 0` em Queries de Dropdown**: Toda `useQuery` que alimenta um `<select>`, `<NativeSelect>` ou `<Select>` de formulário **DEVE declarar `staleTime: 0`** para garantir refetch imediato ao montar/re-montar o componente.
+
+4. **Proibição de Invalidação Parcial**: É **estritamente proibido** invalidar apenas a query de listagem local sem cobrir os dropdowns dependentes (ex: só invalidar `brands-list` sem invalidar `brands-dropdown`).
+
+**Exemplo correto:**
+```ts
+// ✅ CORRETO — Cobre lista, tree e dropdown em um só helper
+onSuccess: async () => {
+  await invalidateCategories(queryClient);
+}
+
+// ❌ ERRADO — Não cobre o dropdown usado no formulário de produto
+onSuccess: () => {
+  queryClient.invalidateQueries({ queryKey: ["categories-list"] });
+}
+```
 
 ### 10.7 Skeleton Loadings & Empty States
 

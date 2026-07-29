@@ -35,6 +35,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
 import { apiClient, ApiError } from "../../../../lib/api-client";
+import {
+  categoryQueryKeys,
+  brandQueryKeys,
+  storeQueryKeys,
+} from "../../../../lib/query-keys";
 import { sanitizeSlug } from "../../../../lib/slug";
 
 interface Store {
@@ -203,30 +208,33 @@ export function ProductFormDialog({
 
   // Queries for Dropdowns
   const { data: storesRes } = useQuery({
-    queryKey: ["stores-dropdown"],
+    queryKey: storeQueryKeys.dropdown(),
     queryFn: async () => {
       const res = await apiClient("/stores");
       return Array.isArray(res) ? res : (res?.data ?? []);
     },
     enabled: open,
+    staleTime: 0, // Always fetch fresh so newly created stores appear immediately
   });
 
   const { data: categoriesRes } = useQuery({
-    queryKey: ["categories-dropdown"],
+    queryKey: categoryQueryKeys.dropdown(),
     queryFn: async () => {
       const res = await apiClient("/categories");
       return Array.isArray(res) ? res : (res?.data ?? []);
     },
     enabled: open,
+    staleTime: 0, // Always fetch fresh so newly created categories appear immediately
   });
 
   const { data: brandsRes } = useQuery({
-    queryKey: ["brands-dropdown"],
+    queryKey: brandQueryKeys.dropdown(),
     queryFn: async () => {
       const res = await apiClient("/brands");
       return Array.isArray(res) ? res : (res?.data ?? []);
     },
     enabled: open,
+    staleTime: 0, // Always fetch fresh so newly created brands appear immediately
   });
 
   const storesList: Store[] = storesRes ?? [];
@@ -669,7 +677,7 @@ export function ProductFormDialog({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products-list"] });
-      queryClient.invalidateQueries({ queryKey: ["stores-dropdown"] });
+      queryClient.invalidateQueries({ queryKey: storeQueryKeys.dropdown() });
       toast.success("Produto criado com sucesso!");
       onOpenChange(false);
     },
@@ -688,7 +696,7 @@ export function ProductFormDialog({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products-list"] });
-      queryClient.invalidateQueries({ queryKey: ["stores-dropdown"] });
+      queryClient.invalidateQueries({ queryKey: storeQueryKeys.dropdown() });
       toast.success("Produto atualizado com sucesso!");
       onOpenChange(false);
     },

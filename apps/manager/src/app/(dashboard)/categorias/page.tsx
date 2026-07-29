@@ -37,6 +37,10 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
 import { apiClient, ApiError } from "../../../lib/api-client";
+import {
+  categoryQueryKeys,
+  invalidateCategories,
+} from "../../../lib/query-keys";
 import { useAuth } from "../../../providers/auth-provider";
 
 interface Category {
@@ -85,7 +89,7 @@ export default function CategoriesPage() {
 
   // Queries
   const { data: treeData, isLoading: isLoadingTree } = useQuery({
-    queryKey: ["categories-tree"],
+    queryKey: categoryQueryKeys.tree(),
     queryFn: async () => {
       const res = await apiClient("/categories/tree");
       return Array.isArray(res) ? res : (res?.data ?? []);
@@ -93,7 +97,7 @@ export default function CategoriesPage() {
   });
 
   const { data: listRes, isLoading: isLoadingList } = useQuery({
-    queryKey: ["categories-list", search, statusFilter],
+    queryKey: categoryQueryKeys.list({ search, status: statusFilter }),
     queryFn: async () => {
       const params = new URLSearchParams();
       if (search) params.append("search", search);
@@ -113,9 +117,8 @@ export default function CategoriesPage() {
         method: "POST",
         body: JSON.stringify(body),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories-tree"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-list"] });
+    onSuccess: async () => {
+      await invalidateCategories(queryClient);
       toast.success("Categoria criada com sucesso!");
       closeModal();
     },
@@ -132,9 +135,8 @@ export default function CategoriesPage() {
         method: "PATCH",
         body: JSON.stringify(body),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories-tree"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-list"] });
+    onSuccess: async () => {
+      await invalidateCategories(queryClient);
       toast.success("Categoria atualizada com sucesso!");
       closeModal();
     },
@@ -150,9 +152,8 @@ export default function CategoriesPage() {
       apiClient(`/categories/${id}`, {
         method: "DELETE",
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories-tree"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-list"] });
+    onSuccess: async () => {
+      await invalidateCategories(queryClient);
       toast.success("Categoria arquivada com sucesso!");
       setDeletingCategory(null);
     },
