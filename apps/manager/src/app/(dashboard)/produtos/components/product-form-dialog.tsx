@@ -41,6 +41,7 @@ import {
   storeQueryKeys,
 } from "../../../../lib/query-keys";
 import { sanitizeSlug } from "../../../../lib/slug";
+import { PriceInput } from "@/components/ui/price-input";
 
 interface Store {
   id: string;
@@ -173,9 +174,9 @@ export function ProductFormDialog({
   const [isFeatured, setIsFeatured] = useState(false);
 
   // Pricing & SKU
-  const [price, setPrice] = useState<string>("");
-  const [promotionalPrice, setPromotionalPrice] = useState<string>("");
-  const [costPrice, setCostPrice] = useState<string>("");
+  const [price, setPrice] = useState<number>(0);
+  const [promotionalPrice, setPromotionalPrice] = useState<number>(0);
+  const [costPrice, setCostPrice] = useState<number>(0);
   const [sku, setSku] = useState("");
   const [barcode, setBarcode] = useState("");
 
@@ -296,19 +297,19 @@ export function ProductFormDialog({
         productToEdit.variations?.find((v) => v.isDefault) ||
         productToEdit.variations?.[0];
       if (defaultVar) {
-        setPrice(defaultVar.price ? String(defaultVar.price) : "");
+        setPrice(defaultVar.price ? Number(defaultVar.price) : 0);
         setPromotionalPrice(
           defaultVar.promotionalPrice
-            ? String(defaultVar.promotionalPrice)
-            : "",
+            ? Number(defaultVar.promotionalPrice)
+            : 0,
         );
-        setCostPrice(defaultVar.costPrice ? String(defaultVar.costPrice) : "");
+        setCostPrice(defaultVar.costPrice ? Number(defaultVar.costPrice) : 0);
         setSku(defaultVar.sku || "");
         setBarcode(defaultVar.barcode || "");
       } else {
-        setPrice("");
-        setPromotionalPrice("");
-        setCostPrice("");
+        setPrice(0);
+        setPromotionalPrice(0);
+        setCostPrice(0);
         setSku("");
         setBarcode("");
       }
@@ -386,9 +387,9 @@ export function ProductFormDialog({
       setIsPublished(false);
       setIsFeatured(false);
 
-      setPrice("");
-      setPromotionalPrice("");
-      setCostPrice("");
+      setPrice(0);
+      setPromotionalPrice(0);
+      setCostPrice(0);
       setSku("");
       setBarcode("");
 
@@ -643,9 +644,9 @@ export function ProductFormDialog({
         return {
           sku: comboSku,
           barcode: "",
-          price: price ? Number(price) : 0,
-          promotionalPrice: promotionalPrice ? Number(promotionalPrice) : "",
-          costPrice: costPrice ? Number(costPrice) : "",
+          price: price || 0,
+          promotionalPrice: promotionalPrice || "",
+          costPrice: costPrice || "",
           status: "active",
           optionValues: combo,
         };
@@ -726,7 +727,7 @@ export function ProductFormDialog({
       return;
     }
 
-    if (type === "simple" && (!price || Number(price) <= 0)) {
+    if (type === "simple" && (!price || price <= 0)) {
       toast.error(
         "Informe um preço de venda maior que zero para o produto simples.",
       );
@@ -783,11 +784,9 @@ export function ProductFormDialog({
     };
 
     if (type === "simple") {
-      payload.price = Number(price);
-      payload.promotionalPrice = promotionalPrice
-        ? Number(promotionalPrice)
-        : null;
-      payload.costPrice = costPrice ? Number(costPrice) : null;
+      payload.price = price;
+      payload.promotionalPrice = promotionalPrice || null;
+      payload.costPrice = costPrice || null;
       payload.sku = sku.trim() || undefined;
     } else {
       payload.options = options.map((opt, i) => ({
@@ -1066,52 +1065,44 @@ export function ProductFormDialog({
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div>
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
-                      Preço de Venda (R$){" "}
+                      Preço de Venda{" "}
                       {type === "simple" && (
                         <span className="text-rose-400">*</span>
                       )}
                     </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      disabled={type === "variable"}
-                      placeholder="0.00"
+                    <PriceInput
                       value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      className="font-mono text-zinc-100 placeholder:text-zinc-500"
+                      onValueChange={setPrice}
+                      disabled={type === "variable"}
+                      placeholder="R$ 0,00"
+                      required={type === "simple"}
+                      className="text-zinc-100 placeholder:text-zinc-500"
                     />
                   </div>
 
                   <div>
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
-                      Preço Promocional (R$)
+                      Preço Promocional
                     </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      disabled={type === "variable"}
-                      placeholder="Preço de desconto (opcional)"
+                    <PriceInput
                       value={promotionalPrice}
-                      onChange={(e) => setPromotionalPrice(e.target.value)}
-                      className="font-mono text-emerald-400 placeholder:text-zinc-500"
+                      onValueChange={setPromotionalPrice}
+                      disabled={type === "variable"}
+                      placeholder="R$ 0,00 (opcional)"
+                      className="text-emerald-400 placeholder:text-zinc-500"
                     />
                   </div>
 
                   <div>
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
-                      Preço de Custo (R$)
+                      Preço de Custo
                     </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      disabled={type === "variable"}
-                      placeholder="Custo interno de fabricação"
+                    <PriceInput
                       value={costPrice}
-                      onChange={(e) => setCostPrice(e.target.value)}
-                      className="font-mono text-zinc-300 placeholder:text-zinc-500"
+                      onValueChange={setCostPrice}
+                      disabled={type === "variable"}
+                      placeholder="R$ 0,00 (opcional)"
+                      className="text-zinc-300 placeholder:text-zinc-500"
                     />
                   </div>
                 </div>
@@ -1489,37 +1480,33 @@ export function ProductFormDialog({
 
                                 <div>
                                   <label className="text-[10px] text-zinc-400 block mb-0.5">
-                                    Preço (R$) *
+                                    Preço *
                                   </label>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    required
+                                  <PriceInput
                                     value={vItem.price}
-                                    onChange={(e) =>
+                                    onValueChange={(val) =>
                                       updateVariationField(
                                         vIdx,
                                         "price",
-                                        e.target.value,
+                                        val,
                                       )
                                     }
+                                    required
                                     className="font-mono text-xs text-zinc-200"
                                   />
                                 </div>
 
                                 <div>
                                   <label className="text-[10px] text-zinc-400 block mb-0.5">
-                                    Promoção (R$)
+                                    Promoção
                                   </label>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    value={vItem.promotionalPrice || ""}
-                                    onChange={(e) =>
+                                  <PriceInput
+                                    value={vItem.promotionalPrice || 0}
+                                    onValueChange={(val) =>
                                       updateVariationField(
                                         vIdx,
                                         "promotionalPrice",
-                                        e.target.value,
+                                        val || null,
                                       )
                                     }
                                     className="font-mono text-xs text-emerald-400"
@@ -1528,17 +1515,15 @@ export function ProductFormDialog({
 
                                 <div>
                                   <label className="text-[10px] text-zinc-400 block mb-0.5">
-                                    Custo (R$)
+                                    Custo
                                   </label>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    value={vItem.costPrice || ""}
-                                    onChange={(e) =>
+                                  <PriceInput
+                                    value={vItem.costPrice || 0}
+                                    onValueChange={(val) =>
                                       updateVariationField(
                                         vIdx,
                                         "costPrice",
-                                        e.target.value,
+                                        val || null,
                                       )
                                     }
                                     className="font-mono text-xs text-zinc-400"

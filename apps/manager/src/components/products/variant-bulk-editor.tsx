@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { NativeSelect } from "@/components/ui/native-select";
+import { PriceInput } from "@/components/ui/price-input";
 import {
   RiEqualizerLine,
   RiCheckboxCircleLine,
@@ -25,8 +26,8 @@ export function VariantBulkEditor({
   const [selectedIndexes, setSelectedIndexes] = useState<Set<number>>(new Set());
 
   // Bulk Field Inputs
-  const [bulkPrice, setBulkPrice] = useState("");
-  const [bulkCostPrice, setBulkCostPrice] = useState("");
+  const [bulkPrice, setBulkPrice] = useState<number>(0);
+  const [bulkCostPrice, setBulkCostPrice] = useState<number>(0);
   const [bulkStockMode, setBulkStockMode] = useState("");
   const [bulkStatus, setBulkStatus] = useState("");
 
@@ -56,8 +57,8 @@ export function VariantBulkEditor({
 
       return {
         ...v,
-        price: bulkPrice ? parseFloat(bulkPrice) || v.price : v.price,
-        costPrice: bulkCostPrice ? parseFloat(bulkCostPrice) : v.costPrice,
+        price: bulkPrice > 0 ? bulkPrice : v.price,
+        costPrice: bulkCostPrice > 0 ? bulkCostPrice : v.costPrice,
         stockMode: bulkStockMode ? bulkStockMode : v.stockMode,
         status: bulkStatus ? (bulkStatus as "active" | "inactive") : v.status,
       };
@@ -114,21 +115,17 @@ export function VariantBulkEditor({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Preço (R$)"
-            type="number"
-            step="0.01"
+          <PriceInput
+            placeholder="Preço em massa"
             value={bulkPrice}
-            onChange={(e) => setBulkPrice(e.target.value)}
-            className="w-28 h-8 text-xs"
+            onValueChange={setBulkPrice}
+            className="w-32 h-8 text-xs"
           />
-          <Input
-            placeholder="Custo (R$)"
-            type="number"
-            step="0.01"
+          <PriceInput
+            placeholder="Custo em massa"
             value={bulkCostPrice}
-            onChange={(e) => setBulkCostPrice(e.target.value)}
-            className="w-28 h-8 text-xs"
+            onValueChange={setBulkCostPrice}
+            className="w-32 h-8 text-xs"
           />
           <NativeSelect
             value={bulkStockMode}
@@ -221,44 +218,38 @@ export function VariantBulkEditor({
                   />
                 </td>
                 <td className="p-3">
-                  <Input
-                    type="number"
-                    step="0.01"
+                  <PriceInput
                     value={item.price}
-                    onChange={(e) => handleUpdateItemField(idx, "price", parseFloat(e.target.value) || 0)}
+                    onValueChange={(val) => handleUpdateItemField(idx, "price", val)}
                     className="h-8 text-xs"
                   />
                 </td>
                 <td className="p-3">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={item.promotionalPrice || ""}
-                    onChange={(e) =>
+                  <PriceInput
+                    value={item.promotionalPrice || 0}
+                    onValueChange={(val) =>
                       handleUpdateItemField(
                         idx,
                         "promotionalPrice",
-                        e.target.value ? parseFloat(e.target.value) : null,
+                        val || null,
                       )
                     }
                     className="h-8 text-xs"
-                    placeholder="Opcional"
+                    placeholder="R$ 0,00"
                   />
                 </td>
                 <td className="p-3">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={item.costPrice || ""}
-                    onChange={(e) =>
+                  <PriceInput
+                    value={item.costPrice || 0}
+                    onValueChange={(val) =>
                       handleUpdateItemField(
                         idx,
                         "costPrice",
-                        e.target.value ? parseFloat(e.target.value) : null,
+                        val || null,
                       )
                     }
                     className="h-8 text-xs"
-                    placeholder="Opcional"
+                    placeholder="R$ 0,00"
                   />
                 </td>
                 <td className="p-3">

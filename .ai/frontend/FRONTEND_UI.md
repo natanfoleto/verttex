@@ -338,6 +338,48 @@ onSuccess: () => {
 }
 ```
 
+### 10.6.2 Regra Mandatória de Input de Preço — `<PriceInput>`
+
+> **MANDATORY POLICY**: Nunca use `<Input type="number">` para campos monetários. Use **sempre** o `<PriceInput>`.
+
+**Arquivos:**
+- `src/lib/price.ts` — Funções utilitárias puras
+- `src/components/ui/price-input.tsx` — Componente de UI
+
+**Comportamento da máscara:**
+
+| Usuário digita | Exibido | Valor numérico retornado |
+|---|---|---|
+| `1` | `R$ 0,01` | `0.01` |
+| `105` | `R$ 1,05` | `1.05` |
+| `10500` | `R$ 105,00` | `105.00` |
+| `1050099` | `R$ 10.500,99` | `10500.99` |
+
+**API do componente:**
+```tsx
+<PriceInput
+  value={price}              // number — valor numérico atual
+  onValueChange={setPrice}   // (value: number) => void
+  placeholder="R$ 0,00"
+  disabled={false}
+  className="text-zinc-100"
+/>
+```
+
+**Regras de implementação:**
+1. Estado do formulário deve ser `number` (não `string`): `const [price, setPrice] = useState<number>(0)`
+2. Ao inicializar a partir de dados do servidor: `setPrice(Number(data.price))`
+3. No payload de envio, o valor já é `number` — não é necessário fazer `Number(price)` novamente
+4. Para campos opcionais (preço promocional, custo): `payload.promotionalPrice = promotionalPrice || null`
+
+**Utilitários disponíveis em `src/lib/price.ts`:**
+- `formatPriceBRL(value: number)` — formata para exibição em tabelas/listas
+- `parsePriceMask(formatted: string)` — extrai número de string formatada
+- `maskPriceFromDigits(digits: string)` — aplica máscara a dígitos brutos
+- `numericToDigits(value)` — converte número em dígitos acumulados (uso interno)
+
+---
+
 ### 10.7 Skeleton Loadings & Empty States
 
 - **Table Skeleton**: Use `DataTableSkeleton` (`src/components/skeletons/data-table-skeleton.tsx`) during list loading states. Never show generic spinners for tabular data.
