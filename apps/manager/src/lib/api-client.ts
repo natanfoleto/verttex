@@ -52,29 +52,32 @@ async function refreshTokenSilent(): Promise<boolean> {
   return refreshPromise;
 }
 
+export interface ApiClientOptions extends RequestInit {
+  responseType?: "json" | "text" | "blob";
+}
+
 export async function apiClient<T = any>(
   endpoint: string,
-  options: RequestInit = {},
+  options: ApiClientOptions = {},
 ): Promise<T> {
+  const { responseType = "json", ...fetchOptions } = options;
   const url = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
 
   const isFormData =
-    typeof FormData !== "undefined" && options.body instanceof FormData;
+    typeof FormData !== "undefined" && fetchOptions.body instanceof FormData;
 
   const headers: Record<string, string> = {
-    ...(options.body && !isFormData
+    ...(fetchOptions.body && !isFormData
       ? { "Content-Type": "application/json" }
       : {}),
-    ...(options.headers as Record<string, string>),
+    ...(fetchOptions.headers as Record<string, string>),
   };
 
   let response = await fetch(url, {
-    ...options,
+    ...fetchOptions,
     headers,
     credentials: "include",
   });
-
-  let data = await response.json().catch(() => null);
 
   // Silent automatic refresh mechanism when 401 occurs on non-auth routes
   const isAuthEndpoint =
@@ -88,16 +91,41 @@ export async function apiClient<T = any>(
       if (refreshSuccess) {
         // Retry original request with renewed access token
         response = await fetch(url, {
-          ...options,
+          ...fetchOptions,
           headers,
           credentials: "include",
         });
-        data = await response.json().catch(() => null);
       }
     } catch {
       // Refresh failed, fallback to standard error handling
     }
   }
+
+  if (responseType === "text") {
+    if (!response.ok) {
+      throw new ApiError(
+        "HTTP_ERROR",
+        "Ocorreu um erro ao processar o relatório",
+        response.status,
+      );
+    }
+    const text = await response.text();
+    return text as unknown as T;
+  }
+
+  if (responseType === "blob") {
+    if (!response.ok) {
+      throw new ApiError(
+        "HTTP_ERROR",
+        "Ocorreu um erro ao baixar o arquivo",
+        response.status,
+      );
+    }
+    const blob = await response.blob();
+    return blob as unknown as T;
+  }
+
+  let data = await response.json().catch(() => null);
 
   if (!response.ok || (data && data.success === false)) {
     const errorData = data?.error;

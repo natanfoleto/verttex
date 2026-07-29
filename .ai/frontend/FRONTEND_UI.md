@@ -11,6 +11,15 @@ Applications `apps/manager` and `apps/marketplace` are Next.js App Router projec
 - `src/lib/api/`: Base client setup for fetching API endpoint results.
 - `src/providers/`: Root query-provider configs (TanStack Query).
 
+### 1.1 Mandatory HTTP Client (`apiClient`)
+
+- **Proibição de `fetch` Direto:** É estritamente proibido utilizar `fetch()` nativo diretamente em componentes ou páginas para chamadas à API da aplicação.
+- **Uso de `apiClient`:** Todas as chamadas para a API backend devem ser realizadas com `apiClient` (`@/lib/api-client`).
+- **Garantias do `apiClient`:**
+  1. Envio automático de cookies HTTP-Only de sessão (`credentials: "include"`).
+  2. Renovação automática de tokens via refresh token silencioso em respostas `401`.
+  3. Formatação e lançamento de exceções `ApiError` padronizadas.
+
 ---
 
 ## 2. Server vs. Client Components

@@ -1,29 +1,10 @@
-import { managerEnv } from "@verttex/env/manager";
+import { apiClient } from "../api-client";
 
 export async function fetchApi<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const baseUrl = managerEnv.NEXT_PUBLIC_API_URL;
-  const response = await fetch(`${baseUrl}${path}`, {
-    ...options,
-    headers: {
-      ...(options?.body ? { "Content-Type": "application/json" } : {}),
-      ...options?.headers,
-    },
-  });
-
-  if (!response.ok) {
-    let errorData;
-    try {
-      errorData = await response.json();
-    } catch {
-      errorData = { error: { message: "Erro desconhecido" } };
-    }
-    throw new Error(
-      errorData?.error?.message || `HTTP error ${response.status}`,
-    );
-  }
-
-  return response.json();
+  return apiClient<T>(path, options);
 }
+
+export { apiClient };

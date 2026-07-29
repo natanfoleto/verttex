@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import {
   RiCameraLine,
   RiDeleteBinLine,
-  RiImageAddLine,
   RiLoader4Line,
   RiStore2Line,
 } from "react-icons/ri";
@@ -135,7 +134,7 @@ export function StoreLogoUpload({
   };
 
   return (
-    <div className="flex flex-col items-center sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-5 p-4 rounded-2xl border border-zinc-800/80 bg-zinc-950/40">
+    <div className="space-y-1.5">
       {/* Hidden File Input */}
       <input
         ref={fileInputRef}
@@ -146,78 +145,69 @@ export function StoreLogoUpload({
         disabled={disabled || isUploading || isDeleting}
       />
 
-      {/* Avatar Container */}
-      <div className="relative group flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-zinc-800 bg-zinc-900 shadow-md">
-        {displayUrl ? (
-          <img
-            src={displayUrl}
-            alt={`Foto de ${storeName}`}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center text-zinc-400">
-            <RiStore2Line className="h-8 w-8 text-emerald-400 mb-1" />
-            <span className="text-xs font-mono font-bold text-zinc-300">
-              {initials}
-            </span>
-          </div>
-        )}
+      {/* Label styled like Status Atual */}
+      <span className="block text-xs text-zinc-500">
+        Foto de Perfil da Loja
+      </span>
 
-        {/* Loading Overlay */}
-        {(isUploading || isDeleting) && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 backdrop-blur-xs">
-            <RiLoader4Line className="h-7 w-7 animate-spin text-emerald-400" />
-          </div>
-        )}
-      </div>
+      {/* Avatar Container with Hover Overlay & Direct Click */}
+      <div className="flex items-center space-x-4 pt-0.5">
+        <div
+          onClick={() => {
+            if (!disabled && !isUploading && !isDeleting) {
+              fileInputRef.current?.click();
+            }
+          }}
+          className="relative group flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-xs transition-all hover:border-emerald-500/60 hover:shadow-md"
+          title="Clique para alterar a foto da loja"
+        >
+          {displayUrl ? (
+            <img
+              src={displayUrl}
+              alt={`Foto de ${storeName}`}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-zinc-500 group-hover:text-emerald-400 transition-colors">
+              <RiStore2Line className="h-7 w-7 mb-0.5" />
+              <span className="text-[11px] font-mono font-bold text-zinc-400">
+                {initials}
+              </span>
+            </div>
+          )}
 
-      {/* Info & Action Buttons */}
-      <div className="flex flex-1 flex-col justify-center space-y-2 text-center sm:text-left">
-        <div>
-          <h4 className="text-sm font-semibold text-zinc-200">
-            Foto de Perfil da Loja
-          </h4>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Formatos aceitos: JPEG, PNG ou WebP (máx. 5 MB).
-          </p>
-        </div>
+          {/* Hover Edit Overlay */}
+          {!isUploading && !isDeleting && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/65 opacity-0 backdrop-blur-xs transition-opacity duration-200 group-hover:opacity-100 text-white">
+              <RiCameraLine className="h-5 w-5 text-emerald-400 mb-0.5" />
+              <span className="text-[10px] font-medium text-zinc-200">
+                Alterar
+              </span>
+            </div>
+          )}
 
-        <div className="flex items-center justify-center sm:justify-start space-x-2 pt-1">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled || isUploading || isDeleting}
-            className="cursor-pointer text-xs h-8 px-3 border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-200"
-          >
-            {displayUrl ? (
-              <>
-                <RiCameraLine className="h-3.5 w-3.5 mr-1 text-emerald-400" />
-                <span>Trocar Foto</span>
-              </>
-            ) : (
-              <>
-                <RiImageAddLine className="h-3.5 w-3.5 mr-1 text-emerald-400" />
-                <span>Adicionar Foto</span>
-              </>
-            )}
-          </Button>
-
-          {displayUrl && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDeleteDialogOpen(true)}
-              disabled={disabled || isUploading || isDeleting}
-              className="cursor-pointer text-xs h-8 px-3 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:text-rose-300"
-            >
-              <RiDeleteBinLine className="h-3.5 w-3.5 mr-1" />
-              <span>Remover</span>
-            </Button>
+          {/* Loading Overlay */}
+          {(isUploading || isDeleting) && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/75 backdrop-blur-xs">
+              <RiLoader4Line className="h-6 w-6 animate-spin text-emerald-400" />
+            </div>
           )}
         </div>
+
+        {/* Action Button: Only Remove option if photo exists */}
+        {displayUrl && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsDeleteDialogOpen(true)}
+            disabled={disabled || isUploading || isDeleting}
+            className="cursor-pointer text-xs h-8 px-2.5 text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 border border-rose-900/30"
+          >
+            <RiDeleteBinLine className="h-3.5 w-3.5 mr-1" />
+            <span>Remover foto</span>
+          </Button>
+        )}
       </div>
 
       {/* Confirmation Modal for Removal */}

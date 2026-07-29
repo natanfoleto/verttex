@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { use, useState } from "react";
 import {
@@ -9,14 +9,16 @@ import {
   RiGlobalLine,
   RiInformationLine,
   RiShoppingBag3Line,
+  RiStore2Line,
   RiUserSharedLine,
 } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
+import { StoreLogoUpload } from "@/components/ui/store-logo-upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { apiClient } from "../../../../lib/api-client";
-import { storeQueryKeys } from "../../../../lib/query-keys";
+import { storeQueryKeys, invalidateStores } from "../../../../lib/query-keys";
 import { ProductsTable } from "../../produtos/components/products-table";
 import { StoreFormDialog } from "../components/store-form-dialog";
 
@@ -27,6 +29,7 @@ export default function StoreDetailPage({
 }) {
   const resolvedParams = use(params);
   const storeId = resolvedParams.storeId;
+  const queryClient = useQueryClient();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -35,6 +38,7 @@ export default function StoreDetailPage({
     data: store,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: storeQueryKeys.detail(storeId),
     queryFn: () => apiClient(`/stores/${storeId}`),
@@ -63,29 +67,46 @@ export default function StoreDetailPage({
         <div className="flex items-center space-x-4">
           <Link
             href="/lojas"
-            className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer"
           >
             <RiArrowLeftLine className="h-5 w-5" />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
-              {store.name}
-            </h1>
-            <p className="font-mono text-sm text-zinc-400">
-              verttexloja.com.br/{store.slug}
-            </p>
+          <div className="flex items-center space-x-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-xs">
+              {store.logoUrl ? (
+                <img
+                  src={store.logoUrl}
+                  alt={store.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <RiStore2Line className="h-6 w-6 text-emerald-400" />
+              )}
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+                {store.name}
+              </h1>
+              <p className="font-mono text-xs text-zinc-400">
+                verttexloja.com.br/{store.slug}
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
           <Link
             href={`/lojas/${storeId}/membros`}
-            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-800"
+            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-800 cursor-pointer"
           >
             <RiUserSharedLine className="h-4 w-4" />
             <span>Gerenciar Membros</span>
           </Link>
-          <Button type="button" onClick={() => setIsEditOpen(true)}>
+          <Button
+            type="button"
+            onClick={() => setIsEditOpen(true)}
+            className="cursor-pointer"
+          >
             <RiEditLine className="h-4 w-4" />
             <span>Editar Loja</span>
           </Button>
@@ -97,14 +118,14 @@ export default function StoreDetailPage({
         <TabsList className="mb-6 inline-flex bg-zinc-900/80 p-1">
           <TabsTrigger
             value="overview"
-            className="flex items-center space-x-2 text-xs"
+            className="flex items-center space-x-2 text-xs cursor-pointer"
           >
             <RiInformationLine className="h-4 w-4" />
             <span>Visão Geral</span>
           </TabsTrigger>
           <TabsTrigger
             value="products"
-            className="flex items-center space-x-2 text-xs"
+            className="flex items-center space-x-2 text-xs cursor-pointer"
           >
             <RiShoppingBag3Line className="h-4 w-4" />
             <span>Produtos da Loja</span>
@@ -116,10 +137,19 @@ export default function StoreDetailPage({
             {/* Info Card */}
             <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
               <h2 className="text-base font-semibold text-zinc-200">
-                Informações da Loja
+                Informações Cadastrais
               </h2>
 
               <div className="space-y-3 text-sm">
+                <StoreLogoUpload
+                  storeId={storeId}
+                  storeName={store.name}
+                  currentLogoUrl={store.logoUrl}
+                  onLogoChange={() => {
+                    refetch();
+                    invalidateStores(queryClient);
+                  }}
+                />
                 <div>
                   <span className="block text-xs text-zinc-500">
                     Status Atual

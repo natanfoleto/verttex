@@ -138,11 +138,10 @@ export default function ReportsAndBiPage() {
 
   const handleExport = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
-      const res = await fetch(`${apiUrl}/reports/export?format=${exportFormat}`, {
-        credentials: "include",
-      });
-      const text = await res.text();
+      const text = await apiClient<string>(
+        `/reports/export?format=${exportFormat}`,
+        { responseType: "text" },
+      );
 
       const blob = new Blob([text], {
         type: exportFormat === "csv" ? "text/csv" : "application/json",
@@ -152,7 +151,9 @@ export default function ReportsAndBiPage() {
       a.href = url;
       a.download = `relatorio-verttex-${Date.now()}.${exportFormat}`;
       a.click();
-      toast.success(`Relatório exportado em formato ${exportFormat.toUpperCase()} com sucesso!`);
+      toast.success(
+        `Relatório exportado em formato ${exportFormat.toUpperCase()} com sucesso!`,
+      );
     } catch {
       toast.error("Erro ao exportar relatório");
     }

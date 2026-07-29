@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiClient } from "@/lib/api-client";
 
 interface StockReceivingDialogProps {
   open: boolean;
@@ -59,9 +60,8 @@ export function StockReceivingDialog({
 
     try {
       setIsSubmitting(true);
-      const res = await fetch("/api/stock/receive", {
+      await apiClient("/stock/receive", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           storeId,
           variationId,
@@ -77,11 +77,6 @@ export function StockReceivingDialog({
           ],
         }),
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Falha ao registrar recebimento de estoque");
-      }
 
       onReceiveSuccess();
       onOpenChange(false);
