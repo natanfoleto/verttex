@@ -15,9 +15,10 @@ export const createStoreBodySchema = z.object({
   name: z.string().min(2, "O nome da loja deve ter no mínimo 2 caracteres"),
   slug: z.string().min(2, "O slug deve ter no mínimo 2 caracteres"),
   description: z.string().optional(),
-  logoUrl: z.string().url("URL do logo inválida").optional().or(z.literal("")),
-  coverUrl: z.string().url("URL da capa inválida").optional().or(z.literal("")),
-  customDomain: z.string().optional().or(z.literal("")),
+  logoUrl: z.string().url("URL do logo inválida").optional().or(z.literal("")).nullable(),
+  logoFileId: z.string().optional().nullable(),
+  coverUrl: z.string().url("URL da capa inválida").optional().or(z.literal("")).nullable(),
+  customDomain: z.string().optional().or(z.literal("")).nullable(),
 });
 
 export const updateStoreBodySchema = z.object({
@@ -26,10 +27,11 @@ export const updateStoreBodySchema = z.object({
     .min(2, "O nome da loja deve ter no mínimo 2 caracteres")
     .optional(),
   slug: z.string().min(2, "O slug deve ter no mínimo 2 caracteres").optional(),
-  description: z.string().optional(),
-  logoUrl: z.string().url("URL do logo inválida").optional().or(z.literal("")),
-  coverUrl: z.string().url("URL da capa inválida").optional().or(z.literal("")),
-  customDomain: z.string().optional().or(z.literal("")),
+  description: z.string().optional().nullable(),
+  logoUrl: z.string().url("URL do logo inválida").optional().or(z.literal("")).nullable(),
+  logoFileId: z.string().optional().nullable(),
+  coverUrl: z.string().url("URL da capa inválida").optional().or(z.literal("")).nullable(),
+  customDomain: z.string().optional().or(z.literal("")).nullable(),
   status: z.enum(["draft", "active", "inactive", "suspended"]).optional(),
 });
 

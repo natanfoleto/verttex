@@ -96,6 +96,8 @@ model Store {
   slug               String              @unique
   description        String?
   logoUrl            String?
+  logoFileId         String?             @unique
+  logoFile           File?               @relation("StoreLogoFile", fields: [logoFileId], references: [id], onDelete: SetNull)
   coverUrl           String?
   customDomain       String?
   status             String              @default("draft") // draft, active, inactive, suspended
@@ -498,6 +500,7 @@ model File {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   productMedia ProductMedia[]
+  storeLogo    Store?         @relation("StoreLogoFile")
 
   @@index([storeId])
   @@index([userId])

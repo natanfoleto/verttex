@@ -1,5 +1,6 @@
 import { FastifyReply } from "fastify";
 import { FastifyZodRequest } from "../../@types/fastify";
+import { AppError } from "../../shared/errors/app-error";
 import { StoresService } from "./stores.service";
 import {
   StoreParams,
@@ -130,6 +131,52 @@ export async function removeStoreMemberController(
     actorId,
     request,
   );
+  return reply.send({
+    success: true,
+    data: result,
+  });
+}
+
+export async function uploadStoreLogoController(
+  request: FastifyZodRequest,
+  reply: FastifyReply,
+) {
+  const userPayload = request.userPayload!;
+  const params = request.params as StoreParams;
+  const data = await request.file();
+
+  if (!data) {
+    throw new AppError("VALIDATION_ERROR", "Nenhum arquivo enviado", 400);
+  }
+
+  const buffer = await data.toBuffer();
+  const store = await storesService.uploadStoreLogo(
+    params.storeId,
+    userPayload,
+    buffer,
+    data.filename,
+    data.mimetype,
+    request,
+  );
+
+  return reply.send({
+    success: true,
+    data: store,
+  });
+}
+
+export async function removeStoreLogoController(
+  request: FastifyZodRequest,
+  reply: FastifyReply,
+) {
+  const userPayload = request.userPayload!;
+  const params = request.params as StoreParams;
+  const result = await storesService.removeStoreLogo(
+    params.storeId,
+    userPayload,
+    request,
+  );
+
   return reply.send({
     success: true,
     data: result,

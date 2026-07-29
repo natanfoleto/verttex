@@ -140,9 +140,7 @@ export default function ReportsAndBiPage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
       const res = await fetch(`${apiUrl}/reports/export?format=${exportFormat}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("verttex_token") || ""}`,
-        },
+        credentials: "include",
       });
       const text = await res.text();
 

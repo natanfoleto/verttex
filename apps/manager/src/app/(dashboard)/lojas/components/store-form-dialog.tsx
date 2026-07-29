@@ -22,11 +22,14 @@ import { apiClient, ApiError } from "../../../../lib/api-client";
 import { invalidateStores } from "../../../../lib/query-keys";
 import { sanitizeSlug } from "../../../../lib/slug";
 
+import { StoreLogoUpload } from "@/components/ui/store-logo-upload";
+
 export interface StoreItem {
   id: string;
   name: string;
   slug: string;
   description?: string | null;
+  logoUrl?: string | null;
   status: string;
   _count?: { users: number };
 }
@@ -145,6 +148,15 @@ export function StoreFormDialog({
               <div className="rounded-xl border border-rose-800/60 bg-rose-950/60 p-3 text-xs text-rose-300">
                 {errorMessage}
               </div>
+            )}
+
+            {isEditing && storeToEdit && (
+              <StoreLogoUpload
+                storeId={storeToEdit.id}
+                storeName={name || storeToEdit.name}
+                currentLogoUrl={storeToEdit.logoUrl}
+                onLogoChange={() => invalidateStores(queryClient)}
+              />
             )}
 
             <div>

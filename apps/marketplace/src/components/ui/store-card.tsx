@@ -55,11 +55,16 @@ export function StoreCard({
       {/* Avatar Overlap */}
       <div className="relative px-5 pt-0">
         <div className="-mt-9 flex items-end">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-amber-800 font-serif text-2xl font-bold text-amber-100 shadow-sm">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-amber-800 font-serif text-2xl font-bold text-amber-100 shadow-sm">
             {logoUrl ? (
               <img
                 src={logoUrl}
-                alt={name}
+                alt={`Logo de ${name}`}
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
                 className="h-full w-full object-cover"
               />
             ) : (

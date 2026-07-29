@@ -5,6 +5,7 @@ import { prisma } from "../../infrastructure/database/prisma";
 import { AppError } from "../../shared/errors/app-error";
 import { logAudit } from "../../shared/utils/audit";
 import { normalizeSlug, isSlugReserved } from "./reserved-slugs";
+import { UploadService } from "../../shared/services/upload.service";
 import {
   StoreQuery,
   CreateStoreBody,
@@ -51,6 +52,7 @@ export class StoresService {
           slug,
           description: data.description,
           logoUrl: data.logoUrl || null,
+          logoFileId: data.logoFileId || null,
           coverUrl: data.coverUrl || null,
           customDomain: data.customDomain || null,
           status: "draft",
@@ -223,6 +225,8 @@ export class StoresService {
         slug: newSlug,
         description: data.description,
         logoUrl: data.logoUrl !== undefined ? data.logoUrl || null : undefined,
+        logoFileId:
+          data.logoFileId !== undefined ? data.logoFileId || null : undefined,
         coverUrl:
           data.coverUrl !== undefined ? data.coverUrl || null : undefined,
         customDomain:
@@ -232,6 +236,20 @@ export class StoresService {
         status: data.status,
       },
     });
+
+    if (
+      data.logoFileId !== undefined &&
+      previousStore.logoFileId &&
+      previousStore.logoFileId !== data.logoFileId
+    ) {
+      // Limpeza compensatória da foto de logo anterior
+      UploadService.deleteFile(previousStore.logoFileId).catch((err) =>
+        console.warn(
+          `Erro ao remover logo anterior ${previousStore.logoFileId}:`,
+          err,
+        ),
+      );
+    }
 
     const action =
       data.status && data.status !== previousStore.status
@@ -462,5 +480,119 @@ export class StoresService {
     });
 
     return { message: "Membro removido da loja com sucesso" };
+  }
+
+  async uploadStoreLogo(
+    storeId: string,
+    userPayload: AuthenticatedUserPayload,
+    buffer: Buffer,
+    fileName: string,
+    mimeType: string,
+    req?: FastifyRequest,
+  ) {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+    });
+
+    if (!store) {
+      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+    }
+
+    const previousLogoFileId = store.logoFileId;
+
+    // Direct upload into Cloudflare R2 / Local Storage
+    const uploadedFile = await UploadService.directUpload({
+      fileName,
+      mimeType,
+      buffer,
+      purpose: "store_logo",
+      storeId,
+      userId: userPayload.id,
+    });
+
+    // Transactional pointer update
+    const updatedStore = await prisma.store.update({
+      where: { id: storeId },
+      data: {
+        logoFileId: uploadedFile.id,
+        logoUrl: uploadedFile.publicUrl,
+      },
+      include: {
+        logoFile: true,
+      },
+    });
+
+    // Compensatory cleanup of previous file if it existed
+    if (previousLogoFileId && previousLogoFileId !== uploadedFile.id) {
+      UploadService.deleteFile(previousLogoFileId).catch((err) =>
+        console.warn(`Erro ao limpar logo antiga ${previousLogoFileId}:`, err),
+      );
+    }
+
+    await logAudit({
+      userId: userPayload.id,
+      action: "UPDATE",
+      entity: "Store",
+      entityId: storeId,
+      newValues: {
+        logoFileId: uploadedFile.id,
+        logoUrl: uploadedFile.publicUrl,
+      },
+      oldValues: {
+        logoFileId: previousLogoFileId,
+        logoUrl: store.logoUrl,
+      },
+      req,
+    });
+
+    return updatedStore;
+  }
+
+  async removeStoreLogo(
+    storeId: string,
+    userPayload: AuthenticatedUserPayload,
+    req?: FastifyRequest,
+  ) {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+    });
+
+    if (!store) {
+      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+    }
+
+    const previousLogoFileId = store.logoFileId;
+
+    const updatedStore = await prisma.store.update({
+      where: { id: storeId },
+      data: {
+        logoFileId: null,
+        logoUrl: null,
+      },
+    });
+
+    if (previousLogoFileId) {
+      UploadService.deleteFile(previousLogoFileId).catch((err) =>
+        console.warn(`Erro ao deletar logo antiga ${previousLogoFileId}:`, err),
+      );
+    }
+
+    await logAudit({
+      userId: userPayload.id,
+      action: "UPDATE",
+      entity: "Store",
+      entityId: storeId,
+      newValues: { logoFileId: null, logoUrl: null },
+      oldValues: {
+        logoFileId: previousLogoFileId,
+        logoUrl: store.logoUrl,
+      },
+      req,
+    });
+
+    return {
+      message: "Foto de perfil da loja removida com sucesso!",
+      store: updatedStore,
+    };
   }
 }

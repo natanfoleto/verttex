@@ -377,11 +377,16 @@ async function main() {
   // 5. Seed Stores
   const storeAlvorada = await prisma.store.upsert({
     where: { slug: "queijaria-alvorada" },
-    update: {},
+    update: {
+      logoUrl:
+        "https://images.unsplash.com/photo-1596450514735-2440b6165e31?auto=format&fit=crop&w=400&q=80",
+    },
     create: {
       name: "Queijaria Alvorada Canastra",
       slug: "queijaria-alvorada",
       description: "Produtor tradicional de queijos artesanais da Canastra",
+      logoUrl:
+        "https://images.unsplash.com/photo-1596450514735-2440b6165e31?auto=format&fit=crop&w=400&q=80",
       status: "active",
     },
   });

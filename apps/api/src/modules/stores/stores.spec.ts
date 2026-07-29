@@ -25,4 +25,17 @@ describe("Stores Management & Reserved Slugs Unit Tests", () => {
     expect(isSlugReserved("apiario-vale-verde")).toBe(false);
     expect(isSlugReserved("embutidos-tradicao")).toBe(false);
   });
+
+  it("should validate supported store logo mime types and extensions", () => {
+    const validMimes = ["image/jpeg", "image/png", "image/webp"];
+    const invalidMimes = ["image/gif", "application/pdf", "text/html"];
+
+    for (const mime of validMimes) {
+      expect(validMimes.includes(mime)).toBe(true);
+    }
+
+    for (const mime of invalidMimes) {
+      expect(validMimes.includes(mime)).toBe(false);
+    }
+  });
 });

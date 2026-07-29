@@ -117,7 +117,27 @@ export default function StoresListPage() {
                 className="cursor-pointer transition-colors hover:bg-zinc-800/40"
               >
                 <td className="px-6 py-4 font-medium text-zinc-100">
-                  {store.name}
+                  <div className="flex items-center space-x-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 text-xs font-bold font-mono text-emerald-400">
+                      {store.logoUrl ? (
+                        <img
+                          src={store.logoUrl}
+                          alt={store.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span>
+                          {store.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .substring(0, 2)
+                            .toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <span>{store.name}</span>
+                  </div>
                 </td>
                 <td className="px-6 py-4 font-mono text-xs text-zinc-400">
                   <a

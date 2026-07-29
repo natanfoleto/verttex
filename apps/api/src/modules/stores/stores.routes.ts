@@ -11,6 +11,8 @@ import {
   listStoreMembersController,
   addStoreMemberController,
   removeStoreMemberController,
+  uploadStoreLogoController,
+  removeStoreLogoController,
 } from "./stores.controller";
 import {
   storeParamsSchema,
@@ -87,6 +89,42 @@ export async function storesRoutes(app: FastifyInstance) {
       },
     },
     updateStoreController,
+  );
+
+  typedApp.post(
+    "/stores/:storeId/logo",
+    {
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("update", "Store"),
+        requireStoreAccess("storeId"),
+      ],
+      schema: {
+        tags: ["Stores Management"],
+        summary: "Upload ou substituição da foto de perfil da loja no Cloudflare R2",
+        security: [{ bearerAuth: [] }],
+        params: storeParamsSchema,
+      },
+    },
+    uploadStoreLogoController,
+  );
+
+  typedApp.delete(
+    "/stores/:storeId/logo",
+    {
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("update", "Store"),
+        requireStoreAccess("storeId"),
+      ],
+      schema: {
+        tags: ["Stores Management"],
+        summary: "Remover foto de perfil da loja",
+        security: [{ bearerAuth: [] }],
+        params: storeParamsSchema,
+      },
+    },
+    removeStoreLogoController,
   );
 
   typedApp.delete(

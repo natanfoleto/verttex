@@ -500,3 +500,11 @@ The Verttex Marketplace connects regional consumers with artisan producers, farm
   - Category list accordion with counts, sorting selector, active filter chips with quick remove buttons.
 - **Empty States & Skeletons (`EmptyState`, `SkeletonLoader`)**:
   - Clean illustrated empty states and pulse loading skeletons for grids.
+
+### 10.15 Padronização do Componente de Foto de Perfil da Loja (StoreLogoUpload)
+
+- **Componente (`StoreLogoUpload`)**:
+  - Exibe avatar quadrado com cantos arredondados (`rounded-2xl border-2 border-zinc-800 bg-zinc-900 w-24 h-24`).
+  - Pré-visualização instantânea local via `FileReader` / `URL.createObjectURL`.
+  - Botão de upload/troca com ícone `RiCameraLine` / `RiImageAddLine` e confirmação de remoção com `AlertDialog` do shadcn.
+  - Exibe fallback com as iniciais da loja quando não houver imagem definida.
