@@ -437,6 +437,20 @@ Antes de implementar qualquer elemento de interface:
 5. **Nunca criar abstrações artesanais ou tags HTML nativas** que concorram com componentes existentes.
 6. **Exceções Legítimas**: Elementos semânticos e estruturais de layout (`<main>`, `<section>`, `<article>`, `<header>`, `<footer>`, `<nav>`, `<div>`, `<p>`, `<span>`, `<h1>-<h6>`, `<a>`, `<ul>`, `<ol>`, `<li>`, `<img>`) são permitidos quando não representam controles de formulário nem componentes de UI padronizados. Elements nativos dentro da pasta `components/ui/` são permitidos apenas para a implementação interna das primitivas do Shadcn.
 
+### 10.14 Padrão Estrito de Tabelas, Estado Vazio e Paginação (`TableWrapper`)
+
+> **REGRA MANDATÓRIA DE PADRONIZAÇÃO DE TABELAS**:
+> Todas as tabelas e listagens do painel administrativo (`apps/manager`) **DEVEM OBRIGATORIAMENTE utilizar a `TableWrapper`** (ou seguir estritamente o seu padrão visual e de comportamento) para garantir consistência visual e de UX em toda a aplicação.
+
+1. **Estado Vazio (Empty State)**:
+   - Quando não existirem registros (ou quando os filtros não retornarem dados), o estado vazio **DEVE obrigatoriamente exibir um ícone contextual em container destacado** acima da mensagem.
+   - **Ícone**: Renderizado dentro de um container centralizado `mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 text-zinc-400 shadow-xs` (ex: `RiShoppingBag3Line`, `RiStackLine`, `RiRefreshLine`, etc.).
+   - **Título (`emptyTitle`)**: Texto principal destacado em `text-sm font-bold text-zinc-200` (ex: `"Nenhum lote encontrado"`).
+   - **Subtítulo (`emptyDescription`)**: Descrição explicativa em `mt-1 max-w-sm text-xs text-zinc-500` com espaçamento reduzido (`mt-1`) em relação ao título.
+2. **Exibição Contínua de Paginação**:
+   - **Paginação Sempre Visível**: Os componentes e barra de controle de paginação (resumo `Mostrando 0 – 0 de 0 registros`, seletor de registros por página e botões de navegação) **DEVEM ser mantidos visíveis no rodapé da tabela mesmo quando não houver dados** (com os botões de navegação desabilitados).
+3. **Componente Único de Referência**: `apps/manager/src/components/ui/table-wrapper.tsx`.
+
 ---
 
 ## 11. Marketplace Visual Identity & Design System (`apps/marketplace`)

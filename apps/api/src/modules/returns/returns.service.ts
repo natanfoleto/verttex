@@ -29,49 +29,32 @@ interface ReturnRecord {
   updatedAt: Date;
 }
 
-const returnsStore = new Map<string, ReturnRecord>([
-  [
-    "ret-201",
-    {
-      id: "ret-201",
-      orderId: "ord-101",
-      code: "VTX-9821",
-      customerId: "cust-1",
-      storeId: "store-alvorada-id",
-      reason: "Embalagem danificada durante o transporte",
-      status: "REQUESTED",
-      items: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ],
-  [
-    "ret-202",
-    {
-      id: "ret-202",
-      orderId: "ord-104",
-      code: "VTX-9824",
-      customerId: "cust-2",
-      storeId: "store-mel-id",
-      reason: "Produto entregue com avaria na tampa",
-      status: "QUARANTINED",
-      quarantineNotes: "Em quarentena sanitária para laudo técnico",
-      items: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ],
-]);
+const returnsStore = new Map<string, ReturnRecord>();
+
+export function clearReturnsStore() {
+  returnsStore.clear();
+}
 
 export class ReturnsService {
-  /**
-   * Lists return requests for Manager dashboard.
-   */
-  static async listReturns() {
+  static async listReturns(query?: {
+    page?: string | number;
+    limit?: string | number;
+    perPage?: string | number;
+  }) {
+    const page = Math.max(1, Number(query?.page) || 1);
+    const perPage = Math.max(
+      1,
+      Math.min(100, Number(query?.perPage || query?.limit) || 10),
+    );
+
     const list = Array.from(returnsStore.values());
+    const total = list.length;
+    const skip = (page - 1) * perPage;
+    const paginatedList = list.slice(skip, skip + perPage);
+
     const result = [];
 
-    for (const r of list) {
+    for (const r of paginatedList) {
       const order = await prisma.order.findUnique({
         where: { id: r.orderId },
         include: { customer: true },
@@ -81,7 +64,11 @@ export class ReturnsService {
         id: r.id,
         orderId: r.orderId,
         orderCode: order?.code || r.code,
-        customerName: order?.customer?.name || (r.id === "ret-201" ? "Carlos Eduardo Silva" : "Ana Maria Fernandes"),
+        customerName:
+          order?.customer?.name ||
+          (r.id === "ret-201"
+            ? "Carlos Eduardo Silva"
+            : "Ana Maria Fernandes"),
         reason: r.reason,
         status:
           r.status === "QUARANTINED"
@@ -95,7 +82,15 @@ export class ReturnsService {
       });
     }
 
-    return result;
+    return {
+      data: result,
+      meta: {
+        page,
+        perPage,
+        total,
+        totalPages: Math.ceil(total / perPage),
+      },
+    };
   }
 
   /**

@@ -8,13 +8,19 @@ import {
 } from "./returns.schemas";
 
 export async function listReturnsController(
-  _req: FastifyRequest,
+  req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const result = await ReturnsService.listReturns();
+  const query = (req.query || {}) as {
+    page?: string;
+    limit?: string;
+    perPage?: string;
+  };
+  const result = await ReturnsService.listReturns(query);
   return reply.status(200).send({
     success: true,
-    data: result,
+    data: result.data,
+    meta: result.meta,
   });
 }
 

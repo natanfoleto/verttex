@@ -463,7 +463,20 @@ export class OrdersService {
     });
   }
 
-  static async listManagerOrders(query: { status?: string; search?: string }) {
+  static async listManagerOrders(query: {
+    status?: string;
+    search?: string;
+    page?: string | number;
+    limit?: string | number;
+    perPage?: string | number;
+  }) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const perPage = Math.max(
+      1,
+      Math.min(100, Number(query.perPage || query.limit) || 10),
+    );
+    const skip = (page - 1) * perPage;
+
     const where: any = {};
     if (query.status && query.status !== "ALL") {
       where.status = query.status;
@@ -475,15 +488,20 @@ export class OrdersService {
       ];
     }
 
-    const orders = await prisma.order.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        customer: { select: { name: true } },
-      },
-    });
+    const [total, orders] = await Promise.all([
+      prisma.order.count({ where }),
+      prisma.order.findMany({
+        where,
+        skip,
+        take: perPage,
+        orderBy: { createdAt: "desc" },
+        include: {
+          customer: { select: { name: true } },
+        },
+      }),
+    ]);
 
-    return orders.map((o) => ({
+    const formattedData = orders.map((o) => ({
       id: o.id,
       orderId: o.id,
       orderCode: o.code,
@@ -498,6 +516,16 @@ export class OrdersService {
           : undefined,
       createdAt: o.createdAt.toISOString(),
     }));
+
+    return {
+      data: formattedData,
+      meta: {
+        page,
+        perPage,
+        total,
+        totalPages: Math.ceil(total / perPage),
+      },
+    };
   }
 }
 

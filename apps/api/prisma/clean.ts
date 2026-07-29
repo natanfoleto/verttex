@@ -1,11 +1,6 @@
-import * as crypto from "crypto";
 import { prisma } from "../src/infrastructure/database/prisma.js";
-
-function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex");
-  return `${salt}:${hash}`;
-}
+import { hashPassword } from "../src/shared/utils/crypto.js";
+import { clearReturnsStore } from "../src/modules/returns/returns.service.js";
 
 const permissionsData = [
   // Users module
@@ -94,7 +89,10 @@ async function main() {
     }
   }
 
-  console.log("✨ Banco de dados limpo com sucesso!");
+  // Limpa o registro em memória de devoluções/trocas
+  clearReturnsStore();
+
+  console.log("✨ Banco de dados e armazenamento de devoluções limpos com sucesso!");
 
   console.log("🔑 Semeando permissões do sistema...");
   const createdPermissions = await Promise.all(
@@ -153,7 +151,7 @@ async function main() {
   });
 
   console.log("👤 Criando usuário Administrador único...");
-  const adminPasswordHash = hashPassword("admin123");
+  const adminPasswordHash = await hashPassword("admin123");
 
   const adminUser = await prisma.user.create({
     data: {
@@ -165,15 +163,11 @@ async function main() {
     },
   });
 
-  console.log("\n=======================================================");
-  console.log("🎉 BANCO DE DADOS LIMPO E RECONFIGURADO COM SUCESSO!");
-  console.log("=======================================================");
   console.log("👤 Único Usuário Registrado:");
   console.log(`- Nome:  ${adminUser.name}`);
   console.log(`- Email: ${adminUser.email}`);
-  console.log("- Senha: SenhaSegura123!");
+  console.log("- Senha: admin123");
   console.log(`- Cargo: ${adminRole.name} (${adminRole.key})`);
-  console.log("=======================================================\n");
 }
 
 main()

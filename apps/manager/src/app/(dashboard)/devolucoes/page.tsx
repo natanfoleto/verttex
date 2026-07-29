@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { apiClient, ApiError } from "@/lib/api-client";
 import { QuarantineInspectionDialog } from "./components/quarantine-inspection-dialog";
+import { TableWrapper } from "@/components/ui/table-wrapper";
 
 interface ReturnItem {
   id: string;
@@ -27,58 +28,64 @@ interface ReturnItem {
 export default function ReturnsManagementPage() {
   const queryClient = useQueryClient();
   const [selectedReturnId, setSelectedReturnId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
 
-  const { data: returns, isLoading } = useQuery<ReturnItem[]>({
-    queryKey: ["manager-returns"],
+  const { data: returnsRes, isLoading } = useQuery<{
+    data: ReturnItem[];
+    meta: { page: number; perPage: number; total: number; totalPages: number };
+  }>({
+    queryKey: ["manager-returns", page, perPage],
     queryFn: async () => {
       try {
-        const res = await apiClient<any>("/returns");
-        return res.data || [];
+        const res = await apiClient<any>(`/returns?page=${page}&limit=${perPage}`);
+        if (res && res.meta) {
+          return {
+            data: res.data || [],
+            meta: res.meta,
+          };
+        }
+        const dataArr = Array.isArray(res) ? res : res?.data ?? [];
+        return {
+          data: dataArr,
+          meta: {
+            page,
+            perPage,
+            total: dataArr.length,
+            totalPages: Math.ceil(dataArr.length / perPage) || 1,
+          },
+        };
       } catch {
-        return [
-          {
-            id: "ret-201",
-            orderId: "ord-101",
-            orderCode: "VTX-9821",
-            customerName: "Carlos Eduardo Silva",
-            reason: "Embalagem danificada durante o transporte",
-            status: "REQUESTED",
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: "ret-202",
-            orderId: "ord-99",
-            orderCode: "VTX-9800",
-            customerName: "Mariana Souza",
-            reason: "Produto entregue diferente do pedido",
-            status: "IN_QUARANTINE",
-            createdAt: new Date().toISOString(),
-          },
-        ];
+        return {
+          data: [],
+          meta: { page: 1, perPage: 10, total: 0, totalPages: 1 },
+        };
       }
     },
   });
 
+  const returnsList = returnsRes?.data || [];
+
   const quarantineEntryMutation = useMutation({
-    mutationFn: async (returnId: string) => {
-      return apiClient(`/returns/${returnId}/quarantine-entry`, { method: "POST" });
+    mutationFn: async (id: string) => {
+      return apiClient(`/returns/${id}/quarantine`, { method: "POST" });
     },
     onSuccess: () => {
-      toast.success("Entrada em Quarentena Sanitária registrada com sucesso!");
+      toast.success("Item colocado em Quarentena Sanitária!");
       queryClient.invalidateQueries({ queryKey: ["manager-returns"] });
     },
     onError: (err: unknown) => {
       if (err instanceof ApiError) toast.error(err.message);
-      else toast.error("Erro ao registrar entrada em quarentena");
+      else toast.error("Erro ao dar entrada em quarentena");
     },
   });
 
   const refundMutation = useMutation({
-    mutationFn: async (returnId: string) => {
-      return apiClient(`/returns/${returnId}/refund`, { method: "POST" });
+    mutationFn: async (id: string) => {
+      return apiClient(`/returns/${id}/refund`, { method: "POST" });
     },
     onSuccess: () => {
-      toast.success("Reembolso financeiro processado com sucesso!");
+      toast.success("Reembolso ao comprador processado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["manager-returns"] });
     },
     onError: (err: unknown) => {
@@ -97,107 +104,89 @@ export default function ReturnsManagementPage() {
 
   return (
     <div className="space-y-6 font-sans text-zinc-100 antialiased">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
-          Gestão de Trocas, Devoluções & Quarentena Sanitária
-        </h1>
-        <p className="text-xs text-zinc-400 mt-1">
-          Processe solicitações de devolução de compradores com controle compulsório de quarentena sanitária e emissão de laudos.
-        </p>
-      </div>
+      <TableWrapper
+        title="Gestão de Trocas, Devoluções & Quarentena Sanitária"
+        description="Processe solicitações de devolução de compradores com controle compulsório de quarentena sanitária e emissão de laudos."
+        isLoading={isLoading}
+        isEmpty={!isLoading && returnsList.length === 0}
+        emptyTitle="Nenhuma devolução pendente"
+        emptyDescription="Não há solicitações de devolução em aberto no momento."
+        emptyIcon={<RiRefreshLine className="h-6 w-6 text-zinc-400" />}
+        meta={returnsRes?.meta}
+        onPageChange={setPage}
+        perPageValue={perPage}
+        onPerPageChange={(newPerPage) => {
+          setPerPage(newPerPage);
+          setPage(1);
+        }}
+      >
+        <table className="w-full text-left text-xs">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
+            <tr>
+              <th className="px-5 py-3.5 font-bold">Pedido</th>
+              <th className="px-5 py-3.5 font-bold">Cliente</th>
+              <th className="px-5 py-3.5 font-bold">Motivo</th>
+              <th className="px-5 py-3.5 font-bold">Status</th>
+              <th className="px-5 py-3.5 font-bold text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800/60">
+            {returnsList.map((r) => (
+              <tr key={r.id} className="hover:bg-zinc-800/30 transition-colors">
+                <td className="px-5 py-4 font-mono font-bold text-emerald-400">
+                  {r.orderCode}
+                </td>
+                <td className="px-5 py-4 font-medium text-zinc-200">{r.customerName}</td>
+                <td className="px-5 py-4 text-zinc-400 max-w-xs truncate">{r.reason}</td>
+                <td className="px-5 py-4">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                      statusBadges[r.status]?.bg || "bg-zinc-800 text-zinc-300"
+                    }`}
+                  >
+                    {statusBadges[r.status]?.label || r.status}
+                  </span>
+                </td>
+                <td className="px-5 py-4 text-right space-x-2">
+                  {r.status === "REQUESTED" && (
+                    <Button
+                      size="sm"
+                      onClick={() => quarantineEntryMutation.mutate(r.id)}
+                      disabled={quarantineEntryMutation.isPending}
+                      className="cursor-pointer bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold"
+                    >
+                      <RiShieldCheckLine className="h-3.5 w-3.5 mr-1" />
+                      <span>Entrada em Quarentena</span>
+                    </Button>
+                  )}
+                  {r.status === "IN_QUARANTINE" && (
+                    <Button
+                      size="sm"
+                      onClick={() => setSelectedReturnId(r.id)}
+                      className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold"
+                    >
+                      <RiCheckLine className="h-3.5 w-3.5 mr-1" />
+                      <span>Emitir Laudo</span>
+                    </Button>
+                  )}
+                  {(r.status === "RELEASED" || r.status === "DISCARDED") && (
+                    <Button
+                      size="sm"
+                      onClick={() => refundMutation.mutate(r.id)}
+                      disabled={refundMutation.isPending}
+                      className="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold"
+                    >
+                      <RiExchangeDollarLine className="h-3.5 w-3.5 mr-1" />
+                      <span>Processar Reembolso</span>
+                    </Button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableWrapper>
 
-      {/* Table & Skeletons */}
-      {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-16 w-full animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/60"
-            />
-          ))}
-        </div>
-      ) : !returns || returns.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-12 text-center">
-          <RiRefreshLine className="mx-auto h-12 w-12 text-zinc-600" />
-          <h3 className="mt-3 text-sm font-bold text-zinc-200">Nenhuma devolução pendente</h3>
-          <p className="mt-1 text-xs text-zinc-500">
-            Não há solicitações de devolução em aberto no momento.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="px-5 py-3.5 font-bold">Pedido</th>
-                  <th className="px-5 py-3.5 font-bold">Cliente</th>
-                  <th className="px-5 py-3.5 font-bold">Motivo</th>
-                  <th className="px-5 py-3.5 font-bold">Status</th>
-                  <th className="px-5 py-3.5 font-bold text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800/60">
-                {returns.map((r) => (
-                  <tr key={r.id} className="hover:bg-zinc-800/30 transition-colors">
-                    <td className="px-5 py-4 font-mono font-bold text-emerald-400">
-                      {r.orderCode}
-                    </td>
-                    <td className="px-5 py-4 font-medium text-zinc-200">{r.customerName}</td>
-                    <td className="px-5 py-4 text-zinc-400 max-w-xs truncate">{r.reason}</td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                          statusBadges[r.status]?.bg || "bg-zinc-800 text-zinc-300"
-                        }`}
-                      >
-                        {statusBadges[r.status]?.label || r.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-right space-x-2">
-                      {r.status === "REQUESTED" && (
-                        <Button
-                          size="sm"
-                          onClick={() => quarantineEntryMutation.mutate(r.id)}
-                          disabled={quarantineEntryMutation.isPending}
-                          className="cursor-pointer bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold"
-                        >
-                          <RiShieldCheckLine className="h-3.5 w-3.5 mr-1" />
-                          <span>Entrada em Quarentena</span>
-                        </Button>
-                      )}
-                      {r.status === "IN_QUARANTINE" && (
-                        <Button
-                          size="sm"
-                          onClick={() => setSelectedReturnId(r.id)}
-                          className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold"
-                        >
-                          <RiCheckLine className="h-3.5 w-3.5 mr-1" />
-                          <span>Emitir Laudo</span>
-                        </Button>
-                      )}
-                      {(r.status === "RELEASED" || r.status === "DISCARDED") && (
-                        <Button
-                          size="sm"
-                          onClick={() => refundMutation.mutate(r.id)}
-                          disabled={refundMutation.isPending}
-                          className="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold"
-                        >
-                          <RiExchangeDollarLine className="h-3.5 w-3.5 mr-1" />
-                          <span>Processar Reembolso</span>
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Quarantine Inspection Dialog */}
       <QuarantineInspectionDialog
         open={Boolean(selectedReturnId)}
         onOpenChange={(open) => {

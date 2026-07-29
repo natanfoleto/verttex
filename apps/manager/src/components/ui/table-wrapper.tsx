@@ -6,6 +6,7 @@ import {
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
+  RiInboxLine,
   RiSearchLine,
 } from "react-icons/ri";
 
@@ -17,8 +18,8 @@ interface MetaData {
   perPage: number;
   total: number;
   totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
 }
 
 interface TableWrapperProps {
@@ -40,6 +41,7 @@ interface TableWrapperProps {
   isEmpty?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyIcon?: ReactNode;
 }
 
 export function TableWrapper({
@@ -61,6 +63,7 @@ export function TableWrapper({
   isEmpty,
   emptyTitle = "Nenhum registro encontrado",
   emptyDescription = "Não existem itens correspondentes aos critérios informados.",
+  emptyIcon,
 }: TableWrapperProps) {
   const [pageInput, setPageInput] = useState(String(meta?.page || 1));
 
@@ -139,11 +142,14 @@ export function TableWrapper({
             </p>
           </div>
         ) : isEmpty ? (
-          <div className="space-y-3 p-12 text-center">
-            <h3 className="text-base font-semibold text-zinc-300">
+          <div className="flex flex-col items-center justify-center p-12 text-center">
+            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 text-zinc-400 shadow-xs">
+              {emptyIcon || <RiInboxLine className="h-6 w-6 text-zinc-400" />}
+            </div>
+            <h3 className="text-sm font-bold text-zinc-200">
               {emptyTitle}
             </h3>
-            <p className="mx-auto max-w-sm text-sm text-zinc-500">
+            <p className="mt-1 max-w-sm text-xs text-zinc-500">
               {emptyDescription}
             </p>
           </div>
@@ -207,7 +213,11 @@ export function TableWrapper({
                 <button
                   type="button"
                   title="Página anterior"
-                  disabled={!meta.hasPreviousPage}
+                  disabled={
+                    meta.hasPreviousPage !== undefined
+                      ? !meta.hasPreviousPage
+                      : meta.page <= 1
+                  }
                   onClick={() => onPageChange(meta.page - 1)}
                   className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
                 >
@@ -247,7 +257,11 @@ export function TableWrapper({
                 <button
                   type="button"
                   title="Próxima página"
-                  disabled={!meta.hasNextPage}
+                  disabled={
+                    meta.hasNextPage !== undefined
+                      ? !meta.hasNextPage
+                      : meta.page >= meta.totalPages
+                  }
                   onClick={() => onPageChange(meta.page + 1)}
                   className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
                 >

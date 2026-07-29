@@ -8,7 +8,6 @@ import {
   RiCheckLine,
   RiEditLine,
   RiPriceTag3Line,
-  RiSearchLine,
 } from "react-icons/ri";
 import { toast } from "sonner";
 
@@ -38,6 +37,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiClient, ApiError } from "../../../lib/api-client";
 import { useAuth } from "../../../providers/auth-provider";
 
+import { TableWrapper } from "@/components/ui/table-wrapper";
+
 interface Brand {
   id: string;
   name: string;
@@ -60,6 +61,8 @@ export default function BrandsPage() {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
   >("all");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
@@ -76,18 +79,21 @@ export default function BrandsPage() {
 
   // Queries
   const { data: listRes, isLoading } = useQuery({
-    queryKey: ["brands-list", search, statusFilter],
+    queryKey: ["brands-list", search, statusFilter, page, perPage],
     queryFn: async () => {
       const params = new URLSearchParams();
+      params.append("page", String(page));
+      params.append("perPage", String(perPage));
       if (search) params.append("search", search);
       if (statusFilter !== "all") params.append("status", statusFilter);
       const res = await apiClient(`/brands?${params.toString()}`);
-      return res;
+      return res as any;
     },
   });
 
   const listData: Brand[] =
     listRes?.data ?? (Array.isArray(listRes) ? listRes : []);
+  const meta = listRes?.meta;
 
   // Mutations
   const createMutation = useMutation({
@@ -196,136 +202,117 @@ export default function BrandsPage() {
 
   return (
     <div className="w-full space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
-            Catálogo de Marcas
-          </h1>
-          <p className="text-xs text-zinc-400">
-            Gerencie o cadastro reutilizável de marcas e fabricantes da
-            plataforma
-          </p>
-        </div>
-
-        {ability.can("create", "Brand") && (
-          <Button type="button" onClick={openCreateModal}>
-            <RiAddLine className="h-4 w-4" />
-            <span>Nova Marca</span>
-          </Button>
-        )}
-      </div>
-
-      {/* Filter Toolbar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4 backdrop-blur-xl">
-        <div className="relative w-full sm:w-72">
-          <RiSearchLine className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-          <Input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome ou slug..."
-            className="pl-9"
-          />
-        </div>
-
-        <div className="w-full sm:w-48">
+      <TableWrapper
+        title="Catálogo de Marcas"
+        description="Gerencie o cadastro reutilizável de marcas e fabricantes da plataforma."
+        actionButton={
+          ability.can("create", "Brand") ? (
+            <Button type="button" onClick={openCreateModal}>
+              <RiAddLine className="h-4 w-4" />
+              <span>Nova Marca</span>
+            </Button>
+          ) : undefined
+        }
+        searchValue={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        searchPlaceholder="Buscar por nome ou slug..."
+        filters={
           <NativeSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value as any);
+              setPage(1);
+            }}
+            className="w-44 bg-zinc-900 border-zinc-800 text-xs cursor-pointer"
           >
             <option value="all">Status: Todos</option>
             <option value="active">Ativas</option>
             <option value="inactive">Inativas</option>
           </NativeSelect>
-        </div>
-      </div>
-
-      {/* Main Table */}
-      <div className="overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl">
-        <div className="border-b border-zinc-800/80 bg-zinc-950/60 p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-300">
-            Marcas Cadastradas ({listData.length})
-          </h3>
-        </div>
-
-        {isLoading ? (
-          <div className="p-12 text-center text-zinc-500 text-xs">
-            Carregando marcas...
-          </div>
-        ) : listData.length > 0 ? (
-          <div className="divide-y divide-zinc-800/60 overflow-x-auto">
-            {listData.map((brand) => (
-              <div
-                key={brand.id}
-                className="flex items-center justify-between p-4 transition-colors hover:bg-zinc-800/30"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950 text-emerald-400">
-                    <RiPriceTag3Line className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <span className="font-semibold text-sm text-zinc-100">
-                        {brand.name}
-                      </span>
-                      <span className="rounded-md bg-zinc-950 border border-zinc-800 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
-                        /{brand.slug}
-                      </span>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
-                          brand.status === "active"
-                            ? "bg-emerald-950/80 border border-emerald-800/80 text-emerald-300"
-                            : "bg-zinc-950 border border-zinc-800 text-zinc-400"
-                        }`}
-                      >
-                        {brand.status === "active" ? "Ativa" : "Inativa"}
-                      </span>
-                    </div>
-                    {brand.description && (
-                      <p className="text-xs text-zinc-400 line-clamp-1">
-                        {brand.description}
-                      </p>
-                    )}
-                  </div>
+        }
+        isLoading={isLoading}
+        isEmpty={!isLoading && listData.length === 0}
+        emptyTitle="Nenhuma marca encontrada"
+        emptyDescription="Nenhuma marca corresponde aos filtros selecionados."
+        emptyIcon={<RiPriceTag3Line className="h-6 w-6 text-zinc-400" />}
+        meta={meta}
+        onPageChange={setPage}
+        perPageValue={perPage}
+        onPerPageChange={(newPerPage) => {
+          setPerPage(newPerPage);
+          setPage(1);
+        }}
+      >
+        <div className="divide-y divide-zinc-800/60 overflow-x-auto">
+          {listData.map((brand) => (
+            <div
+              key={brand.id}
+              className="flex items-center justify-between p-4 transition-colors hover:bg-zinc-800/30 text-xs"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950 text-emerald-400">
+                  <RiPriceTag3Line className="h-5 w-5" />
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  {ability.can("update", "Brand") && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => openEditModal(brand)}
-                      className="h-8 w-8 p-1.5 text-zinc-400 hover:text-zinc-200"
-                      title="Editar"
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                    <span className="font-semibold text-sm text-zinc-100">
+                      {brand.name}
+                    </span>
+                    <span className="rounded-md bg-zinc-950 border border-zinc-800 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+                      /{brand.slug}
+                    </span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
+                        brand.status === "active"
+                          ? "bg-emerald-950/80 border border-emerald-800/80 text-emerald-300"
+                          : "bg-zinc-950 border border-zinc-800 text-zinc-400"
+                      }`}
                     >
-                      <RiEditLine className="h-4 w-4" />
-                    </Button>
-                  )}
-
-                  {ability.can("delete", "Brand") && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setDeletingBrand(brand)}
-                      className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors"
-                      title="Arquivar Marca"
-                    >
-                      <RiArchiveLine className="h-4 w-4" />
-                    </Button>
+                      {brand.status === "active" ? "Ativa" : "Inativa"}
+                    </span>
+                  </div>
+                  {brand.description && (
+                    <p className="text-xs text-zinc-400 line-clamp-1">
+                      {brand.description}
+                    </p>
                   )}
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-12 text-center text-xs text-zinc-500">
-            Nenhuma marca encontrada com os filtros selecionados.
-          </div>
-        )}
-      </div>
+
+              <div className="flex items-center space-x-2">
+                {ability.can("update", "Brand") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => openEditModal(brand)}
+                    className="h-8 w-8 p-1.5 text-zinc-400 hover:text-zinc-200 cursor-pointer"
+                    title="Editar"
+                  >
+                    <RiEditLine className="h-4 w-4" />
+                  </Button>
+                )}
+
+                {ability.can("delete", "Brand") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setDeletingBrand(brand)}
+                    className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors cursor-pointer"
+                    title="Arquivar Marca"
+                  >
+                    <RiArchiveLine className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </TableWrapper>
 
       {/* Modal Reusável do Shadcn UI (Dialog) */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

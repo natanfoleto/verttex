@@ -459,6 +459,7 @@ export default function AuditPage() {
             ? "Tente remover os filtros para ver todos os registros."
             : "Os logs aparecerão aqui à medida que os usuários realizarem ações no sistema."
         }
+        emptyIcon={<RiShieldCheckLine className="h-6 w-6 text-zinc-400" />}
         meta={data?.meta}
         onPageChange={setPage}
         perPageValue={perPage}

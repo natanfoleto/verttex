@@ -7,12 +7,12 @@ import {
   RiExchangeDollarLine,
   RiShoppingBag3Line,
   RiStackLine,
-  RiFileTextLine,
 } from "react-icons/ri";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api-client";
+import { TableWrapper } from "@/components/ui/table-wrapper";
 
 interface SalesSummaryData {
   orderCount: number;
@@ -40,6 +40,8 @@ interface InventoryLossesData {
 
 export default function ReportsAndBiPage() {
   const [exportFormat, setExportFormat] = useState<"csv" | "json">("csv");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
 
   const { data: sales, isLoading: isSalesLoading } = useQuery<SalesSummaryData>({
     queryKey: ["report-sales"],
@@ -98,7 +100,7 @@ export default function ReportsAndBiPage() {
               sku: "GOIABA-PN-03",
               quantity: 45,
               revenue: 1500.0,
-              cumulativePercent: 91.8,
+              cumulativePercent: 92.5,
               category: "B",
             },
             {
@@ -163,6 +165,10 @@ export default function ReportsAndBiPage() {
     B: "bg-amber-950/60 text-amber-400 border-amber-800/40",
     C: "bg-zinc-800 text-zinc-400 border-zinc-700",
   };
+
+  const allProducts = abc?.products || [];
+  const totalProducts = allProducts.length;
+  const paginatedProducts = allProducts.slice((page - 1) * perPage, page * perPage);
 
   return (
     <div className="space-y-8 font-sans text-zinc-100 antialiased">
@@ -251,61 +257,66 @@ export default function ReportsAndBiPage() {
       </div>
 
       {/* Curva ABC Table */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-zinc-100 flex items-center space-x-2">
-          <RiFileTextLine className="h-5 w-5 text-emerald-400" />
-          <span>Análise de Curva ABC de Produtos</span>
-        </h2>
-
-        {isAbcLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 w-full animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/60" />
+      <TableWrapper
+        title="Análise de Curva ABC de Produtos"
+        description="Classificação dos produtos por volume de faturamento e participação percentual acumulada."
+        isLoading={isAbcLoading}
+        isEmpty={!isAbcLoading && allProducts.length === 0}
+        emptyTitle="Nenhum produto cadastrado no relatório"
+        emptyDescription="Não há dados de faturamento acumulado para os produtos no período."
+        emptyIcon={<RiStackLine className="h-6 w-6 text-zinc-400" />}
+        meta={{
+          page,
+          perPage,
+          total: totalProducts,
+          totalPages: Math.ceil(totalProducts / perPage) || 1,
+          hasNextPage: page * perPage < totalProducts,
+          hasPreviousPage: page > 1,
+        }}
+        onPageChange={setPage}
+        perPageValue={perPage}
+        onPerPageChange={(newPerPage) => {
+          setPerPage(newPerPage);
+          setPage(1);
+        }}
+      >
+        <table className="w-full text-left text-xs">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
+            <tr>
+              <th className="px-5 py-3.5 font-bold">Produto</th>
+              <th className="px-5 py-3.5 font-bold">SKU</th>
+              <th className="px-5 py-3.5 font-bold">Qtd Vendida</th>
+              <th className="px-5 py-3.5 font-bold">Faturamento (R$)</th>
+              <th className="px-5 py-3.5 font-bold">% Acumulado</th>
+              <th className="px-5 py-3.5 font-bold text-right">Classe ABC</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800/60">
+            {paginatedProducts.map((p) => (
+              <tr key={p.productId} className="hover:bg-zinc-800/30 transition-colors">
+                <td className="px-5 py-4 font-bold text-zinc-200">{p.name}</td>
+                <td className="px-5 py-4 font-mono text-zinc-400">{p.sku}</td>
+                <td className="px-5 py-4 text-zinc-200">{p.quantity} un.</td>
+                <td className="px-5 py-4 font-bold text-emerald-400">
+                  R$ {p.revenue.toFixed(2)}
+                </td>
+                <td className="px-5 py-4 font-mono text-zinc-400">
+                  {p.cumulativePercent.toFixed(1)}%
+                </td>
+                <td className="px-5 py-4 text-right">
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black border ${
+                      abcBadges[p.category]
+                    }`}
+                  >
+                    Classe {p.category}
+                  </span>
+                </td>
+              </tr>
             ))}
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
-                  <tr>
-                    <th className="px-5 py-3.5 font-bold">Produto</th>
-                    <th className="px-5 py-3.5 font-bold">SKU</th>
-                    <th className="px-5 py-3.5 font-bold">Qtd Vendida</th>
-                    <th className="px-5 py-3.5 font-bold">Faturamento (R$)</th>
-                    <th className="px-5 py-3.5 font-bold">% Acumulado</th>
-                    <th className="px-5 py-3.5 font-bold text-right">Classe ABC</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800/60">
-                  {abc?.products.map((p) => (
-                    <tr key={p.productId} className="hover:bg-zinc-800/30 transition-colors">
-                      <td className="px-5 py-4 font-bold text-zinc-200">{p.name}</td>
-                      <td className="px-5 py-4 font-mono text-zinc-400">{p.sku}</td>
-                      <td className="px-5 py-4 text-zinc-200">{p.quantity} un.</td>
-                      <td className="px-5 py-4 font-bold text-emerald-400">
-                        R$ {p.revenue.toFixed(2)}
-                      </td>
-                      <td className="px-5 py-4 font-mono text-zinc-400">
-                        {p.cumulativePercent.toFixed(1)}%
-                      </td>
-                      <td className="px-5 py-4 text-right">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black border ${
-                            abcBadges[p.category]
-                          }`}
-                        >
-                          Classe {p.category}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
+          </tbody>
+        </table>
+      </TableWrapper>
     </div>
   );
 }

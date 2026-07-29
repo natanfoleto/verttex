@@ -375,8 +375,16 @@ export default function CategoriesPage() {
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center text-xs text-zinc-500">
-              Nenhuma categoria encontrada com os filtros selecionados.
+            <div className="flex flex-col items-center justify-center p-12 text-center">
+              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 text-zinc-400 shadow-xs">
+                <RiFolder3Line className="h-6 w-6 text-zinc-400" />
+              </div>
+              <h3 className="text-sm font-bold text-zinc-200">
+                Nenhuma categoria encontrada
+              </h3>
+              <p className="mt-1 max-w-sm text-xs text-zinc-500">
+                Nenhuma categoria atende aos filtros selecionados.
+              </p>
             </div>
           )}
         </div>

@@ -69,6 +69,7 @@ export default function UsersListPage() {
             ? "Tente buscar com outro nome ou endereço de e-mail."
             : 'Clique em "Novo Usuário" para cadastrar o primeiro gestor.'
         }
+        emptyIcon={<RiShieldUserLine className="h-6 w-6 text-zinc-400" />}
         meta={data?.meta}
         onPageChange={setPage}
         perPageValue={perPage}

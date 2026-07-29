@@ -24,9 +24,19 @@ export class OrdersController {
   }
 
   static async listManagerOrders(req: FastifyRequest, reply: FastifyReply) {
-    const query = (req.query || {}) as { status?: string; search?: string };
+    const query = (req.query || {}) as {
+      status?: string;
+      search?: string;
+      page?: string;
+      limit?: string;
+      perPage?: string;
+    };
     const result = await OrdersService.listManagerOrders(query);
-    return reply.send({ success: true, data: result });
+    return reply.send({
+      success: true,
+      data: result.data,
+      meta: result.meta,
+    });
   }
 
   static async getOrder(req: FastifyRequest, reply: FastifyReply) {

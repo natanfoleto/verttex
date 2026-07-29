@@ -146,10 +146,12 @@ export default function NotificationsCenterPage() {
           ))}
         </div>
       ) : !data || data.notifications.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-12 text-center">
-          <RiNotification3Line className="mx-auto h-12 w-12 text-zinc-600" />
-          <h3 className="mt-3 text-sm font-bold text-zinc-200">Nenhuma notificação encontrada</h3>
-          <p className="mt-1 text-xs text-zinc-500">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-12 text-center">
+          <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 text-zinc-400 shadow-xs">
+            <RiNotification3Line className="h-6 w-6 text-zinc-400" />
+          </div>
+          <h3 className="text-sm font-bold text-zinc-200">Nenhuma notificação encontrada</h3>
+          <p className="mt-1 max-w-sm text-xs text-zinc-500">
             Você está em dia com todas as notificações e alertas sanitários.
           </p>
         </div>

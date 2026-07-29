@@ -12,11 +12,13 @@ import {
   RiGlobalLine,
   RiImageLine,
   RiLockLine,
-  RiSearchLine,
   RiSendPlaneLine,
+  RiShoppingBag3Line,
   RiStarLine,
 } from "react-icons/ri";
 import { toast } from "sonner";
+
+import { TableWrapper } from "@/components/ui/table-wrapper";
 
 import {
   AlertDialog,
@@ -30,7 +32,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 
 import { apiClient, ApiError } from "../../../../lib/api-client";
@@ -206,384 +207,307 @@ export function ProductsTable({
 
   return (
     <div className="w-full space-y-4">
-      {/* Top Header */}
-      {!hideTitle && (
-        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
-              Gestão de Produtos
-            </h1>
-            <p className="text-xs text-zinc-400">
-              Cadastre produtos simples ou variáveis, gerencie variações, preços
-              e mídias do catálogo.
-            </p>
-          </div>
-
-          {ability.can("create", "Product") && (
+      <TableWrapper
+        title={hideTitle ? "" : "Gestão de Produtos"}
+        description={
+          hideTitle
+            ? undefined
+            : "Cadastre produtos simples ou variáveis, gerencie variações, preços e mídias do catálogo."
+        }
+        actionButton={
+          ability.can("create", "Product") ? (
             <Button type="button" onClick={openCreateModal}>
               <RiAddLine className="h-4 w-4" />
               <span>Novo Produto</span>
             </Button>
-          )}
-        </div>
-      )}
-
-      {/* Header action button for store-embedded view */}
-      {hideTitle && ability.can("create", "Product") && (
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-zinc-100">
-              Produtos da Loja
-            </h2>
-            <p className="text-xs text-zinc-400">
-              Produtos cadastrados e vinculados a esta loja.
-            </p>
-          </div>
-          <Button type="button" onClick={openCreateModal}>
-            <RiAddLine className="h-4 w-4" />
-            <span>Novo Produto</span>
-          </Button>
-        </div>
-      )}
-
-      {/* Filters Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <div className="relative flex-1 min-w-60">
-          <RiSearchLine className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 pointer-events-none" />
-          <Input
-            type="text"
-            placeholder="Buscar por nome, slug ou SKU..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="pl-10"
-          />
-        </div>
-
-        <div className="w-full sm:w-40">
-          <NativeSelect
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="all">Todos os Status</option>
-            <option value="draft">Rascunho</option>
-            <option value="active">Ativo</option>
-            <option value="inactive">Inativo</option>
-            <option value="archived">Arquivado</option>
-          </NativeSelect>
-        </div>
-
-        {!fixedStoreId && (
-          <div className="w-full sm:w-44">
+          ) : undefined
+        }
+        searchValue={search}
+        onSearchChange={(v) => {
+          setSearch(v);
+          setPage(1);
+        }}
+        searchPlaceholder="Buscar por nome, slug ou SKU..."
+        filters={
+          <div className="flex flex-wrap items-center gap-2">
             <NativeSelect
-              value={storeFilter}
+              value={statusFilter}
               onChange={(e) => {
-                setStoreFilter(e.target.value);
+                setStatusFilter(e.target.value);
                 setPage(1);
               }}
+              wrapperClassName="w-36"
             >
-              <option value="">Todas as Lojas</option>
-              {storesList.map((st: any) => (
-                <option key={st.id} value={st.id}>
-                  {st.name}
+              <option value="all">Todos os Status</option>
+              <option value="draft">Rascunho</option>
+              <option value="active">Ativo</option>
+              <option value="inactive">Inativo</option>
+              <option value="archived">Arquivado</option>
+            </NativeSelect>
+
+            {!fixedStoreId && (
+              <NativeSelect
+                value={storeFilter}
+                onChange={(e) => {
+                  setStoreFilter(e.target.value);
+                  setPage(1);
+                }}
+                wrapperClassName="w-40"
+              >
+                <option value="">Todas as Lojas</option>
+                {storesList.map((st: any) => (
+                  <option key={st.id} value={st.id}>
+                    {st.name}
+                  </option>
+                ))}
+              </NativeSelect>
+            )}
+
+            <NativeSelect
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setPage(1);
+              }}
+              wrapperClassName="w-40"
+            >
+              <option value="">Todas as Categorias</option>
+              {categoriesList.map((cat: any) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </NativeSelect>
+
+            <NativeSelect
+              value={brandFilter}
+              onChange={(e) => {
+                setBrandFilter(e.target.value);
+                setPage(1);
+              }}
+              wrapperClassName="w-40"
+            >
+              <option value="">Todas as Marcas</option>
+              {brandsList.map((br: any) => (
+                <option key={br.id} value={br.id}>
+                  {br.name}
                 </option>
               ))}
             </NativeSelect>
           </div>
-        )}
+        }
+        isLoading={isLoading}
+        isEmpty={!isLoading && productsList.length === 0}
+        emptyTitle="Nenhum produto encontrado"
+        emptyDescription="Nenhum produto corresponde aos filtros selecionados."
+        emptyIcon={<RiShoppingBag3Line className="h-6 w-6 text-zinc-400" />}
+        meta={{
+          page: meta.page,
+          perPage: 10,
+          total: meta.total || 0,
+          totalPages: meta.totalPages || 1,
+          hasNextPage: meta.page < meta.totalPages,
+          hasPreviousPage: meta.page > 1,
+        }}
+        onPageChange={setPage}
+      >
+        <table className="w-full text-left text-xs text-zinc-300">
+          <thead className="border-b border-zinc-800/80 bg-zinc-950 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <tr>
+              <th className="px-4 py-3">Produto</th>
+              {!fixedStoreId && <th className="px-4 py-3">Loja</th>}
+              <th className="px-4 py-3">Categoria / Marca</th>
+              <th className="px-4 py-3">Preço / SKU</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800/60">
+            {productsList.map((prod: any) => {
+              const imgUrl = getMainImage(prod);
+              const defaultVar =
+                prod.variations?.find((v: any) => v.isDefault) ||
+                prod.variations?.[0];
 
-        <div className="w-full sm:w-44">
-          <NativeSelect
-            value={categoryFilter}
-            onChange={(e) => {
-              setCategoryFilter(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="">Todas as Categorias</option>
-            {categoriesList.map((cat: any) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-
-        <div className="w-full sm:w-44">
-          <NativeSelect
-            value={brandFilter}
-            onChange={(e) => {
-              setBrandFilter(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="">Todas as Marcas</option>
-            {brandsList.map((br: any) => (
-              <option key={br.id} value={br.id}>
-                {br.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-      </div>
-
-      {/* Products Table */}
-      <div className="overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-zinc-300">
-            <thead className="border-b border-zinc-800/80 bg-zinc-950 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-              <tr>
-                <th className="px-4 py-3">Produto</th>
-                {!fixedStoreId && <th className="px-4 py-3">Loja</th>}
-                <th className="px-4 py-3">Categoria / Marca</th>
-                <th className="px-4 py-3">Preço / SKU</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800/60">
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={fixedStoreId ? 5 : 6}
-                    className="px-4 py-8 text-center text-zinc-500"
-                  >
-                    <div className="mx-auto h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-zinc-200" />
-                  </td>
-                </tr>
-              ) : productsList.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={fixedStoreId ? 5 : 6}
-                    className="px-4 py-8 text-center text-zinc-500"
-                  >
-                    Nenhum produto encontrado.
-                  </td>
-                </tr>
-              ) : (
-                productsList.map((prod: any) => {
-                  const imgUrl = getMainImage(prod);
-                  const defaultVar =
-                    prod.variations?.find((v: any) => v.isDefault) ||
-                    prod.variations?.[0];
-
-                  return (
-                    <tr
-                      key={prod.id}
-                      className="transition-colors hover:bg-zinc-900/60"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 flex items-center justify-center">
-                            {imgUrl ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img
-                                src={imgUrl}
-                                alt={prod.name}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <RiImageLine className="h-5 w-5 text-zinc-600" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-1.5 font-semibold text-zinc-100">
-                              <span>{prod.name}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-[11px] text-zinc-500 font-mono">
-                              <span>{prod.slug}</span>
-                              <span className="rounded bg-zinc-800 px-1.5 py-0.2 text-[10px] text-zinc-400">
-                                {prod.type === "simple"
-                                  ? "Simples"
-                                  : "Variável"}
-                              </span>
-                            </div>
-                          </div>
+              return (
+                <tr
+                  key={prod.id}
+                  className="transition-colors hover:bg-zinc-900/60"
+                >
+                  <td className="px-4 py-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 flex items-center justify-center">
+                        {imgUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={imgUrl}
+                            alt={prod.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <RiImageLine className="h-5 w-5 text-zinc-600" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-1.5 font-semibold text-zinc-100">
+                          <span>{prod.name}</span>
                         </div>
-                      </td>
-
-                      {!fixedStoreId && (
-                        <td className="px-4 py-3">
-                          <span className="font-medium text-zinc-300">
-                            {prod.store?.name || "—"}
+                        <div className="flex items-center space-x-2 text-[11px] text-zinc-500 font-mono">
+                          <span>{prod.slug}</span>
+                          <span className="rounded bg-zinc-800 px-1.5 py-0.2 text-[10px] text-zinc-400">
+                            {prod.type === "simple" ? "Simples" : "Variável"}
                           </span>
-                        </td>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  {!fixedStoreId && (
+                    <td className="px-4 py-3">
+                      <span className="font-medium text-zinc-300">
+                        {prod.store?.name || "—"}
+                      </span>
+                    </td>
+                  )}
+
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col text-xs">
+                      <span className="text-zinc-200">
+                        {prod.category?.name || "—"}
+                      </span>
+                      <span className="text-[11px] text-zinc-500">
+                        {prod.brand?.name || "Sem Marca"}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col text-xs font-mono">
+                      <span className="font-semibold text-emerald-400">
+                        {formatPrice(prod)}
+                      </span>
+                      <span className="text-[11px] text-zinc-500">
+                        SKU: {defaultVar?.sku || "—"}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                          prod.status === "active"
+                            ? "border-emerald-800 bg-emerald-950/80 text-emerald-400"
+                            : prod.status === "draft"
+                              ? "border-zinc-700 bg-zinc-800/80 text-zinc-300"
+                              : prod.status === "archived"
+                                ? "border-rose-900/60 bg-rose-950/80 text-rose-400"
+                                : "border-amber-800 bg-amber-950/80 text-amber-400"
+                        }`}
+                      >
+                        {prod.status === "active" && (
+                          <RiCheckLine className="h-3 w-3" />
+                        )}
+                        {prod.status === "draft" && (
+                          <RiDraftLine className="h-3 w-3" />
+                        )}
+                        {prod.status === "archived" && (
+                          <RiArchiveLine className="h-3 w-3" />
+                        )}
+                        {prod.status === "inactive" && (
+                          <RiCloseCircleLine className="h-3 w-3" />
+                        )}
+                        <span>
+                          {prod.status === "active"
+                            ? "Ativo"
+                            : prod.status === "draft"
+                              ? "Rascunho"
+                              : prod.status === "archived"
+                                ? "Arquivado"
+                                : "Inativo"}
+                        </span>
+                      </span>
+
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                          prod.isPublished
+                            ? "border-sky-800/80 bg-sky-950/80 text-sky-400"
+                            : "border-zinc-800 bg-zinc-900 text-zinc-400"
+                        }`}
+                      >
+                        {prod.isPublished ? (
+                          <>
+                            <RiGlobalLine className="h-3 w-3 text-sky-400" />
+                            <span>Publicado</span>
+                          </>
+                        ) : (
+                          <>
+                            <RiLockLine className="h-3 w-3 text-zinc-400" />
+                            <span>Privado</span>
+                          </>
+                        )}
+                      </span>
+
+                      {prod.isFeatured && (
+                        <Badge className="inline-flex items-center gap-1 border-amber-800/80 bg-amber-950/80 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
+                          <RiStarLine className="h-3 w-3 text-amber-400" />
+                          <span>Destaque</span>
+                        </Badge>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end space-x-1.5">
+                      {ability.can("update", "Product") &&
+                        !prod.isPublished && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            title="Publicar no Marketplace"
+                            onClick={() => publishMutation.mutate(prod.id)}
+                            disabled={publishMutation.isPending}
+                            className="h-8 w-8 border-emerald-900 bg-emerald-950/60 p-1.5 text-emerald-400 hover:bg-emerald-900 hover:text-emerald-200"
+                          >
+                            <RiSendPlaneLine className="h-4 w-4" />
+                          </Button>
+                        )}
+
+                      {ability.can("update", "Product") && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          title="Editar Produto"
+                          onClick={() => openEditModal(prod)}
+                          className="h-8 w-8 p-1.5 text-zinc-300"
+                        >
+                          <RiEditLine className="h-4 w-4" />
+                        </Button>
                       )}
 
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col text-xs">
-                          <span className="text-zinc-200">
-                            {prod.category?.name || "—"}
-                          </span>
-                          <span className="text-[11px] text-zinc-500">
-                            {prod.brand?.name || "Sem Marca"}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col text-xs font-mono">
-                          <span className="font-semibold text-emerald-400">
-                            {formatPrice(prod)}
-                          </span>
-                          <span className="text-[11px] text-zinc-500">
-                            SKU: {defaultVar?.sku || "—"}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-                              prod.status === "active"
-                                ? "border-emerald-800 bg-emerald-950/80 text-emerald-400"
-                                : prod.status === "draft"
-                                  ? "border-zinc-700 bg-zinc-800/80 text-zinc-300"
-                                  : prod.status === "archived"
-                                    ? "border-rose-900/60 bg-rose-950/80 text-rose-400"
-                                    : "border-amber-800 bg-amber-950/80 text-amber-400"
-                            }`}
+                      {ability.can("delete", "Product") &&
+                        prod.status !== "archived" && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            title="Arquivar Produto"
+                            onClick={() => setDeletingProduct(prod)}
+                            className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors"
                           >
-                            {prod.status === "active" && (
-                              <RiCheckLine className="h-3 w-3" />
-                            )}
-                            {prod.status === "draft" && (
-                              <RiDraftLine className="h-3 w-3" />
-                            )}
-                            {prod.status === "archived" && (
-                              <RiArchiveLine className="h-3 w-3" />
-                            )}
-                            {prod.status === "inactive" && (
-                              <RiCloseCircleLine className="h-3 w-3" />
-                            )}
-                            <span>
-                              {prod.status === "active"
-                                ? "Ativo"
-                                : prod.status === "draft"
-                                  ? "Rascunho"
-                                  : prod.status === "archived"
-                                    ? "Arquivado"
-                                    : "Inativo"}
-                            </span>
-                          </span>
-
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-                              prod.isPublished
-                                ? "border-sky-800/80 bg-sky-950/80 text-sky-400"
-                                : "border-zinc-800 bg-zinc-900 text-zinc-400"
-                            }`}
-                          >
-                            {prod.isPublished ? (
-                              <>
-                                <RiGlobalLine className="h-3 w-3 text-sky-400" />
-                                <span>Publicado</span>
-                              </>
-                            ) : (
-                              <>
-                                <RiLockLine className="h-3 w-3 text-zinc-400" />
-                                <span>Privado</span>
-                              </>
-                            )}
-                          </span>
-
-                          {prod.isFeatured && (
-                            <Badge className="inline-flex items-center gap-1 border-amber-800/80 bg-amber-950/80 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
-                              <RiStarLine className="h-3 w-3 text-amber-400" />
-                              <span>Destaque</span>
-                            </Badge>
-                          )}
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end space-x-1.5">
-                          {ability.can("update", "Product") &&
-                            !prod.isPublished && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                title="Publicar no Marketplace"
-                                onClick={() => publishMutation.mutate(prod.id)}
-                                disabled={publishMutation.isPending}
-                                className="h-8 w-8 border-emerald-900 bg-emerald-950/60 p-1.5 text-emerald-400 hover:bg-emerald-900 hover:text-emerald-200"
-                              >
-                                <RiSendPlaneLine className="h-4 w-4" />
-                              </Button>
-                            )}
-
-                          {ability.can("update", "Product") && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              title="Editar Produto"
-                              onClick={() => openEditModal(prod)}
-                              className="h-8 w-8 p-1.5 text-zinc-300"
-                            >
-                              <RiEditLine className="h-4 w-4" />
-                            </Button>
-                          )}
-
-                          {ability.can("delete", "Product") &&
-                            prod.status !== "archived" && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                title="Arquivar Produto"
-                                onClick={() => setDeletingProduct(prod)}
-                                className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors"
-                              >
-                                <RiArchiveLine className="h-4 w-4" />
-                              </Button>
-                            )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination Bar */}
-        {meta.totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-zinc-800/80 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
-            <span>
-              Página {meta.page} de {meta.totalPages} ({meta.total} produtos)
-            </span>
-            <div className="flex items-center space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Anterior
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={page >= meta.totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Próxima
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+                            <RiArchiveLine className="h-4 w-4" />
+                          </Button>
+                        )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </TableWrapper>
 
       {/* Form Modal */}
       <ProductFormDialog

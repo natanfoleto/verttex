@@ -11,6 +11,7 @@ import {
   RiErrorWarningLine,
   RiLockLine,
   RiRefreshLine,
+  RiStackLine,
 } from "react-icons/ri";
 
 import { Badge } from "@/components/ui/badge";
@@ -234,6 +235,7 @@ export default function StockAndLotsPage() {
         isEmpty={!isLoading && lotsList.length === 0}
         emptyTitle="Nenhum lote encontrado"
         emptyDescription="Nenhum lote encontrado para os filtros selecionados."
+        emptyIcon={<RiStackLine className="h-6 w-6 text-zinc-400" />}
         meta={
           lotsRes?.meta
             ? {

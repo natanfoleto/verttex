@@ -71,6 +71,7 @@ export default function RolesListPage() {
             ? "Tente buscar com outro nome de cargo ou chave."
             : "Clique em 'Novo Cargo' para definir a primeira regra de acesso do sistema."
         }
+        emptyIcon={<RiShieldLine className="h-6 w-6 text-zinc-400" />}
         meta={data?.meta}
         onPageChange={setPage}
         perPageValue={perPage}

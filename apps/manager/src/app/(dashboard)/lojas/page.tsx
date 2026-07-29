@@ -90,6 +90,7 @@ export default function StoresListPage() {
             ? "Tente remover a busca ou trocar o filtro de status."
             : 'Clique em "Nova Loja" para cadastrar o primeira parceiro.'
         }
+        emptyIcon={<RiUserSharedLine className="h-6 w-6 text-zinc-400" />}
         meta={data?.meta}
         onPageChange={setPage}
         perPageValue={perPage}
