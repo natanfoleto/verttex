@@ -10,7 +10,7 @@ import {
 } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { NativeSelect } from "@/components/ui/native-select";
 
 import { apiClient, ApiError } from "../../../../../lib/api-client";
@@ -135,15 +135,20 @@ export default function StoreMembersPage({
             )}
           </NativeSelect>
 
-          <label className="flex cursor-pointer items-center space-x-2 px-2 text-sm text-zinc-300">
-            <Input
-              type="checkbox"
+          <div className="flex items-center space-x-2 px-2 text-sm text-zinc-300">
+            <Checkbox
+              id="isOwner"
               checked={isOwner}
-              onChange={(e) => setIsOwner(e.target.checked)}
-              className="h-4 w-4 cursor-pointer"
+              onCheckedChange={(checked) => setIsOwner(!!checked)}
+              className="cursor-pointer"
             />
-            <span>Proprietário</span>
-          </label>
+            <label
+              htmlFor="isOwner"
+              className="cursor-pointer text-xs font-medium text-zinc-200 select-none"
+            >
+              Proprietário
+            </label>
+          </div>
 
           <Button
             type="submit"

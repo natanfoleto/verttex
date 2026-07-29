@@ -182,3 +182,15 @@ export async function removeStoreLogoController(
     data: result,
   });
 }
+
+export async function getStoreSummaryController(
+  request: FastifyZodRequest,
+  reply: FastifyReply,
+) {
+  const params = request.params as StoreParams;
+  const summary = await storesService.getStoreSummary(params.storeId);
+  return reply.send({
+    success: true,
+    data: summary,
+  });
+}

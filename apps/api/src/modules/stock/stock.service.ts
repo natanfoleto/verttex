@@ -6,6 +6,7 @@ import { LotsService } from "../lots/lots.service";
 import {
   AdjustStockBody,
   DiscardExpiredStockBody,
+  ListStockMovementsQuery,
   QueryAvailabilityQuery,
   ReceiveStockBody,
   TransferStockBody,
@@ -263,16 +264,64 @@ export class StockService {
   /**
    * Query commercial availability using FEFO (First Expired, First Out)
    */
-  static async queryCommercialAvailability(query: QueryAvailabilityQuery) {
+  static async queryCommercialAvailability(
+    query: QueryAvailabilityQuery,
+  ): Promise<any> {
     const { storeId, variationId, estimatedDeliveryDate, requestedQuantity } =
       query;
+
+    if (!variationId) {
+      if (!storeId) {
+        throw new AppError(
+          "VALIDATION_ERROR",
+          "storeId ou variationId é obrigatório",
+          400,
+        );
+      }
+
+      const items = await prisma.stockItem.findMany({
+        where: { storeId },
+        include: {
+          variation: {
+            include: {
+              product: { select: { id: true, name: true } },
+            },
+          },
+        },
+      });
+
+      const groupedMap = new Map<string, any>();
+
+      for (const item of items) {
+        const key = item.variationId;
+        const current = groupedMap.get(key) || {
+          variationId: key,
+          sku: item.variation?.sku || "SKU-N/A",
+          productName: item.variation?.product?.name || "Produto sem nome",
+          physicalQuantity: 0,
+          reservedQuantity: 0,
+          availableQuantity: 0,
+          status: "available",
+        };
+
+        current.physicalQuantity += item.physicalQuantity;
+        current.reservedQuantity += item.reservedQuantity;
+        current.availableQuantity = Math.max(
+          0,
+          current.physicalQuantity - current.reservedQuantity,
+        );
+        groupedMap.set(key, current);
+      }
+
+      return Array.from(groupedMap.values());
+    }
 
     const variation = await prisma.productVariation.findFirst({
       where: { id: variationId, deletedAt: null },
       include: { product: true },
     });
 
-    if (!variation || variation.product.storeId !== storeId) {
+    if (!variation || (storeId && variation.product.storeId !== storeId)) {
       throw new AppError(
         "NOT_FOUND",
         "Variação do produto não encontrada",
@@ -615,5 +664,63 @@ export class StockService {
     });
 
     return { success: true, message: "Transferência realizada com sucesso!" };
+  }
+
+  /**
+   * List Stock Movements History
+   */
+  static async listStockMovements(query: ListStockMovementsQuery) {
+    const page = Math.max(1, query.page || 1);
+    const perPage = Math.max(1, Math.min(100, query.perPage || 20));
+    const skip = (page - 1) * perPage;
+
+    const where: any = {};
+    if (query.storeId) where.storeId = query.storeId;
+    if (query.variationId) where.variationId = query.variationId;
+
+    if (query.search) {
+      const search = query.search.trim();
+      where.OR = [
+        { type: { contains: search, mode: "insensitive" } },
+        { reason: { contains: search, mode: "insensitive" } },
+        { variation: { sku: { contains: search, mode: "insensitive" } } },
+        {
+          variation: {
+            product: { name: { contains: search, mode: "insensitive" } },
+          },
+        },
+      ];
+    }
+
+    const [total, movements] = await Promise.all([
+      prisma.stockMovement.count({ where }),
+      prisma.stockMovement.findMany({
+        where,
+        skip,
+        take: perPage,
+        orderBy: { createdAt: "desc" },
+        include: {
+          variation: {
+            select: {
+              sku: true,
+              product: { select: { name: true } },
+            },
+          },
+          user: {
+            select: { name: true, email: true },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      data: movements,
+      meta: {
+        page,
+        perPage,
+        total,
+        totalPages: Math.ceil(total / perPage),
+      },
+    };
   }
 }

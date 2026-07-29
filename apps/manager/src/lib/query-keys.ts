@@ -14,6 +14,7 @@ export const storeQueryKeys = {
     [...storeQueryKeys.lists(), filters] as const,
   details: () => [...storeQueryKeys.all, "detail"] as const,
   detail: (id: string) => [...storeQueryKeys.details(), id] as const,
+  summary: (id: string) => [...storeQueryKeys.details(), id, "summary"] as const,
 };
 
 export interface UserFilters {

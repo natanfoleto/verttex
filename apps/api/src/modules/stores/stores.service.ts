@@ -595,4 +595,103 @@ export class StoresService {
       store: updatedStore,
     };
   }
+
+  async getStoreSummary(storeId: string) {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+    });
+
+    if (!store) {
+      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+    }
+
+    const now = new Date();
+    const thirtyDaysFromNow = new Date(
+      now.getTime() + 30 * 24 * 60 * 60 * 1000,
+    );
+
+    const [
+      totalProducts,
+      activeProducts,
+      totalVariations,
+      totalOrders,
+      pendingOrders,
+      stockItemsAgg,
+      expiringLotsCount,
+      expiredLotsCount,
+      recentMovements,
+      membersCount,
+      reservationsCount,
+      lotsCount,
+    ] = await Promise.all([
+      prisma.product.count({ where: { storeId, deletedAt: null } }),
+      prisma.product.count({
+        where: { storeId, status: "active", deletedAt: null },
+      }),
+      prisma.productVariation.count({ where: { storeId, deletedAt: null } }),
+      prisma.order.count({ where: { storeId } }),
+      prisma.order.count({ where: { storeId, status: "PENDING" } }),
+      prisma.stockItem.aggregate({
+        where: { storeId },
+        _sum: {
+          physicalQuantity: true,
+          reservedQuantity: true,
+        },
+      }),
+      prisma.productLot.count({
+        where: {
+          storeId,
+          expirationDate: { gte: now, lte: thirtyDaysFromNow },
+          status: "available",
+        },
+      }),
+      prisma.productLot.count({
+        where: {
+          storeId,
+          expirationDate: { lt: now },
+        },
+      }),
+      prisma.stockMovement.findMany({
+        where: { storeId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          variation: {
+            select: { sku: true, product: { select: { name: true } } },
+          },
+        },
+      }),
+      prisma.storeUser.count({ where: { storeId } }),
+      prisma.stockReservation.count({ where: { storeId, status: "ACTIVE" } }),
+      prisma.productLot.count({ where: { storeId } }),
+    ]);
+
+    const totalPhysicalStock = stockItemsAgg._sum.physicalQuantity || 0;
+    const totalReservedStock = stockItemsAgg._sum.reservedQuantity || 0;
+
+    const lowStockItems = await prisma.stockItem.count({
+      where: { storeId, physicalQuantity: { lte: 5 } },
+    });
+
+    return {
+      storeId,
+      metrics: {
+        totalProducts,
+        activeProducts,
+        totalVariations,
+        totalOrders,
+        pendingOrders,
+        totalPhysicalStock,
+        totalReservedStock,
+        availableStock: Math.max(0, totalPhysicalStock - totalReservedStock),
+        lowStockItems,
+        expiringLotsCount,
+        expiredLotsCount,
+        membersCount,
+        reservationsCount,
+        lotsCount,
+      },
+      recentMovements,
+    };
+  }
 }

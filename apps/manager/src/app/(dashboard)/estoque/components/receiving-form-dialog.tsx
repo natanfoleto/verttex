@@ -34,16 +34,18 @@ interface ReceivingFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   stores: Store[];
+  defaultStoreId?: string;
 }
 
 export function ReceivingFormDialog({
   open,
   onOpenChange,
   stores,
+  defaultStoreId,
 }: ReceivingFormDialogProps) {
   const queryClient = useQueryClient();
 
-  const [recStoreId, setRecStoreId] = useState("");
+  const [recStoreId, setRecStoreId] = useState(defaultStoreId || "");
   const [recProductId, setRecProductId] = useState("");
   const [recDocRef, setRecDocRef] = useState("");
   const [recLots, setRecLots] = useState([

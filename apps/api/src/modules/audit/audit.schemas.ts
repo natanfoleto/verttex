@@ -7,6 +7,7 @@ export const auditQuerySchema = z.object({
   userId: z.string().optional(),
   action: z.string().optional(),
   entity: z.string().optional(),
+  entityId: z.string().optional(),
 });
 
 export type AuditQuery = z.infer<typeof auditQuerySchema>;

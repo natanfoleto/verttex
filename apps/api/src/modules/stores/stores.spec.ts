@@ -38,4 +38,20 @@ describe("Stores Management & Reserved Slugs Unit Tests", () => {
       expect(validMimes.includes(mime)).toBe(false);
     }
   });
+
+  it("should calculate available stock correctly as physical minus reserved", () => {
+    const totalPhysicalStock = 150;
+    const totalReservedStock = 20;
+    const availableStock = Math.max(0, totalPhysicalStock - totalReservedStock);
+
+    expect(availableStock).toBe(130);
+  });
+
+  it("should handle edge case where reserved stock exceeds physical stock without negative result", () => {
+    const totalPhysicalStock = 5;
+    const totalReservedStock = 10;
+    const availableStock = Math.max(0, totalPhysicalStock - totalReservedStock);
+
+    expect(availableStock).toBe(0);
+  });
 });

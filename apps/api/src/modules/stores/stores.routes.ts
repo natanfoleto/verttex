@@ -6,6 +6,7 @@ import {
   createStoreController,
   listStoresController,
   getStoreController,
+  getStoreSummaryController,
   updateStoreController,
   deleteStoreController,
   listStoreMembersController,
@@ -70,6 +71,24 @@ export async function storesRoutes(app: FastifyInstance) {
       },
     },
     getStoreController,
+  );
+
+  typedApp.get(
+    "/stores/:storeId/summary",
+    {
+      preHandler: [
+        app.authenticateUser,
+        requirePermission("read", "Store"),
+        requireStoreAccess("storeId"),
+      ],
+      schema: {
+        tags: ["Stores Management"],
+        summary: "Resumo executivo de métricas operacionais e KPIs da loja",
+        security: [{ bearerAuth: [] }],
+        params: storeParamsSchema,
+      },
+    },
+    getStoreSummaryController,
   );
 
   typedApp.patch(

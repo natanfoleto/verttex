@@ -1,4 +1,5 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply } from "fastify";
+import { FastifyZodRequest } from "../../@types/fastify";
 import { CepService } from "../../shared/services/cep.service";
 import { prisma } from "../../infrastructure/database/prisma";
 import { CustomerAddressesService } from "./customer-addresses.service";
@@ -9,7 +10,7 @@ import {
 } from "./customer-addresses.schemas";
 import { AppError } from "../../shared/errors/app-error";
 
-function getCustomerId(req: FastifyRequest): string {
+function getCustomerId(req: FastifyZodRequest): string {
   const customerId = (req as any).customerPayload?.id || (req as any).customer?.id;
   if (!customerId) {
     throw new AppError("UNAUTHORIZED", "Não autenticado", 401);
@@ -18,10 +19,11 @@ function getCustomerId(req: FastifyRequest): string {
 }
 
 export async function lookupCepController(
-  req: FastifyRequest<{ Params: { zipCode: string } }>,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const result = await CepService.lookup(req.params.zipCode);
+  const params = req.params as { zipCode: string };
+  const result = await CepService.lookup(params.zipCode);
   return reply.status(200).send({
     success: true,
     data: result,
@@ -29,7 +31,7 @@ export async function lookupCepController(
 }
 
 export async function listAddressesController(
-  req: FastifyRequest,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = getCustomerId(req);
@@ -41,11 +43,12 @@ export async function listAddressesController(
 }
 
 export async function createAddressController(
-  req: FastifyRequest<{ Body: CreateAddressBody }>,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = getCustomerId(req);
-  const address = await CustomerAddressesService.createCustomerAddress(customerId, req.body);
+  const body = req.body as CreateAddressBody;
+  const address = await CustomerAddressesService.createCustomerAddress(customerId, body);
   return reply.status(201).send({
     success: true,
     data: address,
@@ -53,13 +56,14 @@ export async function createAddressController(
 }
 
 export async function getAddressDetailsController(
-  req: FastifyRequest<{ Params: { id: string } }>,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = getCustomerId(req);
+  const params = req.params as { id: string };
   const address = await CustomerAddressesService.getCustomerAddressDetails(
     customerId,
-    req.params.id,
+    params.id,
   );
   return reply.status(200).send({
     success: true,
@@ -68,14 +72,16 @@ export async function getAddressDetailsController(
 }
 
 export async function updateAddressController(
-  req: FastifyRequest<{ Params: { id: string }; Body: UpdateAddressBody }>,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = getCustomerId(req);
+  const params = req.params as { id: string };
+  const body = req.body as UpdateAddressBody;
   const address = await CustomerAddressesService.updateCustomerAddress(
     customerId,
-    req.params.id,
-    req.body,
+    params.id,
+    body,
   );
   return reply.status(200).send({
     success: true,
@@ -84,13 +90,14 @@ export async function updateAddressController(
 }
 
 export async function setDefaultAddressController(
-  req: FastifyRequest<{ Params: { id: string } }>,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = getCustomerId(req);
+  const params = req.params as { id: string };
   const address = await CustomerAddressesService.setDefaultCustomerAddress(
     customerId,
-    req.params.id,
+    params.id,
   );
   return reply.status(200).send({
     success: true,
@@ -99,13 +106,14 @@ export async function setDefaultAddressController(
 }
 
 export async function deleteAddressController(
-  req: FastifyRequest<{ Params: { id: string } }>,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = getCustomerId(req);
+  const params = req.params as { id: string };
   const result = await CustomerAddressesService.deleteCustomerAddress(
     customerId,
-    req.params.id,
+    params.id,
   );
   return reply.status(200).send({
     success: true,
@@ -114,11 +122,12 @@ export async function deleteAddressController(
 }
 
 export async function updateCustomerProfileExtendedController(
-  req: FastifyRequest<{ Body: UpdateCustomerProfileBody }>,
+  req: FastifyZodRequest,
   reply: FastifyReply,
 ) {
   const customerId = getCustomerId(req);
-  const { name, phone, cpfCnpj, birthDate } = req.body;
+  const body = req.body as UpdateCustomerProfileBody;
+  const { name, phone, cpfCnpj, birthDate } = body;
 
   const updatedCustomer = await prisma.customer.update({
     where: { id: customerId },

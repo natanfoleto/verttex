@@ -32,6 +32,7 @@ Applications `apps/manager` and `apps/marketplace` are Next.js App Router projec
 ## 3. Style System
 
 - **Tailwind CSS v4** styling properties.
+- **Sintaxe de Classes Numéricas Diretas (Sem Colchetes `[...]` para Pixels)**: É proibido utilizar a sintaxe de colchetes arbitrários para valores em pixels (ex: `min-h-[420px]`, `w-[760px]`, `h-[400px]`, `p-[16px]`). Divida o valor em pixels por 4 e utilize a classe numérica nativa direta do Tailwind (ex: `min-h-105` para 420px, `min-w-190` para 760px, `h-100` para 400px, `h-185` para 740px, `max-w-160` para 640px). O Tailwind v4 resolve nativamente qualquer número em escala sem necessidade de escapar com `[]`.
 - **Aesthetic Theme**: Standardized zinc color palette and New York design details.
 - **Icons**: Resolved using `react-icons` package for UI consistency.
 - **Global Elements**: Shared visuals must be imported from the workspace package `@verttex/ui` (which encapsulates standard shadcn configurations).

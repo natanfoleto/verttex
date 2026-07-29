@@ -3,6 +3,7 @@ import { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
   adjustStockController,
   discardExpiredStockController,
+  listStockMovementsController,
   queryCommercialAvailabilityController,
   receiveStockController,
   transferStockController,
@@ -10,6 +11,7 @@ import {
 import {
   adjustStockBodySchema,
   discardExpiredStockBodySchema,
+  listStockMovementsQuerySchema,
   queryAvailabilityQuerySchema,
   receiveStockBodySchema,
   transferStockBodySchema,
@@ -86,5 +88,19 @@ export async function stockRoutes(app: FastifyInstance) {
       },
     },
     transferStockController,
+  );
+
+  typedApp.get(
+    "/movements",
+    {
+      preHandler: [app.authenticateUser],
+      schema: {
+        tags: ["Stock — Inventory & FEFO Management"],
+        summary: "Listar histórico de movimentações físicas de estoque",
+        security: [{ bearerAuth: [] }],
+        querystring: listStockMovementsQuerySchema,
+      },
+    },
+    listStockMovementsController,
   );
 }

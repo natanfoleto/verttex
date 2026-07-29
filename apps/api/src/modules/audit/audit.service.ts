@@ -32,6 +32,7 @@ export class AuditService {
     if (query.userId) where.userId = query.userId;
     if (query.action) where.action = query.action;
     if (query.entity) where.entity = query.entity;
+    if (query.entityId) where.entityId = query.entityId;
 
     const [total, logs] = await Promise.all([
       prisma.auditLog.count({ where }),

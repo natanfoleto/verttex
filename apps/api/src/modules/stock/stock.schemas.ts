@@ -72,8 +72,8 @@ export const transferStockBodySchema = z.object({
 export type TransferStockBody = z.infer<typeof transferStockBodySchema>;
 
 export const queryAvailabilityQuerySchema = z.object({
-  storeId: z.string().min(1, "Loja é obrigatória"),
-  variationId: z.string().min(1, "Variação é obrigatória"),
+  storeId: z.string().optional(),
+  variationId: z.string().optional(),
   estimatedDeliveryDate: z.string().datetime().optional(),
   requestedQuantity: z
     .string()
@@ -84,4 +84,16 @@ export const queryAvailabilityQuerySchema = z.object({
 
 export type QueryAvailabilityQuery = z.infer<
   typeof queryAvailabilityQuerySchema
+>;
+
+export const listStockMovementsQuerySchema = z.object({
+  storeId: z.string().optional(),
+  variationId: z.string().optional(),
+  search: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  perPage: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export type ListStockMovementsQuery = z.infer<
+  typeof listStockMovementsQuerySchema
 >;

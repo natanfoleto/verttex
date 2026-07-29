@@ -2,14 +2,21 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { use, useState } from "react";
 import {
   RiArrowLeftLine,
   RiEditLine,
+  RiFileList3Line,
+  RiFileTextLine,
   RiGlobalLine,
+  RiHistoryLine,
   RiInformationLine,
+  RiShieldKeyholeLine,
   RiShoppingBag3Line,
+  RiStackLine,
   RiStore2Line,
+  RiTimeLine,
   RiUserSharedLine,
 } from "react-icons/ri";
 
@@ -21,6 +28,13 @@ import { apiClient } from "../../../../lib/api-client";
 import { storeQueryKeys, invalidateStores } from "../../../../lib/query-keys";
 import { ProductsTable } from "../../produtos/components/products-table";
 import { StoreFormDialog } from "../components/store-form-dialog";
+import { StoreOverviewTab } from "../components/store-overview-tab";
+import { StoreInventoryTab } from "../components/store-inventory-tab";
+import { StoreLotsTab } from "../components/store-lots-tab";
+import { StoreMovementsTab } from "../components/store-movements-tab";
+import { StoreOrdersTab } from "../components/store-orders-tab";
+import { StoreTeamTab } from "../components/store-team-tab";
+import { StoreAuditTab } from "../components/store-audit-tab";
 
 export default function StoreDetailPage({
   params,
@@ -30,9 +44,17 @@ export default function StoreDetailPage({
   const resolvedParams = use(params);
   const storeId = resolvedParams.storeId;
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const activeTab = searchParams.get("tab") || "overview";
+
+  const handleTabChange = (newTab: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", newTab);
+    router.replace(`/lojas/${storeId}?${params.toString()}`, { scroll: false });
+  };
 
   const {
     data: store,
@@ -84,9 +106,29 @@ export default function StoreDetailPage({
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
-                {store.name}
-              </h1>
+              <div className="flex items-center space-x-2">
+                <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
+                  {store.name}
+                </h1>
+                <span
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase ${store.status === "active"
+                    ? "border-emerald-800 bg-emerald-950 text-emerald-400"
+                    : store.status === "draft"
+                      ? "border-zinc-700 bg-zinc-800 text-zinc-300"
+                      : store.status === "suspended"
+                        ? "border-rose-800 bg-rose-950 text-rose-400"
+                        : "border-amber-800 bg-amber-950 text-amber-400"
+                    }`}
+                >
+                  {store.status === "active"
+                    ? "Ativa"
+                    : store.status === "draft"
+                      ? "Rascunho"
+                      : store.status === "suspended"
+                        ? "Suspensa"
+                        : "Inativa"}
+                </span>
+              </div>
               <p className="font-mono text-xs text-zinc-400">
                 verttexloja.com.br/{store.slug}
               </p>
@@ -113,26 +155,91 @@ export default function StoreDetailPage({
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 inline-flex bg-zinc-900/80 p-1">
-          <TabsTrigger
-            value="overview"
-            className="flex items-center space-x-2 text-xs cursor-pointer"
-          >
-            <RiInformationLine className="h-4 w-4" />
-            <span>Visão Geral</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="products"
-            className="flex items-center space-x-2 text-xs cursor-pointer"
-          >
-            <RiShoppingBag3Line className="h-4 w-4" />
-            <span>Produtos da Loja</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Navigation Tabs */}
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <div className="w-full overflow-x-auto pb-2">
+          <TabsList className="mb-4 flex w-full min-w-190 h-10 items-center justify-between rounded-xl bg-zinc-900/80 p-1 text-zinc-400 gap-1">
+            <TabsTrigger
+              value="overview"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiInformationLine className="h-4 w-4 shrink-0" />
+              <span>Visão Geral</span>
+            </TabsTrigger>
 
+            <TabsTrigger
+              value="details"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiFileTextLine className="h-4 w-4 shrink-0" />
+              <span>Dados</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="products"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiShoppingBag3Line className="h-4 w-4 shrink-0" />
+              <span>Produtos</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="orders"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiFileList3Line className="h-4 w-4 shrink-0" />
+              <span>Pedidos</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="inventory"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiStackLine className="h-4 w-4 shrink-0" />
+              <span>Estoque</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="lots"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiTimeLine className="h-4 w-4 shrink-0" />
+              <span>Lotes & Validades</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="movements"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiHistoryLine className="h-4 w-4 shrink-0" />
+              <span>Movimentações</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="team"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiUserSharedLine className="h-4 w-4 shrink-0" />
+              <span>Equipe</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="audit"
+              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+            >
+              <RiShieldKeyholeLine className="h-4 w-4 shrink-0" />
+              <span>Auditoria</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* Tab 1: Visão Geral */}
         <TabsContent value="overview">
+          <StoreOverviewTab storeId={storeId} />
+        </TabsContent>
+
+        {/* Tab 2: Dados */}
+        <TabsContent value="details">
           <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
             {/* Info Card */}
             <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
@@ -155,15 +262,14 @@ export default function StoreDetailPage({
                     Status Atual
                   </span>
                   <span
-                    className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                      store.status === "active"
-                        ? "border-emerald-800 bg-emerald-950 text-emerald-400"
-                        : store.status === "draft"
-                          ? "border-zinc-700 bg-zinc-800 text-zinc-300"
-                          : store.status === "suspended"
-                            ? "border-rose-800 bg-rose-950 text-rose-400"
-                            : "border-amber-800 bg-amber-950 text-amber-400"
-                    }`}
+                    className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${store.status === "active"
+                      ? "border-emerald-800 bg-emerald-950 text-emerald-400"
+                      : store.status === "draft"
+                        ? "border-zinc-700 bg-zinc-800 text-zinc-300"
+                        : store.status === "suspended"
+                          ? "border-rose-800 bg-rose-950 text-rose-400"
+                          : "border-amber-800 bg-amber-950 text-amber-400"
+                      }`}
                   >
                     {store.status === "active"
                       ? "Ativa"
@@ -241,8 +347,39 @@ export default function StoreDetailPage({
           </div>
         </TabsContent>
 
+        {/* Tab 3: Produtos */}
         <TabsContent value="products">
           <ProductsTable fixedStoreId={storeId} hideTitle />
+        </TabsContent>
+
+        {/* Tab 4: Pedidos */}
+        <TabsContent value="orders">
+          <StoreOrdersTab storeId={storeId} />
+        </TabsContent>
+
+        {/* Tab 5: Estoque */}
+        <TabsContent value="inventory">
+          <StoreInventoryTab storeId={storeId} />
+        </TabsContent>
+
+        {/* Tab 6: Lotes e Validades */}
+        <TabsContent value="lots">
+          <StoreLotsTab storeId={storeId} />
+        </TabsContent>
+
+        {/* Tab 7: Movimentações */}
+        <TabsContent value="movements">
+          <StoreMovementsTab storeId={storeId} />
+        </TabsContent>
+
+        {/* Tab 8: Equipe */}
+        <TabsContent value="team">
+          <StoreTeamTab storeId={storeId} />
+        </TabsContent>
+
+        {/* Tab 9: Auditoria */}
+        <TabsContent value="audit">
+          <StoreAuditTab storeId={storeId} />
         </TabsContent>
       </Tabs>
 
@@ -254,3 +391,4 @@ export default function StoreDetailPage({
     </div>
   );
 }
+

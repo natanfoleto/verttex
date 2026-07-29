@@ -5,6 +5,7 @@ import { StockService } from "./stock.service";
 import {
   AdjustStockBody,
   DiscardExpiredStockBody,
+  ListStockMovementsQuery,
   QueryAvailabilityQuery,
   ReceiveStockBody,
   TransferStockBody,
@@ -87,4 +88,17 @@ export async function transferStockController(
   const result = await StockService.transferStock(body, userId, request);
 
   return reply.send(result);
+}
+
+export async function listStockMovementsController(
+  request: FastifyZodRequest,
+  reply: FastifyReply,
+) {
+  const query = request.query as ListStockMovementsQuery;
+  const result = await StockService.listStockMovements(query);
+  return reply.send({
+    success: true,
+    data: result.data,
+    meta: result.meta,
+  });
 }
