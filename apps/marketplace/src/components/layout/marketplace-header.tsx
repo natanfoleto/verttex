@@ -5,18 +5,20 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   RiArrowDownSLine,
+  RiArrowRightSLine,
   RiCloseLine,
-  RiHeartLine,
+  RiGridLine,
   RiLockLine,
   RiLogoutBoxRLine,
   RiMenu3Line,
   RiMenuLine,
   RiSearchLine,
-  RiShoppingBag3Line,
   RiStore2Line,
   RiUser3Line,
   RiUserAddLine,
 } from "react-icons/ri";
+import { PiBell, PiShoppingCart } from "react-icons/pi";
+import { BsHeartHalf } from "react-icons/bs";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +31,7 @@ interface PublicCategory {
   id: string;
   name: string;
   slug: string;
+  parentId?: string | null;
   productsCount: number;
 }
 
@@ -54,6 +57,21 @@ export function MarketplaceHeader() {
     },
   });
 
+  // Group categories for header dropdown: root categories and subcategories map
+  const rootCategories = (categories || []).filter((c) => !c.parentId);
+  const subcategoriesMap = new Map<string, PublicCategory[]>();
+
+  (categories || []).forEach((cat) => {
+    if (cat.parentId) {
+      const existing = subcategoriesMap.get(cat.parentId) || [];
+      existing.push(cat);
+      subcategoriesMap.set(cat.parentId, existing);
+    }
+  });
+
+  const displayCategories =
+    rootCategories.length > 0 ? rootCategories : categories || [];
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -62,85 +80,62 @@ export function MarketplaceHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white font-sans text-stone-900 antialiased shadow-2xs">
-      {/* Main Header Row (Logo, Search & Auth) */}
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-        {/* Brand Logo */}
-        <Link href="/" className="group flex shrink-0 items-center space-x-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-800 text-xl font-bold text-white shadow-xs">
-            V
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-extrabold tracking-tight text-stone-900 transition-colors group-hover:text-emerald-800">
-              Verttex
-            </span>
-            <span className="-mt-1 text-[10px] font-semibold tracking-widest text-amber-700 uppercase">
-              Mercado Regional
-            </span>
-          </div>
-        </Link>
-
-        {/* Global Search Bar (Center) */}
-        <form
-          onSubmit={handleSearchSubmit}
-          className="relative hidden max-w-lg flex-1 md:flex"
-        >
-          <div className="relative w-full">
-            <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <Input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar queijos, vinhos, mel, embutidos ou produtores..."
-              className="h-10.5 pr-10 pl-10 text-xs"
-            />
-            {searchQuery && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => setSearchQuery("")}
-                className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600"
-              >
-                <RiCloseLine className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </form>
-
-        {/* User Actions Right */}
-        <div className="hidden items-center space-x-3 text-xs font-semibold md:flex">
-          {/* Wishlist Link */}
-          <Link
-            href="/produtos"
-            className="h-10.5 inline-flex items-center space-x-1.5 rounded-lg border border-stone-200/80 bg-white px-3.5 text-stone-700 transition-colors hover:border-emerald-300 hover:text-emerald-800 cursor-pointer"
-            title="Favoritos"
-          >
-            <RiHeartLine className="h-4 w-4 text-rose-600" />
-            <span>Favoritos</span>
+      {/* Main Header Row (2 Main Groups: Left (Logo + Search) & Right (Auth Buttons)) */}
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
+        {/* Group 1: Logo & Search Input */}
+        <div className="flex items-center space-x-4 sm:space-x-6 flex-1 max-w-3xl">
+          {/* Brand Logo */}
+          <Link href="/" className="group flex shrink-0 items-center space-x-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-800 text-xl font-bold text-white shadow-xs">
+              V
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xl font-extrabold tracking-tight text-stone-900 transition-colors group-hover:text-emerald-800">
+                Verttex
+              </span>
+              <span className="-mt-1 text-[10px] font-semibold tracking-widest text-amber-700 uppercase">
+                Mercado Regional
+              </span>
+            </div>
           </Link>
 
-          {/* Cart Button */}
-          <button
-            type="button"
-            onClick={() => setIsCartOpen(true)}
-            className="relative h-10.5 inline-flex items-center space-x-1.5 rounded-lg border border-stone-200/80 bg-white px-3.5 text-stone-700 transition-colors hover:border-emerald-700 hover:text-emerald-800 cursor-pointer"
-            title="Ver Carrinho"
+          {/* Global Search Bar */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="relative hidden w-full max-w-lg md:flex"
           >
-            <RiShoppingBag3Line className="h-4 w-4 text-emerald-800" />
-            <span>Carrinho</span>
-            {cartSummary && cartSummary.itemCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-800 px-1 text-[10px] font-bold text-white">
-                {cartSummary.itemCount}
-              </span>
-            )}
-          </button>
+            <div className="relative w-full">
+              <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar produtos, marcas e muito mais..."
+                className="h-9 pr-10 pl-10 text-xs"
+              />
+              {searchQuery && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600"
+                >
+                  <RiCloseLine className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </form>
+        </div>
 
+        {/* Group 2: User Actions Right */}
+        <div className="hidden items-center space-x-3 text-xs font-semibold md:flex">
           {/* User Auth Buttons or Account Dropdown */}
           {customer ? (
             <div className="flex items-center space-x-2">
               <Link
                 href="/perfil"
-                className="h-10.5 inline-flex items-center space-x-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 text-emerald-900 transition-colors hover:bg-emerald-100"
+                className="h-9 inline-flex items-center space-x-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 text-emerald-900 transition-colors hover:bg-emerald-100"
               >
                 <div className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-800 text-[10px] font-bold text-white uppercase">
                   {customer.name.charAt(0)}
@@ -152,7 +147,7 @@ export function MarketplaceHeader() {
                 variant="outline"
                 size="icon"
                 onClick={() => logout()}
-                className="h-10.5 w-10.5 p-0 text-stone-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                className="h-9 w-9 p-0 text-stone-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                 title="Sair da conta"
               >
                 <RiLogoutBoxRLine className="h-4 w-4" />
@@ -164,7 +159,7 @@ export function MarketplaceHeader() {
                 type="button"
                 variant="outline"
                 onClick={() => openAuthModal("login")}
-                className="h-10.5 px-4"
+                className="h-9 px-3.5"
               >
                 <RiLockLine className="h-3.5 w-3.5 text-emerald-700" />
                 <span>Entrar</span>
@@ -172,7 +167,7 @@ export function MarketplaceHeader() {
               <Button
                 type="button"
                 onClick={() => openAuthModal("register")}
-                className="h-10.5 px-4"
+                className="h-9 px-3.5"
               >
                 <RiUserAddLine className="h-3.5 w-3.5" />
                 <span>Criar Conta</span>
@@ -203,7 +198,8 @@ export function MarketplaceHeader() {
       {/* Tier 3: Secondary Category & Navigation Sub-Header Bar */}
       <nav className="hidden bg-stone-50/90 text-xs font-semibold text-stone-800 pb-2.5 pt-1 md:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-1">
+          {/* Left Navigation: Categories Dropdown & Lojas e produtores */}
+          <div className="flex items-center space-x-2">
             {/* Mega Dropdown: All Categories */}
             <div className="group relative">
               <Button type="button" className="py-2.5">
@@ -215,19 +211,50 @@ export function MarketplaceHeader() {
               {/* Hover Dropdown Content */}
               <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
                 <div className="w-64 rounded-lg border border-stone-200 bg-white p-2 shadow-xl space-y-1">
-                  {categories && categories.length > 0 ? (
-                    categories.map((cat) => (
+                  {displayCategories && displayCategories.length > 0 ? (
+                    <>
+                      {displayCategories.slice(0, 10).map((cat) => {
+                        const subs = subcategoriesMap.get(cat.id) || [];
+                        const hasChildren = subs.length > 0;
+
+                        return (
+                          <div key={cat.id} className="group/sub relative">
+                            <Link
+                              href={`/produtos?categorySlug=${cat.slug}`}
+                              className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer text-xs"
+                            >
+                              <span className="truncate">{cat.name}</span>
+                              {hasChildren && (
+                                <RiArrowRightSLine className="h-4 w-4 text-stone-400 group-hover/sub:text-emerald-800 transition-colors ml-2 shrink-0" />
+                              )}
+                            </Link>
+
+                            {/* Subcategories Flyout Dropdown to the Right */}
+                            {hasChildren && (
+                              <div className="invisible absolute left-full top-0 ml-1 z-50 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100">
+                                <div className="w-56 rounded-lg border border-stone-200 bg-white p-2 shadow-xl space-y-1">
+                                  {subs.map((sub) => (
+                                    <Link
+                                      key={sub.id}
+                                      href={`/produtos?categorySlug=${sub.slug}`}
+                                      className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 hover:bg-emerald-50 hover:text-emerald-900 transition-colors text-xs cursor-pointer"
+                                    >
+                                      <span className="truncate">{sub.name}</span>
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                       <Link
-                        key={cat.id}
-                        href={`/produtos?categorySlug=${cat.slug}`}
-                        className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer"
+                        href="/categorias"
+                        className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer text-xs font-semibold"
                       >
-                        <span className="truncate">{cat.name}</span>
-                        <span className="text-[10px] text-stone-400 font-mono ml-2">
-                          {cat.productsCount} itens
-                        </span>
+                        <span className="truncate">Ver mais categorias</span>
                       </Link>
-                    ))
+                    </>
                   ) : (
                     <div className="px-3 py-2 text-stone-400 text-xs text-center">
                       Nenhuma categoria
@@ -237,25 +264,78 @@ export function MarketplaceHeader() {
               </div>
             </div>
 
-            {/* Dynamic Category Quick Links */}
-            {categories?.slice(0, 4).map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/produtos?categorySlug=${cat.slug}`}
-                className="flex items-center space-x-1 rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900 cursor-pointer"
-              >
-                <span>{cat.name}</span>
-              </Link>
-            ))}
-
-            {/* Produtores & Lojas Link */}
+            {/* Lojas e produtores Link (No Icon) */}
             <Link
-              href="/produtores"
-              className="flex items-center space-x-1 rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900 cursor-pointer"
+              href="/lojas"
+              className="flex items-center rounded-lg px-3 py-2.5 text-stone-700 transition-colors hover:bg-stone-200/60 hover:text-stone-900 cursor-pointer"
             >
-              <RiStore2Line className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Produtores Locais</span>
+              <span>Lojas e produtores</span>
             </Link>
+          </div>
+
+          {/* Right Navigation: Favorites Dropdown, Notifications & Cart Icon */}
+          <div className="flex items-center space-x-0.5">
+            {/* Favorites Dropdown */}
+            <div className="group relative flex items-center">
+              <button
+                type="button"
+                className="flex h-8 items-center space-x-1 px-1.5 text-xs font-semibold text-stone-700 transition-colors hover:text-stone-900 cursor-pointer"
+              >
+                <span>Favoritos</span>
+                <RiArrowDownSLine className="h-4 w-4 text-stone-500" />
+              </button>
+
+              {/* Hover Dropdown Content (Mercado Livre Style) */}
+              <div className="invisible absolute right-0 top-full z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
+                <div className="w-80 rounded-lg border border-stone-200 bg-white shadow-xl overflow-hidden">
+                  {/* Dropdown Header */}
+                  <div className="bg-white px-4 py-3 border-b border-stone-100">
+                    <h3 className="font-semibold text-stone-900 text-sm">Favoritos</h3>
+                  </div>
+
+                  {/* Dropdown Body */}
+                  <div className="bg-stone-50 px-6 py-10 text-center">
+                    <p className="text-xs font-normal text-stone-700 leading-relaxed max-w-55 mx-auto">
+                      Adicione aqui os produtos que você gostou para poder vê-los mais tarde.
+                    </p>
+                  </div>
+
+                  {/* Dropdown Footer */}
+                  <div className="bg-white px-4 py-3 text-center border-t border-stone-100">
+                    <Link
+                      href="/produtos"
+                      className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                    >
+                      Ver todos os favoritos e listas
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notifications Button */}
+            <button
+              type="button"
+              className="relative flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:text-emerald-800 cursor-pointer"
+              title="Notificações"
+            >
+              <PiBell className="size-4.5" />
+            </button>
+
+            {/* Cart Button (Icon Only with Badge) */}
+            <button
+              type="button"
+              onClick={() => setIsCartOpen(true)}
+              className="relative flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:text-emerald-800 cursor-pointer"
+              title="Ver Carrinho"
+            >
+              <PiShoppingCart className="size-4.5" />
+              {cartSummary && cartSummary.itemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-800 px-1 text-[9px] font-bold text-white">
+                  {cartSummary.itemCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </nav>
@@ -291,8 +371,17 @@ export function MarketplaceHeader() {
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center space-x-2 rounded-lg px-3 py-2.5 text-stone-700 hover:bg-stone-100"
             >
-              <RiHeartLine className="h-4 w-4 text-emerald-700" />
+              <BsHeartHalf className="h-4 w-4 text-emerald-700" />
               <span>Todos os Produtos</span>
+            </Link>
+
+            <Link
+              href="/categorias"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center space-x-2 rounded-lg px-3 py-2.5 text-emerald-800 font-bold hover:bg-emerald-50"
+            >
+              <RiGridLine className="h-4 w-4 text-emerald-700" />
+              <span>Ver todas as categorias</span>
             </Link>
 
             {customer ? (

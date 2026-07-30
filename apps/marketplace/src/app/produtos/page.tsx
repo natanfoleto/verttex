@@ -27,7 +27,7 @@ export default function ProductsListingPage() {
 
   // Query Public Categories
   const { data: categories = [] } = useQuery<
-    Array<{ id: string; name: string; slug: string; productsCount: number }>
+    Array<{ id: string; name: string; slug: string; parentId?: string | null; productsCount: number }>
   >({
     queryKey: ["public-categories"],
     queryFn: async () => {
@@ -75,6 +75,7 @@ export default function ProductsListingPage() {
     id: c.id,
     name: c.name,
     slug: c.slug,
+    parentId: c.parentId,
     count: c.productsCount,
   }));
 

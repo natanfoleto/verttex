@@ -7,24 +7,11 @@ import {
   RiHeartLine,
 } from "react-icons/ri";
 
-import { CategoryCircleCard } from "../components/ui/category-card";
 import { ProductCard, ProductCardProps } from "../components/ui/product-card";
 import { StoreCard, StoreCardProps } from "../components/ui/store-card";
 import { apiClient } from "../lib/api-client";
 
 export default function MarketplaceHomePage() {
-
-  // Query Dynamic Public Categories
-  const { data: publicCategories = [] } = useQuery<
-    Array<{ id: string; name: string; slug: string; imageUrl?: string; productsCount: number }>
-  >({
-    queryKey: ["public-categories"],
-    queryFn: async () => {
-      const res = await apiClient("/public/catalog/categories");
-      return Array.isArray(res) ? res : res?.data ?? [];
-    },
-  });
-
   // Query Dynamic Featured Products
   const { data: featuredProductsRes } = useQuery<{
     data: Array<{
@@ -64,36 +51,7 @@ export default function MarketplaceHomePage() {
     },
   });
 
-  const categoriesList = publicCategories.length > 0 ? publicCategories : [
-    {
-      id: "1",
-      name: "Queijos Artesanais",
-      slug: "queijos-artesanais",
-      imageUrl: "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80",
-      productsCount: 14,
-    },
-    {
-      id: "2",
-      name: "Vinhos & Bebidas",
-      slug: "vinhos-bebidas",
-      imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=400&q=80",
-      productsCount: 22,
-    },
-    {
-      id: "3",
-      name: "Doces & Geleias",
-      slug: "doces-geleias",
-      imageUrl: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=400&q=80",
-      productsCount: 18,
-    },
-    {
-      id: "4",
-      name: "Méis & Polens",
-      slug: "meis-polens",
-      imageUrl: "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80",
-      productsCount: 9,
-    },
-  ];
+
 
   const featuredProducts: ProductCardProps[] =
     featuredProductsRes?.data && featuredProductsRes.data.length > 0
@@ -211,37 +169,7 @@ export default function MarketplaceHomePage() {
         </div>
       </section>
 
-      {/* Dynamic Categories Carousel Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
-              Categorias em Destaque
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Navegue pelas especialidades do nosso mercado artesanal regional.
-            </p>
-          </div>
-          <Link
-            href="/produtos"
-            className="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900 cursor-pointer"
-          >
-            <span>Ver Todas</span>
-            <RiArrowRightLine className="h-4 w-4" />
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {categoriesList.map((cat) => (
-            <CategoryCircleCard
-              key={cat.id}
-              name={cat.name}
-              slug={cat.slug}
-              imageUrl={cat.imageUrl || "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=400&q=80"}
-            />
-          ))}
-        </div>
-      </section>
 
       {/* Dynamic Featured Products Grid Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">

@@ -41,6 +41,7 @@ import {
   categoryQueryKeys,
   invalidateCategories,
 } from "../../../lib/query-keys";
+import { sanitizeSlug } from "@/lib/slug";
 import { useAuth } from "../../../providers/auth-provider";
 
 interface Category {
@@ -79,6 +80,7 @@ export default function CategoriesPage() {
   // Form State
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [isSlugUserModified, setIsSlugUserModified] = useState(false);
   const [description, setDescription] = useState("");
   const [parentId, setParentId] = useState<string>("");
   const [position, setPosition] = useState<number>(0);
@@ -86,6 +88,18 @@ export default function CategoriesPage() {
   const [isVisible, setIsVisible] = useState(true);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (!isSlugUserModified) {
+      setSlug(sanitizeSlug(val));
+    }
+  };
+
+  const handleSlugChange = (val: string) => {
+    setIsSlugUserModified(true);
+    setSlug(sanitizeSlug(val));
+  };
 
   // Queries
   const { data: treeData, isLoading: isLoadingTree } = useQuery({
@@ -168,6 +182,7 @@ export default function CategoriesPage() {
     setEditingCategory(null);
     setName("");
     setSlug("");
+    setIsSlugUserModified(false);
     setDescription("");
     setParentId(parent ? parent.id : "");
     setPosition(0);
@@ -182,6 +197,7 @@ export default function CategoriesPage() {
     setEditingCategory(cat);
     setName(cat.name);
     setSlug(cat.slug);
+    setIsSlugUserModified(Boolean(cat.slug));
     setDescription(cat.description || "");
     setParentId(cat.parentId || "");
     setPosition(cat.position);
@@ -199,9 +215,10 @@ export default function CategoriesPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const finalSlug = slug ? sanitizeSlug(slug) : sanitizeSlug(name);
     const payload = {
       name,
-      slug: slug || undefined,
+      slug: finalSlug || undefined,
       description: description || null,
       parentId: parentId || null,
       position: Number(position),
@@ -418,7 +435,7 @@ export default function CategoriesPage() {
                   type="text"
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Ex: Queijos Artesanais"
                 />
               </div>
@@ -426,12 +443,12 @@ export default function CategoriesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
-                    Slug (opcional)
+                    Slug (gerado automaticamente)
                   </label>
                   <Input
                     type="text"
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
+                    onChange={(e) => handleSlugChange(e.target.value)}
                     placeholder="queijos-artesanais"
                   />
                 </div>

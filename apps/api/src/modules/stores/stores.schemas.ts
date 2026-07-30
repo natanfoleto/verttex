@@ -14,7 +14,7 @@ export const storeQuerySchema = z.object({
 export const createStoreBodySchema = z.object({
   name: z.string().min(2, "O nome da loja deve ter no mínimo 2 caracteres"),
   slug: z.string().min(2, "O slug deve ter no mínimo 2 caracteres"),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   logoUrl: z.string().url("URL do logo inválida").optional().or(z.literal("")).nullable(),
   logoFileId: z.string().optional().nullable(),
   coverUrl: z.string().url("URL da capa inválida").optional().or(z.literal("")).nullable(),

@@ -39,6 +39,7 @@ import {
   brandQueryKeys,
   invalidateBrands,
 } from "../../../lib/query-keys";
+import { sanitizeSlug } from "@/lib/slug";
 import { useAuth } from "../../../providers/auth-provider";
 
 import { TableWrapper } from "@/components/ui/table-wrapper";
@@ -74,12 +75,25 @@ export default function BrandsPage() {
   // Form State
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [isSlugUserModified, setIsSlugUserModified] = useState(false);
   const [description, setDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [status, setStatus] = useState<"active" | "inactive">("active");
   const [isVisible, setIsVisible] = useState(true);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (!isSlugUserModified) {
+      setSlug(sanitizeSlug(val));
+    }
+  };
+
+  const handleSlugChange = (val: string) => {
+    setIsSlugUserModified(true);
+    setSlug(sanitizeSlug(val));
+  };
 
   // Queries
   const { data: listRes, isLoading } = useQuery({
@@ -157,6 +171,7 @@ export default function BrandsPage() {
     setEditingBrand(null);
     setName("");
     setSlug("");
+    setIsSlugUserModified(false);
     setDescription("");
     setLogoUrl("");
     setStatus("active");
@@ -170,6 +185,7 @@ export default function BrandsPage() {
     setEditingBrand(brand);
     setName(brand.name);
     setSlug(brand.slug);
+    setIsSlugUserModified(Boolean(brand.slug));
     setDescription(brand.description || "");
     setLogoUrl(brand.logoUrl || "");
     setStatus(brand.status);
@@ -186,9 +202,10 @@ export default function BrandsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const finalSlug = slug ? sanitizeSlug(slug) : sanitizeSlug(name);
     const payload = {
       name,
-      slug: slug || undefined,
+      slug: finalSlug || undefined,
       description: description || null,
       logoUrl: logoUrl || null,
       status,
@@ -345,19 +362,19 @@ export default function BrandsPage() {
                   type="text"
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Ex: Queijaria Serra da Canastra"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
-                  Slug (opcional)
+                  Slug (gerado automaticamente)
                 </label>
                 <Input
                   type="text"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onChange={(e) => handleSlugChange(e.target.value)}
                   placeholder="queijaria-serra-da-canastra"
                 />
               </div>

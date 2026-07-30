@@ -106,9 +106,16 @@ export class PublicCatalogService {
     } else if (categorySlug) {
       const category = await prisma.category.findUnique({
         where: { slug: categorySlug },
+        select: {
+          id: true,
+          children: {
+            select: { id: true },
+          },
+        },
       });
       if (category) {
-        where.categoryId = category.id;
+        const childIds = category.children.map((c) => c.id);
+        where.categoryId = { in: [category.id, ...childIds] };
       }
     }
 
