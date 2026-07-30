@@ -25,11 +25,13 @@ export function StoreCard({
   description,
   coverUrl,
   logoUrl,
-  city = "Serra Gaúcha",
-  state = "RS",
+  city,
+  state,
   productsCount = 0,
   isVerified = true,
 }: StoreCardProps) {
+  const location = city && state ? `${city}, ${state}` : city || state || undefined;
+
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-xs transition-colors hover:border-emerald-300 hover:shadow-sm">
       {/* Cover Header */}
@@ -48,27 +50,24 @@ export function StoreCard({
         {/* Top-Right Products Count Badge */}
         <div className="absolute top-3 right-3 z-10 flex items-center space-x-1.5 rounded-full border border-white/20 bg-stone-900/75 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-xs shadow-xs">
           <RiStore2Line className="h-3.5 w-3.5 text-emerald-400" />
-          <span>{productsCount} produtos</span>
+          <span>{productsCount} {productsCount === 1 ? "produto" : "produtos"}</span>
         </div>
       </div>
 
       {/* Avatar Overlap */}
       <div className="relative px-5 pt-0">
         <div className="-mt-9 flex items-end">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-amber-800 font-serif text-2xl font-bold text-amber-100 shadow-sm">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-emerald-800 font-serif text-2xl font-bold text-emerald-100 shadow-sm">
             {logoUrl ? (
               <img
                 src={logoUrl}
                 alt={`Logo de ${name}`}
                 loading="lazy"
                 decoding="async"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span>{name.charAt(0)}</span>
+              <span>{name.charAt(0).toUpperCase()}</span>
             )}
           </div>
         </div>
@@ -89,18 +88,19 @@ export function StoreCard({
         </div>
 
         {/* Location Badge */}
-        <div className="mt-1 flex items-center space-x-1 text-xs text-stone-500">
-          <RiMapPinLine className="h-3.5 w-3.5 text-amber-600" />
-          <span>
-            {city}, {state}
-          </span>
-        </div>
+        {location && (
+          <div className="mt-1 flex items-center space-x-1 text-xs text-stone-500">
+            <RiMapPinLine className="h-3.5 w-3.5 text-amber-600" />
+            <span>{location}</span>
+          </div>
+        )}
 
         {/* Description */}
-        <p className="mt-2.5 line-clamp-2 text-xs leading-relaxed text-stone-600">
-          {description ||
-            "Produtor regional dedicado ao cultivo e elaboração de produtos artesanais autênticos."}
-        </p>
+        {description && (
+          <p className="mt-2.5 line-clamp-2 text-xs leading-relaxed text-stone-600">
+            {description}
+          </p>
+        )}
 
         {/* Action Button */}
         <div className="mt-auto pt-4">

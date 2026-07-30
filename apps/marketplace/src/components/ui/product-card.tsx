@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
+  RiImage2Line,
   RiMapPinLine,
-  RiShoppingBag3Line,
   RiStarFill,
 } from "react-icons/ri";
 
@@ -33,14 +33,14 @@ export function ProductCard({
   storeName,
   storeSlug,
   origin,
-  rating = 4.9,
-  reviewsCount = 12,
+  rating,
+  reviewsCount,
   badge,
   isNew,
   isBestSeller,
 }: ProductCardProps) {
   const productUrl = slug ? `/produtos/${slug}` : `/produtos`;
-  const storeUrl = storeSlug ? `/produtores/${storeSlug}` : `/produtos`;
+  const storeUrl = storeSlug ? `/lojas/${storeSlug}` : `/produtos`;
 
   const formattedPrice = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -70,8 +70,8 @@ export function ProductCard({
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-stone-100 to-amber-50/40 text-stone-300">
-            <RiShoppingBag3Line className="h-12 w-12 text-stone-300" />
+          <div className="flex h-full w-full items-center justify-center bg-stone-100 text-stone-300">
+            <RiImage2Line className="h-10 w-10 text-stone-300" />
           </div>
         )}
 
@@ -127,11 +127,15 @@ export function ProductCard({
         </Link>
 
         {/* Rating & Review */}
-        <div className="mt-2 flex items-center space-x-1 text-xs">
-          <RiStarFill className="h-3.5 w-3.5 text-amber-500" />
-          <span className="font-semibold text-stone-800">{rating}</span>
-          <span className="text-stone-400">({reviewsCount})</span>
-        </div>
+        {rating !== undefined && (
+          <div className="mt-2 flex items-center space-x-1 text-xs">
+            <RiStarFill className="h-3.5 w-3.5 text-amber-500" />
+            <span className="font-semibold text-stone-800">{rating}</span>
+            {reviewsCount !== undefined && (
+              <span className="text-stone-400">({reviewsCount})</span>
+            )}
+          </div>
+        )}
 
         {/* Price & Action Footer */}
         <div className="mt-auto flex items-end justify-between pt-4">

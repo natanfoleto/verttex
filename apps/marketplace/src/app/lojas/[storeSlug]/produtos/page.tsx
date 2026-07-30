@@ -16,13 +16,8 @@ const MOCK_STORE_PRODUCTS: ProductCardProps[] = [
     price: 48.9,
     originalPrice: 58.9,
     unit: "peça (500g)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
     storeName: "Queijaria Alvorada",
     storeSlug: "queijaria-alvorada",
-    origin: "Serra Gaúcha, RS",
-    rating: 4.9,
-    reviewsCount: 38,
     isBestSeller: true,
   },
   {
@@ -30,13 +25,8 @@ const MOCK_STORE_PRODUCTS: ProductCardProps[] = [
     name: "Queijo Parmesão Artesanal Maturado 12 Meses",
     price: 78.0,
     unit: "peça (500g)",
-    imageUrl:
-      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
     storeName: "Queijaria Alvorada",
     storeSlug: "queijaria-alvorada",
-    origin: "Serra Gaúcha, RS",
-    rating: 5.0,
-    reviewsCount: 42,
     badge: "Edição Especial",
   },
 ];

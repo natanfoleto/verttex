@@ -47,14 +47,10 @@ export default function StoresListingPage() {
     id: s.id,
     name: s.name,
     slug: s.slug,
-    description: s.description || "Produtor regional parceiro do mercado VERTTEX.",
-    city: "Serra Gaúcha",
-    state: "RS",
+    description: s.description || undefined,
     productsCount: s.productsCount || 0,
     isVerified: true,
-    coverUrl:
-      s.coverUrl ||
-      "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80",
+    coverUrl: s.coverUrl || undefined,
     logoUrl: s.logoUrl || undefined,
   }));
 

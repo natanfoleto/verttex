@@ -6,7 +6,6 @@ import { use } from "react";
 import {
   RiArrowLeftLine,
   RiCheckLine,
-  RiMapPinLine,
   RiShieldCheckLine,
   RiStore2Line,
 } from "react-icons/ri";
@@ -47,14 +46,12 @@ export default function StoreDetailPage({
   const mappedProducts: ProductCardProps[] = products.map((p: any) => ({
     id: p.id,
     name: p.name,
+    slug: p.slug,
     price: p.promotionalPrice || p.price,
     originalPrice: p.promotionalPrice ? p.price : undefined,
-    imageUrl:
-      p.mainImageUrl ||
-      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
-    storeName: storeDetails?.name || "Produtor Local",
+    imageUrl: p.mainImageUrl || undefined,
+    storeName: storeDetails?.name || "Produtor",
     storeSlug: storeDetails?.slug || storeSlug,
-    origin: "Serra Gaúcha, RS",
     badge: p.isFeatured ? "Destaque" : undefined,
     isBestSeller: p.isFeatured,
   }));
@@ -62,16 +59,17 @@ export default function StoreDetailPage({
   return (
     <div className="space-y-8 pb-16 font-sans text-stone-900">
       {/* Cover Header Banner */}
-      <div className="relative h-64 w-full bg-linear-to-r from-stone-900 to-amber-950">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={
-            storeDetails?.coverUrl ||
-            "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1600&q=80"
-          }
-          alt={formattedStoreName}
-          className="h-full w-full object-cover opacity-60"
-        />
+      <div className="relative h-64 w-full bg-linear-to-r from-stone-900 via-emerald-950 to-stone-900">
+        {storeDetails?.coverUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={storeDetails.coverUrl}
+            alt={formattedStoreName}
+            className="h-full w-full object-cover opacity-60"
+          />
+        ) : (
+          <div className="h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] opacity-20" />
+        )}
         <div className="absolute inset-0 bg-linear-to-t from-stone-900/90 via-stone-900/40 to-transparent" />
 
         <div className="absolute top-6 left-6 z-10">
@@ -90,7 +88,7 @@ export default function StoreDetailPage({
         <div className="relative -mt-20 space-y-6 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-md md:p-8">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div className="flex items-start space-x-5">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl border-4 border-white bg-amber-800 font-serif text-3xl font-bold text-amber-100 shadow-md">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-4 border-white bg-emerald-800 font-serif text-3xl font-bold text-emerald-100 shadow-md">
                 {storeDetails?.logoUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -99,7 +97,7 @@ export default function StoreDetailPage({
                     className="h-full w-full rounded-lg object-cover"
                   />
                 ) : (
-                  formattedStoreName.charAt(0)
+                  formattedStoreName.charAt(0).toUpperCase()
                 )}
               </div>
 
@@ -115,11 +113,6 @@ export default function StoreDetailPage({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-stone-500">
-                  <span className="flex items-center space-x-1">
-                    <RiMapPinLine className="h-3.5 w-3.5 text-amber-600" />
-                    <span>Serra Gaúcha — RS</span>
-                  </span>
-                  <span>•</span>
                   <span className="flex items-center space-x-1 font-semibold text-emerald-800">
                     <RiStore2Line className="h-3.5 w-3.5" />
                     <span>Produtor Credenciado VERTTEX</span>

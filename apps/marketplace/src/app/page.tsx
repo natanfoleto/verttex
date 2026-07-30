@@ -51,71 +51,33 @@ export default function MarketplaceHomePage() {
     },
   });
 
-
-
   const featuredProducts: ProductCardProps[] =
     featuredProductsRes?.data && featuredProductsRes.data.length > 0
       ? featuredProductsRes.data.map((p) => ({
-          id: p.id,
-          name: p.name,
-          slug: p.slug,
-          price: p.promotionalPrice || p.price,
-          originalPrice: p.promotionalPrice ? p.price : undefined,
-          imageUrl:
-            p.mainImageUrl ||
-            "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
-          storeName: p.store?.name || "Produtor Artesanal",
-          storeSlug: p.store?.slug || "",
-        }))
-      : [
-          {
-            id: "p1",
-            name: "Queijo Canastra Maturado 60 Dias",
-            slug: "queijo-canastra-maturado",
-            price: 68.9,
-            originalPrice: 79.9,
-            unit: "peça (500g)",
-            imageUrl:
-              "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
-            storeName: "Queijaria Alvorada",
-            storeSlug: "queijaria-alvorada",
-            origin: "Farroupilha, RS",
-            rating: 4.9,
-            reviewsCount: 38,
-            badge: "Seleção Especial",
-          },
-        ];
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        price: p.promotionalPrice || p.price,
+        originalPrice: p.promotionalPrice ? p.price : undefined,
+        imageUrl: p.mainImageUrl || undefined,
+        storeName: p.store?.name || "Produtor",
+        storeSlug: p.store?.slug || "",
+      }))
+      : [];
 
   const storesList: StoreCardProps[] =
     storesRes?.data && storesRes.data.length > 0
       ? storesRes.data.map((s) => ({
-          id: s.id,
-          name: s.name,
-          slug: s.slug,
-          description: s.description || "Produtor artesanal cadastrado no mercado regional VERTTEX.",
-          city: "Região",
-          state: "RS",
-          productsCount: s.productsCount,
-          isVerified: true,
-          coverUrl:
-            s.coverUrl ||
-            "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80",
-        }))
-      : [
-          {
-            id: "s1",
-            name: "Queijaria Alvorada",
-            slug: "queijaria-alvorada",
-            description:
-              "Tradição familiar na produção de queijos artesanais de leite cru com maturação especial.",
-            city: "Farroupilha",
-            state: "RS",
-            productsCount: 14,
-            isVerified: true,
-            coverUrl:
-              "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80",
-          },
-        ];
+        id: s.id,
+        name: s.name,
+        slug: s.slug,
+        description: s.description || undefined,
+        productsCount: s.productsCount,
+        isVerified: true,
+        coverUrl: s.coverUrl || undefined,
+        logoUrl: s.logoUrl || undefined,
+      }))
+      : [];
 
   return (
     <div className="space-y-24 pb-28 lg:pb-36 font-sans text-stone-900 antialiased">
@@ -148,7 +110,7 @@ export default function MarketplaceHomePage() {
                   Explorar Catálogo
                 </Link>
                 <Link
-                  href="/produtores"
+                  href="/lojas"
                   className="rounded-xl border border-stone-600 bg-stone-800/80 px-6 py-3.5 text-sm font-bold text-white hover:bg-stone-800 transition-colors cursor-pointer"
                 >
                   Conhecer Produtores
@@ -157,73 +119,81 @@ export default function MarketplaceHomePage() {
             </div>
 
             <div className="lg:col-span-5">
-              <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-stone-800/60 p-2 shadow-2xl backdrop-blur-md">
-                <img
-                  src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=800&q=80"
-                  alt="Produtor artesanal"
-                  className="h-80 w-full rounded-2xl object-cover sm:h-96"
-                />
+              <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-linear-to-br from-amber-950/60 via-stone-900 to-emerald-950/60 p-8 shadow-2xl backdrop-blur-md flex flex-col justify-between min-h-80 sm:min-h-95">
+                <div className="space-y-3">
+                  <span className="inline-block rounded-lg bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-400 border border-amber-500/20">
+                    VERTTEX Marketplace
+                  </span>
+                  <h3 className="text-2xl font-extrabold text-white">
+                    Feira & Mercado Regional em Um Só Lugar
+                  </h3>
+                </div>
+                <p className="text-xs text-stone-400 leading-relaxed">
+                  Qualidade e frescor garantidos diretamente das agroindústrias e produtores cadastrados na nossa região.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-
-
       {/* Dynamic Featured Products Grid Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex items-center justify-between border-b border-stone-200 pb-4">
-          <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
-              Produtos em Destaque
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Seleção dos itens mais bem avaliados pelos clientes da nossa região.
-            </p>
+      {featuredProducts.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
+                Produtos em Destaque
+              </h2>
+              <p className="mt-1 text-xs text-stone-500">
+                Seleção dos itens mais bem avaliados pelos clientes da nossa região.
+              </p>
+            </div>
+            <Link
+              href="/produtos"
+              className="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900 cursor-pointer"
+            >
+              <span>Ver Catálogo Completo</span>
+              <RiArrowRightLine className="h-4 w-4" />
+            </Link>
           </div>
-          <Link
-            href="/produtos"
-            className="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900 cursor-pointer"
-          >
-            <span>Ver Catálogo Completo</span>
-            <RiArrowRightLine className="h-4 w-4" />
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featuredProducts.map((p) => (
-            <ProductCard key={p.id} {...p} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {featuredProducts.map((p) => (
+              <ProductCard key={p.id} {...p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Dynamic Partner Stores Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex items-center justify-between border-b border-stone-200 pb-4">
-          <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
-              Produtores Locais Parceiros
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Conheça as famílias e agroindústrias locais por trás dos nossos produtos.
-            </p>
+      {storesList.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
+                Lojas e Produtores Parceiros
+              </h2>
+              <p className="mt-1 text-xs text-stone-500">
+                Conheça as famílias e agroindústrias locais por trás dos nossos produtos.
+              </p>
+            </div>
+            <Link
+              href="/lojas"
+              className="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900 cursor-pointer"
+            >
+              <span>Ver Todos os Produtores</span>
+              <RiArrowRightLine className="h-4 w-4" />
+            </Link>
           </div>
-          <Link
-            href="/produtores"
-            className="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900 cursor-pointer"
-          >
-            <span>Ver Todos os Produtores</span>
-            <RiArrowRightLine className="h-4 w-4" />
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {storesList.map((s) => (
-            <StoreCard key={s.id} {...s} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {storesList.map((s) => (
+              <StoreCard key={s.id} {...s} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

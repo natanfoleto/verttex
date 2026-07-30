@@ -44,14 +44,12 @@ export default function CategoryDetailPage({
   const mappedProducts: ProductCardProps[] = productsList.map((p: any) => ({
     id: p.id,
     name: p.name,
+    slug: p.slug,
     price: p.promotionalPrice || p.price,
     originalPrice: p.promotionalPrice ? p.price : undefined,
-    imageUrl:
-      p.mainImageUrl ||
-      "https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=600&q=80",
-    storeName: p.store?.name || "Produtor Local",
+    imageUrl: p.mainImageUrl || undefined,
+    storeName: p.store?.name || "Produtor",
     storeSlug: p.store?.slug || "",
-    origin: "Serra Gaúcha, RS",
     badge: p.isFeatured ? "Destaque" : undefined,
     isBestSeller: p.isFeatured,
   }));
