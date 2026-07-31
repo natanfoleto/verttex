@@ -119,6 +119,12 @@ export function RoleFormDialog({
     setKey(sanitizeSlug(val).replace(/-/g, "_"));
   };
 
+  const isDirty = isEditing && roleToEdit
+    ? name !== roleToEdit.name ||
+      description !== (roleToEdit.description || "") ||
+      isActive !== roleToEdit.isActive
+    : name.trim().length > 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
@@ -232,7 +238,7 @@ export function RoleFormDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button type="submit" disabled={!isDirty || mutation.isPending}>
               <RiCheckLine className="h-4 w-4" />
               <span>
                 {mutation.isPending

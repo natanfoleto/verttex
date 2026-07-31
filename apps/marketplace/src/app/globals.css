@@ -1,12 +1,24 @@
 @import "tailwindcss";
 
+:root {
+  --color-header-bg: #15803d;
+  --color-header-text: #ffffff;
+  --color-site-bg: #f5f5f4;
+  --color-btn-primary-bg: #16a34a;
+  --color-btn-primary-text: #ffffff;
+  --color-btn-secondary-bg: #e7e5e4;
+  --color-btn-secondary-text: #1c1917;
+  --color-text-primary: #1c1917;
+  --color-text-secondary: #78716c;
+}
+
 @layer base {
   * {
     border-color: var(--color-stone-200, #e7e5e4);
   }
   body {
-    background-color: var(--color-stone-50, #fafaf9);
-    color: var(--color-stone-900, #1c1917);
+    background-color: var(--color-site-bg, #f5f5f4);
+    color: var(--color-text-primary, #1c1917);
     font-family:
       system-ui,
       -apple-system,

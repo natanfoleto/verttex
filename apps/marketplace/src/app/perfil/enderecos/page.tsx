@@ -206,6 +206,20 @@ export default function CustomerAddressesPage() {
     },
   });
 
+  const isAddressDirty = editingAddress
+    ? label !== editingAddress.label ||
+      recipient !== editingAddress.recipient ||
+      phone !== (editingAddress.phone || "") ||
+      zipCode !== editingAddress.zipCode ||
+      street !== editingAddress.street ||
+      number !== editingAddress.number ||
+      complement !== (editingAddress.complement || "") ||
+      neighborhood !== editingAddress.neighborhood ||
+      city !== editingAddress.city ||
+      state !== editingAddress.state ||
+      isDefault !== editingAddress.isDefault
+    : zipCode.trim().length > 0 && street.trim().length > 0 && number.trim().length > 0;
+
   return (
     <CustomerAuthGuard>
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
@@ -538,8 +552,8 @@ export default function CustomerAddressesPage() {
 
               <Button
                 type="submit"
-                disabled={saveMutation.isPending}
-                className="cursor-pointer"
+                disabled={!isAddressDirty || saveMutation.isPending}
+                className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <RiCheckLine className="h-4 w-4" />
                 <span>

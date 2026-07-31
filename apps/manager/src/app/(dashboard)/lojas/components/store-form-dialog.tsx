@@ -120,17 +120,24 @@ export function StoreFormDialog({
     },
   });
 
+  const isDirty = isEditing && storeToEdit
+    ? name !== storeToEdit.name ||
+      slug !== storeToEdit.slug ||
+      description !== (storeToEdit.description || "") ||
+      status !== storeToEdit.status
+    : name.trim().length > 0 && slug.trim().length > 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
-            {isEditing ? "Editar Loja Parceira" : "Nova Loja Parceira"}
+            {isEditing ? "Editar Loja / Produtor" : "Nova Loja / Produtor"}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
             {isEditing
-              ? "Atualize as informações cadastrais e o status da loja."
-              : "Cadastre uma nova loja de produtor ou parceiro na plataforma Verttex."}
+              ? "Atualize as informações da loja cadastrada na plataforma."
+              : "Cadastre uma nova loja parceira ou produtor rural."}
           </DialogDescription>
         </DialogHeader>
 
@@ -153,7 +160,7 @@ export function StoreFormDialog({
                 htmlFor="store-name"
                 className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
               >
-                Nome da Loja <span className="text-rose-400">*</span>
+                Nome da Loja / Produtor <span className="text-rose-400">*</span>
               </label>
               <Input
                 id="store-name"
@@ -162,44 +169,42 @@ export function StoreFormDialog({
                 required
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="Ex: Queijaria Alvorada"
+                placeholder="Ex: Fazenda Santa Maria"
               />
             </div>
 
-            {!isEditing && (
-              <div>
-                <label
-                  htmlFor="store-slug"
-                  className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
-                >
-                  Slug Único (URL) <span className="text-rose-400">*</span>
-                </label>
-                <Input
-                  id="store-slug"
-                  name="slug"
-                  type="text"
-                  required
-                  value={slug}
-                  onChange={(e) => handleSlugChange(e.target.value)}
-                  placeholder="ex: queijaria-alvorada"
-                  className="font-mono"
-                />
-              </div>
-            )}
+            <div>
+              <label
+                htmlFor="store-slug"
+                className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
+              >
+                Slug de URL <span className="text-rose-400">*</span>
+              </label>
+              <Input
+                id="store-slug"
+                name="slug"
+                type="text"
+                required
+                value={slug}
+                onChange={(e) => handleSlugChange(e.target.value)}
+                placeholder="ex: fazenda-santa-maria"
+                className="font-mono"
+              />
+            </div>
 
             <div>
               <label
                 htmlFor="store-description"
                 className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
               >
-                Descrição da Loja
+                Descrição
               </label>
               <Textarea
                 id="store-description"
                 name="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Descrição sobre a produção artesanal..."
+                placeholder="Descrição opcional dos produtos e história do produtor..."
                 rows={3}
               />
             </div>
@@ -235,7 +240,7 @@ export function StoreFormDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button type="submit" disabled={!isDirty || mutation.isPending}>
               <RiCheckLine className="h-4 w-4" />
               <span>
                 {mutation.isPending

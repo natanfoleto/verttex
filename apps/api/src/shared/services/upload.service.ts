@@ -8,7 +8,25 @@ export type UploadPurpose =
   | "category_icon"
   | "brand_logo"
   | "store_logo"
-  | "marketplace_banner";
+  | "store_banner"
+  | "marketplace_logo"
+  | "marketplace_favicon"
+  | "marketplace_og_image"
+  | "marketplace_banner"
+  | "user_avatar";
+
+const PURPOSE_FOLDER_MAP: Record<UploadPurpose, string> = {
+  product_image: "catalog/products",
+  category_icon: "catalog/categories",
+  brand_logo: "catalog/brands",
+  store_logo: "stores/logos",
+  store_banner: "stores/banners",
+  marketplace_logo: "marketplace/logos",
+  marketplace_favicon: "marketplace/favicons",
+  marketplace_og_image: "marketplace/og-images",
+  marketplace_banner: "marketplace/banners",
+  user_avatar: "users/avatars",
+};
 
 export interface RequestUploadParams {
   fileName: string;
@@ -63,7 +81,7 @@ export class UploadService {
     // Generate safe non-predictable object key
     const uniqueId =
       Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
-    const folder = purpose === "marketplace_banner" ? "marketplace/banners" : purpose;
+    const folder = PURPOSE_FOLDER_MAP[purpose] || "uncategorized";
     const objectKey = `uploads/${folder}/${uniqueId}.${extension}`;
     const bucket = apiEnv.R2_BUCKET_NAME || "verttex";
 
@@ -126,7 +144,7 @@ export class UploadService {
 
     const uniqueId =
       Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
-    const folder = purpose === "marketplace_banner" ? "marketplace/banners" : purpose;
+    const folder = PURPOSE_FOLDER_MAP[purpose] || "uncategorized";
     const objectKey = `uploads/${folder}/${uniqueId}.${extension}`;
     const bucket = apiEnv.R2_BUCKET_NAME || "verttex";
 

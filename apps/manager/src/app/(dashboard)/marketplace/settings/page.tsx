@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useRef } from "react";
 import {
+  RiDeleteBinLine,
+  RiExternalLinkLine,
   RiGlobalLine,
   RiImageAddLine,
   RiImageLine,
@@ -23,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { apiClient } from "@/lib/api-client";
 
 interface MarketplaceSettingsData {
@@ -33,6 +36,15 @@ interface MarketplaceSettingsData {
   faviconUrl?: string | null;
   primaryColor: string;
   secondaryColor: string;
+  headerBgColor: string;
+  headerTextColor: string;
+  siteBgColor: string;
+  primaryButtonBgColor: string;
+  primaryButtonTextColor: string;
+  secondaryButtonBgColor: string;
+  secondaryButtonTextColor: string;
+  primaryTextColor: string;
+  secondaryTextColor: string;
   supportEmail: string;
   supportPhone: string;
   supportWhatsapp: string;
@@ -51,12 +63,23 @@ interface MarketplaceSettingsData {
   outOfStockBehavior: "show_badge" | "hide_product" | "move_to_end";
   carouselAutoplay: boolean;
   carouselIntervalSeconds: number;
+  carouselTitlePosition: "TOP" | "CENTER" | "BOTTOM" | "NONE";
+  carouselTitleHAlign: "LEFT" | "CENTER" | "RIGHT";
 }
 
 const DEFAULT_SETTINGS: MarketplaceSettingsData = {
   publicName: "VERTTEX Marketplace",
   primaryColor: "#0f172a",
   secondaryColor: "#16a34a",
+  headerBgColor: "#15803d",
+  headerTextColor: "#ffffff",
+  siteBgColor: "#f5f5f4",
+  primaryButtonBgColor: "#16a34a",
+  primaryButtonTextColor: "#ffffff",
+  secondaryButtonBgColor: "#e7e5e4",
+  secondaryButtonTextColor: "#1c1917",
+  primaryTextColor: "#1c1917",
+  secondaryTextColor: "#78716c",
   supportEmail: "",
   supportPhone: "",
   supportWhatsapp: "",
@@ -73,6 +96,8 @@ const DEFAULT_SETTINGS: MarketplaceSettingsData = {
   outOfStockBehavior: "show_badge",
   carouselAutoplay: true,
   carouselIntervalSeconds: 5,
+  carouselTitlePosition: "CENTER",
+  carouselTitleHAlign: "LEFT",
 };
 
 export default function MarketplaceSettingsPage() {
@@ -81,8 +106,12 @@ export default function MarketplaceSettingsPage() {
   const ogImageInputRef = useRef<HTMLInputElement>(null);
 
   const [settings, setSettings] = useState<MarketplaceSettingsData>(DEFAULT_SETTINGS);
+  const [savedSettings, setSavedSettings] = useState<MarketplaceSettingsData>(DEFAULT_SETTINGS);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Desabilita o botão de salvar caso o formulário esteja pristine (sem alterações)
+  const isDirty = JSON.stringify(settings) !== JSON.stringify(savedSettings);
 
   // Previews locais
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -97,7 +126,7 @@ export default function MarketplaceSettingsPage() {
   useEffect(() => {
     const res = (data as any)?.data || data;
     if (res && typeof res === "object") {
-      setSettings({
+      const loaded: MarketplaceSettingsData = {
         publicName: res.publicName || "VERTTEX Marketplace",
         logoFileId: res.logoFileId || null,
         faviconFileId: res.faviconFileId || null,
@@ -105,6 +134,15 @@ export default function MarketplaceSettingsPage() {
         faviconUrl: res.faviconUrl || null,
         primaryColor: res.primaryColor || "#0f172a",
         secondaryColor: res.secondaryColor || "#16a34a",
+        headerBgColor: res.headerBgColor || "#15803d",
+        headerTextColor: res.headerTextColor || "#ffffff",
+        siteBgColor: res.siteBgColor || "#f5f5f4",
+        primaryButtonBgColor: res.primaryButtonBgColor || "#16a34a",
+        primaryButtonTextColor: res.primaryButtonTextColor || "#ffffff",
+        secondaryButtonBgColor: res.secondaryButtonBgColor || "#e7e5e4",
+        secondaryButtonTextColor: res.secondaryButtonTextColor || "#1c1917",
+        primaryTextColor: res.primaryTextColor || "#1c1917",
+        secondaryTextColor: res.secondaryTextColor || "#78716c",
         supportEmail: res.supportEmail || "",
         supportPhone: res.supportPhone || "",
         supportWhatsapp: res.supportWhatsapp || "",
@@ -125,7 +163,11 @@ export default function MarketplaceSettingsPage() {
           : "show_badge",
         carouselAutoplay: res.carouselAutoplay ?? true,
         carouselIntervalSeconds: Number(res.carouselIntervalSeconds) || 5,
-      });
+        carouselTitlePosition: res.carouselTitlePosition || "CENTER",
+        carouselTitleHAlign: res.carouselTitleHAlign || "LEFT",
+      };
+      setSettings(loaded);
+      setSavedSettings(loaded);
     }
   }, [data]);
 
@@ -203,7 +245,7 @@ export default function MarketplaceSettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setLogoPreview(URL.createObjectURL(file));
-    const fileId = await uploadFile(file, "store_logo");
+    const fileId = await uploadFile(file, "marketplace_logo");
     if (fileId) {
       setSettings((prev) => ({ ...prev, logoFileId: fileId }));
       toast.success("Logo enviada e pronta para salvar!");
@@ -214,7 +256,7 @@ export default function MarketplaceSettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setFaviconPreview(URL.createObjectURL(file));
-    const fileId = await uploadFile(file, "store_logo");
+    const fileId = await uploadFile(file, "marketplace_favicon");
     if (fileId) {
       setSettings((prev) => ({ ...prev, faviconFileId: fileId }));
       toast.success("Favicon enviado e pronto para salvar!");
@@ -225,7 +267,7 @@ export default function MarketplaceSettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setOgImagePreview(URL.createObjectURL(file));
-    const fileId = await uploadFile(file, "store_logo");
+    const fileId = await uploadFile(file, "marketplace_og_image");
     if (fileId) {
       setSettings((prev) => ({ ...prev, ogImageFileId: fileId }));
       toast.success("Imagem de compartilhamento (OG) enviada e pronta para salvar!");
@@ -236,10 +278,12 @@ export default function MarketplaceSettingsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const { logoUrl, faviconUrl, ogImageUrl, ...payload } = settings;
       await apiClient("/marketplace/settings", {
         method: "PUT",
-        body: settings,
+        body: payload,
       });
+      setSavedSettings(settings);
       toast.success("Configurações do Marketplace salvas com sucesso!");
     } catch (err: any) {
       toast.error(err.message || "Erro ao salvar configurações.");
@@ -247,6 +291,23 @@ export default function MarketplaceSettingsPage() {
       setIsSubmitting(false);
     }
   }
+
+  const handleOpenLivePreview = () => {
+    const params = new URLSearchParams({
+      headerBg: settings.headerBgColor || "#15803d",
+      headerText: settings.headerTextColor || "#ffffff",
+      siteBg: settings.siteBgColor || "#f5f5f4",
+      primaryBtnBg: settings.primaryButtonBgColor || "#16a34a",
+      primaryBtnText: settings.primaryButtonTextColor || "#ffffff",
+      secondaryBtnBg: settings.secondaryButtonBgColor || "#e7e5e4",
+      secondaryBtnText: settings.secondaryButtonTextColor || "#1c1917",
+      primaryText: settings.primaryTextColor || "#1c1917",
+      publicName: settings.publicName || "VERTTEX Marketplace",
+      carouselTitlePosition: settings.carouselTitlePosition || "CENTER",
+      carouselTitleHAlign: settings.carouselTitleHAlign || "LEFT",
+    });
+    window.open(`/marketplace/preview?${params.toString()}`, "_blank");
+  };
 
   if (isLoading) {
     return (
@@ -270,19 +331,31 @@ export default function MarketplaceSettingsPage() {
             Defina a identidade, branding, contatos de suporte, SEO, regras do carrossel e catálogo.
           </p>
         </div>
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitting || isUploading}
-          className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
-        >
-          {isSubmitting || isUploading ? (
-            <RiLoader4Line className="h-4 w-4 animate-spin" />
-          ) : (
-            <RiSaveLine className="h-4 w-4" />
-          )}
-          <span>Salvar Alterações</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleOpenLivePreview}
+            className="cursor-pointer border-emerald-700/80 text-emerald-400 hover:bg-emerald-950/60 gap-2"
+          >
+            <RiExternalLinkLine className="h-4 w-4" />
+            <span>Pré-visualização</span>
+          </Button>
+
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!isDirty || isSubmitting || isUploading}
+            className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting || isUploading ? (
+              <RiLoader4Line className="h-4 w-4 animate-spin" />
+            ) : (
+              <RiSaveLine className="h-4 w-4" />
+            )}
+            <span>Salvar Alterações</span>
+          </Button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 w-full">
@@ -316,147 +389,205 @@ export default function MarketplaceSettingsPage() {
           </TabsList>
 
           {/* Aba 1: Identidade & Cores */}
-          <TabsContent value="identity" className="space-y-6 mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card Identidade */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4">
-                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
-                  <RiStoreLine className="h-5 w-5 text-emerald-400" />
-                  <h2 className="text-base font-semibold text-zinc-100">Identidade do Marketplace</h2>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-semibold text-zinc-300">
-                      Nome Público da Plataforma *
-                    </label>
-                    <Input
-                      required
-                      placeholder="Ex: VERTTEX Marketplace"
-                      value={settings.publicName}
-                      onChange={(e) => setSettings({ ...settings, publicName: e.target.value })}
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
-                    />
-                  </div>
-
-                  {/* Logo */}
-                  <div>
-                    <label className="text-xs font-semibold text-zinc-300">Logo da Marca</label>
-                    <div className="flex items-center gap-3 mt-1">
-                      {(logoPreview || settings.logoUrl) && (
-                        <div className="size-12 rounded-lg bg-zinc-950 border border-zinc-700 overflow-hidden flex items-center justify-center">
-                          <img src={logoPreview || settings.logoUrl!} alt="Logo" className="max-h-full max-w-full object-contain" />
-                        </div>
-                      )}
-                      <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoSelect} className="hidden" />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => logoInputRef.current?.click()}
-                        className="cursor-pointer border-zinc-700 text-zinc-300 gap-1.5"
-                      >
-                        <RiImageAddLine className="h-4 w-4" />
-                        <span>{settings.logoUrl || logoPreview ? "Trocar Logo" : "Escolher Logo"}</span>
-                      </Button>
-                      {(settings.logoFileId || settings.logoUrl) && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setLogoPreview(null);
-                            setSettings({ ...settings, logoFileId: null, logoUrl: null });
-                          }}
-                          className="cursor-pointer text-red-400 hover:bg-red-950/40 text-xs"
-                        >
-                          Remover
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Favicon */}
-                  <div>
-                    <label className="text-xs font-semibold text-zinc-300">Favicon (Aba do Navegador)</label>
-                    <div className="flex items-center gap-3 mt-1">
-                      {(faviconPreview || settings.faviconUrl) && (
-                        <div className="size-8 rounded-md bg-zinc-950 border border-zinc-700 overflow-hidden flex items-center justify-center">
-                          <img src={faviconPreview || settings.faviconUrl!} alt="Favicon" className="max-h-full max-w-full object-contain" />
-                        </div>
-                      )}
-                      <input ref={faviconInputRef} type="file" accept="image/*" onChange={handleFaviconSelect} className="hidden" />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => faviconInputRef.current?.click()}
-                        className="cursor-pointer border-zinc-700 text-zinc-300 gap-1.5"
-                      >
-                        <RiImageAddLine className="h-4 w-4" />
-                        <span>{settings.faviconUrl || faviconPreview ? "Trocar Favicon" : "Escolher Favicon"}</span>
-                      </Button>
-                      {(settings.faviconFileId || settings.faviconUrl) && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setFaviconPreview(null);
-                            setSettings({ ...settings, faviconFileId: null, faviconUrl: null });
-                          }}
-                          className="cursor-pointer text-red-400 hover:bg-red-950/40 text-xs"
-                        >
-                          Remover
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+          <TabsContent value="identity" className="space-y-6 mt-0 w-full">
+            {/* Card Identidade */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 w-full">
+              <div className="flex items-center gap-2">
+                <RiStoreLine className="h-5 w-5 text-emerald-400" />
+                <h2 className="text-base font-semibold text-zinc-100">Identidade do Marketplace</h2>
               </div>
 
-              {/* Card Cores */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4">
-                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
-                  <RiPaletteLine className="h-5 w-5 text-emerald-400" />
-                  <h2 className="text-base font-semibold text-zinc-100">Cores da Interface</h2>
+              {/* Linha 1: Nome Público */}
+              <div>
+                <label className="text-xs font-semibold text-zinc-300">
+                  Nome Público da Plataforma *
+                </label>
+                <Input
+                  required
+                  placeholder="Ex: VERTTEX Marketplace"
+                  value={settings.publicName}
+                  onChange={(e) => setSettings({ ...settings, publicName: e.target.value })}
+                  className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                />
+              </div>
+
+              {/* Linha 2: Favicon (esquerda) + Logo (direita) — mesma altura */}
+              <div className="flex flex-wrap gap-6 items-start">
+
+                {/* Favicon — quadrado, h-24 w-24 */}
+                <div className="w-24">
+                  <label className="text-xs font-semibold text-zinc-300">Favicon</label>
+                  <input ref={faviconInputRef} type="file" accept="image/*" onChange={handleFaviconSelect} className="hidden" />
+                  <button
+                    type="button"
+                    onClick={() => faviconInputRef.current?.click()}
+                    className="mt-1 w-24 h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group"
+                  >
+                    {(faviconPreview || settings.faviconUrl) ? (
+                      <img src={faviconPreview || settings.faviconUrl!} alt="Favicon" className="max-h-full max-w-full object-contain p-2" />
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-zinc-500 group-hover:text-zinc-400 transition-colors">
+                        <RiImageAddLine className="h-5 w-5" />
+                        <span className="text-[10px] font-medium">Favicon</span>
+                      </div>
+                    )}
+                  </button>
+                  {(settings.faviconFileId || settings.faviconUrl) && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setFaviconPreview(null);
+                        setSettings({ ...settings, faviconFileId: null, faviconUrl: null });
+                      }}
+                      className="cursor-pointer border-red-800/70 text-red-400 hover:bg-red-950/40 gap-1.5 w-full mt-2"
+                    >
+                      <RiDeleteBinLine className="h-4 w-4 shrink-0" />
+                      <span>Remover</span>
+                    </Button>
+                  )}
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-semibold text-zinc-300">Cor Primária (Hexadecimal)</label>
-                    <div className="flex gap-2 items-center mt-1">
-                      <input
-                        type="color"
-                        value={settings.primaryColor || "#0f172a"}
-                        onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                        className="size-9 rounded cursor-pointer border border-zinc-700 bg-zinc-800"
-                      />
-                      <Input
-                        value={settings.primaryColor || ""}
-                        onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                        placeholder="#0f172a"
-                        className="bg-zinc-800/60 border-zinc-700 text-zinc-100 font-mono"
-                      />
-                    </div>
-                  </div>
+                {/* Logo — landscape, mesmo h-24 */}
+                <div className="w-64">
+                  <label className="text-xs font-semibold text-zinc-300">Logo da Marca</label>
+                  <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoSelect} className="hidden" />
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="mt-1 w-full h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group"
+                  >
+                    {(logoPreview || settings.logoUrl) ? (
+                      <img src={logoPreview || settings.logoUrl!} alt="Logo" className="max-h-full max-w-full object-contain px-4 py-2" />
+                    ) : (
+                      <div className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-400 transition-colors">
+                        <RiImageAddLine className="h-5 w-5 shrink-0" />
+                        <span className="text-[11px] font-medium">Escolher logo</span>
+                      </div>
+                    )}
+                  </button>
+                  {(settings.logoFileId || settings.logoUrl) && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setLogoPreview(null);
+                        setSettings({ ...settings, logoFileId: null, logoUrl: null });
+                      }}
+                      className="cursor-pointer border-red-800/70 text-red-400 hover:bg-red-950/40 gap-1.5 w-full mt-2"
+                    >
+                      <RiDeleteBinLine className="h-4 w-4 shrink-0" />
+                      <span>Remover</span>
+                    </Button>
+                  )}
+                </div>
 
-                  <div>
-                    <label className="text-xs font-semibold text-zinc-300">Cor Secundária (Destaques/CTA)</label>
-                    <div className="flex gap-2 items-center mt-1">
-                      <input
-                        type="color"
-                        value={settings.secondaryColor || "#16a34a"}
-                        onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                        className="size-9 rounded cursor-pointer border border-zinc-700 bg-zinc-800"
-                      />
-                      <Input
-                        value={settings.secondaryColor || ""}
-                        onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                        placeholder="#16a34a"
-                        className="bg-zinc-800/60 border-zinc-700 text-zinc-100 font-mono"
-                      />
-                    </div>
+              </div>
+            </div>
+
+            {/* Card Cores Categorizado (100% da largura do conteúdo) */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-6 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <RiPaletteLine className="h-5 w-5 text-emerald-400" />
+                  <h2 className="text-base font-semibold text-zinc-100">Cores da Interface & Layout</h2>
+                </div>
+
+              </div>
+
+              <div className="space-y-6">
+                {/* Categoria 1: Header & Cabeçalho */}
+                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                    <span>1. Header & Cabeçalho</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ColorPicker
+                      label="Fundo do Header"
+                      description="Padrão: Verde (#15803d)"
+                      value={settings.headerBgColor}
+                      onChange={(val) => setSettings({ ...settings, headerBgColor: val })}
+                    />
+                    <ColorPicker
+                      label="Texto do Header"
+                      description="Padrão: Branco (#ffffff)"
+                      value={settings.headerTextColor}
+                      onChange={(val) => setSettings({ ...settings, headerTextColor: val })}
+                    />
+                  </div>
+                </div>
+
+                {/* Categoria 2: Fundo Geral do Site */}
+                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                    <span>2. Fundo Geral do Site (Muted)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ColorPicker
+                      label="Fundo do Site"
+                      description="Tom Muted (#f5f5f4)"
+                      value={settings.siteBgColor}
+                      onChange={(val) => setSettings({ ...settings, siteBgColor: val })}
+                    />
+                  </div>
+                </div>
+
+                {/* Categoria 3: Botões Primários */}
+                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                    <span>3. Botões Primários (Ações Principais / Comprar / Entrar)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ColorPicker
+                      label="Fundo do Botão Primário"
+                      description="Padrão: Esmeralda (#16a34a)"
+                      value={settings.primaryButtonBgColor}
+                      onChange={(val) => setSettings({ ...settings, primaryButtonBgColor: val })}
+                    />
+                    <ColorPicker
+                      label="Texto do Botão Primário"
+                      description="Padrão: Branco (#ffffff)"
+                      value={settings.primaryButtonTextColor}
+                      onChange={(val) => setSettings({ ...settings, primaryButtonTextColor: val })}
+                    />
+                  </div>
+                </div>
+
+                {/* Categoria 4: Botões Secundários */}
+                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                    <span>4. Botões Secundários (Ver Detalhes / Ações Neutras)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ColorPicker
+                      label="Fundo do Botão Secundário"
+                      description="Padrão: Pedra Light (#e7e5e4)"
+                      value={settings.secondaryButtonBgColor}
+                      onChange={(val) => setSettings({ ...settings, secondaryButtonBgColor: val })}
+                    />
+                    <ColorPicker
+                      label="Texto do Botão Secundário"
+                      description="Padrão: Escuro (#1c1917)"
+                      value={settings.secondaryButtonTextColor}
+                      onChange={(val) => setSettings({ ...settings, secondaryButtonTextColor: val })}
+                    />
+                  </div>
+                </div>
+
+                {/* Categoria 5: Tipografia & Textos Globais */}
+                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                    <span>5. Tipografia & Textos Globais</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ColorPicker
+                      label="Texto Principal (Títulos das Seções)"
+                      description="Padrão: Escuro (#1c1917)"
+                      value={settings.primaryTextColor}
+                      onChange={(val) => setSettings({ ...settings, primaryTextColor: val })}
+                    />
                   </div>
                 </div>
               </div>
@@ -501,6 +632,53 @@ export default function MarketplaceSettingsPage() {
                   </NativeSelect>
                   <p className="text-xs text-zinc-500 mt-1.5">
                     Tempo de permanência de cada slide na tela antes de avançar automaticamente.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-zinc-300">
+                    Posição dos Títulos & Subtítulos nos Banners
+                  </label>
+                  <NativeSelect
+                    value={settings.carouselTitlePosition || "CENTER"}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        carouselTitlePosition: e.target.value as any,
+                      })
+                    }
+                    wrapperClassName="mt-1"
+                  >
+                    <option value="TOP">Exibir no topo</option>
+                    <option value="CENTER">Exibir no centro (Padrão)</option>
+                    <option value="BOTTOM">Exibir embaixo</option>
+                    <option value="NONE">Não exibir (Ocultar títulos e subtítulos)</option>
+                  </NativeSelect>
+                  <p className="text-xs text-zinc-500 mt-1.5">
+                    Define em qual posição os textos dos banners serão alinhados verticalmente dentro dos slides.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-zinc-300">
+                    Alinhamento Horizontal dos Títulos & Subtítulos
+                  </label>
+                  <NativeSelect
+                    value={settings.carouselTitleHAlign || "LEFT"}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        carouselTitleHAlign: e.target.value as any,
+                      })
+                    }
+                    wrapperClassName="mt-1"
+                  >
+                    <option value="LEFT">Alinhar à esquerda (Padrão)</option>
+                    <option value="CENTER">Centralizar</option>
+                    <option value="RIGHT">Alinhar à direita</option>
+                  </NativeSelect>
+                  <p className="text-xs text-zinc-500 mt-1.5">
+                    Define o alinhamento horizontal dos títulos dentro dos slides do carrossel.
                   </p>
                 </div>
               </div>

@@ -54,6 +54,12 @@ export default function CustomerProfilePage() {
     }
   };
 
+  const isDirty = customer
+    ? name !== customer.name ||
+      phone !== (customer.phone || "") ||
+      cpfCnpj !== (customer.cpfCnpj || "")
+    : false;
+
   return (
     <CustomerAuthGuard>
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
@@ -75,28 +81,28 @@ export default function CustomerProfilePage() {
             </div>
           </div>
 
-          {successMessage && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-semibold text-emerald-800">
-              {successMessage}
-            </div>
-          )}
-
           {errorMessage && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-800">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-800">
               {errorMessage}
             </div>
           )}
 
-          <form onSubmit={handleUpdateProfile} className="space-y-4 max-w-2xl">
+          {successMessage && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-medium text-emerald-800">
+              {successMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleUpdateProfile} className="space-y-5 max-w-xl">
             <div>
               <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
                 E-mail (Não alterável)
               </label>
               <Input
                 type="email"
-                disabled
                 value={customer?.email || ""}
-                className="mt-1.5 cursor-not-allowed text-stone-500 bg-stone-50"
+                disabled
+                className="mt-1.5 bg-stone-100/80 text-stone-500 cursor-not-allowed text-xs"
               />
             </div>
 
@@ -113,10 +119,10 @@ export default function CustomerProfilePage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
-                  CPF / CNPJ
+                  CPF ou CNPJ
                 </label>
                 <Input
                   type="text"
@@ -143,8 +149,8 @@ export default function CustomerProfilePage() {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="mt-4 cursor-pointer"
+              disabled={!isDirty || isSubmitting}
+              className="mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RiCheckLine className="h-4 w-4" />
               <span>{isSubmitting ? "Salvando..." : "Salvar Alterações"}</span>

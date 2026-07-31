@@ -5,7 +5,18 @@ export const requestUploadBodySchema = z.object({
   mimeType: z.string().min(1, "Tipo MIME é obrigatório"),
   size: z.number().positive("Tamanho do arquivo deve ser positivo"),
   purpose: z
-    .enum(["product_image", "category_icon", "brand_logo", "store_logo", "marketplace_banner"])
+    .enum([
+      "product_image",
+      "category_icon",
+      "brand_logo",
+      "store_logo",
+      "store_banner",
+      "marketplace_logo",
+      "marketplace_favicon",
+      "marketplace_og_image",
+      "marketplace_banner",
+      "user_avatar",
+    ])
     .default("product_image"),
   storeId: z.string().optional().nullable(),
 });

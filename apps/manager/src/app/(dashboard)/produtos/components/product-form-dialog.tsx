@@ -421,6 +421,75 @@ export function ProductFormDialog({
     categoriesList.length,
   ]);
 
+  const [initialSnapshot, setInitialSnapshot] = useState<string>("");
+
+  useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        setInitialSnapshot(
+          JSON.stringify({
+            name,
+            slug,
+            shortDescription,
+            fullDescription,
+            type,
+            status,
+            isPublished,
+            isFeatured,
+            storeId,
+            categoryId,
+            brandId,
+            price,
+            promotionalPrice,
+            costPrice,
+            sku,
+            barcode,
+            mediaItems,
+            weight,
+            width,
+            height,
+            length,
+            metaTitle,
+            metaDescription,
+            hasBatchControl,
+            hasExpirationControl,
+          }),
+        );
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [open, productToEdit?.id]);
+
+  const isFormDirty = isEditing
+    ? JSON.stringify({
+        name,
+        slug,
+        shortDescription,
+        fullDescription,
+        type,
+        status,
+        isPublished,
+        isFeatured,
+        storeId,
+        categoryId,
+        brandId,
+        price,
+        promotionalPrice,
+        costPrice,
+        sku,
+        barcode,
+        mediaItems,
+        weight,
+        width,
+        height,
+        length,
+        metaTitle,
+        metaDescription,
+        hasBatchControl,
+        hasExpirationControl,
+      }) !== initialSnapshot
+    : name.trim().length > 0;
+
   // Handle Name Input Change (Auto Slug)
   const handleNameChange = (val: string) => {
     setName(val);
@@ -1751,7 +1820,7 @@ export function ProductFormDialog({
 
             <Button
               type="submit"
-              disabled={createMutation.isPending || updateMutation.isPending}
+              disabled={!isFormDirty || createMutation.isPending || updateMutation.isPending}
             >
               <RiCheckLine className="h-4 w-4" />
               <span>

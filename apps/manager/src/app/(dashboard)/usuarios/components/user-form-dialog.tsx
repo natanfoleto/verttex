@@ -118,17 +118,24 @@ export function UserFormDialog({
     },
   });
 
+  const isDirty = isEditing && userToEdit
+    ? name !== userToEdit.name ||
+      email !== userToEdit.email ||
+      roleId !== (userToEdit.role?.id || "") ||
+      status !== userToEdit.status
+    : name.trim().length > 0 && email.trim().length > 0 && password.trim().length >= 6;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
-            {isEditing ? "Editar Usuário" : "Novo Usuário Gestor"}
+            {isEditing ? "Editar Usuário" : "Novo Usuário"}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
             {isEditing
-              ? "Atualize as informações do usuário administrativo."
-              : "Cadastre um novo usuário administrativo com acesso ao painel de gestão."}
+              ? "Atualize os dados e o perfil de acesso do usuário."
+              : "Cadastre um novo usuário para acesso à plataforma."}
           </DialogDescription>
         </DialogHeader>
 
@@ -160,7 +167,7 @@ export function UserFormDialog({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Carlos Silva"
+                placeholder="Ex: João da Silva"
               />
             </div>
 
@@ -178,7 +185,7 @@ export function UserFormDialog({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="carlos@exemplo.com.br"
+                placeholder="joao@exemplo.com"
               />
             </div>
 
@@ -197,34 +204,33 @@ export function UserFormDialog({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Mínimo 6 caracteres"
                 />
               </div>
             )}
 
             <div>
               <label
-                htmlFor="user-roleId"
+                htmlFor="user-role"
                 className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
               >
-                Cargo / Perfil de Acesso{" "}
-                <span className="text-rose-400">*</span>
+                Perfil / Cargo <span className="text-rose-400">*</span>
               </label>
               <NativeSelect
-                id="user-roleId"
+                id="user-role"
                 name="roleId"
-                required
                 value={roleId}
                 onChange={(e) => setRoleId(e.target.value)}
               >
-                <option value="" disabled>
-                  Selecione um cargo...
-                </option>
-                {roles?.map((r: { id: string; name: string }) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
+                {roles && roles.length > 0 ? (
+                  roles.map((r: { id: string; name: string }) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="">Carregando cargos...</option>
+                )}
               </NativeSelect>
             </div>
 
@@ -257,7 +263,7 @@ export function UserFormDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button type="submit" disabled={!isDirty || mutation.isPending}>
               <RiCheckLine className="h-4 w-4 mr-2" />
               <span>
                 {mutation.isPending

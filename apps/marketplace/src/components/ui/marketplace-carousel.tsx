@@ -41,10 +41,11 @@ export function MarketplaceCarousel() {
     }
   }, []);
 
-  // Busca configurações globais (Autoplay & Intervalo de Transição)
   const { data: settingsRes } = useQuery<{
     carouselAutoplay?: boolean;
     carouselIntervalSeconds?: number;
+    carouselTitlePosition?: string | null;
+    carouselTitleHAlign?: string | null;
   }>({
     queryKey: ["public-marketplace-settings"],
     queryFn: async () => {
@@ -55,19 +56,22 @@ export function MarketplaceCarousel() {
 
   const carouselAutoplay = settingsRes?.carouselAutoplay ?? true;
   const carouselIntervalSeconds = settingsRes?.carouselIntervalSeconds ?? 5;
+  const carouselTitlePosition = settingsRes?.carouselTitlePosition ?? "CENTER";
+  const carouselTitleHAlign = settingsRes?.carouselTitleHAlign ?? "LEFT";
 
-  // Cache instantâneo local via localStorage
-  const [cachedBanners, setCachedBanners] = useState<CarouselBannerItem[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("verttex_cached_carousel_banners");
-        return saved ? JSON.parse(saved) : [];
-      } catch {
-        return [];
+  const [isMounted, setIsMounted] = useState(false);
+  const [cachedBanners, setCachedBanners] = useState<CarouselBannerItem[]>([]);
+
+  // Leitura segura do localStorage após a montagem (evita erros de hidratação SSR)
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+      const saved = localStorage.getItem("verttex_cached_carousel_banners");
+      if (saved) {
+        setCachedBanners(JSON.parse(saved));
       }
-    }
-    return [];
-  });
+    } catch {}
+  }, []);
 
   // Busca banners públicos com imagem
   const { data: bannersRes, isLoading } = useQuery<{
@@ -80,20 +84,22 @@ export function MarketplaceCarousel() {
       const list = Array.isArray(res) ? res : (res as any)?.data ?? [];
       return { success: true, data: list };
     },
-    staleTime: 1000 * 60 * 15,
+    staleTime: 0,
   });
 
-  // Atualiza e persiste em cache sempre que novos banners forem retornados
+  // Atualiza e persiste em cache sempre que a API responder (inclusive se retornar array vazio ao apagar tudo)
   useEffect(() => {
-    if (bannersRes?.data && bannersRes.data.length > 0) {
+    if (bannersRes?.data && Array.isArray(bannersRes.data)) {
       try {
         localStorage.setItem("verttex_cached_carousel_banners", JSON.stringify(bannersRes.data));
-      } catch { }
+      } catch {}
       setCachedBanners(bannersRes.data);
     }
   }, [bannersRes?.data]);
 
-  const banners = bannersRes?.data && bannersRes.data.length > 0 ? bannersRes.data : cachedBanners;
+  // Se a requisição respondeu, usa o resultado real (mesmo que seja array vazio []).
+  // cachedBanners é utilizado exclusivamente para exibição instantânea antes da query resolver no mount inicial.
+  const banners = bannersRes ? bannersRes.data : cachedBanners;
 
   const handleNext = useCallback(() => {
     if (banners.length === 0) return;
@@ -151,8 +157,8 @@ export function MarketplaceCarousel() {
     }
   };
 
-  // Se estiver carregando pela PRIMEIRA VEZ (sem cache prévio), exibe Skeleton Perfeito
-  if (isLoading && banners.length === 0) {
+  // Se ainda não montou no cliente (SSR) ou estiver carregando sem cache prévio, exibe Skeleton Perfeito
+  if (!isMounted || (isLoading && banners.length === 0)) {
     return (
       <section
         className="relative w-full bg-stone-50 py-0 mb-8 sm:mb-12 overflow-hidden"
@@ -217,6 +223,7 @@ export function MarketplaceCarousel() {
               key={banner.id}
               className="w-full h-full shrink-0 flex-none relative px-6 sm:px-12 md:px-20 lg:px-32 bg-stone-50"
             >
+              {/* Imagem do banner */}
               {banner.linkUrl ? (
                 <a
                   href={banner.linkUrl}
@@ -237,6 +244,36 @@ export function MarketplaceCarousel() {
                   alt={banner.title ?? "Banner"}
                   className="w-full h-full object-cover"
                 />
+              )}
+
+              {/* Overlay de Título & Subtítulo conforme posição/alinhamento */}
+              {carouselTitlePosition !== "NONE" && (banner.title || banner.subtitle) && (
+                <div
+                  className={`absolute inset-0 px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${
+                    carouselTitlePosition === "TOP"
+                      ? "justify-start pt-6 sm:pt-10"
+                      : carouselTitlePosition === "BOTTOM"
+                      ? "justify-end pb-6 sm:pb-10"
+                      : "justify-center"
+                  } ${
+                    carouselTitleHAlign === "RIGHT"
+                      ? "items-end text-right"
+                      : carouselTitleHAlign === "CENTER"
+                      ? "items-center text-center"
+                      : "items-start text-left"
+                  }`}
+                >
+                  {banner.title && (
+                    <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold text-white drop-shadow-md tracking-tight">
+                      {banner.title}
+                    </h2>
+                  )}
+                  {banner.subtitle && (
+                    <p className="text-xs sm:text-sm text-white/90 drop-shadow-sm mt-1 font-normal max-w-md">
+                      {banner.subtitle}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           ))}

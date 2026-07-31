@@ -235,6 +235,18 @@ export default function CategoriesPage() {
     }
   };
 
+  const isFormDirty = editingCategory
+    ? name !== editingCategory.name ||
+      slug !== editingCategory.slug ||
+      description !== (editingCategory.description || "") ||
+      parentId !== (editingCategory.parentId || "") ||
+      Number(position) !== editingCategory.position ||
+      status !== editingCategory.status ||
+      isVisible !== editingCategory.isVisible ||
+      metaTitle !== (editingCategory.metaTitle || "") ||
+      metaDescription !== (editingCategory.metaDescription || "")
+    : name.trim().length > 0;
+
   return (
     <div className="w-full space-y-6">
       {/* Header */}
@@ -531,7 +543,7 @@ export default function CategoriesPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={createMutation.isPending || updateMutation.isPending}
+                disabled={!isFormDirty || createMutation.isPending || updateMutation.isPending}
               >
                 <RiCheckLine className="h-4 w-4" />
                 <span>

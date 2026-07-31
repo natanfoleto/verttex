@@ -5,6 +5,7 @@ import * as React from "react";
 import { Toaster } from "sonner";
 
 import { MarketplaceLayout } from "../components/layout/marketplace-layout";
+import { MarketplaceThemeProvider } from "../components/layout/marketplace-theme-provider";
 import { CustomerAuthProvider } from "../providers/customer-auth-provider";
 import { QueryProvider } from "../providers/query-provider";
 import { ThemeProvider } from "../providers/theme-provider";
@@ -28,10 +29,12 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryProvider>
-            <CustomerAuthProvider>
-              <MarketplaceLayout>{children}</MarketplaceLayout>
-            </CustomerAuthProvider>
-            <Toaster position="bottom-right" richColors />
+            <MarketplaceThemeProvider>
+              <CustomerAuthProvider>
+                <MarketplaceLayout>{children}</MarketplaceLayout>
+              </CustomerAuthProvider>
+              <Toaster position="bottom-right" richColors />
+            </MarketplaceThemeProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

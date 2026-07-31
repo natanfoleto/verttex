@@ -37,7 +37,7 @@ export default function CustomerChangePasswordPage() {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
   });
@@ -167,8 +167,8 @@ export default function CustomerChangePasswordPage() {
 
             <Button
               type="submit"
-              disabled={isLoading}
-              className="mt-2 cursor-pointer"
+              disabled={!isDirty || isLoading}
+              className="mt-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

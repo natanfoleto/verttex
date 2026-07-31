@@ -72,6 +72,10 @@ Toda a documentação do projeto está dividida nas seguintes categorias oficiai
 │   ├── README.md
 │   └── (20 documentos de políticas, threat model, matrizes e verificações)
 │
+├── storage/                — Armazenamento de objetos R2, diretórios e mídias
+│   ├── README.md
+│   └── R2_UPLOADS.md
+│
 └── archive/                — Arquivo geral de documentos descontinuados
     └── README.md
 ```

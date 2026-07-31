@@ -25,8 +25,20 @@ export const updateMarketplaceSettingsSchema = z
     publicName: z.string().min(2, "Nome público é obrigatório").max(100).optional(),
     logoFileId: z.string().nullable().optional(),
     faviconFileId: z.string().nullable().optional(),
+    logoUrl: safeUrlSchema,
+    faviconUrl: safeUrlSchema,
+    ogImageUrl: safeUrlSchema,
     primaryColor: hexColorSchema.optional(),
     secondaryColor: hexColorSchema.optional(),
+    headerBgColor: hexColorSchema.optional(),
+    headerTextColor: hexColorSchema.optional(),
+    siteBgColor: hexColorSchema.optional(),
+    primaryButtonBgColor: hexColorSchema.optional(),
+    primaryButtonTextColor: hexColorSchema.optional(),
+    secondaryButtonBgColor: hexColorSchema.optional(),
+    secondaryButtonTextColor: hexColorSchema.optional(),
+    primaryTextColor: hexColorSchema.optional(),
+    secondaryTextColor: hexColorSchema.optional(),
     supportEmail: z.string().email("E-mail de suporte inválido").nullable().optional().or(z.literal("")),
     supportPhone: z.string().nullable().optional(),
     supportWhatsapp: z.string().nullable().optional(),
@@ -48,7 +60,17 @@ export const updateMarketplaceSettingsSchema = z
       .optional(),
     carouselAutoplay: z.boolean().optional(),
     carouselIntervalSeconds: z.number().int().min(1).max(60).optional(),
+    carouselTitlePosition: z
+      .enum(["TOP", "CENTER", "BOTTOM", "NONE"], {
+        errorMap: () => ({ message: "Posição de título inválida. Opções válidas: TOP, CENTER, BOTTOM, NONE" }),
+      })
+      .optional(),
+    carouselTitleHAlign: z
+      .enum(["LEFT", "CENTER", "RIGHT"], {
+        errorMap: () => ({ message: "Alinhamento horizontal inválido. Opções válidas: LEFT, CENTER, RIGHT" }),
+      })
+      .optional(),
   })
-  .strict();
+  .passthrough();
 
 export type UpdateMarketplaceSettingsInput = z.infer<typeof updateMarketplaceSettingsSchema>;

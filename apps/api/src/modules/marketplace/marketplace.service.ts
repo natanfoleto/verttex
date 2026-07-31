@@ -47,6 +47,15 @@ export class MarketplaceService {
       faviconUrl: settings.faviconUrl,
       primaryColor: settings.primaryColor,
       secondaryColor: settings.secondaryColor,
+      headerBgColor: settings.headerBgColor,
+      headerTextColor: settings.headerTextColor,
+      siteBgColor: settings.siteBgColor,
+      primaryButtonBgColor: settings.primaryButtonBgColor,
+      primaryButtonTextColor: settings.primaryButtonTextColor,
+      secondaryButtonBgColor: settings.secondaryButtonBgColor,
+      secondaryButtonTextColor: settings.secondaryButtonTextColor,
+      primaryTextColor: settings.primaryTextColor,
+      secondaryTextColor: settings.secondaryTextColor,
       supportEmail: settings.supportEmail,
       supportPhone: settings.supportPhone,
       supportWhatsapp: settings.supportWhatsapp,
@@ -64,6 +73,8 @@ export class MarketplaceService {
       outOfStockBehavior: settings.outOfStockBehavior,
       carouselAutoplay: settings.carouselAutoplay,
       carouselIntervalSeconds: settings.carouselIntervalSeconds,
+      carouselTitlePosition: settings.carouselTitlePosition,
+      carouselTitleHAlign: settings.carouselTitleHAlign,
     };
   }
 
@@ -73,21 +84,24 @@ export class MarketplaceService {
   async updateSettings(data: any, userId: string) {
     const current = await this.getSettings();
 
+    // Separar campos virtuais/computados (logoUrl, faviconUrl, ogImageUrl) dos campos persistidos no banco
+    const { logoUrl, faviconUrl, ogImageUrl, ...persistableData } = data;
+
     // Limpeza de arquivos substituídos no R2
-    if (data.logoFileId !== undefined && data.logoFileId !== current.logoFileId && current.logoFileId) {
+    if (persistableData.logoFileId !== undefined && persistableData.logoFileId !== current.logoFileId && current.logoFileId) {
       await this.cleanupFile(current.logoFileId);
     }
-    if (data.faviconFileId !== undefined && data.faviconFileId !== current.faviconFileId && current.faviconFileId) {
+    if (persistableData.faviconFileId !== undefined && persistableData.faviconFileId !== current.faviconFileId && current.faviconFileId) {
       await this.cleanupFile(current.faviconFileId);
     }
-    if (data.ogImageFileId !== undefined && data.ogImageFileId !== current.ogImageFileId && current.ogImageFileId) {
+    if (persistableData.ogImageFileId !== undefined && persistableData.ogImageFileId !== current.ogImageFileId && current.ogImageFileId) {
       await this.cleanupFile(current.ogImageFileId);
     }
 
     await prisma.marketplaceSettings.update({
       where: { id: current.id },
       data: {
-        ...data,
+        ...persistableData,
         updatedBy: userId,
       },
     });

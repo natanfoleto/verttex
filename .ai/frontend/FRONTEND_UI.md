@@ -44,6 +44,14 @@ Applications `apps/manager` and `apps/marketplace` are Next.js App Router projec
 - **Form Validation**: Zod validators coupled with `react-hook-form` and `@hookform/resolvers/zod`.
 - **Network Request Cache**: Managed via `@tanstack/react-query` to resolve state synchronization.
 
+### 4.1 Regra Mandatória de Habilitação do Botão de Salvar (`isDirty`)
+
+- **Habilitação Condicional do Botão de Salvar (Regra Não Negociável de UX)**: Em **TODOS** os formulários da aplicação (`apps/manager` e `apps/marketplace`), o botão de salvar/submeter alterações **DEVE obrigatoriamente** permanecer desabilitado (`disabled={!isDirty || isSubmitting}`) quando o formulário estiver pristine (sem nenhuma alteração nos campos em relação ao estado original).
+- **Comportamento Esperado**:
+  1. Ao abrir ou carregar o formulário (seja em modal ou página), o botão "Salvar / Salvar Alterações" nasce desabilitado (`disabled`).
+  2. À medida que o usuário edita qualquer campo (texto, select, checkbox, upload de arquivo, etc.), o estado `isDirty` torna-se `true` e o botão é habilitado.
+  3. Após a submissão bem-sucedida, o formulário faz `reset(newValues)` ou atualiza o snapshot de comparação, retornando o botão para o estado desabilitado até a próxima alteração.
+
 ---
 
 ## 5. Authorization in the Frontend

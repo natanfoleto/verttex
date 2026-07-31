@@ -12,8 +12,26 @@ describe("Files & UploadService", () => {
 
     expect(res).toBeDefined();
     expect(res.fileId).toBeDefined();
-    expect(res.objectKey).toContain("uploads/product_image/");
+    expect(res.objectKey).toContain("uploads/catalog/products/");
     expect(res.uploadUrl).toBeDefined();
+  });
+
+  it("should map specific upload purposes to dedicated canonical R2 directory paths", async () => {
+    const faviconRes = await UploadService.requestUpload({
+      fileName: "favicon.ico",
+      mimeType: "image/png",
+      size: 10 * 1024,
+      purpose: "marketplace_favicon",
+    });
+    expect(faviconRes.objectKey).toContain("uploads/marketplace/favicons/");
+
+    const logoRes = await UploadService.requestUpload({
+      fileName: "logo.png",
+      mimeType: "image/png",
+      size: 50 * 1024,
+      purpose: "marketplace_logo",
+    });
+    expect(logoRes.objectKey).toContain("uploads/marketplace/logos/");
   });
 
   it("should reject upload requests for disallowed file formats (e.g. SVG / script)", async () => {

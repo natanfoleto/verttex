@@ -80,65 +80,58 @@ export default function MarketplaceHomePage() {
       : [];
 
   return (
-    <div className="space-y-24 pb-28 lg:pb-36 font-sans text-stone-900 antialiased">
+    <div className="space-y-12 pb-20 lg:pb-28 font-sans text-stone-900 antialiased">
       {/* Carrossel do Marketplace */}
       <MarketplaceCarousel />
 
-
-      {/* Dynamic Featured Products Grid Section */}
+      {/* Dynamic Featured Products Grid Section em Card Branco */}
       {featuredProducts.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-stone-200/80 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+              <h2 className="text-lg font-bold tracking-tight text-stone-900 sm:text-xl">
                 Produtos em Destaque
               </h2>
-              <p className="mt-1 text-xs text-stone-500">
-                Seleção dos itens mais bem avaliados pelos clientes da nossa região.
-              </p>
+              <Link
+                href="/produtos"
+                className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer transition-colors"
+              >
+                <span>Ver Catálogo Completo</span>
+                <RiArrowRightLine className="h-4 w-4" />
+              </Link>
             </div>
-            <Link
-              href="/produtos"
-              className="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900 cursor-pointer"
-            >
-              <span>Ver Catálogo Completo</span>
-              <RiArrowRightLine className="h-4 w-4" />
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((p) => (
-              <ProductCard key={p.id} {...p} />
-            ))}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProducts.map((p) => (
+                <ProductCard key={p.id} {...p} />
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* Dynamic Partner Stores Section */}
+      {/* Dynamic Partner Stores Section em Card Branco */}
       {storesList.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 sm:text-3xl">
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-stone-200/80 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+              <h2 className="text-lg font-bold tracking-tight text-stone-900 sm:text-xl">
                 Lojas e Produtores Parceiros
               </h2>
-              <p className="mt-1 text-xs text-stone-500">
-                Conheça as famílias e agroindústrias locais por trás dos nossos produtos.
-              </p>
+              <Link
+                href="/lojas"
+                className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer transition-colors"
+              >
+                <span>Ver Todos os Produtores</span>
+                <RiArrowRightLine className="h-4 w-4" />
+              </Link>
             </div>
-            <Link
-              href="/lojas"
-              className="flex items-center space-x-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900 cursor-pointer"
-            >
-              <span>Ver Todos os Produtores</span>
-              <RiArrowRightLine className="h-4 w-4" />
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {storesList.map((s) => (
-              <StoreCard key={s.id} {...s} />
-            ))}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {storesList.map((s) => (
+                <StoreCard key={s.id} {...s} />
+              ))}
+            </div>
           </div>
         </section>
       )}

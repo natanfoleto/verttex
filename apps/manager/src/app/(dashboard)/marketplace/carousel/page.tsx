@@ -407,6 +407,19 @@ export default function CarouselPage() {
   // RENDER
   // =============================================================
 
+  const isCreateDirty = createForm.title.trim().length > 0;
+
+  const isEditDirty = Boolean(
+    editingBanner && (
+      editForm.title !== editingBanner.title ||
+      editForm.subtitle !== (editingBanner.subtitle || "") ||
+      editForm.linkUrl !== (editingBanner.linkUrl || "") ||
+      editForm.ctaText !== (editingBanner.ctaText || "") ||
+      editForm.isActive !== editingBanner.isActive ||
+      selectedFile !== null
+    )
+  );
+
   return (
     <div className="space-y-6 font-sans text-zinc-100 w-full">
       {/* Header */}
@@ -672,48 +685,6 @@ export default function CarouselPage() {
                   />
                 </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Link ao Clicar (URL)
-                  </label>
-                  <Input
-                    placeholder="Ex: /produtos ou https://verttex.com.br/ofertas"
-                    value={createForm.linkUrl}
-                    onChange={(e) => setCreateForm({ ...createForm, linkUrl: e.target.value })}
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Texto do Botão CTA (Opcional)
-                  </label>
-                  <Input
-                    placeholder="Ex: Explorar Catálogo"
-                    value={createForm.ctaText}
-                    onChange={(e) => setCreateForm({ ...createForm, ctaText: e.target.value })}
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
-                  />
-                </div>
-              </div>
-
-              {/* Status Ativo */}
-              <div className="flex items-center space-x-3 pt-2">
-                <Checkbox
-                  id="create-banner-active"
-                  checked={createForm.isActive}
-                  onCheckedChange={(checked) => setCreateForm({ ...createForm, isActive: !!checked })}
-                  className="cursor-pointer border-zinc-600 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
-                />
-                <label
-                  htmlFor="create-banner-active"
-                  className="text-sm text-zinc-300 cursor-pointer font-normal"
-                >
-                  Banner ativo
-                </label>
-              </div>
             </div>
 
             <DialogFooter>
@@ -727,8 +698,8 @@ export default function CarouselPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={createMutation.isPending}
-                className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
+                disabled={!isCreateDirty || createMutation.isPending}
+                className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {createMutation.isPending && <RiLoader4Line className="h-4 w-4 animate-spin" />}
                 <span>Criar Banner</span>
@@ -910,8 +881,8 @@ export default function CarouselPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSavingEdit}
-                className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
+                disabled={!isEditDirty || isSavingEdit}
+                className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSavingEdit && <RiLoader4Line className="h-4 w-4 animate-spin" />}
                 <span>Salvar Alterações</span>

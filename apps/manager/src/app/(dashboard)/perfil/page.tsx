@@ -78,7 +78,7 @@ export default function ProfilePage() {
     register,
     handleSubmit,
     reset,
-    formState: { errors: passwordErrors },
+    formState: { errors: passwordErrors, isDirty: isPasswordDirty, isSubmitting: isPasswordSubmitting },
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
   });
@@ -263,7 +263,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-2">
-                <Button type="submit" disabled={isUpdatingProfile}>
+                <Button type="submit" disabled={!user || name === user.name || isUpdatingProfile}>
                   <RiCheckLine className="h-4 w-4" />
                   <span>
                     {isUpdatingProfile ? "Atualizando..." : "Salvar Alterações"}
@@ -357,7 +357,8 @@ export default function ProfilePage() {
               <div className="pt-2">
                 <Button
                   type="submit"
-                  className="bg-purple-600 hover:bg-purple-500"
+                  disabled={!isPasswordDirty || isPasswordSubmitting}
+                  className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <RiLockPasswordLine className="h-4 w-4" />
                   <span>Atualizar Senha</span>

@@ -490,7 +490,7 @@ model File {
   width        Int?
   height       Int?
   status       String         @default("pending") // pending, processing, approved, rejected
-  purpose      String         @default("product_image") // product_image, category_icon, brand_logo, store_logo
+  purpose      String         @default("product_image") // product_image, category_icon, brand_logo, store_logo, store_banner, marketplace_logo, marketplace_favicon, marketplace_og_image, marketplace_banner, user_avatar
   storeId      String?
   store        Store?         @relation(fields: [storeId], references: [id], onDelete: SetNull)
   userId       String?
@@ -821,10 +821,6 @@ model StockReservation {
   @@map("stock_reservations")
 }
 
-// ==========================================
-// MÓDULO DE GESTÃO DO MARKETPLACE
-// ==========================================
-
 model MarketplaceSettings {
   id                      String   @id @default(cuid())
   publicName              String   @default("VERTTEX Marketplace")
@@ -832,6 +828,15 @@ model MarketplaceSettings {
   faviconFileId           String?
   primaryColor            String?  @default("#0f172a")
   secondaryColor          String?  @default("#16a34a")
+  headerBgColor           String?  @default("#15803d")
+  headerTextColor         String?  @default("#ffffff")
+  siteBgColor             String?  @default("#f5f5f4")
+  primaryButtonBgColor    String?  @default("#16a34a")
+  primaryButtonTextColor  String?  @default("#ffffff")
+  secondaryButtonBgColor  String?  @default("#e7e5e4")
+  secondaryButtonTextColor String? @default("#1c1917")
+  primaryTextColor        String?  @default("#1c1917")
+  secondaryTextColor      String?  @default("#78716c")
   supportEmail            String?
   supportPhone            String?
   supportWhatsapp         String?
@@ -849,6 +854,8 @@ model MarketplaceSettings {
   outOfStockBehavior      String   @default("show_badge")
   carouselAutoplay        Boolean  @default(true)
   carouselIntervalSeconds Int      @default(5)
+  carouselTitlePosition   String?  @default("CENTER")
+  carouselTitleHAlign     String?  @default("LEFT")
   updatedBy               String?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt

@@ -47,7 +47,12 @@ export async function directUploadController(
     "category_icon",
     "brand_logo",
     "store_logo",
+    "store_banner",
+    "marketplace_logo",
+    "marketplace_favicon",
+    "marketplace_og_image",
     "marketplace_banner",
+    "user_avatar",
   ] as const;
 
   const purpose = validPurposes.includes(rawPurpose)
