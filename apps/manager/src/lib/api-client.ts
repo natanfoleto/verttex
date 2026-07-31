@@ -52,7 +52,8 @@ async function refreshTokenSilent(): Promise<boolean> {
   return refreshPromise;
 }
 
-export interface ApiClientOptions extends RequestInit {
+export interface ApiClientOptions extends Omit<RequestInit, "body"> {
+  body?: any;
   responseType?: "json" | "text" | "blob";
 }
 
@@ -66,6 +67,17 @@ export async function apiClient<T = any>(
   const isFormData =
     typeof FormData !== "undefined" && fetchOptions.body instanceof FormData;
 
+  let bodyToSend = fetchOptions.body;
+  if (
+    bodyToSend &&
+    !isFormData &&
+    typeof bodyToSend === "object" &&
+    !(bodyToSend instanceof Blob) &&
+    !(bodyToSend instanceof ArrayBuffer)
+  ) {
+    bodyToSend = JSON.stringify(bodyToSend);
+  }
+
   const headers: Record<string, string> = {
     ...(fetchOptions.body && !isFormData
       ? { "Content-Type": "application/json" }
@@ -75,6 +87,7 @@ export async function apiClient<T = any>(
 
   let response = await fetch(url, {
     ...fetchOptions,
+    body: bodyToSend,
     headers,
     credentials: "include",
   });

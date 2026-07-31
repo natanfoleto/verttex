@@ -42,13 +42,21 @@ export class R2Storage {
       return `http://localhost:3333/files/local-upload/${encodeURIComponent(cleanKey)}`;
     }
 
+    // Disable checksum enforcement to prevent SignatureDoesNotMatch on Cloudflare R2.
+    // The AWS SDK v3 injects CRC32 checksum headers into the presigned URL by default,
+    // but Cloudflare R2 does not support them and the browser PUT will fail signature validation.
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: cleanKey,
       ContentType: contentType,
+      ChecksumAlgorithm: undefined,
     });
 
-    return getSignedUrl(this.s3 as any, command, { expiresIn: 900 });
+    return getSignedUrl(this.s3 as any, command, {
+      expiresIn: 900,
+      // Exclude SDK-injected checksum headers from the signed headers list
+      unhoistableHeaders: new Set(["x-amz-checksum-crc32", "x-amz-sdk-checksum-algorithm"]),
+    });
   }
 
   async uploadFile(

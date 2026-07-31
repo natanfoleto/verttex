@@ -23,8 +23,9 @@ export class EmailService {
   private defaultFrom = env.EMAIL_FROM;
 
   constructor() {
-    if (env.RESEND_API_KEY) {
-      this.resend = new Resend(env.RESEND_API_KEY);
+    const apiKey = process.env.RESEND_API_KEY ?? env.RESEND_API_KEY;
+    if (apiKey) {
+      this.resend = new Resend(apiKey);
     }
   }
 

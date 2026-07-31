@@ -4,11 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   RiArrowRightLine,
-  RiHeartLine,
 } from "react-icons/ri";
 
 import { ProductCard, ProductCardProps } from "../components/ui/product-card";
 import { StoreCard, StoreCardProps } from "../components/ui/store-card";
+import { MarketplaceCarousel } from "../components/ui/marketplace-carousel";
 import { apiClient } from "../lib/api-client";
 
 export default function MarketplaceHomePage() {
@@ -81,61 +81,9 @@ export default function MarketplaceHomePage() {
 
   return (
     <div className="space-y-24 pb-28 lg:pb-36 font-sans text-stone-900 antialiased">
-      {/* Hero Banner Section */}
-      <section className="relative overflow-hidden bg-linear-to-br from-stone-900 via-stone-800 to-amber-950 px-4 py-24 text-white sm:px-6 lg:px-8 lg:py-32">
-        <div className="absolute top-0 right-0 h-96 w-96 translate-x-24 -translate-y-24 rounded-full bg-emerald-600/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-96 w-96 -translate-x-24 translate-y-24 rounded-full bg-amber-600/10 blur-3xl" />
+      {/* Carrossel do Marketplace */}
+      <MarketplaceCarousel />
 
-        <div className="relative mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:items-center">
-            <div className="space-y-6 lg:col-span-7">
-              <div className="inline-flex items-center space-x-2 rounded-full border border-amber-500/40 bg-amber-900/40 px-3.5 py-1 text-xs font-semibold text-amber-300 backdrop-blur-xs">
-                <RiHeartLine className="h-3.5 w-3.5 text-amber-400" />
-                <span>Valorizando o Produtor Local</span>
-              </div>
-
-              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-white">
-                Sabor artesanal direto da <span className="text-amber-400">nossa terra</span> para a sua mesa.
-              </h1>
-
-              <p className="max-w-2xl text-base text-stone-300">
-                Conectamos você aos melhores produtores artesanais e coloniais da nossa região. Produtos frescos, autênticos e com rastreabilidade sanitária de lote por FEFO.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link
-                  href="/produtos"
-                  className="rounded-xl bg-emerald-800 px-6 py-3.5 text-sm font-bold text-white hover:bg-emerald-900 transition-colors shadow-lg cursor-pointer"
-                >
-                  Explorar Catálogo
-                </Link>
-                <Link
-                  href="/lojas"
-                  className="rounded-xl border border-stone-600 bg-stone-800/80 px-6 py-3.5 text-sm font-bold text-white hover:bg-stone-800 transition-colors cursor-pointer"
-                >
-                  Conhecer Produtores
-                </Link>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5">
-              <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-linear-to-br from-amber-950/60 via-stone-900 to-emerald-950/60 p-8 shadow-2xl backdrop-blur-md flex flex-col justify-between min-h-80 sm:min-h-95">
-                <div className="space-y-3">
-                  <span className="inline-block rounded-lg bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-400 border border-amber-500/20">
-                    VERTTEX Marketplace
-                  </span>
-                  <h3 className="text-2xl font-extrabold text-white">
-                    Feira & Mercado Regional em Um Só Lugar
-                  </h3>
-                </div>
-                <p className="text-xs text-stone-400 leading-relaxed">
-                  Qualidade e frescor garantidos diretamente das agroindústrias e produtores cadastrados na nossa região.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Dynamic Featured Products Grid Section */}
       {featuredProducts.length > 0 && (

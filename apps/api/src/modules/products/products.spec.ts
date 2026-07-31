@@ -1,8 +1,21 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, afterEach } from "vitest";
 import { prisma } from "../../infrastructure/database/prisma";
 import { ProductsService } from "./products.service";
 
+// Tracks IDs of products created during tests so they can be cleaned up after each test
+const createdProductIds: string[] = [];
+
 describe("Products & Catalog Service", () => {
+  afterEach(async () => {
+    // Hard-delete test products (and their variations/media) to prevent polluting production data
+    if (createdProductIds.length > 0) {
+      await prisma.product.deleteMany({
+        where: { id: { in: createdProductIds } },
+      });
+      createdProductIds.length = 0;
+    }
+  });
+
   it("should create a simple product and auto-generate default variation with price", async () => {
     const store = await prisma.store.findFirst({ where: { deletedAt: null } });
     const category = await prisma.category.findFirst({
@@ -33,6 +46,8 @@ describe("Products & Catalog Service", () => {
       },
       adminUser.id,
     );
+
+    createdProductIds.push(product.id);
 
     expect(product).toBeDefined();
     expect(product.type).toBe("simple");
@@ -75,6 +90,8 @@ describe("Products & Catalog Service", () => {
       adminUser.id,
     );
 
+    createdProductIds.push(product.id);
+
     const published = await ProductsService.publishProduct(
       product.id,
       adminUser.id,
@@ -111,6 +128,8 @@ describe("Products & Catalog Service", () => {
       },
       adminUser.id,
     );
+
+    createdProductIds.push(product.id);
 
     await ProductsService.archiveProduct(product.id, adminUser.id);
 

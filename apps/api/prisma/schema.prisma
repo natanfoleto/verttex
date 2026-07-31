@@ -820,3 +820,59 @@ model StockReservation {
   @@index([status])
   @@map("stock_reservations")
 }
+
+// ==========================================
+// MÓDULO DE GESTÃO DO MARKETPLACE
+// ==========================================
+
+model MarketplaceSettings {
+  id                      String   @id @default(cuid())
+  publicName              String   @default("VERTTEX Marketplace")
+  logoFileId              String?
+  faviconFileId           String?
+  primaryColor            String?  @default("#0f172a")
+  secondaryColor          String?  @default("#16a34a")
+  supportEmail            String?
+  supportPhone            String?
+  supportWhatsapp         String?
+  address                 String?
+  businessHours           String?
+  metaTitle               String?
+  metaDescription         String?
+  ogImageFileId           String?
+  announcementActive      Boolean  @default(false)
+  announcementText        String?
+  announcementLink        String?
+  announcementBgColor     String?  @default("#1e293b")
+  announcementTextColor   String?  @default("#ffffff")
+  announcementDismissible  Boolean  @default(true)
+  outOfStockBehavior      String   @default("show_badge")
+  carouselAutoplay        Boolean  @default(true)
+  carouselIntervalSeconds Int      @default(5)
+  updatedBy               String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@map("marketplace_settings")
+}
+
+model CarouselBanner {
+  id        String   @id @default(cuid())
+  fileId    String?
+  imageUrl  String?
+  title     String
+  subtitle  String?
+  linkUrl   String?
+  ctaText   String?
+  position  Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdBy String?
+  updatedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
+  @@index([isActive])
+  @@map("carousel_banners")
+}
+

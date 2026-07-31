@@ -23,6 +23,8 @@ import { returnsRoutes } from "./returns/returns.routes";
 import { reviewsRoutes } from "./reviews/reviews.routes";
 import { notificationsRoutes } from "./notifications/notifications.routes";
 import { reportsRoutes } from "./reports/reports.routes";
+import { marketplaceRoutes, marketplacePublicRoutes } from "./marketplace/marketplace.routes";
+import { carouselRoutes, carouselPublicRoutes } from "./carousel/carousel.routes";
 
 export async function registerModules(app: FastifyInstance) {
   await app.register(healthRoutes);
@@ -49,4 +51,8 @@ export async function registerModules(app: FastifyInstance) {
   await app.register(reviewsRoutes, { prefix: "/reviews" });
   await app.register(notificationsRoutes, { prefix: "/notifications" });
   await app.register(reportsRoutes, { prefix: "/reports" });
+  await app.register(marketplaceRoutes, { prefix: "/marketplace" });
+  await app.register(marketplacePublicRoutes, { prefix: "/public/marketplace" });
+  await app.register(carouselRoutes, { prefix: "/carousel" });
+  await app.register(carouselPublicRoutes, { prefix: "/public/carousel" });
 }

@@ -52,9 +52,13 @@ async function refreshTokenSilent(): Promise<boolean> {
   return refreshPromise;
 }
 
+export interface ApiClientOptions extends Omit<RequestInit, "body"> {
+  body?: any;
+}
+
 export async function apiClient<T = any>(
   endpoint: string,
-  options: RequestInit = {},
+  options: ApiClientOptions = {},
 ): Promise<T> {
   const url = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
 

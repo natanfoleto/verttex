@@ -201,6 +201,28 @@ const permissionsData = [
     module: "audit",
     description: "Exportar relatórios de auditoria",
   },
+
+  // Marketplace module
+  {
+    key: "marketplace.read",
+    module: "marketplace",
+    description: "Visualizar carrossel e configurações do marketplace",
+  },
+  {
+    key: "marketplace.create",
+    module: "marketplace",
+    description: "Criar banners do carrossel",
+  },
+  {
+    key: "marketplace.update",
+    module: "marketplace",
+    description: "Editar banners e configurações do marketplace",
+  },
+  {
+    key: "marketplace.delete",
+    module: "marketplace",
+    description: "Excluir banners do carrossel",
+  },
 ];
 
 async function main() {
@@ -1170,6 +1192,66 @@ async function main() {
   }
 
   console.log("✅ Logs de auditoria inicializados.");
+
+  // Marketplace Seed
+  console.log("🌱 Inicializando dados do Marketplace...");
+  await prisma.marketplaceSettings.upsert({
+    where: { id: "default-settings" },
+    update: {},
+    create: {
+      id: "default-settings",
+      publicName: "VERTTEX Marketplace",
+      primaryColor: "#0f172a",
+      secondaryColor: "#16a34a",
+      announcementActive: true,
+      announcementText: "🚚 Frete Grátis para compras acima de R$ 300,00 em todo o município!",
+      announcementBgColor: "#1e293b",
+      announcementTextColor: "#ffffff",
+      supportEmail: "atendimento@verttex.com.br",
+      supportPhone: "(11) 4003-8899",
+      supportWhatsapp: "(11) 99887-7665",
+      outOfStockBehavior: "show_badge",
+    },
+  });
+
+  const countBanners = await prisma.carouselBanner.count();
+  if (countBanners === 0) {
+    await prisma.carouselBanner.createMany({
+      data: [
+        {
+          title: "Produtos da Estação",
+          subtitle: "Descubra os melhores produtos da nossa região com entrega garantida.",
+          imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&auto=format&fit=crop&q=80",
+          linkUrl: "/produtos",
+          ctaText: "Ver Catálogo",
+          position: 0,
+          isActive: true,
+          createdBy: "system",
+        },
+        {
+          title: "Produtores Locais Certificados",
+          subtitle: "Compre direto de quem produz na sua cidade com selo de qualidade.",
+          imageUrl: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1200&auto=format&fit=crop&q=80",
+          linkUrl: "/lojas",
+          ctaText: "Conhecer Produtores",
+          position: 1,
+          isActive: true,
+          createdBy: "system",
+        },
+        {
+          title: "Ofertas Especiais de Inverno",
+          subtitle: "Descontos exclusivos em hortifrúti e produtos artesanais.",
+          imageUrl: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1200&auto=format&fit=crop&q=80",
+          linkUrl: "/ofertas",
+          ctaText: "Aproveitar Ofertas",
+          position: 2,
+          isActive: false,
+          createdBy: "system",
+        },
+      ],
+    });
+  }
+  console.log("✅ Dados iniciais do marketplace criados.");
 
   console.log("🎉 Seed finished successfully!");
 }

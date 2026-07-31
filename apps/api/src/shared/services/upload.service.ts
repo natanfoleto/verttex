@@ -3,11 +3,18 @@ import { AppError } from "../errors/app-error";
 import { prisma } from "../../infrastructure/database/prisma";
 import { r2Storage } from "../../infrastructure/storage/r2";
 
+export type UploadPurpose =
+  | "product_image"
+  | "category_icon"
+  | "brand_logo"
+  | "store_logo"
+  | "marketplace_banner";
+
 export interface RequestUploadParams {
   fileName: string;
   mimeType: string;
   size: number;
-  purpose: "product_image" | "category_icon" | "brand_logo" | "store_logo";
+  purpose: UploadPurpose;
   storeId?: string | null;
   userId?: string | null;
 }
@@ -16,7 +23,7 @@ export interface DirectUploadParams {
   fileName: string;
   mimeType: string;
   buffer: Buffer;
-  purpose: "product_image" | "category_icon" | "brand_logo" | "store_logo";
+  purpose: UploadPurpose;
   storeId?: string | null;
   userId?: string | null;
 }
@@ -56,7 +63,8 @@ export class UploadService {
     // Generate safe non-predictable object key
     const uniqueId =
       Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
-    const objectKey = `uploads/${purpose}/${uniqueId}.${extension}`;
+    const folder = purpose === "marketplace_banner" ? "marketplace/banners" : purpose;
+    const objectKey = `uploads/${folder}/${uniqueId}.${extension}`;
     const bucket = apiEnv.R2_BUCKET_NAME || "verttex";
 
     // Create File database record in 'pending' status
@@ -118,7 +126,8 @@ export class UploadService {
 
     const uniqueId =
       Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
-    const objectKey = `uploads/${purpose}/${uniqueId}.${extension}`;
+    const folder = purpose === "marketplace_banner" ? "marketplace/banners" : purpose;
+    const objectKey = `uploads/${folder}/${uniqueId}.${extension}`;
     const bucket = apiEnv.R2_BUCKET_NAME || "verttex";
 
     // Upload to Cloudflare R2

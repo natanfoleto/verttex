@@ -26,6 +26,7 @@ export const subjectSchema = z.union([
   z.literal("Sale"),
   z.literal("Report"),
   z.literal("AuditLog"),
+  z.literal("Marketplace"),
   z.literal("all"),
 ]);
 

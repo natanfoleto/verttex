@@ -238,6 +238,20 @@ export class PublicCatalogService {
       items = items.filter((p) => (p.promotionalPrice || p.price) <= maxPrice);
     }
 
+    // Apply outOfStockBehavior settings from Marketplace
+    const marketplaceSettings = await prisma.marketplaceSettings.findFirst();
+    const outOfStockBehavior = marketplaceSettings?.outOfStockBehavior || "show_badge";
+
+    if (outOfStockBehavior === "hide_product") {
+      items = items.filter((p) => p.commercialStockAvailable > 0);
+    } else if (outOfStockBehavior === "move_to_end") {
+      items.sort((a, b) => {
+        if (a.commercialStockAvailable > 0 && b.commercialStockAvailable <= 0) return -1;
+        if (a.commercialStockAvailable <= 0 && b.commercialStockAvailable > 0) return 1;
+        return 0;
+      });
+    }
+
     // Sort by price if requested
     if (sort === "price_asc") {
       items.sort((a, b) => (a.promotionalPrice || a.price) - (b.promotionalPrice || b.price));

@@ -14,10 +14,12 @@ import {
   RiDashboardLine,
   RiFolder3Line,
   RiHistoryLine,
+  RiImageLine,
   RiLogoutBoxRLine,
   RiMenuLine,
   RiMoonLine,
   RiNotification3Line,
+  RiPaletteLine,
   RiPriceTag3Line,
   RiRefreshLine,
   RiShieldLine,
@@ -69,6 +71,8 @@ interface NavItem {
     href: string;
     icon: IconType;
     show?: boolean;
+    disabled?: boolean;
+    badge?: string;
   }[];
 }
 
@@ -193,6 +197,33 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       show: ability.can("read", "Store"),
     },
     {
+      label: "Aparência e Conteúdo",
+      icon: RiPaletteLine,
+      show: ability.can("read", "Marketplace"),
+      children: [
+        {
+          label: "Carrossel do Site",
+          href: "/marketplace/carousel",
+          icon: RiImageLine,
+          show: ability.can("read", "Marketplace"),
+        },
+        {
+          label: "Documentos Legais",
+          href: "/marketplace/legal",
+          icon: RiShieldLine,
+          show: true,
+          disabled: true,
+          badge: "Em breve",
+        },
+        {
+          label: "Configurações Globais",
+          href: "/marketplace/settings",
+          icon: RiStoreLine,
+          show: ability.can("read", "Marketplace"),
+        },
+      ],
+    },
+    {
       label: "Central de Notificações",
       href: "/notificacoes",
       icon: RiNotification3Line,
@@ -237,22 +268,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     return true;
   });
 
-  // Format breadcrumb title based on active path
+  // Format breadcrumb title based on active path (returns parent menu group name or top item name)
   const getPageTitle = () => {
-    if (pathname === "/") return "Dashboard";
-    if (pathname.startsWith("/pedidos")) return "Gestão de Pedidos & Expedição";
-    if (pathname.startsWith("/devolucoes")) return "Trocas, Devoluções & Quarentena";
-    if (pathname.startsWith("/relatorios")) return "Relatórios Comerciais & Curva ABC";
-    if (pathname.startsWith("/notificacoes")) return "Central de Notificações";
-    if (pathname.startsWith("/produtos")) return "Catálogo de Produtos";
-    if (pathname.startsWith("/estoque")) return "Estoque & Lotes";
-    if (pathname.startsWith("/categorias")) return "Taxonomia de Categorias";
-    if (pathname.startsWith("/marcas")) return "Catálogo de Marcas";
-    if (pathname.startsWith("/usuarios")) return "Usuários Gestores";
-    if (pathname.startsWith("/cargos")) return "Cargos e Permissões";
-    if (pathname.startsWith("/lojas")) return "Lojas Parceiras";
+    for (const item of navItems) {
+      if (item.children && item.children.length > 0) {
+        const matchesChild = item.children.some(
+          (child) => child.href !== "#" && pathname.startsWith(child.href)
+        );
+        if (matchesChild) {
+          return item.label;
+        }
+      }
+      if (item.href && item.href !== "#") {
+        if (item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)) {
+          return item.label;
+        }
+      }
+    }
     if (pathname.startsWith("/perfil")) return "Meu Perfil";
-    if (pathname.startsWith("/auditoria")) return "Logs de Auditoria";
     return "Painel Manager";
   };
 
@@ -336,12 +369,33 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <div className="ml-4 space-y-1 border-l border-zinc-800 pl-3">
                   {visibleChildren.map((child) => {
                     const ChildIcon = child.icon;
-                    const isSubActive = pathname.startsWith(child.href);
+                    const isSubActive = !child.disabled && pathname.startsWith(child.href);
+
+                    if (child.disabled) {
+                      return (
+                        <div
+                          key={child.label}
+                          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-zinc-600 opacity-60 cursor-not-allowed select-none"
+                          title="Recurso em desenvolvimento"
+                        >
+                          <div className="flex items-center space-x-2.5">
+                            <ChildIcon className="h-4 w-4 shrink-0 text-zinc-600" />
+                            <span className="whitespace-nowrap">{child.label}</span>
+                          </div>
+                          {child.badge && (
+                            <span className="rounded bg-zinc-800/80 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400 border border-zinc-700/60">
+                              {child.badge}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    }
+
                     return (
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                        className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${
                           isSubActive
                             ? "bg-zinc-800 font-semibold text-emerald-400"
                             : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"

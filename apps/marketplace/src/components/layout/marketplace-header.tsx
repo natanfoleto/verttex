@@ -40,6 +40,15 @@ export function MarketplaceHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+
+  const { data: settings } = useQuery<any>({
+    queryKey: ["public-marketplace-settings"],
+    queryFn: async () => {
+      const res = await apiClient<any>("/public/marketplace/settings");
+      return res?.data || res;
+    },
+  });
 
   const { data: cartSummary } = useQuery<CartSummary>({
     queryKey: ["cart-summary"],
@@ -56,6 +65,7 @@ export function MarketplaceHeader() {
       return res;
     },
   });
+
 
   // Group categories for header dropdown: root categories and subcategories map
   const rootCategories = (categories || []).filter((c) => !c.parentId);
@@ -80,6 +90,35 @@ export function MarketplaceHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white font-sans text-stone-900 antialiased shadow-2xs">
+      {/* Barra de Aviso Global / Comunicado */}
+      {settings?.announcementActive && settings?.announcementText && !announcementDismissed && (
+        <div
+          style={{
+            backgroundColor: settings.announcementBgColor || "#1e293b",
+            color: settings.announcementTextColor || "#ffffff",
+          }}
+          className="relative w-full py-2 px-4 text-center text-xs font-semibold flex items-center justify-center gap-2 z-50 shadow-xs"
+        >
+          {settings.announcementLink ? (
+            <Link href={settings.announcementLink} className="hover:underline">
+              {settings.announcementText}
+            </Link>
+          ) : (
+            <span>{settings.announcementText}</span>
+          )}
+          {settings.announcementDismissible !== false && (
+            <button
+              type="button"
+              onClick={() => setAnnouncementDismissed(true)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 opacity-80 hover:opacity-100 cursor-pointer"
+              aria-label="Fechar anúncio"
+            >
+              <RiCloseLine className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Main Header Row (2 Main Groups: Left (Logo + Search) & Right (Auth Buttons)) */}
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
         {/* Group 1: Logo & Search Input */}
