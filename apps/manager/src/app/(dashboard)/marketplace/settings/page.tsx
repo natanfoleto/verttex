@@ -348,10 +348,11 @@ export default function MarketplaceSettingsPage() {
                 <div className="w-24">
                   <label className="text-xs font-semibold text-zinc-300">Favicon</label>
                   <input ref={faviconInputRef} type="file" accept="image/*" onChange={handleFaviconSelect} className="hidden" />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => faviconInputRef.current?.click()}
-                    className="mt-1 w-24 h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group"
+                    className="mt-1 w-24 h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0"
                   >
                     {(faviconPreview || settings.faviconUrl) ? (
                       <img src={faviconPreview || settings.faviconUrl!} alt="Favicon" className="max-h-full max-w-full object-contain p-2" />
@@ -361,7 +362,7 @@ export default function MarketplaceSettingsPage() {
                         <span className="text-[10px] font-medium">Favicon</span>
                       </div>
                     )}
-                  </button>
+                  </Button>
                   {(settings.faviconFileId || settings.faviconUrl) && (
                     <Button
                       type="button"
@@ -383,10 +384,11 @@ export default function MarketplaceSettingsPage() {
                 <div className="w-64">
                   <label className="text-xs font-semibold text-zinc-300">Logo da Marca</label>
                   <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoSelect} className="hidden" />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => logoInputRef.current?.click()}
-                    className="mt-1 w-full h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group"
+                    className="mt-1 w-full h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0"
                   >
                     {(logoPreview || settings.logoUrl) ? (
                       <img src={logoPreview || settings.logoUrl!} alt="Logo" className="max-h-full max-w-full object-contain px-4 py-2" />
@@ -396,7 +398,7 @@ export default function MarketplaceSettingsPage() {
                         <span className="text-[11px] font-medium">Escolher logo</span>
                       </div>
                     )}
-                  </button>
+                  </Button>
                   {(settings.logoFileId || settings.logoUrl) && (
                     <Button
                       type="button"

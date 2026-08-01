@@ -318,11 +318,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     variant="ghost"
                     size="icon"
                     onClick={() => toggleSubmenu(item.label)}
-                    className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${
-                      isActive
-                        ? "bg-zinc-800 font-semibold text-emerald-400"
-                        : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
-                    }`}
+                    className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${isActive
+                      ? "bg-zinc-800 font-semibold text-emerald-400"
+                      : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
+                      }`}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
                   </Button>
@@ -345,25 +344,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
           return (
             <div key={item.label} className="space-y-1">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => toggleSubmenu(item.label)}
-                className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "font-semibold text-zinc-100"
-                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
-                }`}
+                className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors h-auto ${isActive
+                  ? "font-semibold text-zinc-100"
+                  : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
+                  }`}
               >
                 <div className="flex items-center space-x-3">
                   <Icon className="h-5 w-5 shrink-0" />
                   <span className="whitespace-nowrap">{item.label}</span>
                 </div>
                 <RiArrowDownSLine
-                  className={`h-4 w-4 transition-transform duration-200 ${
-                    isSubmenuOpen ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 transition-transform duration-200 ${isSubmenuOpen ? "rotate-180" : ""
+                    }`}
                 />
-              </button>
+              </Button>
 
               {isSubmenuOpen && (
                 <div className="ml-4 space-y-1 border-l border-zinc-800 pl-3">
@@ -395,11 +393,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${
-                          isSubActive
-                            ? "bg-zinc-800 font-semibold text-emerald-400"
-                            : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
-                        }`}
+                        className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${isSubActive
+                          ? "bg-zinc-800 font-semibold text-emerald-400"
+                          : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
+                          }`}
                       >
                         <ChildIcon className="h-4 w-4 shrink-0" />
                         <span className="whitespace-nowrap">{child.label}</span>
@@ -418,11 +415,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <TooltipTrigger asChild>
                 <Link
                   href={item.href || "#"}
-                  className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${
-                    isActive
-                      ? "bg-zinc-800 font-semibold text-emerald-400"
-                      : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
-                  }`}
+                  className={`flex w-full cursor-pointer items-center justify-center rounded-xl p-2.5 transition-colors ${isActive
+                    ? "bg-zinc-800 font-semibold text-emerald-400"
+                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
+                    }`}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
                 </Link>
@@ -438,11 +434,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <Link
             key={item.href || item.label}
             href={item.href || "#"}
-            className={`flex items-center space-x-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-              isActive
-                ? "bg-zinc-800 font-semibold text-emerald-400"
-                : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
-            }`}
+            className={`flex items-center space-x-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive
+              ? "bg-zinc-800 font-semibold text-emerald-400"
+              : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
+              }`}
           >
             <Icon className="h-5 w-5 shrink-0" />
             <span className="whitespace-nowrap">{item.label}</span>
@@ -457,9 +452,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       <div className="flex h-screen overflow-hidden bg-zinc-950 font-sans text-zinc-100 antialiased">
         {/* Desktop Sidebar (Fixed) */}
         <aside
-          className={`hidden h-screen shrink-0 flex-col justify-between border-r border-zinc-800 bg-zinc-900/60 transition-all duration-300 lg:flex ${
-            isCollapsed ? "w-16" : "w-72"
-          }`}
+          className={`hidden h-screen shrink-0 flex-col justify-between border-r border-zinc-800 bg-zinc-900/60 transition-all duration-300 lg:flex ${isCollapsed ? "w-16" : "w-72"
+            }`}
         >
           <div className="flex flex-1 flex-col overflow-y-auto">
             {/* Sidebar Header */}
@@ -483,9 +477,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 variant="ghost"
                 size="icon"
                 onClick={toggleCollapse}
-                className={`cursor-pointer rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 ${
-                  isCollapsed ? "mx-auto" : "ml-auto"
-                }`}
+                className={`cursor-pointer rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 ${isCollapsed ? "mx-auto" : "ml-auto"
+                  }`}
                 title={isCollapsed ? "Expandir menu" : "Recolher menu"}
               >
                 {isCollapsed ? (
@@ -692,9 +685,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               {/* User Profile Dropdown Menu (No Gray Hover Background Block) */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button
+                  <Button
                     type="button"
-                    className="flex cursor-pointer items-center space-x-2.5 text-left outline-none rounded-xl p-1.5 transition-colors group bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent border-none shadow-none"
+                    variant="ghost"
+                    className="flex cursor-pointer items-center space-x-2.5 text-left outline-none rounded-xl p-1.5 transition-colors group bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent border-none shadow-none h-auto"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300 ring-1 ring-emerald-800/40 group-hover:ring-emerald-500/60 transition-all">
                       {user?.name?.charAt(0).toUpperCase() || "U"}
@@ -708,7 +702,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       </span>
                     </div>
                     <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
-                  </button>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"

@@ -11,6 +11,8 @@ import {
 } from "react-icons/ri";
 
 import { DataTableSkeleton } from "../skeletons/data-table-skeleton";
+import { Button } from "./button";
+import { Input } from "./input";
 import { NativeSelect } from "./native-select";
 
 interface MetaData {
@@ -108,13 +110,13 @@ export function TableWrapper({
         <div className="flex flex-col items-stretch justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 sm:flex-row sm:items-center">
           {onSearchChange ? (
             <div className="relative max-w-md flex-1">
-              <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-              <input
+              <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 z-10" />
+              <Input
                 type="text"
                 value={searchValue || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-2 pr-4 pl-10 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+                className="w-full bg-zinc-950 pl-10 pr-4 text-sm text-zinc-100 placeholder-zinc-500 border-zinc-800 focus-visible:ring-1 focus-visible:ring-zinc-600"
               />
             </div>
           ) : (
@@ -199,19 +201,23 @@ export function TableWrapper({
               {/* Navigation Controls Tightly Grouped */}
               <div className="flex items-center gap-1">
                 {/* First Page button */}
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   title="Primeira página"
                   disabled={meta.page <= 1}
                   onClick={() => onPageChange(1)}
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="h-8 w-8 rounded-lg border-zinc-800 bg-zinc-950 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 disabled:opacity-40"
                 >
                   <RiArrowLeftDoubleLine className="h-4.5 w-4.5" />
-                </button>
+                </Button>
 
                 {/* Previous Page button */}
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   title="Página anterior"
                   disabled={
                     meta.hasPreviousPage !== undefined
@@ -219,15 +225,15 @@ export function TableWrapper({
                       : meta.page <= 1
                   }
                   onClick={() => onPageChange(meta.page - 1)}
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="h-8 w-8 rounded-lg border-zinc-800 bg-zinc-950 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 disabled:opacity-40"
                 >
                   <RiArrowLeftSLine className="h-4.5 w-4.5" />
-                </button>
+                </Button>
 
                 {/* Page Direct Input & Total Pages Readonly Input */}
                 <div className="flex items-center space-x-1.5 px-1.5">
                   <span>Página</span>
-                  <input
+                  <Input
                     type="number"
                     min={1}
                     max={meta.totalPages || 1}
@@ -239,23 +245,25 @@ export function TableWrapper({
                       }
                     }}
                     onBlur={handlePageSubmit}
-                    className="h-8 w-10 rounded-lg border border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 transition-colors focus:border-emerald-600 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="h-8 w-12 rounded-lg border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 focus-visible:ring-emerald-600 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     title="Ir para página"
                   />
                   <span>de</span>
-                  <input
+                  <Input
                     type="text"
                     readOnly
                     value={meta.totalPages || 1}
                     tabIndex={-1}
-                    className="h-8 w-10 cursor-default rounded-lg border border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 focus:outline-none select-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="h-8 w-12 cursor-default rounded-lg border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 select-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     title="Total de páginas"
                   />
                 </div>
 
                 {/* Next Page button */}
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   title="Próxima página"
                   disabled={
                     meta.hasNextPage !== undefined
@@ -263,21 +271,23 @@ export function TableWrapper({
                       : meta.page >= meta.totalPages
                   }
                   onClick={() => onPageChange(meta.page + 1)}
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="h-8 w-8 rounded-lg border-zinc-800 bg-zinc-950 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 disabled:opacity-40"
                 >
                   <RiArrowRightSLine className="h-4.5 w-4.5" />
-                </button>
+                </Button>
 
                 {/* Last Page button */}
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   title="Última página"
                   disabled={meta.page >= meta.totalPages}
                   onClick={() => onPageChange(meta.totalPages)}
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="h-8 w-8 rounded-lg border-zinc-800 bg-zinc-950 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 disabled:opacity-40"
                 >
                   <RiArrowRightDoubleLine className="h-4.5 w-4.5" />
-                </button>
+                </Button>
               </div>
             </div>
           </div>

@@ -175,13 +175,15 @@ export function OptionsManagerDialog({
                         className="bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800 py-1 px-2.5 flex items-center gap-1.5 text-xs font-medium"
                       >
                         {val}
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleRemoveValue(opt.id, val)}
-                          className="hover:text-rose-600 rounded-full p-0.5 cursor-pointer ml-1 font-bold"
+                          className="h-4 w-4 rounded-full p-0 text-xs hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/60 font-bold ml-1 cursor-pointer"
                         >
                           ×
-                        </button>
+                        </Button>
                       </Badge>
                     ))}
                   </div>
