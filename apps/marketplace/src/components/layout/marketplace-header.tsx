@@ -8,19 +8,16 @@ import {
   RiArrowRightSLine,
   RiCloseLine,
   RiGridLine,
-  RiLockLine,
   RiLogoutBoxRLine,
   RiMenuLine,
   RiSearchLine,
   RiStore2Line,
   RiUser3Line,
-  RiUserAddLine,
 } from "react-icons/ri";
 import { PiBell, PiShoppingCart } from "react-icons/pi";
 import { BsHeartHalf } from "react-icons/bs";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import { CartSheet } from "../cart/cart-sheet";
 import { apiClient } from "../../lib/api-client";
@@ -128,50 +125,52 @@ export function MarketplaceHeader() {
               <img
                 src={settings.logoUrl}
                 alt={settings?.publicName || "Verttex"}
-                className="h-10 max-w-44 object-contain brightness-0 invert"
+                className="h-10 max-w-44 object-contain"
               />
             ) : (
               <>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-xl font-bold text-white shadow-xs backdrop-blur-xs">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white/20 text-xl font-bold text-white shadow-xs backdrop-blur-xs">
                   {(settings?.publicName || "Verttex").charAt(0)}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xl font-extrabold tracking-tight text-white">
+                  <span className="text-xl font-extrabold tracking-tight text-white leading-none">
                     {settings?.publicName || "Verttex"}
-                  </span>
-                  <span className="-mt-1 text-[10px] font-semibold tracking-widest text-white/80 uppercase">
-                    Mercado Regional
                   </span>
                 </div>
               </>
             )}
           </Link>
 
-          {/* Global Search Bar */}
+          {/* Global Search Bar — Totalmente quadrado, ícone no final com divisor e fonte maior (text-sm) */}
           <form
             onSubmit={handleSearchSubmit}
             className="relative hidden w-full max-w-lg md:flex"
           >
-            <div className="relative w-full">
-              <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
+            <div className="flex w-full items-center bg-white rounded-none overflow-hidden">
+              <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar produtos, marcas e muito mais..."
-                className="h-9 pr-10 pl-10 text-xs bg-white text-stone-900 placeholder:text-stone-400 border-none shadow-xs"
+                className="w-full flex-1 bg-transparent px-3.5 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none border-none"
               />
               {searchQuery && (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon"
                   onClick={() => setSearchQuery("")}
-                  className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600"
+                  className="p-1 text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
                 >
                   <RiCloseLine className="h-4 w-4" />
-                </Button>
+                </button>
               )}
+              <div className="h-4 w-px bg-stone-300 shrink-0 mx-1" />
+              <button
+                type="submit"
+                className="flex items-center justify-center px-3 py-2 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+                title="Buscar"
+              >
+                <RiSearchLine className="h-4 w-4" />
+              </button>
             </div>
           </form>
         </div>
@@ -180,52 +179,167 @@ export function MarketplaceHeader() {
         <div className="hidden items-center space-x-3 text-xs font-semibold md:flex">
           {/* User Auth Buttons or Account Dropdown */}
           {customer ? (
-            <div className="flex items-center space-x-2">
-              <Link
-                href="/perfil"
-                className="h-9 inline-flex items-center space-x-2 rounded-lg bg-white/15 px-3.5 text-white transition-colors hover:bg-white/25 border border-white/20"
+            <div className="group relative flex items-center">
+              <button
+                type="button"
+                className="inline-flex items-center space-x-2 py-1 px-1 text-xs font-semibold text-white/90 transition-colors hover:text-white cursor-pointer"
               >
-                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white text-[10px] font-bold text-stone-900 uppercase">
+                {/* Avatar Redondo */}
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-stone-900 text-white text-xs font-bold uppercase shadow-xs border border-white/30 shrink-0">
                   {customer.name.charAt(0)}
                 </div>
                 <span className="max-w-28 truncate">{customer.name}</span>
-              </Link>
+                <RiArrowDownSLine className="h-4 w-4 text-white/70 group-hover:text-white transition-colors" />
+              </button>
 
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => logout()}
-                className="h-9 w-9 p-0 text-white/80 border-white/20 bg-white/10 hover:bg-rose-600 hover:border-rose-600 hover:text-white"
-                title="Sair da conta"
-              >
-                <RiLogoutBoxRLine className="h-4 w-4" />
-              </Button>
+              {/* Dropdown Menu — Réplica fiel do design Mercado Livre / Mercado Pago */}
+              <div className="invisible absolute right-0 top-full z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
+                <div className="w-72 rounded-none bg-white shadow-xl overflow-hidden text-stone-900 font-sans">
+                  {/* User Info Header — Botão clicável que leva ao Perfil */}
+                  <Link
+                    href="/perfil"
+                    className="flex items-center justify-between p-4 border-b border-stone-100 hover:bg-stone-50 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-3.5 min-w-0">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-white text-base font-bold uppercase shrink-0 shadow-xs">
+                        {customer.name.charAt(0)}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-stone-900 text-sm truncate leading-tight">
+                          {customer.name}
+                        </span>
+                        <span className="text-[11px] text-stone-500 truncate mt-0.5">
+                          {customer.email}
+                        </span>
+                      </div>
+                    </div>
+                    <RiArrowRightSLine className="h-5 w-5 text-stone-400 shrink-0 ml-2" />
+                  </Link>
+
+                  {/* Promo Banner Meli+ / Verttex+ */}
+                  <div className="p-4 border-b border-stone-100">
+                    <Link
+                      href="/perfil"
+                      className="flex items-center justify-between w-full bg-linear-to-r from-pink-600 to-rose-600 text-white text-[11px] font-bold px-3.5 py-2.5 rounded-full hover:brightness-105 transition-all shadow-xs cursor-pointer"
+                    >
+                      <span>meli+ Assine a partir de R$ 9,90/mês</span>
+                      <RiArrowRightSLine className="h-4 w-4 shrink-0 ml-1" />
+                    </Link>
+                  </div>
+
+                  {/* Section 1: Compras, Histórico, Perguntas, Opiniões */}
+                  <div className="border-b border-stone-100 py-1.5">
+                    <Link
+                      href="/perfil"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Compras
+                    </Link>
+                    <Link
+                      href="/perfil"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Histórico
+                    </Link>
+                    <Link
+                      href="/atendimento"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Perguntas
+                    </Link>
+                    <Link
+                      href="/perfil"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Opiniões
+                    </Link>
+                  </div>
+
+                  {/* Section 2: Empréstimos, Assinaturas, Mercado Play, Faturamento */}
+                  <div className="border-b border-stone-100 py-1.5">
+                    <Link
+                      href="/perfil"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Empréstimos
+                    </Link>
+                    <Link
+                      href="/perfil"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Assinaturas
+                    </Link>
+                    <Link
+                      href="/perfil"
+                      className="flex items-center justify-between px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      <span>Mercado Play</span>
+                      <span className="bg-emerald-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wide uppercase">
+                        GRÁTIS
+                      </span>
+                    </Link>
+                    <Link
+                      href="/perfil"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Faturamento
+                    </Link>
+                  </div>
+
+                  {/* Section 3: Vender, Resumo */}
+                  <div className="border-b border-stone-100 py-1.5">
+                    <Link
+                      href="/lojas"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Vender
+                    </Link>
+                    <Link
+                      href="/perfil"
+                      className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    >
+                      Resumo
+                    </Link>
+                  </div>
+
+                  {/* Section 4: Sair */}
+                  <div className="py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => logout()}
+                      className="block w-full text-left px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                    >
+                      Sair
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
               <Button
                 type="button"
+                size="sm"
                 onClick={() => openAuthModal("login")}
                 style={{
                   backgroundColor: "var(--color-btn-primary-bg, #16a34a)",
                   color: "var(--color-btn-primary-text, #ffffff)",
                 }}
-                className="h-9 px-3.5 font-semibold hover:opacity-90 transition-opacity border-none cursor-pointer"
+                className="font-semibold hover:opacity-90 transition-opacity border-none cursor-pointer rounded-sm"
               >
-                <RiLockLine className="h-3.5 w-3.5" />
-                <span>Entrar</span>
+                Entrar
               </Button>
               <Button
                 type="button"
+                size="sm"
                 onClick={() => openAuthModal("register")}
                 style={{
                   backgroundColor: "var(--color-btn-primary-bg, #16a34a)",
                   color: "var(--color-btn-primary-text, #ffffff)",
                 }}
-                className="h-9 px-3.5 font-semibold hover:opacity-90 transition-opacity border-none cursor-pointer"
+                className="font-semibold hover:opacity-90 transition-opacity border-none cursor-pointer rounded-sm"
               >
-                <RiUserAddLine className="h-3.5 w-3.5" />
-                <span>Criar Conta</span>
+                Criar Conta
               </Button>
             </div>
           )}
@@ -238,7 +352,7 @@ export function MarketplaceHeader() {
             variant="outline"
             size="icon"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2.5 bg-white/10 text-white border-white/20 hover:bg-white/20"
+            className="p-2.5 bg-white/10 text-white border-white/20 hover:bg-white/20 rounded-sm cursor-pointer"
             aria-label="Abrir menu"
           >
             {mobileMenuOpen ? (
@@ -262,12 +376,12 @@ export function MarketplaceHeader() {
                 className="inline-flex items-center space-x-1 py-1 px-1 text-xs font-semibold text-white/90 transition-colors hover:text-white cursor-pointer"
               >
                 <span>Categorias</span>
-                <RiArrowDownSLine className="h-4 w-4 text-white/70 transition-transform group-hover:rotate-180" />
+                <RiArrowDownSLine className="h-4 w-4 text-white/70" />
               </button>
 
               {/* Hover Dropdown Content */}
               <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-64 rounded-lg border border-stone-200 bg-white p-2 shadow-xl space-y-1 text-stone-900">
+                <div className="w-64 rounded-none bg-white p-2 shadow-xl space-y-1 text-stone-900">
                   {displayCategories && displayCategories.length > 0 ? (
                     <>
                       {displayCategories.slice(0, 10).map((cat) => {
@@ -278,23 +392,23 @@ export function MarketplaceHeader() {
                           <div key={cat.id} className="group/sub relative">
                             <Link
                               href={`/produtos?categorySlug=${cat.slug}`}
-                              className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer text-xs"
+                              className="flex items-center justify-between rounded-none px-3 py-2 text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-900 cursor-pointer text-xs font-medium"
                             >
                               <span className="truncate">{cat.name}</span>
                               {hasChildren && (
-                                <RiArrowRightSLine className="h-4 w-4 text-stone-400 group-hover/sub:text-emerald-800 transition-colors ml-2 shrink-0" />
+                                <RiArrowRightSLine className="h-4 w-4 text-stone-400 group-hover/sub:text-stone-700 transition-colors ml-2 shrink-0" />
                               )}
                             </Link>
 
                             {/* Subcategories Flyout Dropdown to the Right */}
                             {hasChildren && (
                               <div className="invisible absolute left-full top-0 ml-1 z-50 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100">
-                                <div className="w-56 rounded-lg border border-stone-200 bg-white p-2 shadow-xl space-y-1 text-stone-900">
+                                <div className="w-56 rounded-none bg-white p-2 shadow-xl space-y-1 text-stone-900">
                                   {subs.map((sub) => (
                                     <Link
                                       key={sub.id}
                                       href={`/produtos?categorySlug=${sub.slug}`}
-                                      className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 hover:bg-emerald-50 hover:text-emerald-900 transition-colors text-xs cursor-pointer"
+                                      className="flex items-center justify-between rounded-none px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors text-xs font-medium cursor-pointer"
                                     >
                                       <span className="truncate">{sub.name}</span>
                                     </Link>
@@ -307,7 +421,7 @@ export function MarketplaceHeader() {
                       })}
                       <Link
                         href="/categorias"
-                        className="flex items-center justify-between rounded-md px-3 py-2 text-stone-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer text-xs font-semibold"
+                        className="flex items-center justify-between rounded-none px-3 py-2 text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-900 cursor-pointer text-xs font-semibold"
                       >
                         <span className="truncate">Ver mais categorias</span>
                       </Link>
@@ -344,7 +458,7 @@ export function MarketplaceHeader() {
 
               {/* Hover Dropdown Content */}
               <div className="invisible absolute right-0 top-full z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-80 rounded-lg border border-stone-200 bg-white shadow-xl overflow-hidden text-stone-900">
+                <div className="w-80 rounded-none bg-white shadow-xl overflow-hidden text-stone-900">
                   {/* Dropdown Header */}
                   <div className="bg-white px-4 py-3 border-b border-stone-100">
                     <h3 className="font-semibold text-stone-900 text-sm">Favoritos</h3>
@@ -361,7 +475,7 @@ export function MarketplaceHeader() {
                   <div className="bg-white px-4 py-3 text-center border-t border-stone-100">
                     <Link
                       href="/produtos"
-                      className="text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline transition-colors"
+                      className="text-xs font-medium text-stone-700 hover:text-stone-900 transition-colors"
                     >
                       Ver todos os favoritos e listas
                     </Link>
@@ -398,14 +512,32 @@ export function MarketplaceHeader() {
         <div className="animate-fadeIn space-y-4 border-t border-stone-200 bg-white p-4 shadow-lg md:hidden">
           {/* Mobile Search */}
           <form onSubmit={handleSearchSubmit} className="relative">
-            <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <Input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar produtos ou produtores..."
-              className="pl-10 text-xs"
-            />
+            <div className="flex w-full items-center bg-white rounded-none overflow-hidden">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar produtos, marcas e muito mais..."
+                className="w-full flex-1 bg-transparent px-3.5 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none border-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="p-1 text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
+                >
+                  <RiCloseLine className="h-4 w-4" />
+                </button>
+              )}
+              <div className="h-4 w-px bg-stone-300 shrink-0 mx-1" />
+              <button
+                type="submit"
+                className="flex items-center justify-center px-3 py-2 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+                title="Buscar"
+              >
+                <RiSearchLine className="h-4 w-4" />
+              </button>
+            </div>
           </form>
 
           {/* Navigation Links */}

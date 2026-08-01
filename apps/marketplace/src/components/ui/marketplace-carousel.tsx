@@ -6,6 +6,7 @@ import {
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
+import { RiLoader4Line } from "react-icons/ri";
 import { apiClient } from "../../lib/api-client";
 
 export interface CarouselBannerItem {
@@ -157,22 +158,16 @@ export function MarketplaceCarousel() {
     }
   };
 
-  // Se ainda não montou no cliente (SSR) ou estiver carregando sem cache prévio, exibe Skeleton Perfeito
+  // Se ainda não montou no cliente (SSR) ou estiver carregando sem cache prévio, exibe contêiner limpo
   if (!isMounted || (isLoading && banners.length === 0)) {
     return (
       <section
-        className="relative w-full bg-stone-50 py-0 mb-8 sm:mb-12 overflow-hidden"
+        className="relative w-full bg-stone-100 py-0 mb-6 sm:mb-8 overflow-hidden aspect-18/5 flex items-center justify-center"
         aria-label="Carregando Carrossel..."
       >
-        <div className="relative w-full aspect-18/5 overflow-hidden">
-          <div className="w-full h-full px-6 sm:px-12 md:px-20 lg:px-32 bg-stone-50">
-            <div className="w-full h-full bg-stone-200/80 animate-pulse rounded-xs" />
-          </div>
+        <div className="flex items-center space-x-2 text-stone-400 text-xs font-semibold">
+          <RiLoader4Line className="h-5 w-5 animate-spin text-emerald-700" />
         </div>
-
-        {/* Botões cápsula em skeleton */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 rounded-r-full bg-stone-200/90 border-[1.5px] border-l-0 border-stone-300/80 animate-pulse" />
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 rounded-l-full bg-stone-200/90 border-[1.5px] border-r-0 border-stone-300/80 animate-pulse" />
       </section>
     );
   }

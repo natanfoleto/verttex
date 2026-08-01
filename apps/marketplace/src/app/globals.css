@@ -28,15 +28,15 @@
       sans-serif;
   }
 
-  /* ─── Custom Scrollbar — fino e harmonizado com a paleta do site ─── */
+  /* ─── Custom Scrollbar — ultra fino e minimalista ─── */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #6b7280 transparent;
+    scrollbar-color: #a8a29e transparent;
   }
 
   *::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 3.5px;
+    height: 3.5px;
   }
 
   *::-webkit-scrollbar-track {
@@ -45,7 +45,7 @@
 
   *::-webkit-scrollbar-thumb {
     background-color: #a8a29e;
-    border-radius: 999px;
+    border-radius: 2px;
   }
 
   *::-webkit-scrollbar-thumb:hover {

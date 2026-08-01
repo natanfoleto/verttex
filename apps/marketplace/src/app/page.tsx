@@ -9,11 +9,12 @@ import {
 import { ProductCard, ProductCardProps } from "../components/ui/product-card";
 import { StoreCard, StoreCardProps } from "../components/ui/store-card";
 import { MarketplaceCarousel } from "../components/ui/marketplace-carousel";
+import { MarketplaceFullPageLoader } from "../components/ui/marketplace-page-loader";
 import { apiClient } from "../lib/api-client";
 
 export default function MarketplaceHomePage() {
   // Query Dynamic Featured Products
-  const { data: featuredProductsRes } = useQuery<{
+  const { data: featuredProductsRes, isLoading: isLoadingProducts } = useQuery<{
     data: Array<{
       id: string;
       name: string;
@@ -33,7 +34,7 @@ export default function MarketplaceHomePage() {
   });
 
   // Query Dynamic Stores Showcase
-  const { data: storesRes } = useQuery<{
+  const { data: storesRes, isLoading: isLoadingStores } = useQuery<{
     data: Array<{
       id: string;
       name: string;
@@ -50,6 +51,8 @@ export default function MarketplaceHomePage() {
       return res;
     },
   });
+
+  const isInitialLoading = (isLoadingProducts || isLoadingStores) && !featuredProductsRes && !storesRes;
 
   const featuredProducts: ProductCardProps[] =
     featuredProductsRes?.data && featuredProductsRes.data.length > 0
@@ -79,59 +82,59 @@ export default function MarketplaceHomePage() {
       }))
       : [];
 
+  if (isInitialLoading) {
+    return <MarketplaceFullPageLoader label="Carregando produtos e produtores..." />;
+  }
+
   return (
-    <div className="space-y-12 pb-20 lg:pb-28 font-sans text-stone-900 antialiased">
+    <div className="space-y-10 pb-20 lg:pb-28 font-sans text-stone-900 antialiased">
       {/* Carrossel do Marketplace */}
       <MarketplaceCarousel />
 
-      {/* Dynamic Featured Products Grid Section em Card Branco */}
+      {/* Dynamic Featured Products Grid Section — Sem card envolvente */}
       {featuredProducts.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-stone-200/80 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-              <h2 className="text-lg font-bold tracking-tight text-stone-900 sm:text-xl">
-                Produtos em Destaque
-              </h2>
-              <Link
-                href="/produtos"
-                className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer transition-colors"
-              >
-                <span>Ver Catálogo Completo</span>
-                <RiArrowRightLine className="h-4 w-4" />
-              </Link>
-            </div>
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-3">
+          <div className="flex items-center justify-between pb-1">
+            <h2 className="text-base font-bold tracking-tight text-stone-900 sm:text-lg">
+              Produtos em Destaque
+            </h2>
+            <Link
+              href="/produtos"
+              className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer transition-colors"
+            >
+              <span>Ver Catálogo Completo</span>
+              <RiArrowRightLine className="h-4 w-4" />
+            </Link>
+          </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {featuredProducts.map((p) => (
-                <ProductCard key={p.id} {...p} />
-              ))}
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {featuredProducts.map((p) => (
+              <ProductCard key={p.id} {...p} />
+            ))}
           </div>
         </section>
       )}
 
-      {/* Dynamic Partner Stores Section em Card Branco */}
+      {/* Dynamic Partner Stores Section — Sem card envolvente */}
       {storesList.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-stone-200/80 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-              <h2 className="text-lg font-bold tracking-tight text-stone-900 sm:text-xl">
-                Lojas e Produtores Parceiros
-              </h2>
-              <Link
-                href="/lojas"
-                className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer transition-colors"
-              >
-                <span>Ver Todos os Produtores</span>
-                <RiArrowRightLine className="h-4 w-4" />
-              </Link>
-            </div>
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-3">
+          <div className="flex items-center justify-between pb-1">
+            <h2 className="text-base font-bold tracking-tight text-stone-900 sm:text-lg">
+              Lojas e Produtores Parceiros
+            </h2>
+            <Link
+              href="/lojas"
+              className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer transition-colors"
+            >
+              <span>Ver Todos os Produtores</span>
+              <RiArrowRightLine className="h-4 w-4" />
+            </Link>
+          </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {storesList.map((s) => (
-                <StoreCard key={s.id} {...s} />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {storesList.map((s) => (
+              <StoreCard key={s.id} {...s} />
+            ))}
           </div>
         </section>
       )}

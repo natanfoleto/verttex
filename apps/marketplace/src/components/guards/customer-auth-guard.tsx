@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 
-import { ProfileSkeleton } from "../profile/profile-skeleton";
+import { MarketplacePageLoader } from "../ui/marketplace-page-loader";
 import { useCustomer } from "../../providers/customer-auth-provider";
 
 export function CustomerAuthGuard({
@@ -32,7 +32,7 @@ export function CustomerAuthGuard({
       return <>{fallback}</>;
     }
 
-    return <ProfileSkeleton />;
+    return <MarketplacePageLoader label="Autenticando..." minHeight="min-h-[400px]" />;
   }
 
   if (!customer) {

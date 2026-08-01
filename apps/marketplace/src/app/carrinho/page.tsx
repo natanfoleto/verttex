@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { CartSkeleton } from "../../components/cart/cart-skeleton";
+import { MarketplaceFullPageLoader } from "../../components/ui/marketplace-page-loader";
 import { CartSummary } from "../../components/cart/cart-sheet";
 import { apiClient, ApiError } from "../../lib/api-client";
 
@@ -29,14 +29,20 @@ export default function CartPage() {
   const { data: summary, isLoading } = useQuery<CartSummary>({
     queryKey: ["cart-summary"],
     queryFn: async () => {
-      const res = await apiClient<CartSummary>("/cart");
+      const res = await apiClient<CartSummary>("/customer/cart");
       return res;
     },
   });
 
   const updateQuantityMutation = useMutation({
-    mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
-      return apiClient(`/cart/items/${id}`, {
+    mutationFn: async ({
+      itemId,
+      quantity,
+    }: {
+      itemId: string;
+      quantity: number;
+    }) => {
+      await apiClient(`/customer/cart/items/${itemId}`, {
         method: "PATCH",
         body: JSON.stringify({ quantity }),
       });
@@ -44,26 +50,29 @@ export default function CartPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Erro ao atualizar quantidade");
+    onError: (err: ApiError) => {
+      toast.error(err.message || "Erro ao atualizar quantidade.");
     },
   });
 
   const removeItemMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return apiClient(`/cart/items/${id}`, {
+    mutationFn: async (itemId: string) => {
+      await apiClient(`/customer/cart/items/${itemId}`, {
         method: "DELETE",
       });
     },
     onSuccess: () => {
-      toast.success("Item removido do carrinho");
+      toast.success("Item removido do carrinho.");
       queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
+    },
+    onError: (err: ApiError) => {
+      toast.error(err.message || "Erro ao remover item.");
     },
   });
 
   const applyCouponMutation = useMutation({
     mutationFn: async (code: string) => {
-      return apiClient("/cart/coupon", {
+      await apiClient("/customer/cart/coupons", {
         method: "POST",
         body: JSON.stringify({ code }),
       });
@@ -73,18 +82,14 @@ export default function CartPage() {
       setCouponCode("");
       queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
     },
-    onError: (err: unknown) => {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Erro ao aplicar cupom");
-      }
+    onError: (err: ApiError) => {
+      toast.error(err.message || "Cupom inválido ou expirado.");
     },
   });
 
   const removeCouponMutation = useMutation({
-    mutationFn: async (code: string) => {
-      return apiClient(`/cart/coupon/${code}`, {
+    mutationFn: async () => {
+      await apiClient("/customer/cart/coupons", {
         method: "DELETE",
       });
     },
@@ -95,7 +100,7 @@ export default function CartPage() {
   });
 
   if (isLoading) {
-    return <CartSkeleton />;
+    return <MarketplaceFullPageLoader label="Carregando carrinho..." />;
   }
 
   const hasItems = summary && summary.stores.length > 0;
@@ -185,7 +190,7 @@ export default function CartPage() {
                             onClick={() => {
                               if (item.quantity > 1) {
                                 updateQuantityMutation.mutate({
-                                  id: item.id,
+                                  itemId: item.id,
                                   quantity: item.quantity - 1,
                                 });
                               } else {
@@ -203,7 +208,7 @@ export default function CartPage() {
                             type="button"
                             onClick={() => {
                               updateQuantityMutation.mutate({
-                                id: item.id,
+                                itemId: item.id,
                                 quantity: item.quantity + 1,
                               });
                             }}
@@ -287,7 +292,7 @@ export default function CartPage() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => removeCouponMutation.mutate(c.code)}
+                          onClick={() => removeCouponMutation.mutate()}
                           className="text-emerald-700 hover:text-rose-600 cursor-pointer"
                         >
                           <RiDeleteBin6Line className="h-3.5 w-3.5" />

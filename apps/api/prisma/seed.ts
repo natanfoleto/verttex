@@ -104,131 +104,55 @@ const permissionsData = [
   {
     key: "products.delete",
     module: "products",
-    description: "Excluir/Arquivar produtos",
-  },
-  {
-    key: "products.publish",
-    module: "products",
-    description: "Publicar produtos no Marketplace",
-  },
-  {
-    key: "products.manage-media",
-    module: "products",
-    description: "Gerenciar imagens e mídias do produto",
-  },
-  {
-    key: "products.manage-price",
-    module: "products",
-    description: "Gerenciar preços e custos de produtos",
+    description: "Desativar produtos",
   },
 
   // Files module
-  {
-    key: "files.read",
-    module: "files",
-    description: "Visualizar mídias e arquivos",
-  },
-  {
-    key: "files.create",
-    module: "files",
-    description: "Fazer upload de arquivos",
-  },
+  { key: "files.read", module: "files", description: "Visualizar arquivos" },
+  { key: "files.create", module: "files", description: "Fazer upload de arquivos" },
+  { key: "files.delete", module: "files", description: "Remover arquivos" },
 
   // Lots module
-  {
-    key: "lots.read",
-    module: "lots",
-    description: "Visualizar lotes e validade de produtos",
-  },
+  { key: "lots.read", module: "lots", description: "Visualizar lotes de produtos" },
   { key: "lots.create", module: "lots", description: "Cadastrar novos lotes" },
-  { key: "lots.update", module: "lots", description: "Editar dados do lote" },
-  {
-    key: "lots.quarantine",
-    module: "lots",
-    description: "Colocar ou liberar lotes da quarentena",
-  },
-  {
-    key: "lots.block",
-    module: "lots",
-    description: "Bloquear ou desbloquear lotes",
-  },
-  {
-    key: "lots.recall",
-    module: "lots",
-    description: "Executar ou gerenciar recolhimento (recall) de lotes",
-  },
+  { key: "lots.update", module: "lots", description: "Editar dados de lotes" },
+  { key: "lots.quarantine", module: "lots", description: "Colocar ou remover lotes de quarentena" },
 
   // Stock module
-  {
-    key: "stock.read",
-    module: "stock",
-    description: "Visualizar estoque, FEFO e movimentações",
-  },
-  {
-    key: "stock.receive",
-    module: "stock",
-    description: "Registrar recebimento de mercadorias por lote",
-  },
-  {
-    key: "stock.transfer",
-    module: "stock",
-    description: "Transferir lotes entre localizações",
-  },
-  {
-    key: "stock.adjust",
-    module: "stock",
-    description: "Realizar ajustes manuais de inventário",
-  },
-  {
-    key: "stock.discard",
-    module: "stock",
-    description: "Realizar descarte formal por vencimento ou dano",
-  },
-  {
-    key: "files.delete",
-    module: "files",
-    description: "Excluir mídias e arquivos",
-  },
+  { key: "stock.read", module: "stock", description: "Visualizar estoque e posições" },
+  { key: "stock.receive", module: "stock", description: "Dar entrada física de mercadorias" },
+  { key: "stock.adjust", module: "stock", description: "Realizar ajustes de inventário" },
+  { key: "stock.transfer", module: "stock", description: "Transferir estoque entre depósitos" },
 
-  // Audit logs module
-  {
-    key: "audit.read",
-    module: "audit",
-    description: "Visualizar logs de auditoria do sistema",
-  },
-  {
-    key: "audit.export",
-    module: "audit",
-    description: "Exportar relatórios de auditoria",
-  },
+  // Inventory Locations module
+  { key: "locations.read", module: "locations", description: "Visualizar depósitos" },
+  { key: "locations.create", module: "locations", description: "Cadastrar depósitos" },
+  { key: "locations.update", module: "locations", description: "Editar depósitos" },
+
+  // Orders module
+  { key: "orders.read", module: "orders", description: "Visualizar pedidos" },
+  { key: "orders.update-status", module: "orders", description: "Atualizar status de pedidos" },
+  { key: "orders.cancel", module: "orders", description: "Cancelar pedidos" },
+
+  // Reports module
+  { key: "reports.read", module: "reports", description: "Visualizar relatórios" },
+  { key: "reports.export", module: "reports", description: "Exportar relatórios em CSV" },
+
+  // Audit module
+  { key: "audit.read", module: "audit", description: "Visualizar histórico de auditoria" },
+  { key: "audit.export", module: "audit", description: "Exportar relatórios de auditoria" },
 
   // Marketplace module
-  {
-    key: "marketplace.read",
-    module: "marketplace",
-    description: "Visualizar carrossel e configurações do marketplace",
-  },
-  {
-    key: "marketplace.create",
-    module: "marketplace",
-    description: "Criar banners do carrossel",
-  },
-  {
-    key: "marketplace.update",
-    module: "marketplace",
-    description: "Editar banners e configurações do marketplace",
-  },
-  {
-    key: "marketplace.delete",
-    module: "marketplace",
-    description: "Excluir banners do carrossel",
-  },
+  { key: "marketplace.read", module: "marketplace", description: "Visualizar carrossel e configurações do marketplace" },
+  { key: "marketplace.create", module: "marketplace", description: "Criar banners do carrossel" },
+  { key: "marketplace.update", module: "marketplace", description: "Editar banners e configurações do marketplace" },
+  { key: "marketplace.delete", module: "marketplace", description: "Excluir banners do carrossel" },
 ];
 
 async function main() {
-  console.log("🌱 Starting seed...");
+  console.log("🌱 Iniciando seed minimalista...");
 
-  // 1. Seed Permissions
+  // 1. Permissões
   for (const p of permissionsData) {
     await prisma.permission.upsert({
       where: { key: p.key },
@@ -236,9 +160,9 @@ async function main() {
       create: p,
     });
   }
-  console.log(`✅ ${permissionsData.length} permissions seeded.`);
+  console.log(`✅ ${permissionsData.length} permissões cadastradas.`);
 
-  // 2. Seed System Roles
+  // 2. Cargos do Sistema
   const adminRole = await prisma.role.upsert({
     where: { key: "admin" },
     update: {},
@@ -294,9 +218,9 @@ async function main() {
     },
   });
 
-  console.log("✅ 5 roles seeded.");
+  console.log("✅ Cargos cadastrados.");
 
-  // 3. Link all permissions to Admin Role
+  // 3. Vincular Permissões
   const allPermissions = await prisma.permission.findMany();
   for (const perm of allPermissions) {
     await prisma.rolePermission.upsert({
@@ -314,7 +238,6 @@ async function main() {
     });
   }
 
-  // Link basic permissions to Employee & Supplier
   const employeePermKeys = [
     "users.read",
     "stores.read",
@@ -363,14 +286,14 @@ async function main() {
       },
     });
   }
-  console.log("✅ Role permissions seeded.");
+  console.log("✅ Permissões dos cargos cadastradas.");
 
-  // 4. Seed Management Users
-  const defaultPasswordHash = await hashPassword("SenhaSegura123!");
+  // 4. Usuários (Senha padrão: admin123)
+  const defaultPasswordHash = await hashPassword("admin123");
 
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@verttexloja.com.br" },
-    update: {},
+    update: { passwordHash: defaultPasswordHash },
     create: {
       name: "Administrador Verttex",
       email: "admin@verttexloja.com.br",
@@ -383,7 +306,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: "operador@verttexloja.com.br" },
-    update: {},
+    update: { passwordHash: defaultPasswordHash },
     create: {
       name: "Operador de Estoque",
       email: "operador@verttexloja.com.br",
@@ -394,32 +317,31 @@ async function main() {
     },
   });
 
-  console.log("✅ Management users seeded.");
+  console.log("✅ Usuários cadastrados (Senha padrão: admin123).");
 
-  // 5. Seed Stores
+  // 5. Lojas (sem fotos)
   const storeAlvorada = await prisma.store.upsert({
     where: { slug: "queijaria-alvorada" },
-    update: {
-      logoUrl:
-        "https://images.unsplash.com/photo-1596450514735-2440b6165e31?auto=format&fit=crop&w=400&q=80",
-    },
+    update: { logoUrl: null, coverUrl: null },
     create: {
       name: "Queijaria Alvorada Canastra",
       slug: "queijaria-alvorada",
       description: "Produtor tradicional de queijos artesanais da Canastra",
-      logoUrl:
-        "https://images.unsplash.com/photo-1596450514735-2440b6165e31?auto=format&fit=crop&w=400&q=80",
+      logoUrl: null,
+      coverUrl: null,
       status: "active",
     },
   });
 
   const storeMel = await prisma.store.upsert({
     where: { slug: "apiario-serra-verde" },
-    update: {},
+    update: { logoUrl: null, coverUrl: null },
     create: {
       name: "Apiário Serra Verde",
       slug: "apiario-serra-verde",
       description: "Mel silvestre orgânico e derivados das montanhas de Minas",
+      logoUrl: null,
+      coverUrl: null,
       status: "active",
     },
   });
@@ -456,9 +378,9 @@ async function main() {
     },
   });
 
-  console.log("✅ Stores seeded.");
+  console.log("✅ Lojas cadastradas (sem fotos).");
 
-  // 6. Seed Categories & Brands
+  // 6. Categorias & Marcas (sem fotos)
   const catQueijos = await prisma.category.upsert({
     where: { slug: "queijo-canastra" },
     update: {},
@@ -507,7 +429,9 @@ async function main() {
     },
   });
 
-  // 7. Seed Sample Products with Batch & Expiration Control
+  console.log("✅ Categorias e Marcas cadastradas.");
+
+  // 7. Produtos (sem fotos)
   const prodQueijo = await prisma.product.upsert({
     where: {
       storeId_slug: {
@@ -533,14 +457,10 @@ async function main() {
       hasBatchControl: true,
       hasExpirationControl: true,
       isExpirationRequired: true,
-      defaultShelfLifeDays: 180,
-      minReceivingShelfLifeDays: 60,
-      minDeliveryShelfLifeDays: 15,
-      warningShelfLifeDays: 30,
     },
   });
 
-  const varQueijo = await prisma.productVariation.upsert({
+  await prisma.productVariation.upsert({
     where: {
       storeId_sku: {
         storeId: storeAlvorada.id,
@@ -586,14 +506,10 @@ async function main() {
       hasBatchControl: true,
       hasExpirationControl: true,
       isExpirationRequired: true,
-      defaultShelfLifeDays: 365,
-      minReceivingShelfLifeDays: 90,
-      minDeliveryShelfLifeDays: 30,
-      warningShelfLifeDays: 45,
     },
   });
 
-  const varMel = await prisma.productVariation.upsert({
+  await prisma.productVariation.upsert({
     where: {
       storeId_sku: {
         storeId: storeMel.id,
@@ -614,591 +530,12 @@ async function main() {
     },
   });
 
-  console.log("✅ Categorias, marcas e produtos de amostra semeadas.");
+  console.log("✅ Produtos e Variações cadastrados (sem fotos).");
 
-  // 8. Seed Inventory Locations
-  const locAlvorada = await prisma.inventoryLocation.upsert({
-    where: {
-      storeId_code: {
-        storeId: storeAlvorada.id,
-        code: "DEP-01",
-      },
-    },
-    update: {},
-    create: {
-      storeId: storeAlvorada.id,
-      name: "Depósito Principal - Câmara Fria",
-      code: "DEP-01",
-      isDefault: true,
-      status: "active",
-    },
-  });
-
-  const locMel = await prisma.inventoryLocation.upsert({
-    where: {
-      storeId_code: {
-        storeId: storeMel.id,
-        code: "DEP-01",
-      },
-    },
-    update: {},
-    create: {
-      storeId: storeMel.id,
-      name: "Armazém Apiário Central",
-      code: "DEP-01",
-      isDefault: true,
-      status: "active",
-    },
-  });
-
-  // 9. Seed Sample Product Lots with Expiration Cases
-  const now = new Date();
-
-  // Case 1: Lote Válido (Validade em +150 dias)
-  const expValid = new Date();
-  expValid.setDate(now.getDate() + 150);
-
-  const lotValid = await prisma.productLot.upsert({
-    where: {
-      storeId_productId_variationId_lotNumber: {
-        storeId: storeAlvorada.id,
-        productId: prodQueijo.id,
-        variationId: varQueijo.id,
-        lotNumber: "L-2026-CAN-01",
-      },
-    },
-    update: {},
-    create: {
-      storeId: storeAlvorada.id,
-      productId: prodQueijo.id,
-      variationId: varQueijo.id,
-      lotNumber: "L-2026-CAN-01",
-      manufacturer: "Queijaria Serra da Canastra LTDA",
-      supplier: "Cooperativa de Laticínios Canastra",
-      manufacturingDate: new Date("2026-01-10"),
-      expirationDate: expValid,
-      status: "available",
-      notes: "Armazenar refrigerado entre 4°C e 8°C",
-      createdBy: adminUser.id,
-      updatedBy: adminUser.id,
-    },
-  });
-
-  // Case 2: Lote Próximo do Vencimento (Validade em +18 dias - Alerta)
-  const expWarning = new Date();
-  expWarning.setDate(now.getDate() + 18);
-
-  const lotWarning = await prisma.productLot.upsert({
-    where: {
-      storeId_productId_variationId_lotNumber: {
-        storeId: storeAlvorada.id,
-        productId: prodQueijo.id,
-        variationId: varQueijo.id,
-        lotNumber: "L-2026-CAN-02",
-      },
-    },
-    update: {},
-    create: {
-      storeId: storeAlvorada.id,
-      productId: prodQueijo.id,
-      variationId: varQueijo.id,
-      lotNumber: "L-2026-CAN-02",
-      manufacturer: "Queijaria Serra da Canastra LTDA",
-      supplier: "Cooperativa de Laticínios Canastra",
-      manufacturingDate: new Date("2025-11-01"),
-      expirationDate: expWarning,
-      status: "available",
-      notes: "Lote com prioridade FEFO de saída por proximidade de vencimento",
-      createdBy: adminUser.id,
-      updatedBy: adminUser.id,
-    },
-  });
-
-  // Case 3: Lote Vencido (Validade vencida há -6 dias - Requer descarte)
-  const expExpired = new Date();
-  expExpired.setDate(now.getDate() - 6);
-
-  const lotExpired = await prisma.productLot.upsert({
-    where: {
-      storeId_productId_variationId_lotNumber: {
-        storeId: storeAlvorada.id,
-        productId: prodQueijo.id,
-        variationId: varQueijo.id,
-        lotNumber: "L-2026-CAN-03",
-      },
-    },
-    update: {},
-    create: {
-      storeId: storeAlvorada.id,
-      productId: prodQueijo.id,
-      variationId: varQueijo.id,
-      lotNumber: "L-2026-CAN-03",
-      manufacturer: "Queijaria Serra da Canastra LTDA",
-      supplier: "Cooperativa de Laticínios Canastra",
-      manufacturingDate: new Date("2025-08-01"),
-      expirationDate: expExpired,
-      status: "available",
-      notes:
-        "Lote vencido aguardando baixa e descarte com empresa terceirizada",
-      createdBy: adminUser.id,
-      updatedBy: adminUser.id,
-    },
-  });
-
-  // Case 4: Lote em Quarentena (Apiário Mel)
-  const expQuarantine = new Date();
-  expQuarantine.setDate(now.getDate() + 200);
-
-  const lotQuarantine = await prisma.productLot.upsert({
-    where: {
-      storeId_productId_variationId_lotNumber: {
-        storeId: storeMel.id,
-        productId: prodMel.id,
-        variationId: varMel.id,
-        lotNumber: "L-2026-MEL-01",
-      },
-    },
-    update: {},
-    create: {
-      storeId: storeMel.id,
-      productId: prodMel.id,
-      variationId: varMel.id,
-      lotNumber: "L-2026-MEL-01",
-      manufacturer: "Apiário Serra Verde",
-      supplier: "Produtor Direto",
-      manufacturingDate: new Date("2026-02-01"),
-      expirationDate: expQuarantine,
-      status: "quarantine",
-      notes: "Em quarentena para análise laboratorial de cristalização",
-      createdBy: adminUser.id,
-      updatedBy: adminUser.id,
-    },
-  });
-
-  // 10. Seed Stock Items & Initial Movements
-  const stockItemsData = [
-    {
-      lot: lotValid,
-      qty: 60,
-      res: 5,
-      varId: varQueijo.id,
-      storeId: storeAlvorada.id,
-      locId: locAlvorada.id,
-    },
-    {
-      lot: lotWarning,
-      qty: 25,
-      res: 0,
-      varId: varQueijo.id,
-      storeId: storeAlvorada.id,
-      locId: locAlvorada.id,
-    },
-    {
-      lot: lotExpired,
-      qty: 12,
-      res: 0,
-      varId: varQueijo.id,
-      storeId: storeAlvorada.id,
-      locId: locAlvorada.id,
-    },
-    {
-      lot: lotQuarantine,
-      qty: 40,
-      res: 0,
-      varId: varMel.id,
-      storeId: storeMel.id,
-      locId: locMel.id,
-    },
-  ];
-
-  for (const item of stockItemsData) {
-    await prisma.stockItem.upsert({
-      where: {
-        storeId_variationId_lotId_locationId: {
-          storeId: item.storeId,
-          variationId: item.varId,
-          lotId: item.lot.id,
-          locationId: item.locId,
-        },
-      },
-      update: {
-        physicalQuantity: item.qty,
-        reservedQuantity: item.res,
-      },
-      create: {
-        storeId: item.storeId,
-        variationId: item.varId,
-        lotId: item.lot.id,
-        locationId: item.locId,
-        physicalQuantity: item.qty,
-        reservedQuantity: item.res,
-      },
-    });
-
-    await prisma.stockMovement.create({
-      data: {
-        storeId: item.storeId,
-        variationId: item.varId,
-        lotId: item.lot.id,
-        targetLocationId: item.locId,
-        type: "RECEIVING",
-        quantity: item.qty,
-        reason: `Recebimento inicial semeado para lote ${item.lot.lotNumber}`,
-        userId: adminUser.id,
-      },
-    });
-  }
-
-  console.log(
-    "✅ Lotes de amostra, saldos de estoque e movimentações semeados com sucesso.",
-  );
-
-  // 11. Seed Customers & Addresses
-  const customer1 = await prisma.customer.upsert({
-    where: { email: "carlos@exemplo.com.br" },
-    update: {},
-    create: {
-      name: "Carlos Eduardo Silva",
-      email: "carlos@exemplo.com.br",
-      cpfCnpj: "123.456.789-00",
-      passwordHash: defaultPasswordHash,
-      status: "active",
-    },
-  });
-
-  const address1 = await prisma.customerAddress.create({
+  // 8. Configurações Iniciais do Marketplace (sem fotos)
+  await prisma.marketplaceSettings.deleteMany();
+  await prisma.marketplaceSettings.create({
     data: {
-      customerId: customer1.id,
-      label: "Casa",
-      recipient: "Carlos Eduardo Silva",
-      street: "Rua da Canastra",
-      number: "100",
-      neighborhood: "Centro",
-      city: "Passos",
-      state: "MG",
-      zipCode: "37900-000",
-      isDefault: true,
-    },
-  });
-
-  const customer2 = await prisma.customer.upsert({
-    where: { email: "ana@exemplo.com.br" },
-    update: {},
-    create: {
-      name: "Ana Maria Fernandes",
-      email: "ana@exemplo.com.br",
-      cpfCnpj: "987.654.321-11",
-      passwordHash: defaultPasswordHash,
-      status: "active",
-    },
-  });
-
-  const address2 = await prisma.customerAddress.create({
-    data: {
-      customerId: customer2.id,
-      label: "Trabalho",
-      recipient: "Ana Maria Fernandes",
-      street: "Av. dos Produtores",
-      number: "500",
-      neighborhood: "Savassi",
-      city: "Belo Horizonte",
-      state: "MG",
-      zipCode: "30100-000",
-      isDefault: true,
-    },
-  });
-
-  console.log("✅ Compradores e endereços de teste semeados.");
-
-  // 12. Seed Sample Orders with Various Statuses for Test Plan
-  const orderPaid = await prisma.order.upsert({
-    where: { code: "VTX-9821" },
-    update: {},
-    create: {
-      id: "ord-101",
-      code: "VTX-9821",
-      storeId: storeAlvorada.id,
-      customerId: customer1.id,
-      customerAddressId: address1.id,
-      status: "PAID",
-      subtotal: 89.8,
-      shippingFee: 0,
-      discount: 0,
-      totalAmount: 89.8,
-      paymentMethod: "pix",
-      paymentStatus: "approved",
-    },
-  });
-
-  const itemOrder1 = await prisma.orderItem.create({
-    data: {
-      orderId: orderPaid.id,
-      productId: prodQueijo.id,
-      variationId: varQueijo.id,
-      productName: prodQueijo.name,
-      variationName: "Padrão / 500g",
-      sku: varQueijo.sku,
-      price: 44.9,
-      costPrice: 28.0,
-      quantity: 2,
-      subtotal: 89.8,
-    },
-  });
-
-  await prisma.orderItemLot.create({
-    data: {
-      orderItemId: itemOrder1.id,
-      lotId: lotWarning.id,
-      quantity: 2,
-    },
-  });
-
-  await prisma.stockReservation.create({
-    data: {
-      storeId: storeAlvorada.id,
-      orderId: orderPaid.id,
-      variationId: varQueijo.id,
-      lotId: lotWarning.id,
-      locationId: locAlvorada.id,
-      reservedQuantity: 2,
-      status: "ACTIVE",
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    },
-  });
-
-  const orderShipped = await prisma.order.upsert({
-    where: { code: "VTX-9822" },
-    update: {},
-    create: {
-      id: "ord-102",
-      code: "VTX-9822",
-      storeId: storeMel.id,
-      customerId: customer2.id,
-      customerAddressId: address2.id,
-      status: "SHIPPED",
-      subtotal: 104.7,
-      shippingFee: 15.0,
-      discount: 0,
-      totalAmount: 119.7,
-      paymentMethod: "credit_card",
-      paymentStatus: "approved",
-      notes: "Transportadora: VERTTEX Express | Rastreio: BR987654321BR",
-    },
-  });
-
-  await prisma.orderItem.create({
-    data: {
-      orderId: orderShipped.id,
-      productId: prodMel.id,
-      variationId: varMel.id,
-      productName: prodMel.name,
-      variationName: "Padrão / 500g",
-      sku: varMel.sku,
-      price: 34.9,
-      costPrice: 18.5,
-      quantity: 3,
-      subtotal: 104.7,
-    },
-  });
-
-  const orderPending = await prisma.order.upsert({
-    where: { code: "VTX-9823" },
-    update: {},
-    create: {
-      id: "ord-103",
-      code: "VTX-9823",
-      storeId: storeAlvorada.id,
-      customerId: customer1.id,
-      customerAddressId: address1.id,
-      status: "PENDING",
-      subtotal: 44.9,
-      shippingFee: 12.0,
-      discount: 0,
-      totalAmount: 56.9,
-      paymentMethod: "pix",
-      paymentStatus: "pending",
-    },
-  });
-
-  await prisma.orderItem.create({
-    data: {
-      orderId: orderPending.id,
-      productId: prodQueijo.id,
-      variationId: varQueijo.id,
-      productName: prodQueijo.name,
-      variationName: "Padrão / 500g",
-      sku: varQueijo.sku,
-      price: 44.9,
-      costPrice: 28.0,
-      quantity: 1,
-      subtotal: 44.9,
-    },
-  });
-
-  const orderDelivered = await prisma.order.upsert({
-    where: { code: "VTX-9824" },
-    update: {},
-    create: {
-      id: "ord-104",
-      code: "VTX-9824",
-      storeId: storeMel.id,
-      customerId: customer2.id,
-      customerAddressId: address2.id,
-      status: "DELIVERED",
-      subtotal: 69.8,
-      shippingFee: 10.0,
-      discount: 0,
-      totalAmount: 79.8,
-      paymentMethod: "credit_card",
-      paymentStatus: "approved",
-    },
-  });
-
-  await prisma.orderItem.create({
-    data: {
-      orderId: orderDelivered.id,
-      productId: prodMel.id,
-      variationId: varMel.id,
-      productName: prodMel.name,
-      variationName: "Padrão / 500g",
-      sku: varMel.sku,
-      price: 34.9,
-      costPrice: 18.5,
-      quantity: 2,
-      subtotal: 69.8,
-    },
-  });
-
-  const orderCancelled = await prisma.order.upsert({
-    where: { code: "VTX-9825" },
-    update: {},
-    create: {
-      id: "ord-105",
-      code: "VTX-9825",
-      storeId: storeAlvorada.id,
-      customerId: customer1.id,
-      customerAddressId: address1.id,
-      status: "CANCELLED",
-      subtotal: 44.9,
-      shippingFee: 0,
-      discount: 0,
-      totalAmount: 44.9,
-      paymentMethod: "boleto",
-      paymentStatus: "failed",
-      cancelReason: "Desistência do comprador no ato do pagamento",
-    },
-  });
-
-  await prisma.orderItem.create({
-    data: {
-      orderId: orderCancelled.id,
-      productId: prodQueijo.id,
-      variationId: varQueijo.id,
-      productName: prodQueijo.name,
-      variationName: "Padrão / 500g",
-      sku: varQueijo.sku,
-      price: 44.9,
-      costPrice: 28.0,
-      quantity: 1,
-      subtotal: 44.9,
-    },
-  });
-
-  console.log("✅ Pedidos de teste semeados com múltiplos status (PAID, SHIPPED, PENDING, DELIVERED, CANCELLED).");
-
-  // 13. Seed Sanitary Discard Stock Movements (For Losses & Curva ABC Reports)
-  await prisma.stockMovement.create({
-    data: {
-      storeId: storeAlvorada.id,
-      variationId: varQueijo.id,
-      lotId: lotExpired.id,
-      sourceLocationId: locAlvorada.id,
-      type: "EXPIRATION_DISCARD",
-      quantity: 12,
-      reason: "Descarte sanitário formal por vencimento do lote L-2026-CAN-03",
-      userId: adminUser.id,
-    },
-  });
-
-  await prisma.stockMovement.create({
-    data: {
-      storeId: storeAlvorada.id,
-      variationId: varQueijo.id,
-      lotId: lotValid.id,
-      sourceLocationId: locAlvorada.id,
-      type: "DAMAGE_DISCARD",
-      quantity: 3,
-      reason: "Descarte por avaria na embalagem durante movimentação interna",
-      userId: adminUser.id,
-    },
-  });
-
-  console.log("✅ Movimentações de perda sanitária registradas.");
-
-  // 14. Seed Audit Logs
-  const auditLogsData = [
-    {
-      userId: adminUser.id,
-      action: "USER_LOGIN",
-      entity: "User",
-      entityId: adminUser.id,
-      newValues: { status: "success", role: "admin", ip: "127.0.0.1" },
-      ipAddress: "127.0.0.1",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-    },
-    {
-      userId: adminUser.id,
-      action: "ORDER_CHECKOUT",
-      entity: "Order",
-      entityId: orderPaid.id,
-      newValues: { code: orderPaid.code, totalAmount: 89.8, itemsCount: 2 },
-      ipAddress: "127.0.0.1",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-    },
-    {
-      userId: adminUser.id,
-      action: "ORDER_DISPATCH",
-      entity: "Order",
-      entityId: orderShipped.id,
-      oldValues: { status: "PAID" },
-      newValues: { status: "SHIPPED", trackingCode: "BR987654321BR" },
-      ipAddress: "127.0.0.1",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-    },
-    {
-      userId: adminUser.id,
-      action: "LOT_QUARANTINE_ENTRY",
-      entity: "ProductLot",
-      entityId: lotQuarantine.id,
-      oldValues: { status: "available" },
-      newValues: { status: "quarantine", notes: "Análise laboratorial de cristalização" },
-      ipAddress: "127.0.0.1",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-    },
-    {
-      userId: adminUser.id,
-      action: "REPORT_EXPORT",
-      entity: "Report",
-      newValues: { format: "csv", reportType: "abc_curve" },
-      ipAddress: "127.0.0.1",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-    },
-  ];
-
-  for (const log of auditLogsData) {
-    await prisma.auditLog.create({
-      data: log,
-    });
-  }
-
-  console.log("✅ Logs de auditoria inicializados.");
-
-  // Marketplace Seed
-  console.log("🌱 Inicializando dados do Marketplace...");
-  await prisma.marketplaceSettings.upsert({
-    where: { id: "default-settings" },
-    update: {},
-    create: {
       id: "default-settings",
       publicName: "VERTTEX Marketplace",
       primaryColor: "#0f172a",
@@ -1211,49 +548,15 @@ async function main() {
       supportPhone: "(11) 4003-8899",
       supportWhatsapp: "(11) 99887-7665",
       outOfStockBehavior: "show_badge",
+      logoFileId: null,
+      faviconFileId: null,
+      ogImageFileId: null,
     },
   });
 
-  const countBanners = await prisma.carouselBanner.count();
-  if (countBanners === 0) {
-    await prisma.carouselBanner.createMany({
-      data: [
-        {
-          title: "Produtos da Estação",
-          subtitle: "Descubra os melhores produtos da nossa região com entrega garantida.",
-          imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&auto=format&fit=crop&q=80",
-          linkUrl: "/produtos",
-          ctaText: "Ver Catálogo",
-          position: 0,
-          isActive: true,
-          createdBy: "system",
-        },
-        {
-          title: "Produtores Locais Certificados",
-          subtitle: "Compre direto de quem produz na sua cidade com selo de qualidade.",
-          imageUrl: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1200&auto=format&fit=crop&q=80",
-          linkUrl: "/lojas",
-          ctaText: "Conhecer Produtores",
-          position: 1,
-          isActive: true,
-          createdBy: "system",
-        },
-        {
-          title: "Ofertas Especiais de Inverno",
-          subtitle: "Descontos exclusivos em hortifrúti e produtos artesanais.",
-          imageUrl: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1200&auto=format&fit=crop&q=80",
-          linkUrl: "/ofertas",
-          ctaText: "Aproveitar Ofertas",
-          position: 2,
-          isActive: false,
-          createdBy: "system",
-        },
-      ],
-    });
-  }
-  console.log("✅ Dados iniciais do marketplace criados.");
+  console.log("✅ Configurações padrão do Marketplace cadastradas (sem fotos).");
 
-  console.log("🎉 Seed finished successfully!");
+  console.log("🎉 Seed minimalista concluída com sucesso!");
 }
 
 main()

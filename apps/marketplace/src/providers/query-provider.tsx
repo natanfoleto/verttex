@@ -9,7 +9,11 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000,
+            staleTime: 5 * 60 * 1000, // 5 minutos sem refetch desnecessário ao navegar
+            gcTime: 30 * 60 * 1000, // 30 minutos mantido na memória da aplicação
+            refetchOnWindowFocus: false, // Evita recarregar/piscar dados ao mudar de aba
+            refetchOnMount: false, // Reutiliza dados em cache ao remontar telas
+            retry: 1,
           },
         },
       }),

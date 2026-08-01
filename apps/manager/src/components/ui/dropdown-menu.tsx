@@ -51,7 +51,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-32 overflow-hidden rounded-md border border-zinc-800 bg-zinc-900 p-1 text-zinc-100 shadow-lg",
+      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-32 overflow-hidden rounded-none bg-zinc-900 p-1 text-zinc-100 shadow-xl",
       className,
     )}
     {...props}
@@ -69,7 +69,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-100 min-w-32 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/95 p-1.5 text-zinc-100 shadow-xl backdrop-blur-md",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-100 min-w-32 overflow-hidden rounded-none bg-zinc-900 p-1.5 text-zinc-100 shadow-xl",
         className,
       )}
       {...props}
@@ -87,7 +87,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer items-center rounded-lg px-2.5 py-2 text-xs transition-colors outline-none select-none focus:bg-zinc-800 focus:text-zinc-100 data-disabled:pointer-events-none data-disabled:opacity-50",
+      "relative flex cursor-pointer items-center rounded-none px-2.5 py-2 text-xs transition-colors outline-none select-none focus:bg-zinc-800 focus:text-zinc-100 data-disabled:pointer-events-none data-disabled:opacity-50",
       inset && "pl-8",
       className,
     )}

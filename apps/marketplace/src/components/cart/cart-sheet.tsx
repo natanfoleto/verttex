@@ -111,14 +111,14 @@ export function CartSheet({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {isLoading ? (
             <div className="space-y-4">
-              <div className="h-20 animate-pulse rounded-xl bg-stone-100" />
-              <div className="h-20 animate-pulse rounded-xl bg-stone-100" />
+              <div className="h-20 animate-pulse rounded-md bg-stone-100" />
+              <div className="h-20 animate-pulse rounded-md bg-stone-100" />
             </div>
           ) : hasItems && summary ? (
             summary.stores.map((storeGroup) => (
               <div
                 key={storeGroup.store.id}
-                className="rounded-xl border border-stone-200/80 bg-white p-4 space-y-4 shadow-xs"
+                className="rounded-md border border-stone-200/80 bg-white p-4 space-y-4 shadow-xs"
               >
                 <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
                   <RiStore2Line className="h-4 w-4 text-amber-700" />
@@ -138,10 +138,10 @@ export function CartSheet({
                           <img
                             src={item.imageUrl}
                             alt={item.productName}
-                            className="h-12 w-12 rounded-lg object-cover border border-stone-200 shrink-0"
+                            className="h-12 w-12 rounded-md object-cover border border-stone-200 shrink-0"
                           />
                         ) : (
-                          <div className="h-12 w-12 rounded-lg bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
+                          <div className="h-12 w-12 rounded-md bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
                             <RiShoppingBag3Line className="h-6 w-6" />
                           </div>
                         )}
@@ -156,7 +156,7 @@ export function CartSheet({
                       </div>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center space-x-1 border border-stone-200 rounded-lg p-0.5 bg-stone-50">
+                      <div className="flex items-center space-x-1 border border-stone-200 rounded-sm p-0.5 bg-stone-50">
                         <button
                           type="button"
                           onClick={() => {
@@ -241,7 +241,7 @@ export function CartSheet({
             <Link
               href="/carrinho"
               onClick={() => onOpenChange(false)}
-              className="w-full flex items-center justify-center space-x-2 rounded-xl bg-emerald-800 py-3 text-xs font-bold text-white transition-colors hover:bg-emerald-900 cursor-pointer shadow-xs"
+              className="w-full flex items-center justify-center space-x-2 rounded-md bg-emerald-800 py-3 text-xs font-bold text-white transition-colors hover:bg-emerald-900 cursor-pointer shadow-xs"
             >
               <span>Ver Carrinho Completo</span>
               <RiArrowRightLine className="h-4 w-4" />
