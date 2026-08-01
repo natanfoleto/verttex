@@ -247,8 +247,10 @@ export default function ProductDetailPage({
                   )}
 
                   {/* Wishlist Icon Button Overlay */}
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setIsWishlisted(!isWishlisted)}
                     className={`absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white/90 shadow-xs backdrop-blur-xs transition-colors cursor-pointer ${
                       isWishlisted ? "text-rose-600 bg-rose-50 border-rose-200" : "text-stone-500 hover:text-rose-600"
@@ -256,25 +258,26 @@ export default function ProductDetailPage({
                     title="Salvar nos Favoritos"
                   >
                     <RiHeartLine className="h-5 w-5" />
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Thumbnails List Below Main Photo */}
                 {product.images.length > 1 && (
                   <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none">
                     {product.images.map((img, idx) => (
-                      <button
+                      <Button
                         key={img.id}
                         type="button"
+                        variant="ghost"
                         onClick={() => setSelectedImageIndex(idx)}
-                        className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
+                        className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 p-0 transition-all cursor-pointer ${
                           selectedImageIndex === idx
                             ? "border-emerald-800 ring-2 ring-emerald-800/20"
                             : "border-stone-200 opacity-70 hover:opacity-100"
                         }`}
                       >
                         <img src={img.url} alt="" className="h-full w-full object-cover" />
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -520,21 +523,25 @@ export default function ProductDetailPage({
               <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50 p-2">
                 <span className="text-xs font-bold text-stone-700">Quantidade:</span>
                 <div className="flex items-center space-x-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
+                    className="h-7 w-7 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
                   >
                     <RiSubtractLine className="h-4 w-4" />
-                  </button>
+                  </Button>
                   <span className="w-8 text-center font-bold text-xs">{quantity}</span>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
+                    className="h-7 w-7 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
                   >
                     <RiAddLine className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -6,8 +6,9 @@ import {
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
-import { RiLoader4Line } from "react-icons/ri";
+import { Button } from "./button";
 import { apiClient } from "../../lib/api-client";
+import { RiLoader4Line } from "react-icons/ri";
 
 export interface CarouselBannerItem {
   id: string;
@@ -71,7 +72,7 @@ export function MarketplaceCarousel() {
       if (saved) {
         setCachedBanners(JSON.parse(saved));
       }
-    } catch {}
+    } catch { }
   }, []);
 
   // Busca banners públicos com imagem
@@ -93,7 +94,7 @@ export function MarketplaceCarousel() {
     if (bannersRes?.data && Array.isArray(bannersRes.data)) {
       try {
         localStorage.setItem("verttex_cached_carousel_banners", JSON.stringify(bannersRes.data));
-      } catch {}
+      } catch { }
       setCachedBanners(bannersRes.data);
     }
   }, [bannersRes?.data]);
@@ -244,19 +245,17 @@ export function MarketplaceCarousel() {
               {/* Overlay de Título & Subtítulo conforme posição/alinhamento */}
               {carouselTitlePosition !== "NONE" && (banner.title || banner.subtitle) && (
                 <div
-                  className={`absolute inset-0 px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${
-                    carouselTitlePosition === "TOP"
+                  className={`absolute inset-0 px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${carouselTitlePosition === "TOP"
                       ? "justify-start pt-6 sm:pt-10"
                       : carouselTitlePosition === "BOTTOM"
-                      ? "justify-end pb-6 sm:pb-10"
-                      : "justify-center"
-                  } ${
-                    carouselTitleHAlign === "RIGHT"
+                        ? "justify-end pb-6 sm:pb-10"
+                        : "justify-center"
+                    } ${carouselTitleHAlign === "RIGHT"
                       ? "items-end text-right"
                       : carouselTitleHAlign === "CENTER"
-                      ? "items-center text-center"
-                      : "items-start text-left"
-                  }`}
+                        ? "items-center text-center"
+                        : "items-start text-left"
+                    }`}
                 >
                   {banner.title && (
                     <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold text-white drop-shadow-md tracking-tight">
@@ -278,12 +277,13 @@ export function MarketplaceCarousel() {
         {hasMultiple && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center gap-1.5">
             {banners.map((b, idx) => (
-              <button
+              <Button
                 key={b.id}
                 type="button"
+                variant="ghost"
                 onClick={() => setCurrentIndex(idx)}
                 aria-label={`Ir para o banner ${idx + 1}`}
-                className={`h-1.5 rounded-full cursor-pointer ${idx === currentIndex
+                className={`p-0 min-h-0 h-1.5 rounded-full cursor-pointer hover:bg-transparent ${idx === currentIndex
                   ? "w-6 bg-white shadow-xs"
                   : "w-1.5 bg-white/50 hover:bg-white/80"
                   }`}
@@ -293,26 +293,28 @@ export function MarketplaceCarousel() {
         )}
       </div>
 
-      {/* Botões cápsula/pill shape nas extremidades (borda 1.5px reforçada, ícone fino com stroke 1.25) */}
+      {/* Botões cápsula/pill shape nas extremidades */}
       {hasMultiple && (
         <>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={handlePrev}
             aria-label="Banner anterior"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 items-center justify-center rounded-r-full bg-white shadow-none border-[1.5px] border-l-0 border-stone-300 text-stone-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 items-center justify-center rounded-r-full rounded-l-none bg-white p-0 shadow-none border-[1.5px] border-l-0 border-stone-300 text-stone-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
           >
             <FiChevronLeft className="size-4 sm:size-5 md:size-7 text-stone-800 stroke-[1.25]" />
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={handleNext}
             aria-label="Próximo banner"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 items-center justify-center rounded-l-full bg-white shadow-none border-[1.5px] border-r-0 border-stone-300 text-stone-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 items-center justify-center rounded-l-full rounded-r-none bg-white p-0 shadow-none border-[1.5px] border-r-0 border-stone-300 text-stone-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
           >
             <FiChevronRight className="size-4 sm:size-5 md:size-7 text-stone-800 stroke-[1.25]" />
-          </button>
+          </Button>
         </>
       )}
     </section>

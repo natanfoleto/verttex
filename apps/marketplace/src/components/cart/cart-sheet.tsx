@@ -12,6 +12,7 @@ import {
 } from "react-icons/ri";
 import { toast } from "sonner";
 
+import { Button } from "../ui/button";
 import {
   Sheet,
   SheetContent,
@@ -157,8 +158,10 @@ export function CartSheet({
 
                       {/* Quantity Controls */}
                       <div className="flex items-center space-x-1 border border-stone-200 rounded-sm p-0.5 bg-stone-50">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => {
                             if (item.quantity > 1) {
                               updateQuantityMutation.mutate({
@@ -169,35 +172,39 @@ export function CartSheet({
                               removeItemMutation.mutate(item.id);
                             }
                           }}
-                          className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
+                          className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
                         >
                           <RiSubtractLine className="h-3 w-3" />
-                        </button>
+                        </Button>
                         <span className="w-5 text-center font-bold text-[11px]">
                           {item.quantity}
                         </span>
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => {
                             updateQuantityMutation.mutate({
                               id: item.id,
                               quantity: item.quantity + 1,
                             });
                           }}
-                          className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
+                          className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
                         >
                           <RiAddLine className="h-3 w-3" />
-                        </button>
+                        </Button>
                       </div>
 
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => removeItemMutation.mutate(item.id)}
-                        className="text-stone-400 hover:text-rose-600 p-1 cursor-pointer"
+                        className="h-7 w-7 text-stone-400 hover:text-rose-600 p-0 cursor-pointer"
                         title="Remover Item"
                       >
                         <RiDeleteBin6Line className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>

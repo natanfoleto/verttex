@@ -307,10 +307,11 @@ export default function CheckoutPage() {
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => setPaymentMethod("pix")}
-                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
                   paymentMethod === "pix"
                     ? "border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20"
                     : "border-stone-200 bg-white hover:border-stone-400"
@@ -326,12 +327,13 @@ export default function CheckoutPage() {
                   <p className="font-bold text-xs text-stone-900">PIX</p>
                   <p className="text-[11px] text-stone-500">Aprovação imediata com QR Code</p>
                 </div>
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => setPaymentMethod("credit_card")}
-                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
                   paymentMethod === "credit_card"
                     ? "border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20"
                     : "border-stone-200 bg-white hover:border-stone-400"
@@ -344,12 +346,13 @@ export default function CheckoutPage() {
                   <p className="font-bold text-xs text-stone-900">Cartão de Crédito</p>
                   <p className="text-[11px] text-stone-500">Em até 3x sem juros</p>
                 </div>
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => setPaymentMethod("boleto")}
-                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
                   paymentMethod === "boleto"
                     ? "border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20"
                     : "border-stone-200 bg-white hover:border-stone-400"
@@ -362,7 +365,7 @@ export default function CheckoutPage() {
                   <p className="font-bold text-xs text-stone-900">Boleto Bancário</p>
                   <p className="text-[11px] text-stone-500">Vencimento em 2 dias úteis</p>
                 </div>
-              </button>
+              </Button>
             </div>
           </div>
 

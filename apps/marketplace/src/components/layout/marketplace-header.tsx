@@ -18,7 +18,11 @@ import {
   RiUser3Line,
 } from "react-icons/ri";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HoverDropdown } from "@/components/ui/hover-dropdown";
+import { Input } from "@/components/ui/input";
 
 import { CartSheet } from "../cart/cart-sheet";
 import { apiClient } from "../../lib/api-client";
@@ -114,14 +118,16 @@ export function MarketplaceHeader() {
               <span>{settings.announcementText}</span>
             )}
             {settings.announcementDismissible !== false && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => setAnnouncementDismissed(true)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-emerald-300 hover:text-white transition-colors cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-emerald-300 hover:text-white hover:bg-transparent transition-colors cursor-pointer"
                 aria-label="Fechar comunicado"
               >
                 <RiCloseLine className="h-4 w-4" />
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -166,30 +172,33 @@ export function MarketplaceHeader() {
             className="hidden md:flex col-span-6 items-center"
           >
             <div className="relative w-full flex items-center bg-white rounded-xs shadow-xs text-stone-900 overflow-hidden">
-              <input
+              <Input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar produtos, marcas e muito mais..."
-                className="w-full bg-transparent px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-600 focus:outline-none"
+                className="w-full bg-transparent border-none focus-visible:ring-0 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-600 focus:outline-none"
               />
               {searchQuery && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setSearchQuery("")}
-                  className="p-1 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer mr-1"
+                  className="h-7 w-7 p-0 text-stone-400 hover:text-stone-700 hover:bg-transparent transition-colors cursor-pointer mr-1"
                 >
                   <RiCloseLine className="h-4 w-4" />
-                </button>
+                </Button>
               )}
               <div className="h-5 w-px bg-stone-200 shrink-0" />
-              <button
+              <Button
                 type="submit"
-                className="px-3.5 py-2.5 text-stone-500 hover:text-emerald-800 transition-colors cursor-pointer"
+                variant="ghost"
+                className="px-3.5 py-2.5 h-auto text-stone-500 hover:text-emerald-800 hover:bg-transparent transition-colors cursor-pointer"
                 title="Buscar"
               >
                 <RiSearchLine className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </form>
 
@@ -206,19 +215,21 @@ export function MarketplaceHeader() {
 
           {/* Mobile Actions Toggle */}
           <div className="col-span-6 flex items-center justify-end space-x-2 md:hidden">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 text-white hover:text-emerald-100 cursor-pointer"
+              className="relative p-2 text-white hover:text-emerald-100 hover:bg-transparent cursor-pointer"
               aria-label="Carrinho"
             >
               <RiShoppingBag3Line className="h-6 w-6" />
               {cartTotalItems > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-950 text-[10px] font-bold text-white">
+                <Badge className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-950 p-0 text-[10px] font-bold text-white border-none">
                   {cartTotalItems}
-                </span>
+                </Badge>
               )}
-            </button>
+            </Button>
 
             <Button
               type="button"
@@ -236,90 +247,87 @@ export function MarketplaceHeader() {
         {/* ROW 2: CEP (Col 1-2) | Menus Nav (Col 3-8) | Auth Controls (Col 9-12) */}
         <div className="hidden md:grid grid-cols-12 items-center gap-4 pt-3.5 pb-0.5">
 
-          {/* CEP / Região Alinhado Exatamente na Coluna 1 a 2 (Diretamente abaixo da Logo) */}
+          {/* CEP / Região Alinhado Exatamente na Coluna 1 a 2 */}
           <div className="col-span-2 flex items-center">
-            <button
+            <Button
               type="button"
-              className="group inline-flex items-center space-x-1.5 text-left text-white hover:opacity-90 transition-opacity cursor-pointer"
+              variant="ghost"
+              className="group inline-flex items-center space-x-1.5 p-0 h-auto text-left text-white hover:opacity-90 hover:bg-transparent transition-opacity cursor-pointer"
             >
               <RiMapPinLine className="h-5 w-5 shrink-0 text-white" />
               <div className="flex flex-col leading-tight">
                 <span className="text-[10px] text-white/80 font-medium">Informe seu</span>
-                <span className="text-xs font-bold text-white">CEP</span>
+                <span className="text-xs text-white">CEP</span>
               </div>
-            </button>
+            </Button>
           </div>
 
-          {/* Menus Principais Alinhados Exatamente na Coluna 3 a 8 (Diretamente abaixo da Busca) */}
+          {/* Menus Principais Alinhados Exatamente na Coluna 3 a 8 */}
           <nav className="col-span-6 flex items-center space-x-4 text-xs font-normal text-white">
 
-            {/* Mega Categories Dropdown */}
-            <div className="relative group">
-              <button
-                type="button"
-                className="inline-flex items-center space-x-1 py-1 font-normal text-white hover:opacity-90 transition-opacity cursor-pointer"
-              >
-                <span>Categorias</span>
-                <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 group-hover:rotate-180 transition-transform" />
-              </button>
+            {/* Mega Categories Dropdown usando o componente reutilizável HoverDropdown */}
+            <HoverDropdown
+              align="left"
+              arrowColor="border-b-[#333333]"
+              arrowOffset="left-6"
+              contentClassName="w-64 rounded-xs bg-zinc-800 border border-zinc-800 p-2 shadow-2xl space-y-0.5 text-white font-sans"
+              trigger={
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                >
+                  <span>Categorias</span>
+                  <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 shrink-0" />
+                </button>
+              }
+            >
+              {displayCategories && displayCategories.length > 0 ? (
+                <>
+                  {displayCategories.slice(0, 10).map((cat) => {
+                    const subs = subcategoriesMap.get(cat.id) || [];
+                    const hasChildren = subs.length > 0;
 
-              {/* Hover Categories Content */}
-              <div className="invisible absolute left-0 top-full opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 z-50 font-sans">
-                <div className="relative pt-2">
-                  {/* Flecinha Indicadora no Topo (Grudada no Menu) */}
-                  <div className="absolute top-0 left-6 w-0 h-0 border-l-[9px] border-r-[9px] border-b-[9px] border-l-transparent border-r-transparent border-b-[#333333] z-10" />
-
-                  <div className="w-64 rounded-xs bg-[#333333] border border-[#444444] p-2 shadow-2xl space-y-0.5 text-white font-sans">
-                    {displayCategories && displayCategories.length > 0 ? (
-                      <>
-                        {displayCategories.slice(0, 10).map((cat) => {
-                          const subs = subcategoriesMap.get(cat.id) || [];
-                          const hasChildren = subs.length > 0;
-
-                          return (
-                            <div key={cat.id} className="relative group/sub">
-                              <Link
-                                href={`/produtos?categorySlug=${cat.slug}`}
-                                className="flex items-center justify-between rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-[#444444] hover:text-white transition-colors"
-                              >
-                                <span className="truncate">{cat.name}</span>
-                                {hasChildren && <RiArrowRightSLine className="h-3.5 w-3.5 text-stone-400 shrink-0 ml-2" />}
-                              </Link>
-
-                              {/* Subcategories Flyout */}
-                              {hasChildren && (
-                                <div className="invisible absolute left-full top-0 ml-1 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100 z-50">
-                                  <div className="w-56 rounded-xs bg-[#333333] border border-[#444444] p-2 shadow-2xl space-y-0.5 text-white font-sans">
-                                    {subs.map((sub) => (
-                                      <Link
-                                        key={sub.id}
-                                        href={`/produtos?categorySlug=${sub.slug}`}
-                                        className="block rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-[#444444] hover:text-white transition-colors"
-                                      >
-                                        <span className="truncate">{sub.name}</span>
-                                      </Link>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-
+                    return (
+                      <div key={cat.id} className="relative group/sub">
                         <Link
-                          href="/categorias"
-                          className="block rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-[#444444] hover:text-white transition-colors"
+                          href={`/produtos?categorySlug=${cat.slug}`}
+                          className="flex items-center justify-between rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-zinc-700 hover:text-white transition-colors"
                         >
-                          <span className="truncate">Ver mais categorias</span>
+                          <span className="truncate">{cat.name}</span>
+                          {hasChildren && <RiArrowRightSLine className="h-3.5 w-3.5 text-stone-400 shrink-0 ml-2" />}
                         </Link>
-                      </>
-                    ) : (
-                      <p className="p-3 text-center text-xs text-stone-400">Nenhuma categoria</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+
+                        {/* Subcategories Flyout */}
+                        {hasChildren && (
+                          <div className="invisible absolute left-full top-0 ml-1 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100 z-50">
+                            <div className="w-56 rounded-xs bg-[#333333] border border-zinc-700 p-2 shadow-2xl space-y-0.5 text-white font-sans">
+                              {subs.map((sub) => (
+                                <Link
+                                  key={sub.id}
+                                  href={`/produtos?categorySlug=${sub.slug}`}
+                                  className="block rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-zinc-700 hover:text-white transition-colors"
+                                >
+                                  <span className="truncate">{sub.name}</span>
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  <Link
+                    href="/categorias"
+                    className="block rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-zinc-700 hover:text-white transition-colors"
+                  >
+                    <span className="truncate">Ver mais categorias</span>
+                  </Link>
+                </>
+              ) : (
+                <p className="p-3 text-center text-xs text-stone-400">Nenhuma categoria</p>
+              )}
+            </HoverDropdown>
 
             <Link href="/produtos" className="py-1 text-white hover:opacity-80 transition-opacity">
               Ofertas
@@ -349,153 +357,159 @@ export function MarketplaceHeader() {
           {/* Controles de Autenticação / Conta Alinhados na Coluna 9 a 12 (Diretamente abaixo das Ofertas) */}
           <div className="col-span-4 flex items-center justify-end space-x-5 text-xs font-normal text-white">
             {customer ? (
-              <div className="relative group">
-                <button
-                  type="button"
-                  className="flex items-center space-x-1.5 py-1 text-white hover:opacity-90 transition-opacity cursor-pointer font-medium"
+              <HoverDropdown
+                align="right"
+                arrowColor="border-b-white"
+                arrowOffset="right-6"
+                contentClassName="w-72 rounded-xs bg-white border border-stone-200/80 shadow-2xl text-stone-900 font-sans overflow-hidden"
+                trigger={
+                  <button
+                    type="button"
+                    className="flex items-center text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                  >
+                    <div className="flex items-center gap-1">
+                      <Avatar className="h-5 w-5 shrink-0">
+                        <AvatarFallback className="bg-white text-stone-900 text-[10px] font-bold uppercase">
+                          {customer.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="max-w-28 truncate">{customer.name.split(" ")[0]}</span>
+                    </div>
+
+                    <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 shrink-0 ml-1" />
+                  </button>
+                }
+              >
+                {/* User Info Header — Botão clicável que leva ao Perfil */}
+                <Link
+                  href="/perfil"
+                  className="flex items-center justify-between p-4 border-b border-stone-100 hover:bg-stone-50/80 transition-colors cursor-pointer"
                 >
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-stone-900 text-[10px] font-bold uppercase shrink-0 shadow-xs">
-                    {customer.name.charAt(0)}
-                  </div>
-                  <span className="max-w-28 truncate">{customer.name.split(" ")[0]}</span>
-                  <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 group-hover:rotate-180 transition-transform" />
-                </button>
-
-                {/* User Dropdown */}
-                <div className="invisible absolute right-0 top-full opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 z-50 font-sans">
-                  <div className="relative pt-2">
-                    {/* Flecinha Indicadora no Topo (Grudada no Menu Branco) */}
-                    <div className="absolute top-0 right-6 w-0 h-0 border-l-[9px] border-r-[9px] border-b-[9px] border-l-transparent border-r-transparent border-b-white z-10" />
-
-                    <div className="w-72 rounded-xs bg-white border border-stone-200/80 shadow-2xl text-stone-900 font-sans overflow-hidden">
-                      {/* User Info Header — Botão clicável que leva ao Perfil */}
-                      <Link
-                        href="/perfil"
-                        className="flex items-center justify-between p-4 border-b border-stone-100 hover:bg-stone-50/80 transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-3 min-w-0">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-white text-base font-bold uppercase shrink-0 shadow-xs">
-                            {customer.name.charAt(0)}
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="font-bold text-stone-900 text-sm truncate leading-tight">
-                              {customer.name}
-                            </span>
-                            <span className="text-[11px] text-stone-500 truncate mt-0.5">
-                              {customer.email}
-                            </span>
-                          </div>
-                        </div>
-                        <RiArrowRightSLine className="h-5 w-5 text-stone-400 shrink-0 ml-2" />
-                      </Link>
-
-                      {/* Promo Banner Meli+ / Verttex+ */}
-                      <div className="p-3 border-b border-stone-100">
-                        <Link
-                          href="/perfil"
-                          className="flex items-center justify-between w-full bg-linear-to-r from-pink-600 to-rose-600 text-white text-[11px] font-bold px-3.5 py-2.5 rounded-full hover:brightness-105 transition-all shadow-xs cursor-pointer"
-                        >
-                          <span>meli+ Assine a partir de R$ 9,90/mês</span>
-                          <RiArrowRightSLine className="h-4 w-4 shrink-0 ml-1" />
-                        </Link>
-                      </div>
-
-                      {/* Section 1: Compras, Histórico, Perguntas, Opiniões */}
-                      <div className="border-b border-stone-100 py-1.5">
-                        <Link
-                          href="/pedidos"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Compras
-                        </Link>
-                        <Link
-                          href="/produtos"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Histórico
-                        </Link>
-                        <Link
-                          href="/atendimento"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Perguntas
-                        </Link>
-                        <Link
-                          href="/perfil"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Opiniões
-                        </Link>
-                      </div>
-
-                      {/* Section 2: Empréstimos, Assinaturas, Faturamento */}
-                      <div className="border-b border-stone-100 py-1.5">
-                        <Link
-                          href="/perfil"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Empréstimos
-                        </Link>
-                        <Link
-                          href="/perfil"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Assinaturas
-                        </Link>
-                        <Link
-                          href="/perfil"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Faturamento
-                        </Link>
-                      </div>
-
-                      {/* Section 3: Vender, Resumo */}
-                      <div className="border-b border-stone-100 py-1.5">
-                        <Link
-                          href="/lojas"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Vender
-                        </Link>
-                        <Link
-                          href="/perfil"
-                          className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
-                        >
-                          Resumo
-                        </Link>
-                      </div>
-
-                      {/* Section 4: Sair */}
-                      <div className="py-1.5">
-                        <button
-                          type="button"
-                          onClick={() => logout()}
-                          className="block w-full text-left px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                        >
-                          Sair
-                        </button>
-                      </div>
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <Avatar className="h-11 w-11 shrink-0 shadow-xs">
+                      <AvatarFallback className="bg-stone-900 text-white text-base font-bold uppercase">
+                        {customer.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-bold text-stone-900 text-sm truncate leading-tight">
+                        {customer.name}
+                      </span>
+                      <span className="text-[11px] text-stone-500 truncate mt-0.5">
+                        {customer.email}
+                      </span>
                     </div>
                   </div>
+                  <RiArrowRightSLine className="h-5 w-5 text-stone-400 shrink-0 ml-2" />
+                </Link>
+
+                {/* Promo Banner Meli+ / Verttex+ */}
+                <div className="p-3 border-b border-stone-100">
+                  <Link
+                    href="/perfil"
+                    className="flex items-center justify-between w-full bg-linear-to-r from-pink-600 to-rose-600 text-white text-[11px] font-bold px-3.5 py-2.5 rounded-full hover:brightness-105 transition-all shadow-xs cursor-pointer"
+                  >
+                    <span>meli+ Assine a partir de R$ 9,90/mês</span>
+                    <RiArrowRightSLine className="h-4 w-4 shrink-0 ml-1" />
+                  </Link>
                 </div>
-              </div>
+
+                {/* Section 1: Compras, Histórico, Perguntas, Opiniões */}
+                <div className="border-b border-stone-100 py-1.5">
+                  <Link
+                    href="/pedidos"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Compras
+                  </Link>
+                  <Link
+                    href="/produtos"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Histórico
+                  </Link>
+                  <Link
+                    href="/atendimento"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Perguntas
+                  </Link>
+                  <Link
+                    href="/perfil"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Opiniões
+                  </Link>
+                </div>
+
+                {/* Section 2: Empréstimos, Assinaturas, Faturamento */}
+                <div className="border-b border-stone-100 py-1.5">
+                  <Link
+                    href="/perfil"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Empréstimos
+                  </Link>
+                  <Link
+                    href="/perfil"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Assinaturas
+                  </Link>
+                  <Link
+                    href="/perfil"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Faturamento
+                  </Link>
+                </div>
+
+                {/* Section 3: Vender, Resumo */}
+                <div className="border-b border-stone-100 py-1.5">
+                  <Link
+                    href="/lojas"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Vender
+                  </Link>
+                  <Link
+                    href="/perfil"
+                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                  >
+                    Resumo
+                  </Link>
+                </div>
+
+                {/* Section 4: Sair */}
+                <div className="py-1.5">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => logout()}
+                    className="block w-full text-left justify-start px-4 py-1.5 h-auto text-xs font-medium text-stone-700 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer rounded-none"
+                  >
+                    Sair
+                  </Button>
+                </div>
+              </HoverDropdown>
             ) : (
               <>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => openAuthModal("register")}
-                  className="text-white hover:opacity-80 transition-opacity cursor-pointer font-medium"
+                  className="p-0 h-auto text-xs font-normal text-white hover:opacity-80 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
                 >
                   Crie a sua conta
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => openAuthModal("login")}
-                  className="text-white hover:opacity-80 transition-opacity cursor-pointer font-medium"
+                  className="p-0 h-auto text-xs font-normal text-white hover:opacity-80 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
                 >
                   Entre
-                </button>
+                </Button>
               </>
             )}
 
@@ -513,20 +527,65 @@ export function MarketplaceHeader() {
               Compras
             </Link>
 
+            {/* Menu Favoritos (Hover Dropdown com Fundo Branco - Idêntico ao Modelo) */}
+            {customer && (
+              <HoverDropdown
+                align="right"
+                arrowColor="border-b-white"
+                arrowOffset="right-6"
+                contentClassName="w-80 rounded-xs bg-white border border-stone-200/80 shadow-2xl text-stone-900 font-sans overflow-hidden"
+                trigger={
+                  <button
+                    type="button"
+                    className="inline-flex items-center text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                  >
+                    <span>Favoritos</span>
+                    <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 shrink-0 ml-1" />
+                  </button>
+                }
+              >
+                {/* Header */}
+                <div className="px-5 py-4 border-b border-stone-100">
+                  <h4 className="font-semibold text-stone-900 text-sm tracking-tight">
+                    Favoritos
+                  </h4>
+                </div>
+
+                {/* Body */}
+                <div className="bg-[#f5f5f5] py-12 px-6 text-center">
+                  <p className="text-xs text-stone-800 font-normal leading-relaxed max-w-60 mx-auto">
+                    Adicione aqui os produtos que você gostou para poder vê-los mais tarde.
+                  </p>
+                </div>
+
+                {/* Footer */}
+                <div className="py-4 px-4 bg-white border-t border-stone-100 text-center">
+                  <Link
+                    href="/perfil"
+                    className="text-xs font-normal text-blue-500 hover:text-blue-600 transition-colors"
+                  >
+                    Ver todos os favoritos e listas
+                  </Link>
+                </div>
+              </HoverDropdown>
+            )}
+
             {/* Ícone de Carrinho no Final da Linha */}
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-1 text-white hover:opacity-80 transition-opacity cursor-pointer"
+              className="relative p-1 h-auto w-auto text-white hover:opacity-80 hover:bg-transparent transition-opacity cursor-pointer"
               title="Carrinho de Compras"
             >
               <RiShoppingBag3Line className="h-5 w-5 text-white" />
               {cartTotalItems > 0 && (
-                <span className="absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-950 px-1 text-[9px] font-bold text-white">
+                <Badge className="absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-950 px-1 p-0 text-[9px] font-bold text-white border-none">
                   {cartTotalItems}
-                </span>
+                </Badge>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -538,21 +597,23 @@ export function MarketplaceHeader() {
           <form onSubmit={handleSearchSubmit} className="relative">
             <div className="flex items-center rounded-xs bg-white text-stone-900 px-3 py-2 shadow-xs">
               <RiSearchLine className="h-4 w-4 text-stone-400 shrink-0" />
-              <input
+              <Input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar produtos, marcas e muito mais..."
-                className="w-full bg-transparent px-2.5 text-sm text-stone-900 placeholder:text-stone-600 focus:outline-none"
+                className="w-full bg-transparent border-none focus-visible:ring-0 px-2.5 text-sm text-stone-900 placeholder:text-stone-600 focus:outline-none"
               />
               {searchQuery && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setSearchQuery("")}
-                  className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
+                  className="h-6 w-6 p-0 text-stone-400 hover:text-stone-700 hover:bg-transparent cursor-pointer"
                 >
                   <RiCloseLine className="h-4 w-4" />
-                </button>
+                </Button>
               )}
             </div>
           </form>
