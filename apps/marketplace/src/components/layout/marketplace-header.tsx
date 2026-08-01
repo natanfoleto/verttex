@@ -134,7 +134,7 @@ export function MarketplaceHeader() {
             onSubmit={handleSearchSubmit}
             className="relative hidden w-full max-w-lg md:flex"
           >
-            <div className="flex w-full items-center bg-white rounded-none overflow-hidden">
+            <div className="flex w-full items-center bg-white rounded-lg overflow-hidden shadow-xs">
               <input
                 type="text"
                 value={searchQuery}
@@ -182,7 +182,7 @@ export function MarketplaceHeader() {
 
               {/* Dropdown Menu — Réplica fiel do design Mercado Livre / Mercado Pago */}
               <div className="invisible absolute right-0 top-full z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-72 rounded-none bg-white shadow-xl overflow-hidden text-stone-900 font-sans">
+                <div className="w-72 rounded-xl bg-white shadow-xl overflow-hidden text-stone-900 font-sans border border-stone-100">
                   {/* User Info Header — Botão clicável que leva ao Perfil */}
                   <Link
                     href="/perfil"
@@ -309,15 +309,14 @@ export function MarketplaceHeader() {
                 type="button"
                 size="sm"
                 onClick={() => openAuthModal("login")}
-                className="font-semibold bg-emerald-600 hover:bg-emerald-500 text-white border-none cursor-pointer rounded-sm"
               >
                 Entrar
               </Button>
               <Button
                 type="button"
                 size="sm"
+                variant="secondary"
                 onClick={() => openAuthModal("register")}
-                className="font-semibold bg-emerald-600 hover:bg-emerald-500 text-white border-none cursor-pointer rounded-sm"
               >
                 Criar Conta
               </Button>
@@ -332,7 +331,6 @@ export function MarketplaceHeader() {
             variant="outline"
             size="icon"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2.5 bg-white/10 text-white border-white/20 hover:bg-white/20 rounded-sm cursor-pointer"
             aria-label="Abrir menu"
           >
             {mobileMenuOpen ? (
@@ -361,7 +359,7 @@ export function MarketplaceHeader() {
 
               {/* Hover Dropdown Content */}
               <div className="invisible absolute top-full left-0 z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-64 rounded-none bg-white p-2 shadow-xl space-y-1 text-stone-900">
+                <div className="w-64 rounded-xl bg-white p-2 shadow-xl space-y-1 text-stone-900 border border-stone-100">
                   {displayCategories && displayCategories.length > 0 ? (
                     <>
                       {displayCategories.slice(0, 10).map((cat) => {
@@ -372,7 +370,7 @@ export function MarketplaceHeader() {
                           <div key={cat.id} className="group/sub relative">
                             <Link
                               href={`/produtos?categorySlug=${cat.slug}`}
-                              className="flex items-center justify-between rounded-none px-3 py-2 text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-900 cursor-pointer text-xs font-medium"
+                              className="flex items-center justify-between rounded-lg px-3 py-2 text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-900 cursor-pointer text-xs font-medium"
                             >
                               <span className="truncate">{cat.name}</span>
                               {hasChildren && (
@@ -383,12 +381,12 @@ export function MarketplaceHeader() {
                             {/* Subcategories Flyout Dropdown to the Right */}
                             {hasChildren && (
                               <div className="invisible absolute left-full top-0 ml-1 z-50 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100">
-                                <div className="w-56 rounded-none bg-white p-2 shadow-xl space-y-1 text-stone-900">
+                                <div className="w-56 rounded-xl bg-white p-2 shadow-xl space-y-1 text-stone-900 border border-stone-100">
                                   {subs.map((sub) => (
                                     <Link
                                       key={sub.id}
                                       href={`/produtos?categorySlug=${sub.slug}`}
-                                      className="flex items-center justify-between rounded-none px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors text-xs font-medium cursor-pointer"
+                                      className="flex items-center justify-between rounded-lg px-3 py-2 text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors text-xs font-medium cursor-pointer"
                                     >
                                       <span className="truncate">{sub.name}</span>
                                     </Link>
@@ -401,7 +399,7 @@ export function MarketplaceHeader() {
                       })}
                       <Link
                         href="/categorias"
-                        className="flex items-center justify-between rounded-none px-3 py-2 text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-900 cursor-pointer text-xs font-semibold"
+                        className="flex items-center justify-between rounded-lg px-3 py-2 text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-900 cursor-pointer text-xs font-semibold"
                       >
                         <span className="truncate">Ver mais categorias</span>
                       </Link>
@@ -438,7 +436,7 @@ export function MarketplaceHeader() {
 
               {/* Hover Dropdown Content */}
               <div className="invisible absolute right-0 top-full z-50 pt-1.5 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100">
-                <div className="w-80 rounded-none bg-white shadow-xl overflow-hidden text-stone-900">
+                <div className="w-80 rounded-xl bg-white shadow-xl overflow-hidden text-stone-900 border border-stone-100">
                   {/* Dropdown Header */}
                   <div className="bg-white px-4 py-3 border-b border-stone-100">
                     <h3 className="font-semibold text-stone-900 text-sm">Favoritos</h3>
@@ -492,7 +490,7 @@ export function MarketplaceHeader() {
         <div className="animate-fadeIn space-y-4 border-t border-stone-200 bg-white p-4 shadow-lg md:hidden">
           {/* Mobile Search */}
           <form onSubmit={handleSearchSubmit} className="relative">
-            <div className="flex w-full items-center bg-white rounded-none overflow-hidden">
+            <div className="flex w-full items-center bg-white rounded-lg overflow-hidden shadow-xs">
               <input
                 type="text"
                 value={searchQuery}

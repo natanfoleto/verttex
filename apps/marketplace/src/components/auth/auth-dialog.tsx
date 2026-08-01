@@ -93,7 +93,7 @@ export function AuthDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-[95vw] h-170 overflow-hidden p-0 border-0 bg-stone-950 text-stone-900 shadow-2xl rounded-2xl [&>button:last-child]:h-9 [&>button:last-child]:w-9 [&>button:last-child]:rounded-full [&>button:last-child]:border [&>button:last-child]:border-stone-200/80 [&>button:last-child]:bg-white [&>button:last-child]:shadow-md [&>button:last-child]:opacity-100 [&>button:last-child]:flex [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:text-stone-900 [&>button:last-child]:transition-all [&>button:last-child]:hover:bg-stone-100 [&>button:last-child]:hover:scale-105 [&>button:last-child]:top-4 [&>button:last-child]:right-4">
+      <DialogContent className="sm:max-w-5xl md:max-w-5xl w-[95vw] h-170 overflow-hidden p-0 border-0 bg-stone-950 text-stone-900 shadow-2xl rounded-2xl [&>button:last-child]:h-9 [&>button:last-child]:w-9 [&>button:last-child]:rounded-full [&>button:last-child]:border [&>button:last-child]:border-stone-200/80 [&>button:last-child]:bg-white [&>button:last-child]:shadow-md [&>button:last-child]:opacity-100 [&>button:last-child]:flex [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:text-stone-900 [&>button:last-child]:transition-all [&>button:last-child]:hover:bg-stone-100 [&>button:last-child]:hover:scale-105 [&>button:last-child]:top-4 [&>button:last-child]:right-4">
         <DialogTitle className="sr-only">
           {mode === "login" ? "Fazer Login" : "Criar Conta"}
         </DialogTitle>
@@ -248,7 +248,8 @@ export function AuthDialog({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-2 h-11.5 w-full bg-emerald-800 hover:bg-emerald-700 font-bold"
+                  size="lg"
+                  className="w-full mt-2"
                 >
                   {isSubmitting
                     ? "Aguarde..."
