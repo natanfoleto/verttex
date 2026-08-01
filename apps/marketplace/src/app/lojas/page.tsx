@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { EmptyState } from "../../components/ui/empty-state";
-import { MarketplaceFullPageLoader } from "../../components/ui/marketplace-page-loader";
+import { MarketplacePageLoader } from "../../components/ui/marketplace-page-loader";
 import { StoreCard, StoreCardProps } from "../../components/ui/store-card";
 import { apiClient } from "../../lib/api-client";
 
@@ -54,9 +54,7 @@ export default function StoresListingPage() {
     logoUrl: s.logoUrl || undefined,
   }));
 
-  if (isLoading && !storesRes) {
-    return <MarketplaceFullPageLoader label="Carregando produtores parceiros..." />;
-  }
+
 
   return (
     <div className="space-y-8 pb-20 font-sans text-stone-900 antialiased">
@@ -104,7 +102,7 @@ export default function StoresListingPage() {
 
         {/* Stores Grid Area / Loader */}
         {isLoading ? (
-          <MarketplaceFullPageLoader label="Carregando produtores parceiros..." />
+          <MarketplacePageLoader label="Carregando produtores parceiros..." />
         ) : mappedStores.length > 0 ? (
           <div className="space-y-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

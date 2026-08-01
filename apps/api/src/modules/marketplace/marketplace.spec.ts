@@ -74,14 +74,6 @@ describe("Marketplace & Carousel Module", () => {
       expect(createCarouselBannerSchema.safeParse(externalInput).success).toBe(true);
     });
 
-    it("should reject invalid hex colors in marketplace settings", () => {
-      const invalidColor = { primaryColor: "red" };
-      expect(updateMarketplaceSettingsSchema.safeParse(invalidColor).success).toBe(false);
-
-      const validColor = { primaryColor: "#10b981" };
-      expect(updateMarketplaceSettingsSchema.safeParse(validColor).success).toBe(true);
-    });
-
     it("should reject invalid outOfStockBehavior enums", () => {
       const invalidEnum = { outOfStockBehavior: "invalid_behavior" };
       expect(updateMarketplaceSettingsSchema.safeParse(invalidEnum).success).toBe(false);
@@ -103,7 +95,6 @@ describe("Marketplace & Carousel Module", () => {
       const updated = await marketplaceService.updateSettings(
         {
           publicName: "__TEST__ Mercado Central",
-          primaryColor: "#0f172a",
           supportEmail: "suporte@test.com",
           announcementActive: true,
           announcementText: "Frete Grátis! [TEST]",

@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { MarketplaceFullPageLoader } from "../../components/ui/marketplace-page-loader";
+import { MarketplacePageLoader } from "../../components/ui/marketplace-page-loader";
 import { CartSummary } from "../../components/cart/cart-sheet";
 import { apiClient, ApiError } from "../../lib/api-client";
 
@@ -100,7 +100,7 @@ export default function CartPage() {
   });
 
   if (isLoading) {
-    return <MarketplaceFullPageLoader label="Carregando carrinho..." />;
+    return <MarketplacePageLoader label="Carregando carrinho..." />;
   }
 
   const hasItems = summary && summary.stores.length > 0;

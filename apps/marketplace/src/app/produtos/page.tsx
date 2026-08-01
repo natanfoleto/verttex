@@ -15,7 +15,7 @@ import {
   ProductCard,
   ProductCardProps,
 } from "../../components/ui/product-card";
-import { MarketplaceFullPageLoader } from "../../components/ui/marketplace-page-loader";
+import { MarketplacePageLoader } from "../../components/ui/marketplace-page-loader";
 import { apiClient } from "../../lib/api-client";
 
 export default function ProductsListingPage() {
@@ -95,9 +95,7 @@ export default function ProductsListingPage() {
     isBestSeller: p.isFeatured,
   }));
 
-  if (isLoading && !catalogRes) {
-    return <MarketplaceFullPageLoader label="Carregando catálogo de produtos..." />;
-  }
+
 
   return (
     <div className="mx-auto max-w-7xl space-y-5 px-4 py-6 pb-20 font-sans text-stone-900 lg:pb-24 sm:px-6 lg:px-8">
@@ -220,7 +218,7 @@ export default function ProductsListingPage() {
 
           {/* Product Cards Grid / Loader / Empty State */}
           {isLoading ? (
-            <MarketplaceFullPageLoader label="Carregando catálogo..." />
+            <MarketplacePageLoader label="Carregando catálogo..." />
           ) : mappedProducts.length > 0 ? (
             <div className="space-y-5">
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">

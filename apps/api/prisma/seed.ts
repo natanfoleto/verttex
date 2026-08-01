@@ -538,12 +538,8 @@ async function main() {
     data: {
       id: "default-settings",
       publicName: "VERTTEX Marketplace",
-      primaryColor: "#0f172a",
-      secondaryColor: "#16a34a",
       announcementActive: true,
       announcementText: "🚚 Frete Grátis para compras acima de R$ 300,00 em todo o município!",
-      announcementBgColor: "#1e293b",
-      announcementTextColor: "#ffffff",
       supportEmail: "atendimento@verttex.com.br",
       supportPhone: "(11) 4003-8899",
       supportWhatsapp: "(11) 99887-7665",

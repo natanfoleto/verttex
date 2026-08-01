@@ -22,7 +22,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
-import { MarketplaceFullPageLoader } from "../../../components/ui/marketplace-page-loader";
+import { MarketplacePageLoader } from "../../../components/ui/marketplace-page-loader";
 import { apiClient, ApiError } from "../../../lib/api-client";
 
 import { useSearchParams } from "next/navigation";
@@ -142,7 +142,7 @@ export default function ProductDetailPage({
   });
 
   if (isLoading) {
-    return <MarketplaceFullPageLoader label="Carregando detalhes do produto..." />;
+    return <MarketplacePageLoader label="Carregando detalhes do produto..." />;
   }
 
   if (isError || !product) {

@@ -826,17 +826,6 @@ model MarketplaceSettings {
   publicName              String   @default("VERTTEX Marketplace")
   logoFileId              String?
   faviconFileId           String?
-  primaryColor            String?  @default("#0f172a")
-  secondaryColor          String?  @default("#16a34a")
-  headerBgColor           String?  @default("#15803d")
-  headerTextColor         String?  @default("#ffffff")
-  siteBgColor             String?  @default("#f5f5f4")
-  primaryButtonBgColor    String?  @default("#16a34a")
-  primaryButtonTextColor  String?  @default("#ffffff")
-  secondaryButtonBgColor  String?  @default("#e7e5e4")
-  secondaryButtonTextColor String? @default("#1c1917")
-  primaryTextColor        String?  @default("#1c1917")
-  secondaryTextColor      String?  @default("#78716c")
   supportEmail            String?
   supportPhone            String?
   supportWhatsapp         String?
@@ -848,8 +837,6 @@ model MarketplaceSettings {
   announcementActive      Boolean  @default(false)
   announcementText        String?
   announcementLink        String?
-  announcementBgColor     String?  @default("#1e293b")
-  announcementTextColor   String?  @default("#ffffff")
   announcementDismissible  Boolean  @default(true)
   outOfStockBehavior      String   @default("show_badge")
   carouselAutoplay        Boolean  @default(true)

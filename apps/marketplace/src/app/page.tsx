@@ -9,7 +9,7 @@ import {
 import { ProductCard, ProductCardProps } from "../components/ui/product-card";
 import { StoreCard, StoreCardProps } from "../components/ui/store-card";
 import { MarketplaceCarousel } from "../components/ui/marketplace-carousel";
-import { MarketplaceFullPageLoader } from "../components/ui/marketplace-page-loader";
+import { MarketplacePageLoader } from "../components/ui/marketplace-page-loader";
 import { apiClient } from "../lib/api-client";
 
 export default function MarketplaceHomePage() {
@@ -83,7 +83,12 @@ export default function MarketplaceHomePage() {
       : [];
 
   if (isInitialLoading) {
-    return <MarketplaceFullPageLoader label="Carregando produtos e produtores..." />;
+    return (
+      <div className="space-y-10 pb-20 lg:pb-28 font-sans text-stone-900 antialiased">
+        <MarketplaceCarousel />
+        <MarketplacePageLoader label="Carregando produtos e produtores..." />
+      </div>
+    );
   }
 
   return (

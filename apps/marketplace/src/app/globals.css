@@ -1,24 +1,12 @@
 @import "tailwindcss";
 
-:root {
-  --color-header-bg: #15803d;
-  --color-header-text: #ffffff;
-  --color-site-bg: #f5f5f4;
-  --color-btn-primary-bg: #16a34a;
-  --color-btn-primary-text: #ffffff;
-  --color-btn-secondary-bg: #e7e5e4;
-  --color-btn-secondary-text: #1c1917;
-  --color-text-primary: #1c1917;
-  --color-text-secondary: #78716c;
-}
-
 @layer base {
   * {
-    border-color: var(--color-stone-200, #e7e5e4);
+    border-color: #e7e5e4;
   }
   body {
-    background-color: var(--color-site-bg, #f5f5f4);
-    color: var(--color-text-primary, #1c1917);
+    background-color: #f5f5f4;
+    color: #1c1917;
     font-family:
       system-ui,
       -apple-system,
@@ -59,7 +47,7 @@
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 0.375rem;
-    border: 1px solid var(--color-stone-300, #d6d3d1);
+    border: 1px solid #d6d3d1;
     background-color: #ffffff;
     cursor: pointer;
     display: inline-grid;
@@ -71,7 +59,7 @@
 
   input[type="checkbox"]:hover {
     border-color: #059669;
-    background-color: var(--color-emerald-50, #ecfdf5);
+    background-color: #ecfdf5;
   }
 
   input[type="checkbox"]:checked {

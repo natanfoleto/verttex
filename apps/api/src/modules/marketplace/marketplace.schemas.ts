@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-const hexColorSchema = z
-  .string()
-  .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Formato hexadecimal inválido (ex: #0f172a)");
-
 const safeUrlSchema = z
   .string()
   .refine(
@@ -28,17 +24,6 @@ export const updateMarketplaceSettingsSchema = z
     logoUrl: safeUrlSchema,
     faviconUrl: safeUrlSchema,
     ogImageUrl: safeUrlSchema,
-    primaryColor: hexColorSchema.optional(),
-    secondaryColor: hexColorSchema.optional(),
-    headerBgColor: hexColorSchema.optional(),
-    headerTextColor: hexColorSchema.optional(),
-    siteBgColor: hexColorSchema.optional(),
-    primaryButtonBgColor: hexColorSchema.optional(),
-    primaryButtonTextColor: hexColorSchema.optional(),
-    secondaryButtonBgColor: hexColorSchema.optional(),
-    secondaryButtonTextColor: hexColorSchema.optional(),
-    primaryTextColor: hexColorSchema.optional(),
-    secondaryTextColor: hexColorSchema.optional(),
     supportEmail: z.string().email("E-mail de suporte inválido").nullable().optional().or(z.literal("")),
     supportPhone: z.string().nullable().optional(),
     supportWhatsapp: z.string().nullable().optional(),
@@ -50,8 +35,6 @@ export const updateMarketplaceSettingsSchema = z
     announcementActive: z.boolean().optional(),
     announcementText: z.string().max(250).nullable().optional(),
     announcementLink: safeUrlSchema,
-    announcementBgColor: hexColorSchema.optional(),
-    announcementTextColor: hexColorSchema.optional(),
     announcementDismissible: z.boolean().optional(),
     outOfStockBehavior: z
       .enum(["show_badge", "hide_product", "move_to_end"], {

@@ -79,22 +79,10 @@ export function MarketplaceHeader() {
   };
 
   return (
-    <header
-      style={{
-        backgroundColor: "var(--color-header-bg, #15803d)",
-        color: "var(--color-header-text, #ffffff)",
-      }}
-      className="sticky top-0 z-50 font-sans antialiased shadow-sm"
-    >
+    <header className="sticky top-0 z-50 font-sans antialiased shadow-sm bg-emerald-800 text-white">
       {/* Barra de Aviso Global / Comunicado */}
       {settings?.announcementActive && settings?.announcementText && !announcementDismissed && (
-        <div
-          style={{
-            backgroundColor: settings.announcementBgColor || "#1e293b",
-            color: settings.announcementTextColor || "#ffffff",
-          }}
-          className="relative w-full py-2 px-4 text-center text-xs font-semibold flex items-center justify-center gap-2 z-50 shadow-xs"
-        >
+        <div className="relative w-full py-2 px-4 text-center text-xs font-semibold flex items-center justify-center gap-2 z-50 shadow-xs bg-slate-900 text-white">
           {settings.announcementLink ? (
             <Link href={settings.announcementLink} className="hover:underline">
               {settings.announcementText}
@@ -321,11 +309,7 @@ export function MarketplaceHeader() {
                 type="button"
                 size="sm"
                 onClick={() => openAuthModal("login")}
-                style={{
-                  backgroundColor: "var(--color-btn-primary-bg, #16a34a)",
-                  color: "var(--color-btn-primary-text, #ffffff)",
-                }}
-                className="font-semibold hover:opacity-90 transition-opacity border-none cursor-pointer rounded-sm"
+                className="font-semibold bg-emerald-600 hover:bg-emerald-500 text-white border-none cursor-pointer rounded-sm"
               >
                 Entrar
               </Button>
@@ -333,11 +317,7 @@ export function MarketplaceHeader() {
                 type="button"
                 size="sm"
                 onClick={() => openAuthModal("register")}
-                style={{
-                  backgroundColor: "var(--color-btn-primary-bg, #16a34a)",
-                  color: "var(--color-btn-primary-text, #ffffff)",
-                }}
-                className="font-semibold hover:opacity-90 transition-opacity border-none cursor-pointer rounded-sm"
+                className="font-semibold bg-emerald-600 hover:bg-emerald-500 text-white border-none cursor-pointer rounded-sm"
               >
                 Criar Conta
               </Button>

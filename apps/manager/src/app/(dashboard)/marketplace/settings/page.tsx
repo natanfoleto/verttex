@@ -4,14 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useRef } from "react";
 import {
   RiDeleteBinLine,
-  RiExternalLinkLine,
   RiGlobalLine,
   RiImageAddLine,
   RiImageLine,
   RiInformationLine,
   RiLoader4Line,
   RiMegaphoneLine,
-  RiPaletteLine,
   RiSaveLine,
   RiSearchLine,
   RiServiceLine,
@@ -25,7 +23,6 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { ColorPicker } from "@/components/ui/color-picker";
 import { apiClient } from "@/lib/api-client";
 
 interface MarketplaceSettingsData {
@@ -34,17 +31,6 @@ interface MarketplaceSettingsData {
   faviconFileId?: string | null;
   logoUrl?: string | null;
   faviconUrl?: string | null;
-  primaryColor: string;
-  secondaryColor: string;
-  headerBgColor: string;
-  headerTextColor: string;
-  siteBgColor: string;
-  primaryButtonBgColor: string;
-  primaryButtonTextColor: string;
-  secondaryButtonBgColor: string;
-  secondaryButtonTextColor: string;
-  primaryTextColor: string;
-  secondaryTextColor: string;
   supportEmail: string;
   supportPhone: string;
   supportWhatsapp: string;
@@ -57,8 +43,6 @@ interface MarketplaceSettingsData {
   announcementActive: boolean;
   announcementText: string;
   announcementLink: string;
-  announcementBgColor: string;
-  announcementTextColor: string;
   announcementDismissible: boolean;
   outOfStockBehavior: "show_badge" | "hide_product" | "move_to_end";
   carouselAutoplay: boolean;
@@ -69,17 +53,6 @@ interface MarketplaceSettingsData {
 
 const DEFAULT_SETTINGS: MarketplaceSettingsData = {
   publicName: "VERTTEX Marketplace",
-  primaryColor: "#0f172a",
-  secondaryColor: "#16a34a",
-  headerBgColor: "#15803d",
-  headerTextColor: "#ffffff",
-  siteBgColor: "#f5f5f4",
-  primaryButtonBgColor: "#16a34a",
-  primaryButtonTextColor: "#ffffff",
-  secondaryButtonBgColor: "#e7e5e4",
-  secondaryButtonTextColor: "#1c1917",
-  primaryTextColor: "#1c1917",
-  secondaryTextColor: "#78716c",
   supportEmail: "",
   supportPhone: "",
   supportWhatsapp: "",
@@ -90,8 +63,6 @@ const DEFAULT_SETTINGS: MarketplaceSettingsData = {
   announcementActive: false,
   announcementText: "",
   announcementLink: "",
-  announcementBgColor: "#1e293b",
-  announcementTextColor: "#ffffff",
   announcementDismissible: true,
   outOfStockBehavior: "show_badge",
   carouselAutoplay: true,
@@ -132,17 +103,6 @@ export default function MarketplaceSettingsPage() {
         faviconFileId: res.faviconFileId || null,
         logoUrl: res.logoUrl || null,
         faviconUrl: res.faviconUrl || null,
-        primaryColor: res.primaryColor || "#0f172a",
-        secondaryColor: res.secondaryColor || "#16a34a",
-        headerBgColor: res.headerBgColor || "#15803d",
-        headerTextColor: res.headerTextColor || "#ffffff",
-        siteBgColor: res.siteBgColor || "#f5f5f4",
-        primaryButtonBgColor: res.primaryButtonBgColor || "#16a34a",
-        primaryButtonTextColor: res.primaryButtonTextColor || "#ffffff",
-        secondaryButtonBgColor: res.secondaryButtonBgColor || "#e7e5e4",
-        secondaryButtonTextColor: res.secondaryButtonTextColor || "#1c1917",
-        primaryTextColor: res.primaryTextColor || "#1c1917",
-        secondaryTextColor: res.secondaryTextColor || "#78716c",
         supportEmail: res.supportEmail || "",
         supportPhone: res.supportPhone || "",
         supportWhatsapp: res.supportWhatsapp || "",
@@ -155,8 +115,6 @@ export default function MarketplaceSettingsPage() {
         announcementActive: Boolean(res.announcementActive),
         announcementText: res.announcementText || "",
         announcementLink: res.announcementLink || "",
-        announcementBgColor: res.announcementBgColor || "#1e293b",
-        announcementTextColor: res.announcementTextColor || "#ffffff",
         announcementDismissible: res.announcementDismissible ?? true,
         outOfStockBehavior: ["show_badge", "hide_product", "move_to_end"].includes(res.outOfStockBehavior)
           ? res.outOfStockBehavior
@@ -292,23 +250,6 @@ export default function MarketplaceSettingsPage() {
     }
   }
 
-  const handleOpenLivePreview = () => {
-    const params = new URLSearchParams({
-      headerBg: settings.headerBgColor || "#15803d",
-      headerText: settings.headerTextColor || "#ffffff",
-      siteBg: settings.siteBgColor || "#f5f5f4",
-      primaryBtnBg: settings.primaryButtonBgColor || "#16a34a",
-      primaryBtnText: settings.primaryButtonTextColor || "#ffffff",
-      secondaryBtnBg: settings.secondaryButtonBgColor || "#e7e5e4",
-      secondaryBtnText: settings.secondaryButtonTextColor || "#1c1917",
-      primaryText: settings.primaryTextColor || "#1c1917",
-      publicName: settings.publicName || "VERTTEX Marketplace",
-      carouselTitlePosition: settings.carouselTitlePosition || "CENTER",
-      carouselTitleHAlign: settings.carouselTitleHAlign || "LEFT",
-    });
-    window.open(`/marketplace/preview?${params.toString()}`, "_blank");
-  };
-
   if (isLoading) {
     return (
       <div className="space-y-4 p-6 animate-pulse">
@@ -334,16 +275,6 @@ export default function MarketplaceSettingsPage() {
         <div className="flex items-center gap-3">
           <Button
             type="button"
-            variant="outline"
-            onClick={handleOpenLivePreview}
-            className="cursor-pointer border-emerald-700/80 text-emerald-400 hover:bg-emerald-950/60 gap-2"
-          >
-            <RiExternalLinkLine className="h-4 w-4" />
-            <span>Pré-visualização</span>
-          </Button>
-
-          <Button
-            type="button"
             onClick={handleSubmit}
             disabled={!isDirty || isSubmitting || isUploading}
             className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -359,12 +290,12 @@ export default function MarketplaceSettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 w-full">
-        {/* Navegação por Abas (6 Categorias Claras e Dedicadas) */}
+        {/* Navegação por Abas */}
         <Tabs defaultValue="identity" className="w-full space-y-6">
           <TabsList className="bg-zinc-900/90 border border-zinc-800 p-1.5 h-auto flex flex-wrap justify-start gap-1 w-full rounded-xl">
             <TabsTrigger value="identity" className="gap-2 px-4 py-2 text-xs font-semibold data-[state=active]:bg-zinc-800 data-[state=active]:text-emerald-400">
               <RiStoreLine className="h-4 w-4" />
-              <span>Identidade & Cores</span>
+              <span>Identidade Visual</span>
             </TabsTrigger>
             <TabsTrigger value="carousel" className="gap-2 px-4 py-2 text-xs font-semibold data-[state=active]:bg-zinc-800 data-[state=active]:text-emerald-400">
               <RiImageLine className="h-4 w-4" />
@@ -388,7 +319,7 @@ export default function MarketplaceSettingsPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Aba 1: Identidade & Cores */}
+          {/* Aba 1: Identidade Visual */}
           <TabsContent value="identity" className="space-y-6 mt-0 w-full">
             {/* Card Identidade */}
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 w-full">
@@ -411,9 +342,8 @@ export default function MarketplaceSettingsPage() {
                 />
               </div>
 
-              {/* Linha 2: Favicon (esquerda) + Logo (direita) — mesma altura */}
+              {/* Linha 2: Favicon (esquerda) + Logo (direita) */}
               <div className="flex flex-wrap gap-6 items-start">
-
                 {/* Favicon — quadrado, h-24 w-24 */}
                 <div className="w-24">
                   <label className="text-xs font-semibold text-zinc-300">Favicon</label>
@@ -449,7 +379,7 @@ export default function MarketplaceSettingsPage() {
                   )}
                 </div>
 
-                {/* Logo — landscape, mesmo h-24 */}
+                {/* Logo — landscape */}
                 <div className="w-64">
                   <label className="text-xs font-semibold text-zinc-300">Logo da Marca</label>
                   <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoSelect} className="hidden" />
@@ -483,118 +413,11 @@ export default function MarketplaceSettingsPage() {
                     </Button>
                   )}
                 </div>
-
-              </div>
-            </div>
-
-            {/* Card Cores Categorizado (100% da largura do conteúdo) */}
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-6 w-full">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <RiPaletteLine className="h-5 w-5 text-emerald-400" />
-                  <h2 className="text-base font-semibold text-zinc-100">Cores da Interface & Layout</h2>
-                </div>
-
-              </div>
-
-              <div className="space-y-6">
-                {/* Categoria 1: Header & Cabeçalho */}
-                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                    <span>1. Header & Cabeçalho</span>
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <ColorPicker
-                      label="Fundo do Header"
-                      description="Padrão: Verde (#15803d)"
-                      value={settings.headerBgColor}
-                      onChange={(val) => setSettings({ ...settings, headerBgColor: val })}
-                    />
-                    <ColorPicker
-                      label="Texto do Header"
-                      description="Padrão: Branco (#ffffff)"
-                      value={settings.headerTextColor}
-                      onChange={(val) => setSettings({ ...settings, headerTextColor: val })}
-                    />
-                  </div>
-                </div>
-
-                {/* Categoria 2: Fundo Geral do Site */}
-                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                    <span>2. Fundo Geral do Site (Muted)</span>
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <ColorPicker
-                      label="Fundo do Site"
-                      description="Tom Muted (#f5f5f4)"
-                      value={settings.siteBgColor}
-                      onChange={(val) => setSettings({ ...settings, siteBgColor: val })}
-                    />
-                  </div>
-                </div>
-
-                {/* Categoria 3: Botões Primários */}
-                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                    <span>3. Botões Primários (Ações Principais / Comprar / Entrar)</span>
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <ColorPicker
-                      label="Fundo do Botão Primário"
-                      description="Padrão: Esmeralda (#16a34a)"
-                      value={settings.primaryButtonBgColor}
-                      onChange={(val) => setSettings({ ...settings, primaryButtonBgColor: val })}
-                    />
-                    <ColorPicker
-                      label="Texto do Botão Primário"
-                      description="Padrão: Branco (#ffffff)"
-                      value={settings.primaryButtonTextColor}
-                      onChange={(val) => setSettings({ ...settings, primaryButtonTextColor: val })}
-                    />
-                  </div>
-                </div>
-
-                {/* Categoria 4: Botões Secundários */}
-                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                    <span>4. Botões Secundários (Ver Detalhes / Ações Neutras)</span>
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <ColorPicker
-                      label="Fundo do Botão Secundário"
-                      description="Padrão: Pedra Light (#e7e5e4)"
-                      value={settings.secondaryButtonBgColor}
-                      onChange={(val) => setSettings({ ...settings, secondaryButtonBgColor: val })}
-                    />
-                    <ColorPicker
-                      label="Texto do Botão Secundário"
-                      description="Padrão: Escuro (#1c1917)"
-                      value={settings.secondaryButtonTextColor}
-                      onChange={(val) => setSettings({ ...settings, secondaryButtonTextColor: val })}
-                    />
-                  </div>
-                </div>
-
-                {/* Categoria 5: Tipografia & Textos Globais */}
-                <div className="space-y-3 rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                    <span>5. Tipografia & Textos Globais</span>
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <ColorPicker
-                      label="Texto Principal (Títulos das Seções)"
-                      description="Padrão: Escuro (#1c1917)"
-                      value={settings.primaryTextColor}
-                      onChange={(val) => setSettings({ ...settings, primaryTextColor: val })}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </TabsContent>
 
-          {/* Aba 2: Carrossel do Site (Aba Dedicada) */}
+          {/* Aba 2: Carrossel do Site */}
           <TabsContent value="carousel" className="space-y-6 mt-0">
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 w-full">
               <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
@@ -717,33 +540,14 @@ export default function MarketplaceSettingsPage() {
                     />
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <label className="text-xs font-semibold text-zinc-300">Link do Comunicado (Opcional)</label>
-                      <Input
-                        placeholder="Ex: /ofertas"
-                        value={settings.announcementLink || ""}
-                        onChange={(e) => setSettings({ ...settings, announcementLink: e.target.value })}
-                        className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-zinc-300">Cor de Fundo da Barra</label>
-                      <div className="flex gap-2 items-center mt-1">
-                        <input
-                          type="color"
-                          value={settings.announcementBgColor || "#1e293b"}
-                          onChange={(e) => setSettings({ ...settings, announcementBgColor: e.target.value })}
-                          className="size-9 rounded cursor-pointer border border-zinc-700 bg-zinc-800"
-                        />
-                        <Input
-                          value={settings.announcementBgColor || "#1e293b"}
-                          onChange={(e) => setSettings({ ...settings, announcementBgColor: e.target.value })}
-                          className="bg-zinc-800/60 border-zinc-700 text-zinc-100 font-mono"
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label className="text-xs font-semibold text-zinc-300">Link do Comunicado (Opcional)</label>
+                    <Input
+                      placeholder="Ex: /ofertas"
+                      value={settings.announcementLink || ""}
+                      onChange={(e) => setSettings({ ...settings, announcementLink: e.target.value })}
+                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                    />
                   </div>
                 </div>
               )}

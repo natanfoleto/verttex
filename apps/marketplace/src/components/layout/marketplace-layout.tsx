@@ -5,8 +5,6 @@ import { ReactNode, useEffect, useState } from "react";
 
 import { MarketplaceFooter } from "./marketplace-footer";
 import { MarketplaceHeader } from "./marketplace-header";
-import { MarketplaceFullPageLoader } from "../ui/marketplace-page-loader";
-import { useCustomer } from "../../providers/customer-auth-provider";
 import { apiClient } from "../../lib/api-client";
 
 interface MarketplaceLayoutProps {
@@ -15,14 +13,13 @@ interface MarketplaceLayoutProps {
 
 export function MarketplaceLayout({ children }: MarketplaceLayoutProps) {
   const [mounted, setMounted] = useState(false);
-  const { isLoading: isAuthLoading } = useCustomer();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // Pre-load marketplace settings globally for header & branding
-  const { data: settings, isLoading: isSettingsLoading } = useQuery<any>({
+  useQuery<any>({
     queryKey: ["public-marketplace-settings"],
     queryFn: async () => {
       const res = await apiClient<any>("/public/marketplace/settings");
@@ -31,7 +28,7 @@ export function MarketplaceLayout({ children }: MarketplaceLayoutProps) {
   });
 
   // Pre-load public categories globally for header mega-dropdown
-  const { data: categories, isLoading: isCategoriesLoading } = useQuery<any[]>({
+  useQuery<any[]>({
     queryKey: ["public-categories"],
     queryFn: async () => {
       const res = await apiClient<any[]>("/public/catalog/categories");
@@ -39,14 +36,8 @@ export function MarketplaceLayout({ children }: MarketplaceLayoutProps) {
     },
   });
 
-  const isGlobalAppLoading =
-    !mounted ||
-    (isSettingsLoading && !settings) ||
-    (isCategoriesLoading && !categories) ||
-    isAuthLoading;
-
-  if (isGlobalAppLoading) {
-    return <MarketplaceFullPageLoader label="Carregando Verttex..." />;
+  if (!mounted) {
+    return null;
   }
 
   return (
