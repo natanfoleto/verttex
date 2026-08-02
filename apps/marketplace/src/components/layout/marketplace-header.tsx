@@ -252,7 +252,7 @@ export function MarketplaceHeader() {
             <Button
               type="button"
               variant="ghost"
-              className="group inline-flex items-center space-x-1.5 p-0 h-auto text-left text-white hover:opacity-90 hover:bg-transparent transition-opacity cursor-pointer"
+              className="group inline-flex items-center p-0 h-auto text-left text-white hover:opacity-90 hover:bg-transparent transition-opacity cursor-pointer"
             >
               <RiMapPinLine className="h-5 w-5 shrink-0 text-white" />
               <div className="flex flex-col leading-tight">
@@ -268,16 +268,16 @@ export function MarketplaceHeader() {
             {/* Mega Categories Dropdown usando o componente reutilizável HoverDropdown */}
             <HoverDropdown
               align="left"
-              arrowColor="border-b-[#333333]"
+              arrowColor="border-b-zinc-800"
               arrowOffset="left-6"
               contentClassName="w-64 rounded-xs bg-zinc-800 border border-zinc-800 p-2 shadow-2xl space-y-0.5 text-white font-sans"
               trigger={
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                  className="inline-flex items-end gap-0.5 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
                 >
                   <span>Categorias</span>
-                  <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 shrink-0" />
+                  <RiArrowDownSLine className="h-3.5 w-3.5 text-white/75 shrink-0" />
                 </button>
               }
             >
@@ -300,7 +300,7 @@ export function MarketplaceHeader() {
                         {/* Subcategories Flyout */}
                         {hasChildren && (
                           <div className="invisible absolute left-full top-0 ml-1 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100 z-50">
-                            <div className="w-56 rounded-xs bg-[#333333] border border-zinc-700 p-2 shadow-2xl space-y-0.5 text-white font-sans">
+                            <div className="w-56 rounded-xs bg-zinc-800 border border-zinc-700 p-2 shadow-2xl space-y-0.5 text-white font-sans">
                               {subs.map((sub) => (
                                 <Link
                                   key={sub.id}
@@ -365,18 +365,19 @@ export function MarketplaceHeader() {
                 trigger={
                   <button
                     type="button"
-                    className="flex items-center text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                    className="flex items-center gap-1 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
                   >
-                    <div className="flex items-center gap-1">
-                      <Avatar className="h-5 w-5 shrink-0">
-                        <AvatarFallback className="bg-white text-stone-900 text-[10px] font-bold uppercase">
-                          {customer.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
+                    <Avatar className="h-5 w-5 shrink-0">
+                      <AvatarFallback className="bg-white text-stone-900 text-[10px] font-bold uppercase">
+                        {customer.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex items-end gap-0.5">
                       <span className="max-w-28 truncate">{customer.name.split(" ")[0]}</span>
+                      <RiArrowDownSLine className="h-3.5 w-3.5 text-white/75" />
                     </div>
 
-                    <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 shrink-0 ml-1" />
                   </button>
                 }
               >
@@ -537,10 +538,10 @@ export function MarketplaceHeader() {
                 trigger={
                   <button
                     type="button"
-                    className="inline-flex items-center text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                    className="inline-flex items-end gap-0.5 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none focus:outline-none focus:ring-0"
                   >
                     <span>Favoritos</span>
-                    <RiArrowDownSLine className="h-3.5 w-3.5 text-white/80 shrink-0 ml-1" />
+                    <RiArrowDownSLine className="h-3.5 w-3.5 text-white/75 shrink-0" />
                   </button>
                 }
               >
@@ -552,7 +553,7 @@ export function MarketplaceHeader() {
                 </div>
 
                 {/* Body */}
-                <div className="bg-[#f5f5f5] py-12 px-6 text-center">
+                <div className="bg-stone-100 py-12 px-6 text-center">
                   <p className="text-xs text-stone-800 font-normal leading-relaxed max-w-60 mx-auto">
                     Adicione aqui os produtos que você gostou para poder vê-los mais tarde.
                   </p>

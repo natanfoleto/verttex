@@ -10,7 +10,7 @@ export interface HoverDropdownProps {
   children: React.ReactNode;
   /** Alinhamento do menu em relação ao acionador: "left" ou "right" */
   align?: "left" | "right";
-  /** Classe de borda para a flechinha indicadora no topo (ex: "border-b-[#333333]" ou "border-b-white") */
+  /** Classe de borda para a flechinha indicadora no topo (ex: "border-b-zinc-800" ou "border-b-white") */
   arrowColor?: string;
   /** Posição horizontal da flechinha (ex: "left-6" ou "right-6") */
   arrowOffset?: string;
