@@ -104,7 +104,7 @@ export function MarketplaceHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full font-sans antialiased bg-emerald-600 text-white shadow-md">
+    <header className="sticky top-0 z-50 w-full font-sans antialiased">
       {/* ─── Global Top Announcement Bar ─── */}
       {settings?.announcementActive && settings?.announcementText && !announcementDismissed && (
         <div className="relative w-full bg-emerald-950 text-emerald-100 py-1.5 px-4 text-xs font-medium">
@@ -154,10 +154,10 @@ export function MarketplaceHeader() {
                     {(settings?.publicName || "Verttex").charAt(0)}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-lg font-black tracking-tight text-white leading-none">
+                    <span className="text-lg font-black tracking-tight leading-none">
                       {settings?.publicName || "Verttex"}
                     </span>
-                    <span className="text-[9px] font-bold tracking-widest text-emerald-100 uppercase mt-0.5">
+                    <span className="text-[9px] font-bold tracking-widest uppercase mt-0.5">
                       Mercado Local
                     </span>
                   </div>
@@ -252,7 +252,7 @@ export function MarketplaceHeader() {
             <Button
               type="button"
               variant="ghost"
-              className="group inline-flex items-center p-0 h-auto text-left text-white hover:opacity-90 hover:bg-transparent transition-opacity cursor-pointer"
+              className="group inline-flex items-center p-0! h-auto text-left hover:opacity-90 hover:bg-transparent transition-opacity cursor-pointer"
             >
               <RiMapPinLine className="h-5 w-5 shrink-0 text-white" />
               <div className="flex flex-col leading-tight">

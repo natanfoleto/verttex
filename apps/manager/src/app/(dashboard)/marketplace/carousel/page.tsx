@@ -13,7 +13,6 @@ import {
   RiImageAddLine,
   RiImageLine,
   RiLoader4Line,
-  RiSubtractLine,
 } from "react-icons/ri";
 import { toast } from "sonner";
 
@@ -755,67 +754,82 @@ export default function CarouselPage() {
                   Imagem do Banner (Cloudflare R2)
                 </label>
 
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 space-y-3 overflow-hidden">
-                  {(localPreviewUrl || editForm.imageUrl) ? (
-                    <div className="relative w-full h-44 rounded-lg overflow-hidden border border-zinc-700/60 bg-zinc-900 flex items-center justify-center shadow-inner">
-                      <img
-                        src={localPreviewUrl ?? editForm.imageUrl!}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="p-8 border border-dashed border-zinc-800 rounded-lg text-center bg-zinc-900/40 space-y-2">
-                      <RiImageAddLine className="h-8 w-8 text-zinc-500 mx-auto" />
-                      <p className="text-xs text-zinc-300 font-semibold">Nenhuma imagem vinculada a este banner</p>
-                      <p className="text-[11px] text-zinc-500">Selecione uma imagem do seu computador (máx. 5 MB)</p>
-                    </div>
-                  )}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 space-y-2 overflow-hidden">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
 
-                  {/* Linha de Ações: Botão à esquerda, Span preenchendo 100% da largura restante até a borda direita */}
-                  <div className="flex items-center gap-2.5 w-full min-w-0">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="cursor-pointer border-zinc-700 text-zinc-200 hover:bg-zinc-800 gap-2 font-medium shrink-0"
-                    >
-                      <RiImageAddLine className="h-4 w-4 text-emerald-400 shrink-0" />
-                      <span className="shrink-0">
-                        {localPreviewUrl || editForm.imageUrl
-                          ? "Trocar Imagem"
-                          : "Escolher Imagem"}
-                      </span>
-                    </Button>
-
-                    {selectedFile && (
-                      <span
-                        className="text-xs font-mono text-zinc-300 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg truncate min-w-0 flex-1 block"
-                        title={selectedFile.name}
-                      >
-                        {selectedFile.name}
-                      </span>
+                  {/* Container da Imagem Clicável com Efeito Hover */}
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="group relative w-full h-44 rounded-lg overflow-hidden border border-zinc-700/60 bg-zinc-900 flex items-center justify-center shadow-inner cursor-pointer"
+                  >
+                    {(localPreviewUrl || editForm.imageUrl) ? (
+                      <>
+                        <img
+                          src={localPreviewUrl ?? editForm.imageUrl!}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Overlay no Hover: Clique para trocar a imagem */}
+                        <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center space-y-1.5 cursor-pointer z-10">
+                          <RiImageAddLine className="h-6 w-6 text-white" />
+                          <span className="text-xs font-semibold text-white">
+                            Clique para trocar a imagem
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-8 text-center space-y-2 flex flex-col items-center justify-center w-full h-full group-hover:bg-zinc-800/40 transition-colors">
+                        <RiImageAddLine className="h-8 w-8 text-zinc-400 group-hover:text-emerald-400 transition-colors" />
+                        <p className="text-xs text-zinc-300 font-semibold group-hover:text-white transition-colors">
+                          Clique para selecionar uma imagem
+                        </p>
+                        <p className="text-[11px] text-zinc-500">
+                          Formatos aceitos: JPG, PNG, WebP ou GIF (máx. 5 MB)
+                        </p>
+                      </div>
                     )}
+                  </div>
 
-                    {(editForm.imageUrl || editForm.fileId) && (
+                  {/* Rodapé: Nome do arquivo como texto simples à esquerda | Botão de remover estilo link à direita */}
+                  <div className="flex items-center justify-between gap-4 w-full pt-1">
+                    <span
+                      className="text-xs font-mono text-zinc-300 truncate min-w-0 flex-1"
+                      title={
+                        selectedFile
+                          ? selectedFile.name
+                          : editForm.imageUrl
+                            ? editForm.imageUrl.split("/").pop()
+                            : ""
+                      }
+                    >
+                      {selectedFile
+                        ? selectedFile.name
+                        : editForm.imageUrl
+                          ? editForm.imageUrl.split("/").pop()
+                          : ""}
+                    </span>
+
+                    {(editForm.imageUrl || editForm.fileId || selectedFile) && (
                       <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editingBanner && deleteImageMutation.mutate(editingBanner.id)}
+                        variant='link'
+                        className="p-0 h-0"
+                        onClick={() => {
+                          if (selectedFile) {
+                            setSelectedFile(null);
+                            setLocalPreviewUrl(null);
+                          } else if (editingBanner) {
+                            deleteImageMutation.mutate(editingBanner.id);
+                          }
+                        }}
                         disabled={deleteImageMutation.isPending}
-                        className="cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-950/40 text-xs font-medium gap-1.5 shrink-0 ml-auto"
                       >
-                        <RiSubtractLine className="h-4 w-4 shrink-0" />
-                        <span className="shrink-0">Remover Imagem</span>
+                        Remover Imagem
                       </Button>
                     )}
                   </div>

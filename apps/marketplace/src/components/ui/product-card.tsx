@@ -1,8 +1,11 @@
 import Link from "next/link";
 import {
+  RiArrowRightLine,
+  RiHeartLine,
   RiImage2Line,
   RiMapPinLine,
   RiStarFill,
+  RiStore2Line,
 } from "react-icons/ri";
 
 export interface ProductCardProps {
@@ -54,20 +57,18 @@ export function ProductCard({
       }).format(originalPrice)
     : null;
 
-  const discountPercent =
-    originalPrice && originalPrice > price
-      ? Math.round(((originalPrice - price) / originalPrice) * 100)
-      : null;
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-md border border-stone-200/80 bg-white shadow-xs transition-colors hover:border-emerald-500 hover:shadow-sm">
-      {/* Image Container — Aspect Square para visual mais alto e fluido */}
-      <Link href={productUrl} className="relative aspect-square w-full overflow-hidden bg-stone-100 block cursor-pointer">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-2xs">
+      {/* Image Container */}
+      <Link href={productUrl} className="relative aspect-4/3 sm:aspect-square w-full overflow-hidden bg-stone-100 block cursor-pointer rounded-t-xl">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-stone-100 text-stone-300">
@@ -75,53 +76,62 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Top Badges overlay — Estilo mais quadrado */}
-        <div className="absolute top-2.5 left-2.5 z-10 flex flex-wrap items-center gap-1">
-          {discountPercent && (
-            <span className="rounded-sm bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
-              -{discountPercent}%
-            </span>
-          )}
+        {/* Top-Left Badges Overlay */}
+        <div className="absolute top-2.5 left-2.5 z-10 flex flex-wrap items-center gap-1.5">
           {badge && (
-            <span className="rounded-sm bg-emerald-800 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+            <span className="rounded-md bg-emerald-700 px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
               {badge}
             </span>
           )}
           {isBestSeller && !badge && (
-            <span className="rounded-sm bg-amber-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+            <span className="rounded-md bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
               Mais Vendido
             </span>
           )}
           {isNew && !badge && !isBestSeller && (
-            <span className="rounded-sm bg-stone-900 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+            <span className="rounded-md bg-stone-900 px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
               Novo
             </span>
           )}
         </div>
 
-        {/* Origin tag at bottom of image */}
+        {/* Top-Right Favorite Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className="absolute top-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-stone-600 hover:text-rose-500 hover:bg-white shadow-2xs backdrop-blur-xs cursor-pointer"
+          title="Favoritar produto"
+        >
+          <RiHeartLine className="h-4 w-4" />
+        </button>
+
+        {/* Origin tag at bottom-left */}
         {origin && (
-          <div className="absolute bottom-2 left-2.5 flex items-center space-x-1 rounded-sm bg-stone-900/75 px-1.5 py-0.5 text-[10px] font-medium text-stone-100 backdrop-blur-xs">
-            <RiMapPinLine className="h-3 w-3 text-amber-400" />
-            <span>{origin}</span>
+          <div className="absolute bottom-2.5 left-2.5 flex items-center space-x-1 rounded-md bg-stone-950/80 px-2 py-0.5 text-[10px] font-medium text-stone-100 backdrop-blur-xs shadow-2xs">
+            <RiMapPinLine className="h-3 w-3 text-amber-400 shrink-0" />
+            <span className="truncate">{origin}</span>
           </div>
         )}
       </Link>
 
       {/* Card Body Content */}
-      <div className="flex flex-1 flex-col p-3.5">
+      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
         {/* Store Link */}
         <Link
           href={storeUrl}
-          className="text-[11px] font-medium text-stone-500 transition-colors hover:text-emerald-700 hover:underline cursor-pointer truncate"
+          className="inline-flex items-center text-[11px] font-medium text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer truncate"
         >
-          {storeName}
+          <RiStore2Line className="h-3 w-3 mr-1 shrink-0 text-emerald-600" />
+          <span className="truncate">{storeName}</span>
         </Link>
 
         {/* Title */}
         <Link
           href={productUrl}
-          className="mt-1 line-clamp-2 text-xs font-semibold text-stone-900 leading-snug transition-colors group-hover:text-emerald-800 cursor-pointer"
+          className="mt-1 line-clamp-2 text-xs sm:text-sm font-semibold text-stone-900 leading-snug group-hover:text-emerald-700 cursor-pointer"
         >
           {name}
         </Link>
@@ -129,7 +139,7 @@ export function ProductCard({
         {/* Rating & Review */}
         {rating !== undefined && (
           <div className="mt-1.5 flex items-center space-x-1 text-xs">
-            <RiStarFill className="h-3.5 w-3.5 text-amber-500" />
+            <RiStarFill className="h-3.5 w-3.5 text-amber-500 shrink-0" />
             <span className="font-semibold text-stone-800">{rating}</span>
             {reviewsCount !== undefined && (
               <span className="text-stone-400 text-[11px]">({reviewsCount})</span>
@@ -138,7 +148,7 @@ export function ProductCard({
         )}
 
         {/* Price & Action Footer */}
-        <div className="mt-auto flex items-end justify-between pt-3">
+        <div className="mt-auto flex items-end justify-between pt-3.5 border-t border-stone-100/80">
           <div>
             {formattedOriginalPrice && (
               <span className="block text-[10px] text-stone-400 line-through leading-none mb-0.5">
@@ -146,7 +156,7 @@ export function ProductCard({
               </span>
             )}
             <div className="flex items-baseline space-x-1">
-              <span className="text-sm font-bold text-stone-900">
+              <span className="text-sm sm:text-base font-bold text-stone-900">
                 {formattedPrice}
               </span>
               {unit && (
@@ -156,10 +166,11 @@ export function ProductCard({
           </div>
 
           <Link
-            href={`/lojas/${storeSlug}`}
-            className="flex items-center space-x-1 rounded-sm bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-700 transition-colors hover:bg-emerald-700 hover:text-white"
+            href={productUrl}
+            className="inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-600 hover:text-white shadow-2xs cursor-pointer"
           >
-            <span>Ver Loja</span>
+            <span>Ver</span>
+            <RiArrowRightLine className="h-3.5 w-3.5 shrink-0" />
           </Link>
         </div>
       </div>

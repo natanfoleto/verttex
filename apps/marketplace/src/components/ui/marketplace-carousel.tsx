@@ -206,9 +206,9 @@ export function MarketplaceCarousel() {
       className="group relative w-full bg-stone-50 py-0 mb-8 sm:mb-12 overflow-hidden"
       aria-label="Carrossel de Banners"
     >
-      {/* Container principal com proporção reduzida aspect-[18/5] */}
-      <div className="relative w-full aspect-18/5 overflow-hidden">
-        {/* Slider track deslizante — as margens laterais fazem parte da transição de cada slide */}
+      {/* Container principal ocupando 100% da largura da tela */}
+      <div className="relative w-full aspect-16/4.5 overflow-hidden">
+        {/* Slider track deslizante */}
         <div
           className={`flex w-full h-full ${prefersReducedMotion ? "" : "transition-transform duration-500 ease-in-out"
             }`}
@@ -217,7 +217,7 @@ export function MarketplaceCarousel() {
           {banners.map((banner) => (
             <div
               key={banner.id}
-              className="w-full h-full shrink-0 flex-none relative px-6 sm:px-12 md:px-20 lg:px-32 bg-stone-50"
+              className="w-full h-full shrink-0 flex-none relative px-0"
             >
               {/* Imagem do banner */}
               {banner.linkUrl ? (
@@ -238,7 +238,7 @@ export function MarketplaceCarousel() {
                 <img
                   src={banner.imageUrl!}
                   alt={banner.title ?? "Banner"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               )}
 
@@ -246,10 +246,10 @@ export function MarketplaceCarousel() {
               {carouselTitlePosition !== "NONE" && (banner.title || banner.subtitle) && (
                 <div
                   className={`absolute inset-0 px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${carouselTitlePosition === "TOP"
-                      ? "justify-start pt-6 sm:pt-10"
-                      : carouselTitlePosition === "BOTTOM"
-                        ? "justify-end pb-6 sm:pb-10"
-                        : "justify-center"
+                    ? "justify-start pt-6 sm:pt-10"
+                    : carouselTitlePosition === "BOTTOM"
+                      ? "justify-end pb-6 sm:pb-10"
+                      : "justify-center"
                     } ${carouselTitleHAlign === "RIGHT"
                       ? "items-end text-right"
                       : carouselTitleHAlign === "CENTER"
