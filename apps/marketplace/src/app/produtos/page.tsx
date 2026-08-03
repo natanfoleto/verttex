@@ -222,8 +222,14 @@ export default function ProductsListingPage() {
 
             <div className="shrink-0 text-xs font-medium text-stone-500">
               Mostrando{' '}
-              <strong className="font-bold text-stone-900">{mappedProducts.length}</strong> de{' '}
-              <strong className="font-bold text-stone-900">{meta?.total || 0}</strong> produtos
+              <strong className="font-bold text-stone-900">
+                {mappedProducts.length}
+              </strong>{' '}
+              de{' '}
+              <strong className="font-bold text-stone-900">
+                {meta?.total || 0}
+              </strong>{' '}
+              produtos
             </div>
           </div>
 
@@ -242,7 +248,8 @@ export default function ProductsListingPage() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t border-stone-200 pt-6 text-xs text-stone-600">
                   <span>
-                    Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+                    Página <strong>{page}</strong> de{' '}
+                    <strong>{totalPages}</strong>
                   </span>
                   <div className="flex items-center space-x-2">
                     <Button

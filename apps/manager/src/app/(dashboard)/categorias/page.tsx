@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import {
   RiAddLine,
   RiArchiveLine,
@@ -10,8 +10,8 @@ import {
   RiFolder3Line,
   RiFolderLine,
   RiSearchLine,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
 import {
   AlertDialog,
@@ -22,8 +22,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -31,191 +31,191 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
 
-import { apiClient, ApiError } from "../../../lib/api-client";
+import { apiClient, ApiError } from '../../../lib/api-client'
 import {
   categoryQueryKeys,
   invalidateCategories,
-} from "../../../lib/query-keys";
-import { sanitizeSlug } from "@/lib/slug";
-import { useAuth } from "../../../providers/auth-provider";
+} from '../../../lib/query-keys'
+import { sanitizeSlug } from '@/lib/slug'
+import { useAuth } from '../../../providers/auth-provider'
 
 interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  imageUrl?: string | null;
-  iconUrl?: string | null;
-  parentId?: string | null;
-  position: number;
-  status: "active" | "inactive";
-  isVisible: boolean;
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-  createdAt: string;
-  parent?: { id: string; name: string } | null;
-  children?: Category[];
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  imageUrl?: string | null
+  iconUrl?: string | null
+  parentId?: string | null
+  position: number
+  status: 'active' | 'inactive'
+  isVisible: boolean
+  metaTitle?: string | null
+  metaDescription?: string | null
+  createdAt: string
+  parent?: { id: string; name: string } | null
+  children?: Category[]
 }
 
 export default function CategoriesPage() {
-  const { ability } = useAuth();
-  const queryClient = useQueryClient();
+  const { ability } = useAuth()
+  const queryClient = useQueryClient()
 
   // State
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<
-    "all" | "active" | "inactive"
-  >("all");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    'all' | 'active' | 'inactive'
+  >('all')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(
     null,
-  );
+  )
 
   // Form State
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [isSlugUserModified, setIsSlugUserModified] = useState(false);
-  const [description, setDescription] = useState("");
-  const [parentId, setParentId] = useState<string>("");
-  const [position, setPosition] = useState<number>(0);
-  const [status, setStatus] = useState<"active" | "inactive">("active");
-  const [isVisible, setIsVisible] = useState(true);
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
+  const [name, setName] = useState('')
+  const [slug, setSlug] = useState('')
+  const [isSlugUserModified, setIsSlugUserModified] = useState(false)
+  const [description, setDescription] = useState('')
+  const [parentId, setParentId] = useState<string>('')
+  const [position, setPosition] = useState<number>(0)
+  const [status, setStatus] = useState<'active' | 'inactive'>('active')
+  const [isVisible, setIsVisible] = useState(true)
+  const [metaTitle, setMetaTitle] = useState('')
+  const [metaDescription, setMetaDescription] = useState('')
 
   const handleNameChange = (val: string) => {
-    setName(val);
+    setName(val)
     if (!isSlugUserModified) {
-      setSlug(sanitizeSlug(val));
+      setSlug(sanitizeSlug(val))
     }
-  };
+  }
 
   const handleSlugChange = (val: string) => {
-    setIsSlugUserModified(true);
-    setSlug(sanitizeSlug(val));
-  };
+    setIsSlugUserModified(true)
+    setSlug(sanitizeSlug(val))
+  }
 
   // Queries
   const { data: treeData, isLoading: isLoadingTree } = useQuery({
     queryKey: categoryQueryKeys.tree(),
     queryFn: async () => {
-      const res = await apiClient("/categories/tree");
-      return Array.isArray(res) ? res : (res?.data ?? []);
+      const res = await apiClient('/categories/tree')
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
-  });
+  })
 
   const { data: listRes, isLoading: isLoadingList } = useQuery({
     queryKey: categoryQueryKeys.list({ search, status: statusFilter }),
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (statusFilter !== "all") params.append("status", statusFilter);
-      const res = await apiClient(`/categories?${params.toString()}`);
-      return res;
+      const params = new URLSearchParams()
+      if (search) params.append('search', search)
+      if (statusFilter !== 'all') params.append('status', statusFilter)
+      const res = await apiClient(`/categories?${params.toString()}`)
+      return res
     },
-  });
+  })
 
   const listData: Category[] =
-    listRes?.data ?? (Array.isArray(listRes) ? listRes : []);
+    listRes?.data ?? (Array.isArray(listRes) ? listRes : [])
 
   // Mutations
   const createMutation = useMutation({
     mutationFn: (body: any) =>
-      apiClient("/categories", {
-        method: "POST",
+      apiClient('/categories', {
+        method: 'POST',
         body: JSON.stringify(body),
       }),
     onSuccess: async () => {
-      await invalidateCategories(queryClient);
-      toast.success("Categoria criada com sucesso!");
-      closeModal();
+      await invalidateCategories(queryClient)
+      toast.success('Categoria criada com sucesso!')
+      closeModal()
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao criar categoria",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao criar categoria',
+      )
     },
-  });
+  })
 
   const updateMutation = useMutation({
     mutationFn: ({ id, body }: { id: string; body: any }) =>
       apiClient(`/categories/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(body),
       }),
     onSuccess: async () => {
-      await invalidateCategories(queryClient);
-      toast.success("Categoria atualizada com sucesso!");
-      closeModal();
+      await invalidateCategories(queryClient)
+      toast.success('Categoria atualizada com sucesso!')
+      closeModal()
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao atualizar categoria",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao atualizar categoria',
+      )
     },
-  });
+  })
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
       apiClient(`/categories/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       }),
     onSuccess: async () => {
-      await invalidateCategories(queryClient);
-      toast.success("Categoria arquivada com sucesso!");
-      setDeletingCategory(null);
+      await invalidateCategories(queryClient)
+      toast.success('Categoria arquivada com sucesso!')
+      setDeletingCategory(null)
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao arquivar categoria",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao arquivar categoria',
+      )
     },
-  });
+  })
 
   const openCreateModal = (parent?: Category) => {
-    setEditingCategory(null);
-    setName("");
-    setSlug("");
-    setIsSlugUserModified(false);
-    setDescription("");
-    setParentId(parent ? parent.id : "");
-    setPosition(0);
-    setStatus("active");
-    setIsVisible(true);
-    setMetaTitle("");
-    setMetaDescription("");
-    setIsModalOpen(true);
-  };
+    setEditingCategory(null)
+    setName('')
+    setSlug('')
+    setIsSlugUserModified(false)
+    setDescription('')
+    setParentId(parent ? parent.id : '')
+    setPosition(0)
+    setStatus('active')
+    setIsVisible(true)
+    setMetaTitle('')
+    setMetaDescription('')
+    setIsModalOpen(true)
+  }
 
   const openEditModal = (cat: Category) => {
-    setEditingCategory(cat);
-    setName(cat.name);
-    setSlug(cat.slug);
-    setIsSlugUserModified(Boolean(cat.slug));
-    setDescription(cat.description || "");
-    setParentId(cat.parentId || "");
-    setPosition(cat.position);
-    setStatus(cat.status);
-    setIsVisible(cat.isVisible);
-    setMetaTitle(cat.metaTitle || "");
-    setMetaDescription(cat.metaDescription || "");
-    setIsModalOpen(true);
-  };
+    setEditingCategory(cat)
+    setName(cat.name)
+    setSlug(cat.slug)
+    setIsSlugUserModified(Boolean(cat.slug))
+    setDescription(cat.description || '')
+    setParentId(cat.parentId || '')
+    setPosition(cat.position)
+    setStatus(cat.status)
+    setIsVisible(cat.isVisible)
+    setMetaTitle(cat.metaTitle || '')
+    setMetaDescription(cat.metaDescription || '')
+    setIsModalOpen(true)
+  }
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingCategory(null);
-  };
+    setIsModalOpen(false)
+    setEditingCategory(null)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const finalSlug = slug ? sanitizeSlug(slug) : sanitizeSlug(name);
+    e.preventDefault()
+    const finalSlug = slug ? sanitizeSlug(slug) : sanitizeSlug(name)
     const payload = {
       name,
       slug: finalSlug || undefined,
@@ -226,26 +226,26 @@ export default function CategoriesPage() {
       isVisible,
       metaTitle: metaTitle || null,
       metaDescription: metaDescription || null,
-    };
+    }
 
     if (editingCategory) {
-      updateMutation.mutate({ id: editingCategory.id, body: payload });
+      updateMutation.mutate({ id: editingCategory.id, body: payload })
     } else {
-      createMutation.mutate(payload);
+      createMutation.mutate(payload)
     }
-  };
+  }
 
   const isFormDirty = editingCategory
     ? name !== editingCategory.name ||
       slug !== editingCategory.slug ||
-      description !== (editingCategory.description || "") ||
-      parentId !== (editingCategory.parentId || "") ||
+      description !== (editingCategory.description || '') ||
+      parentId !== (editingCategory.parentId || '') ||
       Number(position) !== editingCategory.position ||
       status !== editingCategory.status ||
       isVisible !== editingCategory.isVisible ||
-      metaTitle !== (editingCategory.metaTitle || "") ||
-      metaDescription !== (editingCategory.metaDescription || "")
-    : name.trim().length > 0;
+      metaTitle !== (editingCategory.metaTitle || '') ||
+      metaDescription !== (editingCategory.metaDescription || '')
+    : name.trim().length > 0
 
   return (
     <div className="w-full space-y-6">
@@ -260,7 +260,7 @@ export default function CategoriesPage() {
           </p>
         </div>
 
-        {ability.can("create", "Category") && (
+        {ability.can('create', 'Category') && (
           <Button type="button" onClick={() => openCreateModal()}>
             <RiAddLine className="h-4 w-4" />
             <span>Nova Categoria</span>
@@ -354,12 +354,12 @@ export default function CategoriesPage() {
                       </span>
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
-                          cat.status === "active"
-                            ? "bg-emerald-950/80 border border-emerald-800/80 text-emerald-300"
-                            : "bg-zinc-950 border border-zinc-800 text-zinc-400"
+                          cat.status === 'active'
+                            ? 'bg-emerald-950/80 border border-emerald-800/80 text-emerald-300'
+                            : 'bg-zinc-950 border border-zinc-800 text-zinc-400'
                         }`}
                       >
-                        {cat.status === "active" ? "Ativa" : "Inativa"}
+                        {cat.status === 'active' ? 'Ativa' : 'Inativa'}
                       </span>
                       {cat.parent && (
                         <span className="rounded-md bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 text-[10px] text-emerald-300">
@@ -375,7 +375,7 @@ export default function CategoriesPage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    {ability.can("update", "Category") && (
+                    {ability.can('update', 'Category') && (
                       <Button
                         type="button"
                         variant="outline"
@@ -388,7 +388,7 @@ export default function CategoriesPage() {
                       </Button>
                     )}
 
-                    {ability.can("delete", "Category") && (
+                    {ability.can('delete', 'Category') && (
                       <Button
                         type="button"
                         variant="outline"
@@ -425,12 +425,12 @@ export default function CategoriesPage() {
         <DialogContent className="w-full max-w-xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
           <DialogHeader className="px-6 pt-5 pb-2">
             <DialogTitle className="text-xl font-bold text-zinc-100">
-              {editingCategory ? "Editar Categoria" : "Nova Categoria"}
+              {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
             </DialogTitle>
             <DialogDescription className="text-xs text-zinc-400">
               {editingCategory
-                ? "Altere as informações da categoria global"
-                : "Cadastre uma nova categoria na árvore de navegação"}
+                ? 'Altere as informações da categoria global'
+                : 'Cadastre uma nova categoria na árvore de navegação'}
             </DialogDescription>
           </DialogHeader>
 
@@ -527,8 +527,8 @@ export default function CategoriesPage() {
                     Visível no Marketplace
                   </label>
                   <NativeSelect
-                    value={isVisible ? "true" : "false"}
-                    onChange={(e) => setIsVisible(e.target.value === "true")}
+                    value={isVisible ? 'true' : 'false'}
+                    onChange={(e) => setIsVisible(e.target.value === 'true')}
                   >
                     <option value="true">Sim</option>
                     <option value="false">Não</option>
@@ -543,15 +543,19 @@ export default function CategoriesPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={!isFormDirty || createMutation.isPending || updateMutation.isPending}
+                disabled={
+                  !isFormDirty ||
+                  createMutation.isPending ||
+                  updateMutation.isPending
+                }
               >
                 <RiCheckLine className="h-4 w-4" />
                 <span>
                   {createMutation.isPending || updateMutation.isPending
-                    ? "Salvando..."
+                    ? 'Salvando...'
                     : editingCategory
-                      ? "Salvar Alterações"
-                      : "Criar Categoria"}
+                      ? 'Salvar Alterações'
+                      : 'Criar Categoria'}
                 </span>
               </Button>
             </DialogFooter>
@@ -578,7 +582,7 @@ export default function CategoriesPage() {
             <AlertDialogAction
               onClick={() => {
                 if (deletingCategory) {
-                  deleteMutation.mutate(deletingCategory.id);
+                  deleteMutation.mutate(deletingCategory.id)
                 }
               }}
             >
@@ -588,7 +592,7 @@ export default function CategoriesPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }
 
 function TreeNode({
@@ -597,10 +601,10 @@ function TreeNode({
   onAddSub,
   ability,
 }: {
-  node: Category;
-  onEdit: (cat: Category) => void;
-  onAddSub: (cat: Category) => void;
-  ability: any;
+  node: Category
+  onEdit: (cat: Category) => void
+  onAddSub: (cat: Category) => void
+  ability: any
 }) {
   return (
     <div className="space-y-1 pl-3 border-l border-zinc-800/80">
@@ -611,7 +615,7 @@ function TreeNode({
         </div>
 
         <div className="flex items-center space-x-1">
-          {ability.can("create", "Category") && (
+          {ability.can('create', 'Category') && (
             <Button
               type="button"
               variant="ghost"
@@ -623,7 +627,7 @@ function TreeNode({
               + Sub
             </Button>
           )}
-          {ability.can("update", "Category") && (
+          {ability.can('update', 'Category') && (
             <Button
               type="button"
               variant="ghost"
@@ -652,5 +656,5 @@ function TreeNode({
         </div>
       )}
     </div>
-  );
+  )
 }

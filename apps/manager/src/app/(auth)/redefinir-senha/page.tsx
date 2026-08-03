@@ -1,40 +1,40 @@
-"use client";
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { RiLockPasswordLine } from "react-icons/ri";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { RiLockPasswordLine } from 'react-icons/ri'
+import { z } from 'zod'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-import { apiClient, ApiError } from "../../../lib/api-client";
+import { apiClient, ApiError } from '../../../lib/api-client'
 
 const resetSchema = z
   .object({
-    token: z.string().min(1, "O token é obrigatório"),
+    token: z.string().min(1, 'O token é obrigatório'),
     newPassword: z
       .string()
-      .min(6, "A nova senha deve ter no mínimo 6 caracteres"),
-    confirmPassword: z.string().min(1, "Confirme a nova senha"),
+      .min(6, 'A nova senha deve ter no mínimo 6 caracteres'),
+    confirmPassword: z.string().min(1, 'Confirme a nova senha'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "As senhas não conferem",
-    path: ["confirmPassword"],
-  });
+    message: 'As senhas não conferem',
+    path: ['confirmPassword'],
+  })
 
-type ResetFormData = z.infer<typeof resetSchema>;
+type ResetFormData = z.infer<typeof resetSchema>
 
 export default function ResetPasswordPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const token = searchParams.get("token") || "";
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const token = searchParams.get('token') || ''
 
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
@@ -43,30 +43,30 @@ export default function ResetPasswordPage() {
   } = useForm<ResetFormData>({
     resolver: zodResolver(resetSchema),
     defaultValues: { token },
-  });
+  })
 
   const onSubmit = async (data: ResetFormData) => {
     try {
-      setServerError(null);
-      setIsLoading(true);
-      await apiClient("/auth/users/reset-password", {
-        method: "POST",
+      setServerError(null)
+      setIsLoading(true)
+      await apiClient('/auth/users/reset-password', {
+        method: 'POST',
         body: JSON.stringify({
           token: data.token,
           newPassword: data.newPassword,
         }),
-      });
-      router.push("/login");
+      })
+      router.push('/login')
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        setServerError(err.message);
+        setServerError(err.message)
       } else {
-        setServerError("Token inválido ou expirado.");
+        setServerError('Token inválido ou expirado.')
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-zinc-950 px-4 font-sans text-zinc-100 antialiased selection:bg-emerald-500 selection:text-white">
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <Input type="hidden" {...register("token")} />
+          <Input type="hidden" {...register('token')} />
 
           <div className="space-y-1.5">
             <label
@@ -109,7 +109,7 @@ export default function ResetPasswordPage() {
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500" />
               <Input
-                {...register("newPassword")}
+                {...register('newPassword')}
                 id="newPassword"
                 type="password"
                 placeholder="••••••••"
@@ -133,7 +133,7 @@ export default function ResetPasswordPage() {
             <div className="relative">
               <RiLockPasswordLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500" />
               <Input
-                {...register("confirmPassword")}
+                {...register('confirmPassword')}
                 id="confirmPassword"
                 type="password"
                 placeholder="••••••••"
@@ -170,5 +170,5 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </div>
-  );
+  )
 }

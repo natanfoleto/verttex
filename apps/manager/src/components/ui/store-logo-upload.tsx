@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import { useRef, useState } from "react";
+import { useRef, useState } from 'react'
 import {
   RiCameraLine,
   RiDeleteBinLine,
   RiLoader4Line,
   RiStore2Line,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
 import {
   AlertDialog,
@@ -18,16 +18,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { apiClient } from "@/lib/api-client";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { apiClient } from '@/lib/api-client'
 
 interface StoreLogoUploadProps {
-  storeId?: string;
-  storeName: string;
-  currentLogoUrl?: string | null;
-  onLogoChange?: (newUrl: string | null) => void;
-  disabled?: boolean;
+  storeId?: string
+  storeName: string
+  currentLogoUrl?: string | null
+  onLogoChange?: (newUrl: string | null) => void
+  disabled?: boolean
 }
 
 export function StoreLogoUpload({
@@ -37,101 +37,101 @@ export function StoreLogoUpload({
   onLogoChange,
   disabled = false,
 }: StoreLogoUploadProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(currentLogoUrl || null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [logoUrl, setLogoUrl] = useState<string | null>(currentLogoUrl || null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  const displayUrl = previewUrl || logoUrl;
+  const displayUrl = previewUrl || logoUrl
   const initials = storeName
     ? storeName
-        .split(" ")
+        .split(' ')
         .map((n) => n[0])
-        .join("")
+        .join('')
         .substring(0, 2)
         .toUpperCase()
-    : "VT";
+    : 'VT'
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]
+    if (!file) return
 
     // Validate size (5 MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("O arquivo deve ter no máximo 5 MB.");
-      return;
+      toast.error('O arquivo deve ter no máximo 5 MB.')
+      return
     }
 
     // Validate type
-    const validTypes = ["image/jpeg", "image/png", "image/webp"];
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp']
     if (!validTypes.includes(file.type)) {
-      toast.error("Formato não suportado. Utilize JPEG, PNG ou WebP.");
-      return;
+      toast.error('Formato não suportado. Utilize JPEG, PNG ou WebP.')
+      return
     }
 
-    const localPreview = URL.createObjectURL(file);
-    setPreviewUrl(localPreview);
+    const localPreview = URL.createObjectURL(file)
+    setPreviewUrl(localPreview)
 
     if (storeId) {
       // Direct Upload to backend API via apiClient (handles cookies & auto-refresh)
-      setIsUploading(true);
+      setIsUploading(true)
       try {
-        const formData = new FormData();
-        formData.append("file", file);
+        const formData = new FormData()
+        formData.append('file', file)
 
         const data = await apiClient<{ logoUrl: string }>(
           `/stores/${storeId}/logo`,
           {
-            method: "POST",
+            method: 'POST',
             body: formData,
           },
-        );
+        )
 
-        const newUrl = data.logoUrl;
-        setLogoUrl(newUrl);
-        setPreviewUrl(null);
-        onLogoChange?.(newUrl);
-        toast.success("Foto da loja atualizada com sucesso!");
+        const newUrl = data.logoUrl
+        setLogoUrl(newUrl)
+        setPreviewUrl(null)
+        onLogoChange?.(newUrl)
+        toast.success('Foto da loja atualizada com sucesso!')
       } catch (err: any) {
-        toast.error(err.message || "Falha ao enviar a foto da loja");
-        setPreviewUrl(null);
+        toast.error(err.message || 'Falha ao enviar a foto da loja')
+        setPreviewUrl(null)
       } finally {
-        setIsUploading(false);
+        setIsUploading(false)
       }
     } else {
       // Mode before store creation: keep previewUrl and pass notification
-      onLogoChange?.(localPreview);
+      onLogoChange?.(localPreview)
     }
-  };
+  }
 
   const handleRemove = async () => {
     if (!storeId) {
-      setPreviewUrl(null);
-      setLogoUrl(null);
-      onLogoChange?.(null);
-      setIsDeleteDialogOpen(false);
-      return;
+      setPreviewUrl(null)
+      setLogoUrl(null)
+      onLogoChange?.(null)
+      setIsDeleteDialogOpen(false)
+      return
     }
 
-    setIsDeleting(true);
+    setIsDeleting(true)
     try {
       await apiClient(`/stores/${storeId}/logo`, {
-        method: "DELETE",
-      });
+        method: 'DELETE',
+      })
 
-      setLogoUrl(null);
-      setPreviewUrl(null);
-      onLogoChange?.(null);
-      toast.success("Foto da loja removida com sucesso!");
+      setLogoUrl(null)
+      setPreviewUrl(null)
+      onLogoChange?.(null)
+      toast.success('Foto da loja removida com sucesso!')
     } catch (err: any) {
-      toast.error(err.message || "Falha ao remover a foto");
+      toast.error(err.message || 'Falha ao remover a foto')
     } finally {
-      setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
+      setIsDeleting(false)
+      setIsDeleteDialogOpen(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-1.5">
@@ -155,7 +155,7 @@ export function StoreLogoUpload({
         <div
           onClick={() => {
             if (!disabled && !isUploading && !isDeleting) {
-              fileInputRef.current?.click();
+              fileInputRef.current?.click()
             }
           }}
           className="relative group flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-xs transition-all hover:border-emerald-500/60 hover:shadow-md"
@@ -221,8 +221,8 @@ export function StoreLogoUpload({
               Remover foto de perfil da loja?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-zinc-400">
-              A foto da loja {storeName} será excluída do Cloudflare R2 e a
-              loja passará a exibir o placeholder padrão com as iniciais.
+              A foto da loja {storeName} será excluída do Cloudflare R2 e a loja
+              passará a exibir o placeholder padrão com as iniciais.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -237,11 +237,11 @@ export function StoreLogoUpload({
               disabled={isDeleting}
               className="bg-rose-600 hover:bg-rose-700 text-white font-semibold cursor-pointer"
             >
-              {isDeleting ? "Removendo..." : "Confirmar Remoção"}
+              {isDeleting ? 'Removendo...' : 'Confirmar Remoção'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }

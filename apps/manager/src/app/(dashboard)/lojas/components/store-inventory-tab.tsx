@@ -1,58 +1,60 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { RiAddLine, RiRefreshLine, RiStackLine } from "react-icons/ri";
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RiAddLine, RiRefreshLine, RiStackLine } from 'react-icons/ri'
 
-import { Button } from "@/components/ui/button";
-import { TableWrapper } from "@/components/ui/table-wrapper";
-import { apiClient } from "@/lib/api-client";
+import { Button } from '@/components/ui/button'
+import { TableWrapper } from '@/components/ui/table-wrapper'
+import { apiClient } from '@/lib/api-client'
 
-import { ReceivingFormDialog } from "../../estoque/components/receiving-form-dialog";
+import { ReceivingFormDialog } from '../../estoque/components/receiving-form-dialog'
 
 interface StockAvailabilityItem {
-  variationId: string;
-  sku: string;
-  productName: string;
-  physicalQuantity: number;
-  reservedQuantity: number;
-  availableQuantity: number;
-  status: string;
+  variationId: string
+  sku: string
+  productName: string
+  physicalQuantity: number
+  reservedQuantity: number
+  availableQuantity: number
+  status: string
 }
 
 export function StoreInventoryTab({ storeId }: { storeId: string }) {
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [isReceivingOpen, setIsReceivingOpen] = useState(false);
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const [isReceivingOpen, setIsReceivingOpen] = useState(false)
 
   const { data: stores = [] } = useQuery<Array<{ id: string; name: string }>>({
-    queryKey: ["stores-dropdown"],
+    queryKey: ['stores-dropdown'],
     queryFn: async () => {
-      const res = await apiClient("/stores");
-      return Array.isArray(res) ? res : (res as any)?.data ?? [];
+      const res = await apiClient('/stores')
+      return Array.isArray(res) ? res : ((res as any)?.data ?? [])
     },
-  });
+  })
 
-  const { data, isLoading, isError, refetch } = useQuery<StockAvailabilityItem[]>({
-    queryKey: ["store-inventory", storeId, search],
+  const { data, isLoading, isError, refetch } = useQuery<
+    StockAvailabilityItem[]
+  >({
+    queryKey: ['store-inventory', storeId, search],
     queryFn: async () => {
       const res = await apiClient<any>(
         `/stock/availability?storeId=${storeId}&search=${encodeURIComponent(search)}`,
-      );
-      return res?.data || res || [];
+      )
+      return res?.data || res || []
     },
-  });
+  })
 
   const allItems = (data || []).filter(
     (item) =>
       item.productName?.toLowerCase().includes(search.toLowerCase()) ||
       item.sku?.toLowerCase().includes(search.toLowerCase()),
-  );
+  )
 
-  const total = allItems.length;
-  const totalPages = Math.ceil(total / perPage) || 1;
-  const paginatedItems = allItems.slice((page - 1) * perPage, page * perPage);
+  const total = allItems.length
+  const totalPages = Math.ceil(total / perPage) || 1
+  const paginatedItems = allItems.slice((page - 1) * perPage, page * perPage)
 
   return (
     <div className="space-y-6 text-zinc-100 antialiased">
@@ -62,8 +64,8 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
         description="Saldos físicos por SKU, quantidades reservadas em pedidos/checkout e saldo líquido comercial disponível."
         searchValue={search}
         onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
+          setSearch(val)
+          setPage(1)
         }}
         searchPlaceholder="Buscar por produto ou SKU..."
         isLoading={isLoading}
@@ -105,8 +107,8 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
         onPageChange={setPage}
         perPageValue={perPage}
         onPerPageChange={(newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
+          setPerPage(newPerPage)
+          setPage(1)
         }}
       >
         <table className="w-full text-left text-xs">
@@ -122,8 +124,8 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
           </thead>
           <tbody className="divide-y divide-zinc-800/60 font-mono">
             {paginatedItems.map((item) => {
-              const isLow = item.availableQuantity <= 5;
-              const isZero = item.availableQuantity <= 0;
+              const isLow = item.availableQuantity <= 5
+              const isZero = item.availableQuantity <= 0
 
               return (
                 <tr
@@ -145,10 +147,10 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
                   <td
                     className={`px-5 py-4 text-center font-bold ${
                       isZero
-                        ? "text-rose-400"
+                        ? 'text-rose-400'
                         : isLow
-                          ? "text-amber-400"
-                          : "text-emerald-400"
+                          ? 'text-amber-400'
+                          : 'text-emerald-400'
                     }`}
                   >
                     {item.availableQuantity}
@@ -157,17 +159,21 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
                     <span
                       className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase ${
                         isZero
-                          ? "border-rose-900/60 bg-rose-950/60 text-rose-400"
+                          ? 'border-rose-900/60 bg-rose-950/60 text-rose-400'
                           : isLow
-                            ? "border-amber-900/60 bg-amber-950/60 text-amber-400"
-                            : "border-emerald-900/60 bg-emerald-950/60 text-emerald-400"
+                            ? 'border-amber-900/60 bg-amber-950/60 text-amber-400'
+                            : 'border-emerald-900/60 bg-emerald-950/60 text-emerald-400'
                       }`}
                     >
-                      {isZero ? "Sem Estoque" : isLow ? "Estoque Baixo" : "Normal"}
+                      {isZero
+                        ? 'Sem Estoque'
+                        : isLow
+                          ? 'Estoque Baixo'
+                          : 'Normal'}
                     </span>
                   </td>
                 </tr>
-              );
+              )
             })}
           </tbody>
         </table>
@@ -181,5 +187,5 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
         defaultStoreId={storeId}
       />
     </div>
-  );
+  )
 }

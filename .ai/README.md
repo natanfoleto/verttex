@@ -19,8 +19,9 @@ Quando for necessário ler ou consultar informações sobre o projeto, siga esta
 6. [`.ai/domain/`](./domain/README.md) — Regras de negócio, modelos de dados, permissões e fluxos
 7. [`.ai/backend/`](./backend/README.md) e [`.ai/frontend/FRONTEND_UI.md`](./frontend/FRONTEND_UI.md) — Documentação técnica de API e UI (contendo a **Regra Canônica de Uso do Shadcn UI §10.13**)
 8. [`.ai/observability/`](./observability/README.md) — Regras de auditoria e logging
-9. [`.ai/planning/`](./planning/README.md) — Planejamento preliminar e estudos não formalizados como roadmap
-10. [`.ai/archive/`](./archive/README.md) — Documentos descontinuados ou substituídos
+9. [`.ai/technical-debt/`](./technical-debt/TECHNICAL_DEBT.md) — Catálogo oficial de Débitos Técnicos e Oportunidades de Melhoria (`TECHNICAL_DEBT.md` e `IMPROVEMENTS.md`)
+10. [`.ai/planning/`](./planning/README.md) — Planejamento preliminar e estudos não formalizados como roadmap
+11. [`.ai/archive/`](./archive/README.md) — Documentos descontinuados ou substituídos
 
 ---
 
@@ -55,6 +56,10 @@ Toda a documentação do projeto está dividida nas seguintes categorias oficiai
 ├── observability/          — Auditoria, rastreabilidade e log audit
 │   ├── README.md
 │   └── AUDIT_RULES.md
+│
+├── technical-debt/         — Backlog oficial de débitos técnicos e oportunidades
+│   ├── TECHNICAL_DEBT.md   — Débitos técnicos catalogados e acompanhados
+│   └── IMPROVEMENTS.md     — Oportunidades de evolução e melhorias futuras
 │
 ├── planning/               — Estudos preliminares e bootstrap inicial
 │   ├── README.md

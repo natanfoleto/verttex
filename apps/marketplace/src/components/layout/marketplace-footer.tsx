@@ -3,7 +3,6 @@ import Link from 'next/link'
 export function MarketplaceFooter() {
   return (
     <footer className="font-sans text-stone-700 antialiased">
-
       {/* Bottom Compact Links & Copyright Section */}
       <div className="bg-stone-50 py-8">
         <div className="mx-auto max-w-7xl space-y-4 px-4 text-center sm:px-6 lg:px-8">

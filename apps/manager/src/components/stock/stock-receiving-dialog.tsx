@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { RiInboxArchiveLine, RiFileTextLine, RiCheckLine } from "react-icons/ri";
+import React, { useState } from 'react'
+import { RiInboxArchiveLine, RiFileTextLine, RiCheckLine } from 'react-icons/ri'
 import {
   Dialog,
   DialogContent,
@@ -9,20 +9,20 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { apiClient } from "@/lib/api-client";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { apiClient } from '@/lib/api-client'
 
 interface StockReceivingDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  storeId: string;
-  variationId: string;
-  productName: string;
-  variationSku: string;
-  stockMode: "NOT_TRACKED" | "SIMPLE" | "BATCH" | "BATCH_WITH_EXPIRATION";
-  onReceiveSuccess: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  storeId: string
+  variationId: string
+  productName: string
+  variationSku: string
+  stockMode: 'NOT_TRACKED' | 'SIMPLE' | 'BATCH' | 'BATCH_WITH_EXPIRATION'
+  onReceiveSuccess: () => void
 }
 
 export function StockReceivingDialog({
@@ -35,33 +35,35 @@ export function StockReceivingDialog({
   stockMode,
   onReceiveSuccess,
 }: StockReceivingDialogProps) {
-  const [quantity, setQuantity] = useState<number>(1);
-  const [lotNumber, setLotNumber] = useState<string>("");
-  const [manufacturingDate, setManufacturingDate] = useState<string>("");
-  const [expirationDate, setExpirationDate] = useState<string>("");
-  const [supplier, setSupplier] = useState<string>("");
-  const [documentReference, setDocumentReference] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState<number>(1)
+  const [lotNumber, setLotNumber] = useState<string>('')
+  const [manufacturingDate, setManufacturingDate] = useState<string>('')
+  const [expirationDate, setExpirationDate] = useState<string>('')
+  const [supplier, setSupplier] = useState<string>('')
+  const [documentReference, setDocumentReference] = useState<string>('')
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+    e.preventDefault()
+    setErrorMessage(null)
 
     if (quantity <= 0) {
-      setErrorMessage("Quantidade deve ser maior que zero");
-      return;
+      setErrorMessage('Quantidade deve ser maior que zero')
+      return
     }
 
-    if (stockMode === "BATCH_WITH_EXPIRATION" && !expirationDate) {
-      setErrorMessage("Data de validade é obrigatória para produtos no modo com validade");
-      return;
+    if (stockMode === 'BATCH_WITH_EXPIRATION' && !expirationDate) {
+      setErrorMessage(
+        'Data de validade é obrigatória para produtos no modo com validade',
+      )
+      return
     }
 
     try {
-      setIsSubmitting(true);
-      await apiClient("/stock/receive", {
-        method: "POST",
+      setIsSubmitting(true)
+      await apiClient('/stock/receive', {
+        method: 'POST',
         body: JSON.stringify({
           storeId,
           variationId,
@@ -76,16 +78,18 @@ export function StockReceivingDialog({
             },
           ],
         }),
-      });
+      })
 
-      onReceiveSuccess();
-      onOpenChange(false);
+      onReceiveSuccess()
+      onOpenChange(false)
     } catch (err: any) {
-      setErrorMessage(err.message || "Ocorreu um erro ao processar o recebimento.");
+      setErrorMessage(
+        err.message || 'Ocorreu um erro ao processar o recebimento.',
+      )
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -96,11 +100,15 @@ export function StockReceivingDialog({
             Recebimento de Estoque & Lote Sanitário
           </DialogTitle>
           <DialogDescription>
-            Registre a entrada física de mercadoria para <strong>{productName}</strong> (SKU: {variationSku}).
+            Registre a entrada física de mercadoria para{' '}
+            <strong>{productName}</strong> (SKU: {variationSku}).
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2 font-sans antialiased text-xs">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 py-2 font-sans antialiased text-xs"
+        >
           {errorMessage && (
             <div className="p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-xs font-medium">
               {errorMessage}
@@ -109,7 +117,10 @@ export function StockReceivingDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label htmlFor="receive-qty" className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
+              <label
+                htmlFor="receive-qty"
+                className="text-xs font-semibold text-stone-700 dark:text-stone-300 block"
+              >
                 Quantidade Recebida <span className="text-rose-600">*</span>
               </label>
               <Input
@@ -123,7 +134,10 @@ export function StockReceivingDialog({
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="receive-doc" className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
+              <label
+                htmlFor="receive-doc"
+                className="text-xs font-semibold text-stone-700 dark:text-stone-300 block"
+              >
                 Nota Fiscal / Doc. Origem
               </label>
               <Input
@@ -135,7 +149,7 @@ export function StockReceivingDialog({
             </div>
           </div>
 
-          {(stockMode === "BATCH" || stockMode === "BATCH_WITH_EXPIRATION") && (
+          {(stockMode === 'BATCH' || stockMode === 'BATCH_WITH_EXPIRATION') && (
             <div className="space-y-4 p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
               <div className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
                 <RiFileTextLine className="w-3.5 h-3.5" />
@@ -143,9 +157,13 @@ export function StockReceivingDialog({
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="receive-lot-number" className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
+                <label
+                  htmlFor="receive-lot-number"
+                  className="text-xs font-semibold text-stone-700 dark:text-stone-300 block"
+                >
                   Código do Lote
-                  {stockMode === "BATCH" && " (deixe em branco para gerar lote interno automático)"}
+                  {stockMode === 'BATCH' &&
+                    ' (deixe em branco para gerar lote interno automático)'}
                 </label>
                 <Input
                   id="receive-lot-number"
@@ -157,7 +175,10 @@ export function StockReceivingDialog({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label htmlFor="receive-mfg" className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
+                  <label
+                    htmlFor="receive-mfg"
+                    className="text-xs font-semibold text-stone-700 dark:text-stone-300 block"
+                  >
                     Fabricação
                   </label>
                   <Input
@@ -169,21 +190,30 @@ export function StockReceivingDialog({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="receive-exp" className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
-                    Validade {stockMode === "BATCH_WITH_EXPIRATION" && <span className="text-rose-600">*</span>}
+                  <label
+                    htmlFor="receive-exp"
+                    className="text-xs font-semibold text-stone-700 dark:text-stone-300 block"
+                  >
+                    Validade{' '}
+                    {stockMode === 'BATCH_WITH_EXPIRATION' && (
+                      <span className="text-rose-600">*</span>
+                    )}
                   </label>
                   <Input
                     id="receive-exp"
                     type="date"
                     value={expirationDate}
                     onChange={(e) => setExpirationDate(e.target.value)}
-                    required={stockMode === "BATCH_WITH_EXPIRATION"}
+                    required={stockMode === 'BATCH_WITH_EXPIRATION'}
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="receive-supplier" className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
+                <label
+                  htmlFor="receive-supplier"
+                  className="text-xs font-semibold text-stone-700 dark:text-stone-300 block"
+                >
                   Fornecedor / Produtor
                 </label>
                 <Input
@@ -212,11 +242,11 @@ export function StockReceivingDialog({
               className="bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer"
             >
               <RiCheckLine className="w-4 h-4 mr-1.5" />
-              {isSubmitting ? "Confirmando..." : "Confirmar Recebimento"}
+              {isSubmitting ? 'Confirmando...' : 'Confirmar Recebimento'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { RiShieldCheckLine, RiCheckLine } from "react-icons/ri";
-import { toast } from "sonner";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RiShieldCheckLine, RiCheckLine } from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -13,15 +13,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Textarea } from "@/components/ui/textarea";
-import { apiClient, ApiError } from "@/lib/api-client";
+} from '@/components/ui/dialog'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
+import { apiClient, ApiError } from '@/lib/api-client'
 
 interface QuarantineInspectionDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  returnId: string | null;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  returnId: string | null
 }
 
 export function QuarantineInspectionDialog({
@@ -29,34 +29,34 @@ export function QuarantineInspectionDialog({
   onOpenChange,
   returnId,
 }: QuarantineInspectionDialogProps) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   const [outcome, setOutcome] = useState<
-    "QUARANTINE_RELEASE" | "DAMAGE_DISCARD" | "EXPIRATION_DISCARD"
-  >("QUARANTINE_RELEASE");
-  const [inspectionReport, setInspectionReport] = useState("");
+    'QUARANTINE_RELEASE' | 'DAMAGE_DISCARD' | 'EXPIRATION_DISCARD'
+  >('QUARANTINE_RELEASE')
+  const [inspectionReport, setInspectionReport] = useState('')
 
   const inspectionMutation = useMutation({
     mutationFn: async () => {
-      if (!returnId) return;
+      if (!returnId) return
       return apiClient(`/returns/${returnId}/quarantine-release`, {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify({
           outcome,
           inspectionReport: inspectionReport.trim(),
         }),
-      });
+      })
     },
     onSuccess: () => {
-      toast.success("Laudo de inspeção sanitária registrado com sucesso!");
-      queryClient.invalidateQueries({ queryKey: ["manager-returns"] });
-      onOpenChange(false);
-      setInspectionReport("");
+      toast.success('Laudo de inspeção sanitária registrado com sucesso!')
+      queryClient.invalidateQueries({ queryKey: ['manager-returns'] })
+      onOpenChange(false)
+      setInspectionReport('')
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) toast.error(err.message);
-      else toast.error("Erro ao registrar laudo de quarentena");
+      if (err instanceof ApiError) toast.error(err.message)
+      else toast.error('Erro ao registrar laudo de quarentena')
     },
-  });
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,14 +67,15 @@ export function QuarantineInspectionDialog({
             <span>Laudo Técnico de Inspeção Sanitária em Quarentena</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Registe o parecer técnico para determinar o destino de segurança sanitária do produto devolvido.
+            Registe o parecer técnico para determinar o destino de segurança
+            sanitária do produto devolvido.
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            inspectionMutation.mutate();
+            e.preventDefault()
+            inspectionMutation.mutate()
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -125,17 +126,21 @@ export function QuarantineInspectionDialog({
             </Button>
             <Button
               type="submit"
-              disabled={inspectionMutation.isPending || !inspectionReport.trim()}
+              disabled={
+                inspectionMutation.isPending || !inspectionReport.trim()
+              }
               className="cursor-pointer bg-amber-600 hover:bg-amber-700 text-xs font-bold"
             >
               <RiCheckLine className="h-4 w-4 mr-1.5" />
               <span>
-                {inspectionMutation.isPending ? "Registrando Laudo..." : "Emitir Laudo"}
+                {inspectionMutation.isPending
+                  ? 'Registrando Laudo...'
+                  : 'Emitir Laudo'}
               </span>
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

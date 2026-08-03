@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import {
   RiAddLine,
   RiArchiveLine,
@@ -15,10 +15,10 @@ import {
   RiSendPlaneLine,
   RiShoppingBag3Line,
   RiStarLine,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { TableWrapper } from "@/components/ui/table-wrapper";
+import { TableWrapper } from '@/components/ui/table-wrapper'
 
 import {
   AlertDialog,
@@ -29,83 +29,83 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { NativeSelect } from "@/components/ui/native-select";
+} from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { NativeSelect } from '@/components/ui/native-select'
 
-import { apiClient, ApiError } from "../../../../lib/api-client";
+import { apiClient, ApiError } from '../../../../lib/api-client'
 import {
   categoryQueryKeys,
   brandQueryKeys,
   storeQueryKeys,
-} from "../../../../lib/query-keys";
-import { useAuth } from "../../../../providers/auth-provider";
-import { ProductFormDialog, ProductToEdit } from "./product-form-dialog";
+} from '../../../../lib/query-keys'
+import { useAuth } from '../../../../providers/auth-provider'
+import { ProductFormDialog, ProductToEdit } from './product-form-dialog'
 
 interface ProductsTableProps {
-  fixedStoreId?: string;
-  hideTitle?: boolean;
+  fixedStoreId?: string
+  hideTitle?: boolean
 }
 
 export function ProductsTable({
   fixedStoreId,
   hideTitle = false,
 }: ProductsTableProps) {
-  const { ability } = useAuth();
-  const queryClient = useQueryClient();
+  const { ability } = useAuth()
+  const queryClient = useQueryClient()
 
   // Filters State
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [storeFilter, setStoreFilter] = useState<string>(fixedStoreId || "");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
-  const [brandFilter, setBrandFilter] = useState<string>("");
-  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [storeFilter, setStoreFilter] = useState<string>(fixedStoreId || '')
+  const [categoryFilter, setCategoryFilter] = useState<string>('')
+  const [brandFilter, setBrandFilter] = useState<string>('')
+  const [page, setPage] = useState(1)
 
   // Dialog State
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<ProductToEdit | null>(
     null,
-  );
+  )
   const [deletingProduct, setDeletingProduct] = useState<ProductToEdit | null>(
     null,
-  );
+  )
 
   // Queries
   const { data: storesRes } = useQuery({
     queryKey: storeQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient("/stores");
-      return Array.isArray(res) ? res : (res?.data ?? []);
+      const res = await apiClient('/stores')
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: !fixedStoreId,
     staleTime: 0, // Always fetch fresh so newly created stores appear immediately
-  });
+  })
 
   const { data: categoriesRes } = useQuery({
     queryKey: categoryQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient("/categories");
-      return Array.isArray(res) ? res : (res?.data ?? []);
+      const res = await apiClient('/categories')
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     staleTime: 0, // Always fetch fresh so newly created categories appear immediately
-  });
+  })
 
   const { data: brandsRes } = useQuery({
     queryKey: brandQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient("/brands");
-      return Array.isArray(res) ? res : (res?.data ?? []);
+      const res = await apiClient('/brands')
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     staleTime: 0, // Always fetch fresh so newly created brands appear immediately
-  });
+  })
 
-  const effectiveStoreId = fixedStoreId || storeFilter;
+  const effectiveStoreId = fixedStoreId || storeFilter
 
   const { data: productsRes, isLoading } = useQuery({
     queryKey: [
-      "products-list",
+      'products-list',
       search,
       statusFilter,
       effectiveStoreId,
@@ -114,116 +114,116 @@ export function ProductsTable({
       page,
     ],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      params.append("page", String(page));
-      params.append("limit", "10");
-      if (search) params.append("search", search);
-      if (statusFilter !== "all") params.append("status", statusFilter);
-      if (effectiveStoreId) params.append("storeId", effectiveStoreId);
-      if (categoryFilter) params.append("categoryId", categoryFilter);
-      if (brandFilter) params.append("brandId", brandFilter);
+      const params = new URLSearchParams()
+      params.append('page', String(page))
+      params.append('limit', '10')
+      if (search) params.append('search', search)
+      if (statusFilter !== 'all') params.append('status', statusFilter)
+      if (effectiveStoreId) params.append('storeId', effectiveStoreId)
+      if (categoryFilter) params.append('categoryId', categoryFilter)
+      if (brandFilter) params.append('brandId', brandFilter)
 
-      const res = await apiClient(`/products?${params.toString()}`);
-      return res;
+      const res = await apiClient(`/products?${params.toString()}`)
+      return res
     },
-  });
+  })
 
-  const storesList = storesRes ?? [];
-  const categoriesList = categoriesRes ?? [];
-  const brandsList = brandsRes ?? [];
+  const storesList = storesRes ?? []
+  const categoriesList = categoriesRes ?? []
+  const brandsList = brandsRes ?? []
   const productsList: ProductToEdit[] =
-    productsRes?.data ?? (Array.isArray(productsRes) ? productsRes : []);
+    productsRes?.data ?? (Array.isArray(productsRes) ? productsRes : [])
   const meta = productsRes?.meta ?? {
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 1,
-  };
+  }
 
   // Mutations
   const publishMutation = useMutation({
     mutationFn: (id: string) =>
       apiClient(`/products/${id}/publish`, {
-        method: "POST",
+        method: 'POST',
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products-list"] });
-      toast.success("Produto publicado no Marketplace com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ['products-list'] })
+      toast.success('Produto publicado no Marketplace com sucesso!')
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao publicar produto",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao publicar produto',
+      )
     },
-  });
+  })
 
   const archiveMutation = useMutation({
     mutationFn: (id: string) =>
       apiClient(`/products/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products-list"] });
-      toast.success("Produto arquivado com sucesso!");
-      setDeletingProduct(null);
+      queryClient.invalidateQueries({ queryKey: ['products-list'] })
+      toast.success('Produto arquivado com sucesso!')
+      setDeletingProduct(null)
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao arquivar produto",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao arquivar produto',
+      )
     },
-  });
+  })
 
   const openCreateModal = () => {
-    setEditingProduct(null);
-    setIsModalOpen(true);
-  };
+    setEditingProduct(null)
+    setIsModalOpen(true)
+  }
 
   const openEditModal = (product: ProductToEdit) => {
-    setEditingProduct(product);
-    setIsModalOpen(true);
-  };
+    setEditingProduct(product)
+    setIsModalOpen(true)
+  }
 
   const formatPrice = (prod: ProductToEdit) => {
     if (prod.variations && prod.variations.length > 0) {
       const prices = prod.variations
         .map((v) => Number(v.price))
-        .filter((p) => !isNaN(p) && p > 0);
+        .filter((p) => !isNaN(p) && p > 0)
       if (prices.length > 0) {
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
+        const minPrice = Math.min(...prices)
+        const maxPrice = Math.max(...prices)
         if (minPrice === maxPrice) {
-          return `R$ ${minPrice.toFixed(2)}`;
+          return `R$ ${minPrice.toFixed(2)}`
         }
-        return `R$ ${minPrice.toFixed(2)} - R$ ${maxPrice.toFixed(2)}`;
+        return `R$ ${minPrice.toFixed(2)} - R$ ${maxPrice.toFixed(2)}`
       }
     }
-    return "R$ 0,00";
-  };
+    return 'R$ 0,00'
+  }
 
   const getMainImage = (prod: ProductToEdit) => {
-    const mainMedia = prod.medias?.find((m) => m.isMain) || prod.medias?.[0];
+    const mainMedia = prod.medias?.find((m) => m.isMain) || prod.medias?.[0]
     if (mainMedia?.file) {
       if ((mainMedia.file as any).publicUrl)
-        return (mainMedia.file as any).publicUrl;
+        return (mainMedia.file as any).publicUrl
       if (mainMedia.file.objectKey) {
-        return `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${mainMedia.file.objectKey}`;
+        return `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${mainMedia.file.objectKey}`
       }
     }
-    return null;
-  };
+    return null
+  }
 
   return (
     <div className="w-full space-y-4">
       <TableWrapper
-        title={hideTitle ? "" : "Gestão de Produtos"}
+        title={hideTitle ? '' : 'Gestão de Produtos'}
         description={
           hideTitle
             ? undefined
-            : "Cadastre produtos simples ou variáveis, gerencie variações, preços e mídias do catálogo."
+            : 'Cadastre produtos simples ou variáveis, gerencie variações, preços e mídias do catálogo.'
         }
         actionButton={
-          ability.can("create", "Product") ? (
+          ability.can('create', 'Product') ? (
             <Button type="button" onClick={openCreateModal}>
               <RiAddLine className="h-4 w-4" />
               <span>Novo Produto</span>
@@ -232,8 +232,8 @@ export function ProductsTable({
         }
         searchValue={search}
         onSearchChange={(v) => {
-          setSearch(v);
-          setPage(1);
+          setSearch(v)
+          setPage(1)
         }}
         searchPlaceholder="Buscar por nome, slug ou SKU..."
         filters={
@@ -241,8 +241,8 @@ export function ProductsTable({
             <NativeSelect
               value={statusFilter}
               onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
+                setStatusFilter(e.target.value)
+                setPage(1)
               }}
               wrapperClassName="w-36"
             >
@@ -257,8 +257,8 @@ export function ProductsTable({
               <NativeSelect
                 value={storeFilter}
                 onChange={(e) => {
-                  setStoreFilter(e.target.value);
-                  setPage(1);
+                  setStoreFilter(e.target.value)
+                  setPage(1)
                 }}
                 wrapperClassName="w-40"
               >
@@ -274,8 +274,8 @@ export function ProductsTable({
             <NativeSelect
               value={categoryFilter}
               onChange={(e) => {
-                setCategoryFilter(e.target.value);
-                setPage(1);
+                setCategoryFilter(e.target.value)
+                setPage(1)
               }}
               wrapperClassName="w-40"
             >
@@ -290,8 +290,8 @@ export function ProductsTable({
             <NativeSelect
               value={brandFilter}
               onChange={(e) => {
-                setBrandFilter(e.target.value);
-                setPage(1);
+                setBrandFilter(e.target.value)
+                setPage(1)
               }}
               wrapperClassName="w-40"
             >
@@ -332,10 +332,10 @@ export function ProductsTable({
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
             {productsList.map((prod: any) => {
-              const imgUrl = getMainImage(prod);
+              const imgUrl = getMainImage(prod)
               const defaultVar =
                 prod.variations?.find((v: any) => v.isDefault) ||
-                prod.variations?.[0];
+                prod.variations?.[0]
 
               return (
                 <tr
@@ -363,7 +363,7 @@ export function ProductsTable({
                         <div className="flex items-center space-x-2 text-[11px] text-zinc-500 font-mono">
                           <span>{prod.slug}</span>
                           <span className="rounded bg-zinc-800 px-1.5 py-0.2 text-[10px] text-zinc-400">
-                            {prod.type === "simple" ? "Simples" : "Variável"}
+                            {prod.type === 'simple' ? 'Simples' : 'Variável'}
                           </span>
                         </div>
                       </div>
@@ -373,7 +373,7 @@ export function ProductsTable({
                   {!fixedStoreId && (
                     <td className="px-4 py-3">
                       <span className="font-medium text-zinc-300">
-                        {prod.store?.name || "—"}
+                        {prod.store?.name || '—'}
                       </span>
                     </td>
                   )}
@@ -381,10 +381,10 @@ export function ProductsTable({
                   <td className="px-4 py-3">
                     <div className="flex flex-col text-xs">
                       <span className="text-zinc-200">
-                        {prod.category?.name || "—"}
+                        {prod.category?.name || '—'}
                       </span>
                       <span className="text-[11px] text-zinc-500">
-                        {prod.brand?.name || "Sem Marca"}
+                        {prod.brand?.name || 'Sem Marca'}
                       </span>
                     </div>
                   </td>
@@ -395,7 +395,7 @@ export function ProductsTable({
                         {formatPrice(prod)}
                       </span>
                       <span className="text-[11px] text-zinc-500">
-                        SKU: {defaultVar?.sku || "—"}
+                        SKU: {defaultVar?.sku || '—'}
                       </span>
                     </div>
                   </td>
@@ -404,43 +404,43 @@ export function ProductsTable({
                     <div className="flex flex-wrap items-center gap-1.5">
                       <span
                         className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-                          prod.status === "active"
-                            ? "border-emerald-800 bg-emerald-950/80 text-emerald-400"
-                            : prod.status === "draft"
-                              ? "border-zinc-700 bg-zinc-800/80 text-zinc-300"
-                              : prod.status === "archived"
-                                ? "border-rose-900/60 bg-rose-950/80 text-rose-400"
-                                : "border-amber-800 bg-amber-950/80 text-amber-400"
+                          prod.status === 'active'
+                            ? 'border-emerald-800 bg-emerald-950/80 text-emerald-400'
+                            : prod.status === 'draft'
+                              ? 'border-zinc-700 bg-zinc-800/80 text-zinc-300'
+                              : prod.status === 'archived'
+                                ? 'border-rose-900/60 bg-rose-950/80 text-rose-400'
+                                : 'border-amber-800 bg-amber-950/80 text-amber-400'
                         }`}
                       >
-                        {prod.status === "active" && (
+                        {prod.status === 'active' && (
                           <RiCheckLine className="h-3 w-3" />
                         )}
-                        {prod.status === "draft" && (
+                        {prod.status === 'draft' && (
                           <RiDraftLine className="h-3 w-3" />
                         )}
-                        {prod.status === "archived" && (
+                        {prod.status === 'archived' && (
                           <RiArchiveLine className="h-3 w-3" />
                         )}
-                        {prod.status === "inactive" && (
+                        {prod.status === 'inactive' && (
                           <RiCloseCircleLine className="h-3 w-3" />
                         )}
                         <span>
-                          {prod.status === "active"
-                            ? "Ativo"
-                            : prod.status === "draft"
-                              ? "Rascunho"
-                              : prod.status === "archived"
-                                ? "Arquivado"
-                                : "Inativo"}
+                          {prod.status === 'active'
+                            ? 'Ativo'
+                            : prod.status === 'draft'
+                              ? 'Rascunho'
+                              : prod.status === 'archived'
+                                ? 'Arquivado'
+                                : 'Inativo'}
                         </span>
                       </span>
 
                       <span
                         className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                           prod.isPublished
-                            ? "border-sky-800/80 bg-sky-950/80 text-sky-400"
-                            : "border-zinc-800 bg-zinc-900 text-zinc-400"
+                            ? 'border-sky-800/80 bg-sky-950/80 text-sky-400'
+                            : 'border-zinc-800 bg-zinc-900 text-zinc-400'
                         }`}
                       >
                         {prod.isPublished ? (
@@ -467,7 +467,7 @@ export function ProductsTable({
 
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end space-x-1.5">
-                      {ability.can("update", "Product") &&
+                      {ability.can('update', 'Product') &&
                         !prod.isPublished && (
                           <Button
                             type="button"
@@ -482,7 +482,7 @@ export function ProductsTable({
                           </Button>
                         )}
 
-                      {ability.can("update", "Product") && (
+                      {ability.can('update', 'Product') && (
                         <Button
                           type="button"
                           variant="outline"
@@ -495,8 +495,8 @@ export function ProductsTable({
                         </Button>
                       )}
 
-                      {ability.can("delete", "Product") &&
-                        prod.status !== "archived" && (
+                      {ability.can('delete', 'Product') &&
+                        prod.status !== 'archived' && (
                           <Button
                             type="button"
                             variant="outline"
@@ -511,7 +511,7 @@ export function ProductsTable({
                     </div>
                   </td>
                 </tr>
-              );
+              )
             })}
           </tbody>
         </table>
@@ -536,7 +536,7 @@ export function ProductsTable({
               Arquivar Produto
             </AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-400">
-              Tem certeza de que deseja arquivar o produto{" "}
+              Tem certeza de que deseja arquivar o produto{' '}
               <strong className="text-zinc-200">{deletingProduct?.name}</strong>
               ? Ele será despublicado do marketplace e removido da listagem
               ativa.
@@ -558,5 +558,5 @@ export function ProductsTable({
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }

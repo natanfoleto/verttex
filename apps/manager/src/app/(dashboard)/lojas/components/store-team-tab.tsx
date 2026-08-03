@@ -1,52 +1,56 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { useState } from "react";
-import { RiUserSharedLine, RiUserStarLine } from "react-icons/ri";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { useState } from 'react'
+import { RiUserSharedLine, RiUserStarLine } from 'react-icons/ri'
 
-import { Button } from "@/components/ui/button";
-import { TableWrapper } from "@/components/ui/table-wrapper";
-import { apiClient } from "@/lib/api-client";
+import { Button } from '@/components/ui/button'
+import { TableWrapper } from '@/components/ui/table-wrapper'
+import { apiClient } from '@/lib/api-client'
 
 interface StoreMemberItem {
-  id: string;
-  isOwner: boolean;
+  id: string
+  isOwner: boolean
   user: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string | null;
-    status: string;
-    role?: { name: string };
-  };
+    id: string
+    name: string
+    email: string
+    phone?: string | null
+    status: string
+    role?: { name: string }
+  }
 }
 
 export function StoreTeamTab({ storeId }: { storeId: string }) {
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
 
-  const { data: members = [], isLoading, isError } = useQuery<StoreMemberItem[]>({
-    queryKey: ["store-members-tab", storeId],
+  const {
+    data: members = [],
+    isLoading,
+    isError,
+  } = useQuery<StoreMemberItem[]>({
+    queryKey: ['store-members-tab', storeId],
     queryFn: async () => {
-      const res = await apiClient<any>(`/stores/${storeId}/users`);
-      return Array.isArray(res) ? res : res?.data || [];
+      const res = await apiClient<any>(`/stores/${storeId}/users`)
+      return Array.isArray(res) ? res : res?.data || []
     },
-  });
+  })
 
   const filteredMembers = members.filter(
     (m) =>
       m.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
       m.user?.email?.toLowerCase().includes(search.toLowerCase()),
-  );
+  )
 
-  const total = filteredMembers.length;
-  const totalPages = Math.ceil(total / perPage) || 1;
+  const total = filteredMembers.length
+  const totalPages = Math.ceil(total / perPage) || 1
   const paginatedMembers = filteredMembers.slice(
     (page - 1) * perPage,
     page * perPage,
-  );
+  )
 
   return (
     <div className="space-y-6 text-zinc-100 antialiased">
@@ -55,8 +59,8 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
         description="Relação de usuários do sistema com permissão de acesso e vínculo operacional a esta loja."
         searchValue={search}
         onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
+          setSearch(val)
+          setPage(1)
         }}
         searchPlaceholder="Buscar por nome ou e-mail..."
         isLoading={isLoading}
@@ -87,8 +91,8 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
         onPageChange={setPage}
         perPageValue={perPage}
         onPerPageChange={(newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
+          setPerPage(newPerPage)
+          setPage(1)
         }}
       >
         <table className="w-full text-left text-xs">
@@ -114,11 +118,11 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
                   {item.user?.email}
                 </td>
                 <td className="px-5 py-4 font-sans text-zinc-300">
-                  {item.user?.role?.name || "Gestor de Loja"}
+                  {item.user?.role?.name || 'Gestor de Loja'}
                 </td>
                 <td className="px-5 py-4 text-center font-sans">
                   <span className="inline-flex items-center rounded-full border border-emerald-900/60 bg-emerald-950/60 px-2.5 py-0.5 text-[10px] uppercase font-bold text-emerald-400">
-                    {item.user?.status || "Ativo"}
+                    {item.user?.status || 'Ativo'}
                   </span>
                 </td>
                 <td className="px-5 py-4 text-right font-sans">
@@ -137,5 +141,5 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
         </table>
       </TableWrapper>
     </div>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { RiCheckLine } from "react-icons/ri";
-import { toast } from "sonner";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RiCheckLine } from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -13,24 +13,24 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
 
-import { apiClient, ApiError } from "../../../../lib/api-client";
+import { apiClient, ApiError } from '../../../../lib/api-client'
 
 export interface LotItem {
-  id: string;
-  lotNumber: string;
-  status: "available" | "quarantine" | "blocked" | "recalled";
-  product: { id: string; name: string };
-  store: { id: string; name: string };
+  id: string
+  lotNumber: string
+  status: 'available' | 'quarantine' | 'blocked' | 'recalled'
+  product: { id: string; name: string }
+  store: { id: string; name: string }
 }
 
 interface StatusFormDialogProps {
-  lot: LotItem | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  lot: LotItem | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function StatusFormDialog({
@@ -38,62 +38,62 @@ export function StatusFormDialog({
   open,
   onOpenChange,
 }: StatusFormDialogProps) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   const [newStatus, setNewStatus] = useState<
-    "available" | "quarantine" | "blocked" | "recalled"
-  >(lot?.status ?? "quarantine");
-  const [statusReason, setStatusReason] = useState("");
+    'available' | 'quarantine' | 'blocked' | 'recalled'
+  >(lot?.status ?? 'quarantine')
+  const [statusReason, setStatusReason] = useState('')
 
   const updateStatusMutation = useMutation({
     mutationFn: async () => {
-      if (!lot) return;
+      if (!lot) return
       return apiClient(`/lots/${lot.id}/status`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify({
           status: newStatus,
           reason: statusReason,
         }),
-      });
+      })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lots-list"] });
-      toast.success("Situação operacional do lote alterada com sucesso!");
-      onOpenChange(false);
-      setStatusReason("");
+      queryClient.invalidateQueries({ queryKey: ['lots-list'] })
+      toast.success('Situação operacional do lote alterada com sucesso!')
+      onOpenChange(false)
+      setStatusReason('')
     },
     onError: (err: unknown) => {
       toast.error(
         err instanceof ApiError
           ? err.message
-          : "Erro ao alterar status do lote",
-      );
+          : 'Erro ao alterar status do lote',
+      )
     },
-  });
+  })
 
-  if (!lot) return null;
+  if (!lot) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl max-h-[90vh]"
-        style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+        style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
       >
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
             Alterar Situação Operacional do Lote
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Lote:{" "}
-            <span className="font-mono text-zinc-200">{lot.lotNumber}</span> —{" "}
+            Lote:{' '}
+            <span className="font-mono text-zinc-200">{lot.lotNumber}</span> —{' '}
             {lot.product.name}
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            updateStatusMutation.mutate();
+            e.preventDefault()
+            updateStatusMutation.mutate()
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -107,15 +107,13 @@ export function StatusFormDialog({
                 onChange={(e) =>
                   setNewStatus(
                     e.target.value as
-                      "available" | "quarantine" | "blocked" | "recalled",
+                      'available' | 'quarantine' | 'blocked' | 'recalled',
                   )
                 }
                 className="w-full bg-zinc-900 border-zinc-800 text-xs rounded-xl cursor-pointer"
                 required
               >
-                <option value="available">
-                  Disponível (Comercializável)
-                </option>
+                <option value="available">Disponível (Comercializável)</option>
                 <option value="quarantine">
                   Em Quarentena (Bloqueio Temporário)
                 </option>
@@ -158,12 +156,12 @@ export function StatusFormDialog({
             >
               <RiCheckLine className="mr-1.5 h-4 w-4" />
               {updateStatusMutation.isPending
-                ? "Salvando..."
-                : "Salvar Alteração"}
+                ? 'Salvando...'
+                : 'Salvar Alteração'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

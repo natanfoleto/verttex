@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import {
   RiAddLine,
   RiArchiveLine,
   RiCheckLine,
   RiEditLine,
   RiPriceTag3Line,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
 import {
   AlertDialog,
@@ -20,8 +20,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -29,180 +29,180 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
 
-import { apiClient, ApiError } from "../../../lib/api-client";
-import {
-  brandQueryKeys,
-  invalidateBrands,
-} from "../../../lib/query-keys";
-import { sanitizeSlug } from "@/lib/slug";
-import { useAuth } from "../../../providers/auth-provider";
+import { apiClient, ApiError } from '../../../lib/api-client'
+import { brandQueryKeys, invalidateBrands } from '../../../lib/query-keys'
+import { sanitizeSlug } from '@/lib/slug'
+import { useAuth } from '../../../providers/auth-provider'
 
-import { TableWrapper } from "@/components/ui/table-wrapper";
+import { TableWrapper } from '@/components/ui/table-wrapper'
 
 interface Brand {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  logoUrl?: string | null;
-  status: "active" | "inactive";
-  isVisible: boolean;
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-  createdAt: string;
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  logoUrl?: string | null
+  status: 'active' | 'inactive'
+  isVisible: boolean
+  metaTitle?: string | null
+  metaDescription?: string | null
+  createdAt: string
 }
 
 export default function BrandsPage() {
-  const { ability } = useAuth();
-  const queryClient = useQueryClient();
+  const { ability } = useAuth()
+  const queryClient = useQueryClient()
 
   // State
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<
-    "all" | "active" | "inactive"
-  >("all");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
-  const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
+    'all' | 'active' | 'inactive'
+  >('all')
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingBrand, setEditingBrand] = useState<Brand | null>(null)
+  const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null)
 
   // Form State
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [isSlugUserModified, setIsSlugUserModified] = useState(false);
-  const [description, setDescription] = useState("");
-  const [logoUrl, setLogoUrl] = useState("");
-  const [status, setStatus] = useState<"active" | "inactive">("active");
-  const [isVisible, setIsVisible] = useState(true);
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
+  const [name, setName] = useState('')
+  const [slug, setSlug] = useState('')
+  const [isSlugUserModified, setIsSlugUserModified] = useState(false)
+  const [description, setDescription] = useState('')
+  const [logoUrl, setLogoUrl] = useState('')
+  const [status, setStatus] = useState<'active' | 'inactive'>('active')
+  const [isVisible, setIsVisible] = useState(true)
+  const [metaTitle, setMetaTitle] = useState('')
+  const [metaDescription, setMetaDescription] = useState('')
 
   const handleNameChange = (val: string) => {
-    setName(val);
+    setName(val)
     if (!isSlugUserModified) {
-      setSlug(sanitizeSlug(val));
+      setSlug(sanitizeSlug(val))
     }
-  };
+  }
 
   const handleSlugChange = (val: string) => {
-    setIsSlugUserModified(true);
-    setSlug(sanitizeSlug(val));
-  };
+    setIsSlugUserModified(true)
+    setSlug(sanitizeSlug(val))
+  }
 
   // Queries
   const { data: listRes, isLoading } = useQuery({
-    queryKey: brandQueryKeys.list({ search, status: statusFilter, page, perPage }),
+    queryKey: brandQueryKeys.list({
+      search,
+      status: statusFilter,
+      page,
+      perPage,
+    }),
     queryFn: async () => {
-      const params = new URLSearchParams();
-      params.append("page", String(page));
-      params.append("perPage", String(perPage));
-      if (search) params.append("search", search);
-      if (statusFilter !== "all") params.append("status", statusFilter);
-      const res = await apiClient(`/brands?${params.toString()}`);
-      return res as any;
+      const params = new URLSearchParams()
+      params.append('page', String(page))
+      params.append('perPage', String(perPage))
+      if (search) params.append('search', search)
+      if (statusFilter !== 'all') params.append('status', statusFilter)
+      const res = await apiClient(`/brands?${params.toString()}`)
+      return res as any
     },
-  });
+  })
 
   const listData: Brand[] =
-    listRes?.data ?? (Array.isArray(listRes) ? listRes : []);
-  const meta = listRes?.meta;
+    listRes?.data ?? (Array.isArray(listRes) ? listRes : [])
+  const meta = listRes?.meta
 
   // Mutations
   const createMutation = useMutation({
     mutationFn: (body: any) =>
-      apiClient("/brands", {
-        method: "POST",
+      apiClient('/brands', {
+        method: 'POST',
         body: JSON.stringify(body),
       }),
     onSuccess: async () => {
-      await invalidateBrands(queryClient);
-      toast.success("Marca criada com sucesso!");
-      closeModal();
+      await invalidateBrands(queryClient)
+      toast.success('Marca criada com sucesso!')
+      closeModal()
     },
     onError: (err: any) => {
-      toast.error(
-        err instanceof ApiError ? err.message : "Erro ao criar marca",
-      );
+      toast.error(err instanceof ApiError ? err.message : 'Erro ao criar marca')
     },
-  });
+  })
 
   const updateMutation = useMutation({
     mutationFn: ({ id, body }: { id: string; body: any }) =>
       apiClient(`/brands/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(body),
       }),
     onSuccess: async () => {
-      await invalidateBrands(queryClient);
-      toast.success("Marca atualizada com sucesso!");
-      closeModal();
+      await invalidateBrands(queryClient)
+      toast.success('Marca atualizada com sucesso!')
+      closeModal()
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao atualizar marca",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao atualizar marca',
+      )
     },
-  });
+  })
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
       apiClient(`/brands/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       }),
     onSuccess: async () => {
-      await invalidateBrands(queryClient);
-      toast.success("Marca arquivada com sucesso!");
-      setDeletingBrand(null);
+      await invalidateBrands(queryClient)
+      toast.success('Marca arquivada com sucesso!')
+      setDeletingBrand(null)
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao arquivar marca",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao arquivar marca',
+      )
     },
-  });
+  })
 
   const openCreateModal = () => {
-    setEditingBrand(null);
-    setName("");
-    setSlug("");
-    setIsSlugUserModified(false);
-    setDescription("");
-    setLogoUrl("");
-    setStatus("active");
-    setIsVisible(true);
-    setMetaTitle("");
-    setMetaDescription("");
-    setIsModalOpen(true);
-  };
+    setEditingBrand(null)
+    setName('')
+    setSlug('')
+    setIsSlugUserModified(false)
+    setDescription('')
+    setLogoUrl('')
+    setStatus('active')
+    setIsVisible(true)
+    setMetaTitle('')
+    setMetaDescription('')
+    setIsModalOpen(true)
+  }
 
   const openEditModal = (brand: Brand) => {
-    setEditingBrand(brand);
-    setName(brand.name);
-    setSlug(brand.slug);
-    setIsSlugUserModified(Boolean(brand.slug));
-    setDescription(brand.description || "");
-    setLogoUrl(brand.logoUrl || "");
-    setStatus(brand.status);
-    setIsVisible(brand.isVisible);
-    setMetaTitle(brand.metaTitle || "");
-    setMetaDescription(brand.metaDescription || "");
-    setIsModalOpen(true);
-  };
+    setEditingBrand(brand)
+    setName(brand.name)
+    setSlug(brand.slug)
+    setIsSlugUserModified(Boolean(brand.slug))
+    setDescription(brand.description || '')
+    setLogoUrl(brand.logoUrl || '')
+    setStatus(brand.status)
+    setIsVisible(brand.isVisible)
+    setMetaTitle(brand.metaTitle || '')
+    setMetaDescription(brand.metaDescription || '')
+    setIsModalOpen(true)
+  }
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingBrand(null);
-  };
+    setIsModalOpen(false)
+    setEditingBrand(null)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const finalSlug = slug ? sanitizeSlug(slug) : sanitizeSlug(name);
+    e.preventDefault()
+    const finalSlug = slug ? sanitizeSlug(slug) : sanitizeSlug(name)
     const payload = {
       name,
       slug: finalSlug || undefined,
@@ -212,14 +212,14 @@ export default function BrandsPage() {
       isVisible,
       metaTitle: metaTitle || null,
       metaDescription: metaDescription || null,
-    };
+    }
 
     if (editingBrand) {
-      updateMutation.mutate({ id: editingBrand.id, body: payload });
+      updateMutation.mutate({ id: editingBrand.id, body: payload })
     } else {
-      createMutation.mutate(payload);
+      createMutation.mutate(payload)
     }
-  };
+  }
 
   return (
     <div className="w-full space-y-6">
@@ -227,7 +227,7 @@ export default function BrandsPage() {
         title="Catálogo de Marcas"
         description="Gerencie o cadastro reutilizável de marcas e fabricantes da plataforma."
         actionButton={
-          ability.can("create", "Brand") ? (
+          ability.can('create', 'Brand') ? (
             <Button type="button" onClick={openCreateModal}>
               <RiAddLine className="h-4 w-4" />
               <span>Nova Marca</span>
@@ -236,16 +236,16 @@ export default function BrandsPage() {
         }
         searchValue={search}
         onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
+          setSearch(val)
+          setPage(1)
         }}
         searchPlaceholder="Buscar por nome ou slug..."
         filters={
           <NativeSelect
             value={statusFilter}
             onChange={(e) => {
-              setStatusFilter(e.target.value as any);
-              setPage(1);
+              setStatusFilter(e.target.value as any)
+              setPage(1)
             }}
             className="w-44 bg-zinc-900 border-zinc-800 text-xs cursor-pointer"
           >
@@ -263,8 +263,8 @@ export default function BrandsPage() {
         onPageChange={setPage}
         perPageValue={perPage}
         onPerPageChange={(newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
+          setPerPage(newPerPage)
+          setPage(1)
         }}
       >
         <div className="divide-y divide-zinc-800/60 overflow-x-auto">
@@ -287,12 +287,12 @@ export default function BrandsPage() {
                     </span>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
-                        brand.status === "active"
-                          ? "bg-emerald-950/80 border border-emerald-800/80 text-emerald-300"
-                          : "bg-zinc-950 border border-zinc-800 text-zinc-400"
+                        brand.status === 'active'
+                          ? 'bg-emerald-950/80 border border-emerald-800/80 text-emerald-300'
+                          : 'bg-zinc-950 border border-zinc-800 text-zinc-400'
                       }`}
                     >
-                      {brand.status === "active" ? "Ativa" : "Inativa"}
+                      {brand.status === 'active' ? 'Ativa' : 'Inativa'}
                     </span>
                   </div>
                   {brand.description && (
@@ -304,7 +304,7 @@ export default function BrandsPage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                {ability.can("update", "Brand") && (
+                {ability.can('update', 'Brand') && (
                   <Button
                     type="button"
                     variant="outline"
@@ -317,7 +317,7 @@ export default function BrandsPage() {
                   </Button>
                 )}
 
-                {ability.can("delete", "Brand") && (
+                {ability.can('delete', 'Brand') && (
                   <Button
                     type="button"
                     variant="outline"
@@ -340,12 +340,12 @@ export default function BrandsPage() {
         <DialogContent className="w-full max-w-xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
           <DialogHeader className="px-6 pt-5 pb-2">
             <DialogTitle className="text-xl font-bold text-zinc-100">
-              {editingBrand ? "Editar Marca" : "Nova Marca"}
+              {editingBrand ? 'Editar Marca' : 'Nova Marca'}
             </DialogTitle>
             <DialogDescription className="text-xs text-zinc-400">
               {editingBrand
-                ? "Altere as informações da marca cadastrada"
-                : "Cadastre uma nova marca ou fabricante no repositório global"}
+                ? 'Altere as informações da marca cadastrada'
+                : 'Cadastre uma nova marca ou fabricante no repositório global'}
             </DialogDescription>
           </DialogHeader>
 
@@ -410,8 +410,8 @@ export default function BrandsPage() {
                     Visível no Marketplace
                   </label>
                   <NativeSelect
-                    value={isVisible ? "true" : "false"}
-                    onChange={(e) => setIsVisible(e.target.value === "true")}
+                    value={isVisible ? 'true' : 'false'}
+                    onChange={(e) => setIsVisible(e.target.value === 'true')}
                   >
                     <option value="true">Sim</option>
                     <option value="false">Não</option>
@@ -431,10 +431,10 @@ export default function BrandsPage() {
                 <RiCheckLine className="h-4 w-4" />
                 <span>
                   {createMutation.isPending || updateMutation.isPending
-                    ? "Salvando..."
+                    ? 'Salvando...'
                     : editingBrand
-                      ? "Salvar Alterações"
-                      : "Criar Marca"}
+                      ? 'Salvar Alterações'
+                      : 'Criar Marca'}
                 </span>
               </Button>
             </DialogFooter>
@@ -461,7 +461,7 @@ export default function BrandsPage() {
             <AlertDialogAction
               onClick={() => {
                 if (deletingBrand) {
-                  deleteMutation.mutate(deletingBrand.id);
+                  deleteMutation.mutate(deletingBrand.id)
                 }
               }}
             >
@@ -471,5 +471,5 @@ export default function BrandsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }

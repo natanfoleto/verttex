@@ -35,10 +35,7 @@ export function ProductCard({
   freeShipping = true,
 }: ProductCardProps) {
   const integerPrice = Math.floor(price)
-  const decimalCents = (price % 1)
-    .toFixed(2)
-    .substring(2)
-    .padStart(2, '0')
+  const decimalCents = (price % 1).toFixed(2).substring(2).padStart(2, '0')
 
   const formattedOriginalPrice = originalPrice
     ? new Intl.NumberFormat('pt-BR', {

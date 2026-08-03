@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from 'react'
 import {
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
@@ -8,42 +8,42 @@ import {
   RiArrowRightSLine,
   RiInboxLine,
   RiSearchLine,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { DataTableSkeleton } from "../skeletons/data-table-skeleton";
-import { Button } from "./button";
-import { Input } from "./input";
-import { NativeSelect } from "./native-select";
+import { DataTableSkeleton } from '../skeletons/data-table-skeleton'
+import { Button } from './button'
+import { Input } from './input'
+import { NativeSelect } from './native-select'
 
 interface MetaData {
-  page: number;
-  perPage: number;
-  total: number;
-  totalPages: number;
-  hasNextPage?: boolean;
-  hasPreviousPage?: boolean;
+  page: number
+  perPage: number
+  total: number
+  totalPages: number
+  hasNextPage?: boolean
+  hasPreviousPage?: boolean
 }
 
 interface TableWrapperProps {
-  title: string;
-  description?: string;
-  actionButton?: ReactNode;
-  searchValue?: string;
-  onSearchChange?: (value: string) => void;
-  searchPlaceholder?: string;
-  filters?: ReactNode;
-  isLoading?: boolean;
-  isError?: boolean;
-  errorMessage?: string;
-  meta?: MetaData;
-  onPageChange?: (page: number) => void;
-  perPageValue?: number;
-  onPerPageChange?: (perPage: number) => void;
-  children: ReactNode;
-  isEmpty?: boolean;
-  emptyTitle?: string;
-  emptyDescription?: string;
-  emptyIcon?: ReactNode;
+  title: string
+  description?: string
+  actionButton?: ReactNode
+  searchValue?: string
+  onSearchChange?: (value: string) => void
+  searchPlaceholder?: string
+  filters?: ReactNode
+  isLoading?: boolean
+  isError?: boolean
+  errorMessage?: string
+  meta?: MetaData
+  onPageChange?: (page: number) => void
+  perPageValue?: number
+  onPerPageChange?: (perPage: number) => void
+  children: ReactNode
+  isEmpty?: boolean
+  emptyTitle?: string
+  emptyDescription?: string
+  emptyIcon?: ReactNode
 }
 
 export function TableWrapper({
@@ -52,43 +52,43 @@ export function TableWrapper({
   actionButton,
   searchValue,
   onSearchChange,
-  searchPlaceholder = "Buscar...",
+  searchPlaceholder = 'Buscar...',
   filters,
   isLoading,
   isError,
-  errorMessage = "Ocorreu um erro ao carregar os dados.",
+  errorMessage = 'Ocorreu um erro ao carregar os dados.',
   meta,
   onPageChange,
   perPageValue,
   onPerPageChange,
   children,
   isEmpty,
-  emptyTitle = "Nenhum registro encontrado",
-  emptyDescription = "Não existem itens correspondentes aos critérios informados.",
+  emptyTitle = 'Nenhum registro encontrado',
+  emptyDescription = 'Não existem itens correspondentes aos critérios informados.',
   emptyIcon,
 }: TableWrapperProps) {
-  const [pageInput, setPageInput] = useState(String(meta?.page || 1));
+  const [pageInput, setPageInput] = useState(String(meta?.page || 1))
 
   useEffect(() => {
     if (meta?.page) {
-      setPageInput(String(meta.page));
+      setPageInput(String(meta.page))
     }
-  }, [meta?.page]);
+  }, [meta?.page])
 
   const handlePageSubmit = () => {
-    const parsed = parseInt(pageInput, 10);
+    const parsed = parseInt(pageInput, 10)
     if (!isNaN(parsed) && meta) {
-      const validPage = Math.max(1, Math.min(meta.totalPages, parsed));
-      setPageInput(String(validPage));
+      const validPage = Math.max(1, Math.min(meta.totalPages, parsed))
+      setPageInput(String(validPage))
       if (validPage !== meta.page) {
-        onPageChange?.(validPage);
+        onPageChange?.(validPage)
       }
     } else if (meta) {
-      setPageInput(String(meta.page));
+      setPageInput(String(meta.page))
     }
-  };
+  }
 
-  const currentPerPage = perPageValue || meta?.perPage || 10;
+  const currentPerPage = perPageValue || meta?.perPage || 10
 
   return (
     <div className="space-y-6 font-sans">
@@ -113,7 +113,7 @@ export function TableWrapper({
               <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 z-10" />
               <Input
                 type="text"
-                value={searchValue || ""}
+                value={searchValue || ''}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
                 className="w-full bg-zinc-950 pl-10 pr-4 text-sm text-zinc-100 placeholder-zinc-500 border-zinc-800 focus-visible:ring-1 focus-visible:ring-zinc-600"
@@ -148,9 +148,7 @@ export function TableWrapper({
             <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 text-zinc-400 shadow-xs">
               {emptyIcon || <RiInboxLine className="h-6 w-6 text-zinc-400" />}
             </div>
-            <h3 className="text-sm font-bold text-zinc-200">
-              {emptyTitle}
-            </h3>
+            <h3 className="text-sm font-bold text-zinc-200">{emptyTitle}</h3>
             <p className="mt-1 max-w-sm text-xs text-zinc-500">
               {emptyDescription}
             </p>
@@ -164,16 +162,16 @@ export function TableWrapper({
           <div className="flex flex-col gap-4 border-t border-zinc-800/80 bg-zinc-900/60 px-6 py-3.5 text-xs text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
             {/* Left: Records summary */}
             <div>
-              Mostrando{" "}
+              Mostrando{' '}
               <span className="font-semibold text-zinc-200">
                 {meta.total > 0 ? (meta.page - 1) * meta.perPage + 1 : 0}
-              </span>{" "}
-              –{" "}
+              </span>{' '}
+              –{' '}
               <span className="font-semibold text-zinc-200">
                 {Math.min(meta.page * meta.perPage, meta.total)}
-              </span>{" "}
-              de{" "}
-              <span className="font-semibold text-zinc-200">{meta.total}</span>{" "}
+              </span>{' '}
+              de{' '}
+              <span className="font-semibold text-zinc-200">{meta.total}</span>{' '}
               registros
             </div>
 
@@ -240,8 +238,8 @@ export function TableWrapper({
                     value={pageInput}
                     onChange={(e) => setPageInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.currentTarget.blur();
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur()
                       }
                     }}
                     onBlur={handlePageSubmit}
@@ -294,5 +292,5 @@ export function TableWrapper({
         )}
       </div>
     </div>
-  );
+  )
 }

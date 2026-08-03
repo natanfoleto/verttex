@@ -52,8 +52,23 @@ export function MarketplaceCarousel() {
   }>({
     queryKey: ['public-marketplace-settings'],
     queryFn: async () => {
-      const res = await apiClient<{ data: any }>('/public/marketplace/settings')
-      return (res as any)?.data ?? res
+      const res = await apiClient<
+        | {
+            carouselAutoplay?: boolean
+            carouselIntervalSeconds?: number
+            carouselTitlePosition?: string | null
+            carouselTitleHAlign?: string | null
+          }
+        | {
+            data: {
+              carouselAutoplay?: boolean
+              carouselIntervalSeconds?: number
+              carouselTitlePosition?: string | null
+              carouselTitleHAlign?: string | null
+            }
+          }
+      >('/public/marketplace/settings')
+      return 'data' in res ? res.data : res
     },
   })
 
@@ -73,7 +88,7 @@ export function MarketplaceCarousel() {
       if (saved) {
         setCachedBanners(JSON.parse(saved))
       }
-    } catch { }
+    } catch {}
   }, [])
 
   // Busca banners públicos com imagem
@@ -86,7 +101,11 @@ export function MarketplaceCarousel() {
       const res = await apiClient<
         CarouselBannerItem[] | { data: CarouselBannerItem[] }
       >('/public/carousel')
-      const list = Array.isArray(res) ? res : ((res as any)?.data ?? [])
+      const list = Array.isArray(res)
+        ? res
+        : 'data' in res && Array.isArray(res.data)
+          ? res.data
+          : []
       return { success: true, data: list }
     },
     staleTime: 0,
@@ -100,7 +119,7 @@ export function MarketplaceCarousel() {
           'verttex_cached_carousel_banners',
           JSON.stringify(bannersRes.data),
         )
-      } catch { }
+      } catch {}
       setCachedBanners(bannersRes.data)
     }
   }, [bannersRes?.data])
@@ -282,10 +301,11 @@ export function MarketplaceCarousel() {
       <div className="relative w-full aspect-16/4.5 min-h-45 overflow-hidden">
         {/* Slider track deslizante */}
         <div
-          className={`flex w-full h-full ${prefersReducedMotion
-            ? ''
-            : 'transition-transform duration-500 ease-in-out'
-            }`}
+          className={`flex w-full h-full ${
+            prefersReducedMotion
+              ? ''
+              : 'transition-transform duration-500 ease-in-out'
+          }`}
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {banners.map((banner) => (
@@ -325,17 +345,19 @@ export function MarketplaceCarousel() {
               {carouselTitlePosition !== 'NONE' &&
                 (banner.title || banner.subtitle) && (
                   <div
-                    className={`absolute inset-0 max-w-360 mx-auto px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${carouselTitlePosition === 'TOP'
-                      ? 'justify-start pt-6 sm:pt-10'
-                      : carouselTitlePosition === 'BOTTOM'
-                        ? 'justify-end pb-6 sm:pb-10'
-                        : 'justify-center'
-                      } ${carouselTitleHAlign === 'RIGHT'
+                    className={`absolute inset-0 max-w-360 mx-auto px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${
+                      carouselTitlePosition === 'TOP'
+                        ? 'justify-start pt-6 sm:pt-10'
+                        : carouselTitlePosition === 'BOTTOM'
+                          ? 'justify-end pb-6 sm:pb-10'
+                          : 'justify-center'
+                    } ${
+                      carouselTitleHAlign === 'RIGHT'
                         ? 'items-end text-right'
                         : carouselTitleHAlign === 'CENTER'
                           ? 'items-center text-center'
                           : 'items-start text-left'
-                      }`}
+                    }`}
                   >
                     {banner.title && (
                       <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold text-white drop-shadow-md tracking-tight">
@@ -363,10 +385,11 @@ export function MarketplaceCarousel() {
                 variant="ghost"
                 onClick={() => setCurrentIndex(idx)}
                 aria-label={`Ir para o banner ${idx + 1}`}
-                className={`p-0 min-h-0 h-1.5 rounded-full cursor-pointer hover:bg-transparent ${idx === currentIndex
-                  ? 'w-6 bg-white shadow-xs'
-                  : 'w-1.5 bg-white/50 hover:bg-white/80'
-                  }`}
+                className={`p-0 min-h-0 h-1.5 rounded-full cursor-pointer hover:bg-transparent ${
+                  idx === currentIndex
+                    ? 'w-6 bg-white shadow-xs'
+                    : 'w-1.5 bg-white/50 hover:bg-white/80'
+                }`}
               />
             ))}
           </div>

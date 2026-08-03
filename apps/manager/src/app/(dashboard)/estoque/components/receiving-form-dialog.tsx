@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { RiAddLine, RiCheckLine, RiDeleteBin6Line } from "react-icons/ri";
-import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RiAddLine, RiCheckLine, RiDeleteBin6Line } from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -13,28 +13,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
 
-import { apiClient, ApiError } from "../../../../lib/api-client";
+import { apiClient, ApiError } from '../../../../lib/api-client'
 
 interface Store {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 interface ProductItem {
-  id: string;
-  name: string;
-  variations?: Array<{ id: string; sku: string }>;
+  id: string
+  name: string
+  variations?: Array<{ id: string; sku: string }>
 }
 
 interface ReceivingFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  stores: Store[];
-  defaultStoreId?: string;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  stores: Store[]
+  defaultStoreId?: string
 }
 
 export function ReceivingFormDialog({
@@ -43,40 +43,40 @@ export function ReceivingFormDialog({
   stores,
   defaultStoreId,
 }: ReceivingFormDialogProps) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  const [recStoreId, setRecStoreId] = useState(defaultStoreId || "");
-  const [recProductId, setRecProductId] = useState("");
-  const [recDocRef, setRecDocRef] = useState("");
+  const [recStoreId, setRecStoreId] = useState(defaultStoreId || '')
+  const [recProductId, setRecProductId] = useState('')
+  const [recDocRef, setRecDocRef] = useState('')
   const [recLots, setRecLots] = useState([
     {
-      lotNumber: "",
-      manufacturer: "",
-      supplier: "",
-      manufacturingDate: "",
-      expirationDate: "",
-      quantity: "10",
-      notes: "",
+      lotNumber: '',
+      manufacturer: '',
+      supplier: '',
+      manufacturingDate: '',
+      expirationDate: '',
+      quantity: '10',
+      notes: '',
     },
-  ]);
+  ])
 
   const { data: productsRes = [] } = useQuery<ProductItem[]>({
-    queryKey: ["products-dropdown", recStoreId],
+    queryKey: ['products-dropdown', recStoreId],
     queryFn: async () => {
-      if (!recStoreId) return [];
-      const res = await apiClient(`/products?storeId=${recStoreId}&limit=100`);
-      return res?.data ?? [];
+      if (!recStoreId) return []
+      const res = await apiClient(`/products?storeId=${recStoreId}&limit=100`)
+      return res?.data ?? []
     },
     enabled: Boolean(recStoreId),
-  });
+  })
 
   const receiveMutation = useMutation({
     mutationFn: async () => {
-      const selectedProd = productsRes.find((p) => p.id === recProductId);
-      const defaultVarId = selectedProd?.variations?.[0]?.id;
+      const selectedProd = productsRes.find((p) => p.id === recProductId)
+      const defaultVarId = selectedProd?.variations?.[0]?.id
 
-      return apiClient("/stock/receive", {
-        method: "POST",
+      return apiClient('/stock/receive', {
+        method: 'POST',
         body: JSON.stringify({
           storeId: recStoreId,
           variationId: defaultVarId,
@@ -95,68 +95,68 @@ export function ReceivingFormDialog({
             notes: l.notes || null,
           })),
         }),
-      });
+      })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lots-list"] });
-      toast.success("Recebimento de lote(s) registrado com sucesso!");
-      onOpenChange(false);
-      resetForm();
+      queryClient.invalidateQueries({ queryKey: ['lots-list'] })
+      toast.success('Recebimento de lote(s) registrado com sucesso!')
+      onOpenChange(false)
+      resetForm()
     },
     onError: (err: unknown) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao registrar recebimento",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao registrar recebimento',
+      )
     },
-  });
+  })
 
   const resetForm = () => {
-    setRecDocRef("");
+    setRecDocRef('')
     setRecLots([
       {
-        lotNumber: "",
-        manufacturer: "",
-        supplier: "",
-        manufacturingDate: "",
-        expirationDate: "",
-        quantity: "10",
-        notes: "",
+        lotNumber: '',
+        manufacturer: '',
+        supplier: '',
+        manufacturingDate: '',
+        expirationDate: '',
+        quantity: '10',
+        notes: '',
       },
-    ]);
-  };
+    ])
+  }
 
   const handleAddLotRow = () => {
     setRecLots((prev) => [
       ...prev,
       {
-        lotNumber: "",
-        manufacturer: "",
-        supplier: "",
-        manufacturingDate: "",
-        expirationDate: "",
-        quantity: "10",
-        notes: "",
+        lotNumber: '',
+        manufacturer: '',
+        supplier: '',
+        manufacturingDate: '',
+        expirationDate: '',
+        quantity: '10',
+        notes: '',
       },
-    ]);
-  };
+    ])
+  }
 
   const handleRemoveLotRow = (index: number) => {
-    setRecLots((prev) => prev.filter((_, i) => i !== index));
-  };
+    setRecLots((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleUpdateLotRow = (index: number, field: string, value: string) => {
     setRecLots((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index]!, [field]: value };
-      return next;
-    });
-  };
+      const next = [...prev]
+      next[index] = { ...next[index]!, [field]: value }
+      return next
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="w-full max-w-3xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl max-h-[90vh]"
-        style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+        style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
       >
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
@@ -170,8 +170,8 @@ export function ReceivingFormDialog({
 
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            receiveMutation.mutate();
+            e.preventDefault()
+            receiveMutation.mutate()
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -184,8 +184,8 @@ export function ReceivingFormDialog({
                 <NativeSelect
                   value={recStoreId}
                   onChange={(e) => {
-                    setRecStoreId(e.target.value);
-                    setRecProductId("");
+                    setRecStoreId(e.target.value)
+                    setRecProductId('')
                   }}
                   className="w-full bg-zinc-900 border-zinc-800 text-xs rounded-xl cursor-pointer"
                   required
@@ -282,7 +282,7 @@ export function ReceivingFormDialog({
                           placeholder="Ex: LOTE-2026-08A"
                           value={lot.lotNumber}
                           onChange={(e) =>
-                            handleUpdateLotRow(idx, "lotNumber", e.target.value)
+                            handleUpdateLotRow(idx, 'lotNumber', e.target.value)
                           }
                           className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg"
                           required
@@ -299,7 +299,7 @@ export function ReceivingFormDialog({
                           onChange={(e) =>
                             handleUpdateLotRow(
                               idx,
-                              "manufacturingDate",
+                              'manufacturingDate',
                               e.target.value,
                             )
                           }
@@ -317,7 +317,7 @@ export function ReceivingFormDialog({
                           onChange={(e) =>
                             handleUpdateLotRow(
                               idx,
-                              "expirationDate",
+                              'expirationDate',
                               e.target.value,
                             )
                           }
@@ -335,7 +335,7 @@ export function ReceivingFormDialog({
                           min="1"
                           value={lot.quantity}
                           onChange={(e) =>
-                            handleUpdateLotRow(idx, "quantity", e.target.value)
+                            handleUpdateLotRow(idx, 'quantity', e.target.value)
                           }
                           className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg"
                           required
@@ -354,7 +354,7 @@ export function ReceivingFormDialog({
                           onChange={(e) =>
                             handleUpdateLotRow(
                               idx,
-                              "manufacturer",
+                              'manufacturer',
                               e.target.value,
                             )
                           }
@@ -369,7 +369,7 @@ export function ReceivingFormDialog({
                           placeholder="Ex: Distribuidora Regional"
                           value={lot.supplier}
                           onChange={(e) =>
-                            handleUpdateLotRow(idx, "supplier", e.target.value)
+                            handleUpdateLotRow(idx, 'supplier', e.target.value)
                           }
                           className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg"
                         />
@@ -397,12 +397,12 @@ export function ReceivingFormDialog({
             >
               <RiCheckLine className="mr-1.5 h-4 w-4" />
               {receiveMutation.isPending
-                ? "Registrando..."
-                : "Confirmar Recebimento"}
+                ? 'Registrando...'
+                : 'Confirmar Recebimento'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

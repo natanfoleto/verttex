@@ -1,19 +1,19 @@
-"use client";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
+import { useRouter } from 'next/navigation'
+import { ReactNode, useEffect } from 'react'
 
-import { useAuth } from "../../providers/auth-provider";
+import { useAuth } from '../../providers/auth-provider'
 
 export function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const { user, isLoading } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/login");
+      router.push('/login')
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user, router])
 
   if (isLoading) {
     return (
@@ -27,12 +27,12 @@ export function AuthGuard({ children }: { children: ReactNode }) {
           </span>
         </div>
       </div>
-    );
+    )
   }
 
   if (!user) {
-    return null;
+    return null
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }

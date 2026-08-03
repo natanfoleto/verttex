@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   RiAddLine,
   RiDeleteBinLine,
   RiCheckLine,
   RiStackLine,
   RiDraggable,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 import {
   Dialog,
   DialogContent,
@@ -15,23 +15,23 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 
 export interface ProductOptionDraft {
-  id: string;
-  name: string;
-  position: number;
-  values: string[];
+  id: string
+  name: string
+  position: number
+  values: string[]
 }
 
 interface OptionsManagerDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  options: ProductOptionDraft[];
-  onSaveOptions: (options: ProductOptionDraft[]) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  options: ProductOptionDraft[]
+  onSaveOptions: (options: ProductOptionDraft[]) => void
 }
 
 export function OptionsManagerDialog({
@@ -40,42 +40,44 @@ export function OptionsManagerDialog({
   options: initialOptions,
   onSaveOptions,
 }: OptionsManagerDialogProps) {
-  const [options, setOptions] = useState<ProductOptionDraft[]>(initialOptions);
-  const [newOptionName, setNewOptionName] = useState("");
-  const [newValueInputs, setNewValueInputs] = useState<Record<string, string>>({});
+  const [options, setOptions] = useState<ProductOptionDraft[]>(initialOptions)
+  const [newOptionName, setNewOptionName] = useState('')
+  const [newValueInputs, setNewValueInputs] = useState<Record<string, string>>(
+    {},
+  )
 
   const handleAddOption = () => {
-    if (!newOptionName.trim()) return;
+    if (!newOptionName.trim()) return
     const newOpt: ProductOptionDraft = {
       id: `opt-${Date.now()}`,
       name: newOptionName.trim(),
       position: options.length,
       values: [],
-    };
-    setOptions([...options, newOpt]);
-    setNewOptionName("");
-  };
+    }
+    setOptions([...options, newOpt])
+    setNewOptionName('')
+  }
 
   const handleRemoveOption = (id: string) => {
-    setOptions(options.filter((o) => o.id !== id));
-  };
+    setOptions(options.filter((o) => o.id !== id))
+  }
 
   const handleAddValue = (optionId: string) => {
-    const valText = newValueInputs[optionId]?.trim();
-    if (!valText) return;
+    const valText = newValueInputs[optionId]?.trim()
+    if (!valText) return
 
     setOptions(
       options.map((opt) => {
         if (opt.id === optionId) {
-          if (opt.values.includes(valText)) return opt;
-          return { ...opt, values: [...opt.values, valText] };
+          if (opt.values.includes(valText)) return opt
+          return { ...opt, values: [...opt.values, valText] }
         }
-        return opt;
+        return opt
       }),
-    );
+    )
 
-    setNewValueInputs((prev) => ({ ...prev, [optionId]: "" }));
-  };
+    setNewValueInputs((prev) => ({ ...prev, [optionId]: '' }))
+  }
 
   const handleRemoveValue = (optionId: string, valueToRemove: string) => {
     setOptions(
@@ -84,17 +86,17 @@ export function OptionsManagerDialog({
           return {
             ...opt,
             values: opt.values.filter((v) => v !== valueToRemove),
-          };
+          }
         }
-        return opt;
+        return opt
       }),
-    );
-  };
+    )
+  }
 
   const handleSave = () => {
-    onSaveOptions(options);
-    onOpenChange(false);
-  };
+    onSaveOptions(options)
+    onOpenChange(false)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -105,7 +107,8 @@ export function OptionsManagerDialog({
             Gerenciador de Opções e Valores
           </DialogTitle>
           <DialogDescription>
-            Defina os atributos do produto (ex: Cor, Tamanho, Sabor, Voltagem) e adicione os valores disponíveis para criar variações.
+            Defina os atributos do produto (ex: Cor, Tamanho, Sabor, Voltagem) e
+            adicione os valores disponíveis para criar variações.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,7 +116,10 @@ export function OptionsManagerDialog({
           {/* Adicionar Nova Opção */}
           <div className="flex items-end gap-3 p-4 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
             <div className="flex-1 space-y-1.5">
-              <label htmlFor="new-option-name" className="text-xs font-semibold text-stone-500 uppercase tracking-wider block">
+              <label
+                htmlFor="new-option-name"
+                className="text-xs font-semibold text-stone-500 uppercase tracking-wider block"
+              >
                 Nova Opção / Atributo
               </label>
               <Input
@@ -121,7 +127,9 @@ export function OptionsManagerDialog({
                 placeholder="Ex: Cor, Tamanho, Sabor, Peso, Voltagem..."
                 value={newOptionName}
                 onChange={(e) => setNewOptionName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddOption())}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && (e.preventDefault(), handleAddOption())
+                }
               />
             </div>
             <Button
@@ -138,7 +146,8 @@ export function OptionsManagerDialog({
           {/* Lista de Opções Cadastradas */}
           {options.length === 0 ? (
             <div className="text-center py-8 text-stone-400 border border-dashed rounded-xl text-xs">
-              Nenhuma opção cadastrada ainda. Adicione opções acima para montar suas variações.
+              Nenhuma opção cadastrada ainda. Adicione opções acima para montar
+              suas variações.
             </div>
           ) : (
             <div className="space-y-4">
@@ -150,8 +159,13 @@ export function OptionsManagerDialog({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <RiDraggable className="w-4 h-4 text-stone-400 cursor-grab" />
-                      <span className="font-semibold text-base text-stone-900 dark:text-stone-100">{opt.name}</span>
-                      <Badge variant="secondary" className="text-xs font-normal">
+                      <span className="font-semibold text-base text-stone-900 dark:text-stone-100">
+                        {opt.name}
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs font-normal"
+                      >
                         {opt.values.length} valor(es)
                       </Badge>
                     </div>
@@ -192,12 +206,16 @@ export function OptionsManagerDialog({
                   <div className="flex gap-2 pt-2">
                     <Input
                       placeholder={`Adicionar valor em "${opt.name}" (ex: Azul, P, G, 500g)...`}
-                      value={newValueInputs[opt.id] || ""}
+                      value={newValueInputs[opt.id] || ''}
                       onChange={(e) =>
-                        setNewValueInputs({ ...newValueInputs, [opt.id]: e.target.value })
+                        setNewValueInputs({
+                          ...newValueInputs,
+                          [opt.id]: e.target.value,
+                        })
                       }
                       onKeyDown={(e) =>
-                        e.key === "Enter" && (e.preventDefault(), handleAddValue(opt.id))
+                        e.key === 'Enter' &&
+                        (e.preventDefault(), handleAddValue(opt.id))
                       }
                       className="text-xs h-9"
                     />
@@ -239,5 +257,5 @@ export function OptionsManagerDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

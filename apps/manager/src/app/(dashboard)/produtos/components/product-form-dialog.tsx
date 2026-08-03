@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import {
   RiAddLine,
   RiCheckLine,
@@ -16,11 +16,11 @@ import {
   RiTruckLine,
   RiUpload2Line,
   RiCalendarEventLine,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -28,123 +28,123 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
 
-import { apiClient, ApiError } from "../../../../lib/api-client";
+import { apiClient, ApiError } from '../../../../lib/api-client'
 import {
   categoryQueryKeys,
   brandQueryKeys,
   storeQueryKeys,
-} from "../../../../lib/query-keys";
-import { sanitizeSlug } from "../../../../lib/slug";
-import { PriceInput } from "@/components/ui/price-input";
+} from '../../../../lib/query-keys'
+import { sanitizeSlug } from '../../../../lib/slug'
+import { PriceInput } from '@/components/ui/price-input'
 
 interface Store {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 interface Category {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 interface Brand {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 export interface ProductMediaItem {
-  fileId: string;
-  previewUrl: string;
-  originalName: string;
-  isMain: boolean;
+  fileId: string
+  previewUrl: string
+  originalName: string
+  isMain: boolean
 }
 
 export interface ProductOptionItem {
-  name: string;
-  values: string[];
-  valueInput?: string;
+  name: string
+  values: string[]
+  valueInput?: string
 }
 
 export interface ProductVariationItem {
-  sku: string;
-  barcode?: string;
-  price: number | string;
-  promotionalPrice?: number | string;
-  costPrice?: number | string;
-  status: "active" | "inactive";
-  optionValues: Record<string, string>;
+  sku: string
+  barcode?: string
+  price: number | string
+  promotionalPrice?: number | string
+  costPrice?: number | string
+  status: 'active' | 'inactive'
+  optionValues: Record<string, string>
 }
 
 export interface ProductToEdit {
-  id: string;
-  storeId: string;
-  categoryId: string;
-  brandId?: string | null;
-  name: string;
-  slug: string;
-  shortDescription?: string | null;
-  fullDescription?: string | null;
-  type: "simple" | "variable";
-  status: "draft" | "active" | "inactive" | "archived";
-  isPublished: boolean;
-  isFeatured: boolean;
-  weight?: number | null;
-  width?: number | null;
-  height?: number | null;
-  length?: number | null;
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-  hasBatchControl?: boolean;
-  hasExpirationControl?: boolean;
-  isExpirationRequired?: boolean;
-  defaultShelfLifeDays?: number | null;
-  minReceivingShelfLifeDays?: number | null;
-  minDeliveryShelfLifeDays?: number | null;
-  warningShelfLifeDays?: number | null;
+  id: string
+  storeId: string
+  categoryId: string
+  brandId?: string | null
+  name: string
+  slug: string
+  shortDescription?: string | null
+  fullDescription?: string | null
+  type: 'simple' | 'variable'
+  status: 'draft' | 'active' | 'inactive' | 'archived'
+  isPublished: boolean
+  isFeatured: boolean
+  weight?: number | null
+  width?: number | null
+  height?: number | null
+  length?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  hasBatchControl?: boolean
+  hasExpirationControl?: boolean
+  isExpirationRequired?: boolean
+  defaultShelfLifeDays?: number | null
+  minReceivingShelfLifeDays?: number | null
+  minDeliveryShelfLifeDays?: number | null
+  warningShelfLifeDays?: number | null
   variations?: Array<{
-    id: string;
-    sku: string;
-    barcode?: string | null;
-    price: number | string;
-    promotionalPrice?: number | string | null;
-    costPrice?: number | string | null;
-    isDefault: boolean;
-    status: string;
+    id: string
+    sku: string
+    barcode?: string | null
+    price: number | string
+    promotionalPrice?: number | string | null
+    costPrice?: number | string | null
+    isDefault: boolean
+    status: string
     values?: Array<{
       optionValue?: {
-        value: string;
-        option?: { name: string };
-      };
-    }>;
-  }>;
+        value: string
+        option?: { name: string }
+      }
+    }>
+  }>
   options?: Array<{
-    id: string;
-    name: string;
-    values?: Array<{ id: string; value: string }>;
-  }>;
+    id: string
+    name: string
+    values?: Array<{ id: string; value: string }>
+  }>
   medias?: Array<{
-    id: string;
-    fileId: string;
-    isMain: boolean;
+    id: string
+    fileId: string
+    isMain: boolean
     file: {
-      id: string;
-      objectKey: string;
-      originalName: string;
-    };
-  }>;
+      id: string
+      objectKey: string
+      originalName: string
+    }
+  }>
 }
 
 interface ProductFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  productToEdit?: ProductToEdit | null;
-  defaultStoreId?: string;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  productToEdit?: ProductToEdit | null
+  defaultStoreId?: string
 }
 
 export function ProductFormDialog({
@@ -153,165 +153,162 @@ export function ProductFormDialog({
   productToEdit,
   defaultStoreId,
 }: ProductFormDialogProps) {
-  const queryClient = useQueryClient();
-  const isEditing = Boolean(productToEdit);
-  const [activeTab, setActiveTab] = useState<string>("geral");
+  const queryClient = useQueryClient()
+  const isEditing = Boolean(productToEdit)
+  const [activeTab, setActiveTab] = useState<string>('geral')
 
   // Form Field States
-  const [storeId, setStoreId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [brandId, setBrandId] = useState("");
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [isSlugUserModified, setIsSlugUserModified] = useState(false);
-  const [shortDescription, setShortDescription] = useState("");
-  const [fullDescription, setFullDescription] = useState("");
-  const [type, setType] = useState<"simple" | "variable">("simple");
+  const [storeId, setStoreId] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [brandId, setBrandId] = useState('')
+  const [name, setName] = useState('')
+  const [slug, setSlug] = useState('')
+  const [isSlugUserModified, setIsSlugUserModified] = useState(false)
+  const [shortDescription, setShortDescription] = useState('')
+  const [fullDescription, setFullDescription] = useState('')
+  const [type, setType] = useState<'simple' | 'variable'>('simple')
   const [status, setStatus] = useState<
-    "draft" | "active" | "inactive" | "archived"
-  >("draft");
-  const [isPublished, setIsPublished] = useState(false);
-  const [isFeatured, setIsFeatured] = useState(false);
+    'draft' | 'active' | 'inactive' | 'archived'
+  >('draft')
+  const [isPublished, setIsPublished] = useState(false)
+  const [isFeatured, setIsFeatured] = useState(false)
 
   // Pricing & SKU
-  const [price, setPrice] = useState<number>(0);
-  const [promotionalPrice, setPromotionalPrice] = useState<number>(0);
-  const [costPrice, setCostPrice] = useState<number>(0);
-  const [sku, setSku] = useState("");
-  const [barcode, setBarcode] = useState("");
+  const [price, setPrice] = useState<number>(0)
+  const [promotionalPrice, setPromotionalPrice] = useState<number>(0)
+  const [costPrice, setCostPrice] = useState<number>(0)
+  const [sku, setSku] = useState('')
+  const [barcode, setBarcode] = useState('')
 
   // Dimensions & SEO
-  const [weight, setWeight] = useState<string>("");
-  const [width, setWidth] = useState<string>("");
-  const [height, setHeight] = useState<string>("");
-  const [length, setLength] = useState<string>("");
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
+  const [weight, setWeight] = useState<string>('')
+  const [width, setWidth] = useState<string>('')
+  const [height, setHeight] = useState<string>('')
+  const [length, setLength] = useState<string>('')
+  const [metaTitle, setMetaTitle] = useState('')
+  const [metaDescription, setMetaDescription] = useState('')
 
   // Batch & Expiration Control
-  const [hasBatchControl, setHasBatchControl] = useState(false);
-  const [hasExpirationControl, setHasExpirationControl] = useState(false);
-  const [isExpirationRequired, setIsExpirationRequired] = useState(false);
-  const [defaultShelfLifeDays, setDefaultShelfLifeDays] = useState("");
-  const [minReceivingShelfLifeDays, setMinReceivingShelfLifeDays] =
-    useState("");
-  const [minDeliveryShelfLifeDays, setMinDeliveryShelfLifeDays] = useState("");
-  const [warningShelfLifeDays, setWarningShelfLifeDays] = useState("");
+  const [hasBatchControl, setHasBatchControl] = useState(false)
+  const [hasExpirationControl, setHasExpirationControl] = useState(false)
+  const [isExpirationRequired, setIsExpirationRequired] = useState(false)
+  const [defaultShelfLifeDays, setDefaultShelfLifeDays] = useState('')
+  const [minReceivingShelfLifeDays, setMinReceivingShelfLifeDays] = useState('')
+  const [minDeliveryShelfLifeDays, setMinDeliveryShelfLifeDays] = useState('')
+  const [warningShelfLifeDays, setWarningShelfLifeDays] = useState('')
 
   // Options & Variations
-  const [options, setOptions] = useState<ProductOptionItem[]>([]);
-  const [newOptionName, setNewOptionName] = useState("");
-  const [variations, setVariations] = useState<ProductVariationItem[]>([]);
+  const [options, setOptions] = useState<ProductOptionItem[]>([])
+  const [newOptionName, setNewOptionName] = useState('')
+  const [variations, setVariations] = useState<ProductVariationItem[]>([])
 
   // Media Management
-  const [mediaItems, setMediaItems] = useState<ProductMediaItem[]>([]);
-  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const [mediaItems, setMediaItems] = useState<ProductMediaItem[]>([])
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false)
 
   // Queries for Dropdowns
   const { data: storesRes } = useQuery({
     queryKey: storeQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient("/stores");
-      return Array.isArray(res) ? res : (res?.data ?? []);
+      const res = await apiClient('/stores')
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
     staleTime: 0, // Always fetch fresh so newly created stores appear immediately
-  });
+  })
 
   const { data: categoriesRes } = useQuery({
     queryKey: categoryQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient("/categories");
-      return Array.isArray(res) ? res : (res?.data ?? []);
+      const res = await apiClient('/categories')
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
     staleTime: 0, // Always fetch fresh so newly created categories appear immediately
-  });
+  })
 
   const { data: brandsRes } = useQuery({
     queryKey: brandQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient("/brands");
-      return Array.isArray(res) ? res : (res?.data ?? []);
+      const res = await apiClient('/brands')
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
     staleTime: 0, // Always fetch fresh so newly created brands appear immediately
-  });
+  })
 
-  const storesList: Store[] = storesRes ?? [];
-  const categoriesList: Category[] = categoriesRes ?? [];
-  const brandsList: Brand[] = brandsRes ?? [];
+  const storesList: Store[] = storesRes ?? []
+  const categoriesList: Category[] = categoriesRes ?? []
+  const brandsList: Brand[] = brandsRes ?? []
 
   // Initialize or Reset Form
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
 
-    setActiveTab("geral");
+    setActiveTab('geral')
     if (productToEdit) {
-      setStoreId(productToEdit.storeId || "");
-      setCategoryId(productToEdit.categoryId || "");
-      setBrandId(productToEdit.brandId || "");
-      setName(productToEdit.name || "");
-      setSlug(productToEdit.slug || "");
-      setIsSlugUserModified(true);
-      setShortDescription(productToEdit.shortDescription || "");
-      setFullDescription(productToEdit.fullDescription || "");
-      setType(productToEdit.type || "simple");
-      setStatus(productToEdit.status || "draft");
-      setIsPublished(Boolean(productToEdit.isPublished));
-      setIsFeatured(Boolean(productToEdit.isFeatured));
+      setStoreId(productToEdit.storeId || '')
+      setCategoryId(productToEdit.categoryId || '')
+      setBrandId(productToEdit.brandId || '')
+      setName(productToEdit.name || '')
+      setSlug(productToEdit.slug || '')
+      setIsSlugUserModified(true)
+      setShortDescription(productToEdit.shortDescription || '')
+      setFullDescription(productToEdit.fullDescription || '')
+      setType(productToEdit.type || 'simple')
+      setStatus(productToEdit.status || 'draft')
+      setIsPublished(Boolean(productToEdit.isPublished))
+      setIsFeatured(Boolean(productToEdit.isFeatured))
 
-      setWeight(productToEdit.weight ? String(productToEdit.weight) : "");
-      setWidth(productToEdit.width ? String(productToEdit.width) : "");
-      setHeight(productToEdit.height ? String(productToEdit.height) : "");
-      setLength(productToEdit.length ? String(productToEdit.length) : "");
-      setMetaTitle(productToEdit.metaTitle || "");
-      setMetaDescription(productToEdit.metaDescription || "");
+      setWeight(productToEdit.weight ? String(productToEdit.weight) : '')
+      setWidth(productToEdit.width ? String(productToEdit.width) : '')
+      setHeight(productToEdit.height ? String(productToEdit.height) : '')
+      setLength(productToEdit.length ? String(productToEdit.length) : '')
+      setMetaTitle(productToEdit.metaTitle || '')
+      setMetaDescription(productToEdit.metaDescription || '')
 
-      setHasBatchControl(Boolean(productToEdit.hasBatchControl));
-      setHasExpirationControl(Boolean(productToEdit.hasExpirationControl));
-      setIsExpirationRequired(Boolean(productToEdit.isExpirationRequired));
+      setHasBatchControl(Boolean(productToEdit.hasBatchControl))
+      setHasExpirationControl(Boolean(productToEdit.hasExpirationControl))
+      setIsExpirationRequired(Boolean(productToEdit.isExpirationRequired))
       setDefaultShelfLifeDays(
         productToEdit.defaultShelfLifeDays
           ? String(productToEdit.defaultShelfLifeDays)
-          : "",
-      );
+          : '',
+      )
       setMinReceivingShelfLifeDays(
         productToEdit.minReceivingShelfLifeDays
           ? String(productToEdit.minReceivingShelfLifeDays)
-          : "",
-      );
+          : '',
+      )
       setMinDeliveryShelfLifeDays(
         productToEdit.minDeliveryShelfLifeDays
           ? String(productToEdit.minDeliveryShelfLifeDays)
-          : "",
-      );
+          : '',
+      )
       setWarningShelfLifeDays(
         productToEdit.warningShelfLifeDays
           ? String(productToEdit.warningShelfLifeDays)
-          : "",
-      );
+          : '',
+      )
 
       // Simple product prices
       const defaultVar =
         productToEdit.variations?.find((v) => v.isDefault) ||
-        productToEdit.variations?.[0];
+        productToEdit.variations?.[0]
       if (defaultVar) {
-        setPrice(defaultVar.price ? Number(defaultVar.price) : 0);
+        setPrice(defaultVar.price ? Number(defaultVar.price) : 0)
         setPromotionalPrice(
-          defaultVar.promotionalPrice
-            ? Number(defaultVar.promotionalPrice)
-            : 0,
-        );
-        setCostPrice(defaultVar.costPrice ? Number(defaultVar.costPrice) : 0);
-        setSku(defaultVar.sku || "");
-        setBarcode(defaultVar.barcode || "");
+          defaultVar.promotionalPrice ? Number(defaultVar.promotionalPrice) : 0,
+        )
+        setCostPrice(defaultVar.costPrice ? Number(defaultVar.costPrice) : 0)
+        setSku(defaultVar.sku || '')
+        setBarcode(defaultVar.barcode || '')
       } else {
-        setPrice(0);
-        setPromotionalPrice(0);
-        setCostPrice(0);
-        setSku("");
-        setBarcode("");
+        setPrice(0)
+        setPromotionalPrice(0)
+        setCostPrice(0)
+        setSku('')
+        setBarcode('')
       }
 
       // Populate Options & Variations if variable
@@ -320,17 +317,17 @@ export function ProductFormDialog({
           productToEdit.options.map((opt) => ({
             name: opt.name,
             values: opt.values ? opt.values.map((v) => v.value) : [],
-            valueInput: "",
+            valueInput: '',
           })),
-        );
+        )
       } else {
-        setOptions([]);
+        setOptions([])
       }
 
       if (productToEdit.variations && productToEdit.variations.length > 0) {
         setVariations(
           productToEdit.variations.map((v) => {
-            const optVals: Record<string, string> = {};
+            const optVals: Record<string, string> = {}
             if (v.values) {
               v.values.forEach((valItem) => {
                 if (
@@ -338,23 +335,23 @@ export function ProductFormDialog({
                   valItem.optionValue?.value
                 ) {
                   optVals[valItem.optionValue.option.name] =
-                    valItem.optionValue.value;
+                    valItem.optionValue.value
                 }
-              });
+              })
             }
             return {
               sku: v.sku,
-              barcode: v.barcode || "",
+              barcode: v.barcode || '',
               price: v.price,
-              promotionalPrice: v.promotionalPrice || "",
-              costPrice: v.costPrice || "",
-              status: (v.status as "active" | "inactive") || "active",
+              promotionalPrice: v.promotionalPrice || '',
+              costPrice: v.costPrice || '',
+              status: (v.status as 'active' | 'inactive') || 'active',
               optionValues: optVals,
-            };
+            }
           }),
-        );
+        )
       } else {
-        setVariations([]);
+        setVariations([])
       }
 
       // Populate Media Items
@@ -368,50 +365,50 @@ export function ProductFormDialog({
             originalName: m.file.originalName,
             isMain: m.isMain,
           })),
-        );
+        )
       } else {
-        setMediaItems([]);
+        setMediaItems([])
       }
     } else {
       // New Product
-      setStoreId(defaultStoreId || storesList[0]?.id || "");
-      setCategoryId(categoriesList[0]?.id || "");
-      setBrandId("");
-      setName("");
-      setSlug("");
-      setIsSlugUserModified(false);
-      setShortDescription("");
-      setFullDescription("");
-      setType("simple");
-      setStatus("draft");
-      setIsPublished(false);
-      setIsFeatured(false);
+      setStoreId(defaultStoreId || storesList[0]?.id || '')
+      setCategoryId(categoriesList[0]?.id || '')
+      setBrandId('')
+      setName('')
+      setSlug('')
+      setIsSlugUserModified(false)
+      setShortDescription('')
+      setFullDescription('')
+      setType('simple')
+      setStatus('draft')
+      setIsPublished(false)
+      setIsFeatured(false)
 
-      setPrice(0);
-      setPromotionalPrice(0);
-      setCostPrice(0);
-      setSku("");
-      setBarcode("");
+      setPrice(0)
+      setPromotionalPrice(0)
+      setCostPrice(0)
+      setSku('')
+      setBarcode('')
 
-      setWeight("");
-      setWidth("");
-      setHeight("");
-      setLength("");
-      setMetaTitle("");
-      setMetaDescription("");
+      setWeight('')
+      setWidth('')
+      setHeight('')
+      setLength('')
+      setMetaTitle('')
+      setMetaDescription('')
 
-      setHasBatchControl(false);
-      setHasExpirationControl(false);
-      setIsExpirationRequired(false);
-      setDefaultShelfLifeDays("");
-      setMinReceivingShelfLifeDays("");
-      setMinDeliveryShelfLifeDays("");
-      setWarningShelfLifeDays("");
+      setHasBatchControl(false)
+      setHasExpirationControl(false)
+      setIsExpirationRequired(false)
+      setDefaultShelfLifeDays('')
+      setMinReceivingShelfLifeDays('')
+      setMinDeliveryShelfLifeDays('')
+      setWarningShelfLifeDays('')
 
-      setOptions([]);
-      setNewOptionName("");
-      setVariations([]);
-      setMediaItems([]);
+      setOptions([])
+      setNewOptionName('')
+      setVariations([])
+      setMediaItems([])
     }
   }, [
     open,
@@ -419,9 +416,9 @@ export function ProductFormDialog({
     defaultStoreId,
     storesList.length,
     categoriesList.length,
-  ]);
+  ])
 
-  const [initialSnapshot, setInitialSnapshot] = useState<string>("");
+  const [initialSnapshot, setInitialSnapshot] = useState<string>('')
 
   useEffect(() => {
     if (open) {
@@ -454,11 +451,11 @@ export function ProductFormDialog({
             hasBatchControl,
             hasExpirationControl,
           }),
-        );
-      }, 50);
-      return () => clearTimeout(timer);
+        )
+      }, 50)
+      return () => clearTimeout(timer)
     }
-  }, [open, productToEdit?.id]);
+  }, [open, productToEdit?.id])
 
   const isFormDirty = isEditing
     ? JSON.stringify({
@@ -488,70 +485,70 @@ export function ProductFormDialog({
         hasBatchControl,
         hasExpirationControl,
       }) !== initialSnapshot
-    : name.trim().length > 0;
+    : name.trim().length > 0
 
   // Handle Name Input Change (Auto Slug)
   const handleNameChange = (val: string) => {
-    setName(val);
+    setName(val)
     if (!isSlugUserModified) {
-      setSlug(sanitizeSlug(val));
+      setSlug(sanitizeSlug(val))
     }
-  };
+  }
 
   const handleSlugChange = (val: string) => {
-    setIsSlugUserModified(true);
-    setSlug(sanitizeSlug(val));
-  };
+    setIsSlugUserModified(true)
+    setSlug(sanitizeSlug(val))
+  }
 
   // Handle Image Upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
-    const selectedStoreId = storeId || defaultStoreId || storesList[0]?.id;
+    const selectedStoreId = storeId || defaultStoreId || storesList[0]?.id
     if (!selectedStoreId) {
-      toast.error("Selecione uma loja antes de enviar mídias.");
-      return;
+      toast.error('Selecione uma loja antes de enviar mídias.')
+      return
     }
 
-    setIsUploadingMedia(true);
+    setIsUploadingMedia(true)
 
     try {
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (!file) continue;
+        const file = files[i]
+        if (!file) continue
 
-        let fileId: string | null = null;
-        let publicUrl: string | null = null;
+        let fileId: string | null = null
+        let publicUrl: string | null = null
 
         // Try direct Presigned PUT upload first
         try {
-          const presignedRes = await apiClient("/files/presigned-url", {
-            method: "POST",
+          const presignedRes = await apiClient('/files/presigned-url', {
+            method: 'POST',
             body: JSON.stringify({
               fileName: file.name,
               mimeType: file.type,
               size: file.size,
-              purpose: "product_image",
+              purpose: 'product_image',
               storeId: selectedStoreId,
             }),
-          });
-          const presigned = presignedRes.data || presignedRes;
+          })
+          const presigned = presignedRes.data || presignedRes
 
           const putRes = await fetch(presigned.uploadUrl, {
-            method: "PUT",
+            method: 'PUT',
             body: file,
-            headers: { "Content-Type": file.type },
-          });
+            headers: { 'Content-Type': file.type },
+          })
 
           if (putRes.ok) {
             const finalizedRes = await apiClient(
               `/files/${presigned.fileId}/finalize`,
-              { method: "POST" },
-            );
-            const finalized = finalizedRes.data || finalizedRes;
-            fileId = finalized.id || presigned.fileId;
-            publicUrl = finalized.publicUrl || presigned.publicUrl;
+              { method: 'POST' },
+            )
+            const finalized = finalizedRes.data || finalizedRes
+            fileId = finalized.id || presigned.fileId
+            publicUrl = finalized.publicUrl || presigned.publicUrl
           }
         } catch {
           // Presigned URL or direct PUT failed — proceed to API multipart fallback
@@ -559,22 +556,22 @@ export function ProductFormDialog({
 
         // Fallback: Upload directly to Fastify API endpoint -> Cloudflare R2
         if (!fileId) {
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("purpose", "product_image");
-          formData.append("storeId", selectedStoreId);
+          const formData = new FormData()
+          formData.append('file', file)
+          formData.append('purpose', 'product_image')
+          formData.append('storeId', selectedStoreId)
 
-          const uploadRes = await apiClient("/files/upload", {
-            method: "POST",
+          const uploadRes = await apiClient('/files/upload', {
+            method: 'POST',
             body: formData,
-          });
-          const uploadedFile = uploadRes.data || uploadRes;
-          fileId = uploadedFile.id;
-          publicUrl = uploadedFile.publicUrl;
+          })
+          const uploadedFile = uploadRes.data || uploadRes
+          fileId = uploadedFile.id
+          publicUrl = uploadedFile.publicUrl
         }
 
         if (fileId) {
-          const localPreview = publicUrl || URL.createObjectURL(file);
+          const localPreview = publicUrl || URL.createObjectURL(file)
           setMediaItems((prev) => [
             ...prev,
             {
@@ -583,20 +580,20 @@ export function ProductFormDialog({
               originalName: file.name,
               isMain: prev.length === 0,
             },
-          ]);
+          ])
         }
       }
 
-      toast.success("Imagem(ns) enviada(s) com sucesso!");
+      toast.success('Imagem(ns) enviada(s) com sucesso!')
     } catch (err: any) {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao enviar imagem",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao enviar imagem',
+      )
     } finally {
-      setIsUploadingMedia(false);
-      e.target.value = "";
+      setIsUploadingMedia(false)
+      e.target.value = ''
     }
-  };
+  }
 
   // Set Main Image
   const setMainImage = (fileId: string) => {
@@ -605,81 +602,81 @@ export function ProductFormDialog({
         ...item,
         isMain: item.fileId === fileId,
       })),
-    );
-  };
+    )
+  }
 
   // Remove Image
   const removeImage = (fileId: string) => {
     setMediaItems((prev) => {
-      const filtered = prev.filter((item) => item.fileId !== fileId);
+      const filtered = prev.filter((item) => item.fileId !== fileId)
       // If we removed the main image, make the first one main
       if (filtered.length > 0 && !filtered.some((i) => i.isMain)) {
-        filtered[0]!.isMain = true;
+        filtered[0]!.isMain = true
       }
-      return filtered;
-    });
-  };
+      return filtered
+    })
+  }
 
   // Options & Variations Management
   const addOption = () => {
-    if (!newOptionName.trim()) return;
+    if (!newOptionName.trim()) return
     if (
       options.some(
         (o) => o.name.toLowerCase() === newOptionName.trim().toLowerCase(),
       )
     ) {
-      toast.error("Já existe uma opção com esse nome.");
-      return;
+      toast.error('Já existe uma opção com esse nome.')
+      return
     }
     setOptions([
       ...options,
-      { name: newOptionName.trim(), values: [], valueInput: "" },
-    ]);
-    setNewOptionName("");
-  };
+      { name: newOptionName.trim(), values: [], valueInput: '' },
+    ])
+    setNewOptionName('')
+  }
 
   const removeOption = (index: number) => {
-    setOptions((prev) => prev.filter((_, i) => i !== index));
-  };
+    setOptions((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const addOptionValue = (optionIndex: number) => {
-    const opt = options[optionIndex];
-    if (!opt || !opt.valueInput?.trim()) return;
+    const opt = options[optionIndex]
+    if (!opt || !opt.valueInput?.trim()) return
 
-    const val = opt.valueInput.trim();
+    const val = opt.valueInput.trim()
     if (opt.values.includes(val)) {
-      toast.error("Este valor já foi adicionado.");
-      return;
+      toast.error('Este valor já foi adicionado.')
+      return
     }
 
-    const updatedOptions = [...options];
+    const updatedOptions = [...options]
     updatedOptions[optionIndex] = {
       ...opt,
       values: [...opt.values, val],
-      valueInput: "",
-    };
-    setOptions(updatedOptions);
-  };
+      valueInput: '',
+    }
+    setOptions(updatedOptions)
+  }
 
   const removeOptionValue = (optionIndex: number, valIndex: number) => {
-    const opt = options[optionIndex];
-    if (!opt) return;
+    const opt = options[optionIndex]
+    if (!opt) return
 
-    const updatedOptions = [...options];
+    const updatedOptions = [...options]
     updatedOptions[optionIndex] = {
       ...opt,
       values: opt.values.filter((_, i) => i !== valIndex),
-    };
-    setOptions(updatedOptions);
-  };
+    }
+    setOptions(updatedOptions)
+  }
 
   // Auto Generate Variations from Options
   const generateVariationsFromOptions = () => {
     if (options.length === 0 || options.some((o) => o.values.length === 0)) {
       toast.error(
-        "Adicione pelo menos 1 valor em cada opção para gerar variações.",
-      );
-      return;
+        'Adicione pelo menos 1 valor em cada opção para gerar variações.',
+      )
+      return
     }
 
     // Cartesian product helper
@@ -687,44 +684,44 @@ export function ProductFormDialog({
       acc: Record<string, string>[],
       optIdx: number,
     ): Record<string, string>[] => {
-      if (optIdx >= options.length) return acc;
-      const currentOpt = options[optIdx]!;
-      const nextAcc: Record<string, string>[] = [];
+      if (optIdx >= options.length) return acc
+      const currentOpt = options[optIdx]!
+      const nextAcc: Record<string, string>[] = []
 
       for (const item of acc) {
         for (const val of currentOpt.values) {
           nextAcc.push({
             ...item,
             [currentOpt.name]: val,
-          });
+          })
         }
       }
-      return cartesian(nextAcc, optIdx + 1);
-    };
+      return cartesian(nextAcc, optIdx + 1)
+    }
 
-    const combinations = cartesian([{}], 0);
-    const baseSlug = slug || sanitizeSlug(name) || "PROD";
+    const combinations = cartesian([{}], 0)
+    const baseSlug = slug || sanitizeSlug(name) || 'PROD'
 
     const generatedVars: ProductVariationItem[] = combinations.map(
       (combo, idx) => {
-        const comboSuffix = Object.values(combo).join("-").toUpperCase();
-        const comboSku = `${baseSlug.toUpperCase().slice(0, 6)}-${comboSuffix}-${idx + 1}`;
+        const comboSuffix = Object.values(combo).join('-').toUpperCase()
+        const comboSku = `${baseSlug.toUpperCase().slice(0, 6)}-${comboSuffix}-${idx + 1}`
 
         return {
           sku: comboSku,
-          barcode: "",
+          barcode: '',
           price: price || 0,
-          promotionalPrice: promotionalPrice || "",
-          costPrice: costPrice || "",
-          status: "active",
+          promotionalPrice: promotionalPrice || '',
+          costPrice: costPrice || '',
+          status: 'active',
           optionValues: combo,
-        };
+        }
       },
-    );
+    )
 
-    setVariations(generatedVars);
-    toast.success(`${generatedVars.length} variação(ões) gerada(s)!`);
-  };
+    setVariations(generatedVars)
+    toast.success(`${generatedVars.length} variação(ões) gerada(s)!`)
+  }
 
   const updateVariationField = (
     index: number,
@@ -732,84 +729,84 @@ export function ProductFormDialog({
     val: any,
   ) => {
     setVariations((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index]!, [field]: val };
-      return next;
-    });
-  };
+      const next = [...prev]
+      next[index] = { ...next[index]!, [field]: val }
+      return next
+    })
+  }
 
   // Mutations
   const createMutation = useMutation({
     mutationFn: (payload: any) =>
-      apiClient("/products", {
-        method: "POST",
+      apiClient('/products', {
+        method: 'POST',
         body: JSON.stringify(payload),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products-list"] });
-      queryClient.invalidateQueries({ queryKey: storeQueryKeys.dropdown() });
-      toast.success("Produto criado com sucesso!");
-      onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: ['products-list'] })
+      queryClient.invalidateQueries({ queryKey: storeQueryKeys.dropdown() })
+      toast.success('Produto criado com sucesso!')
+      onOpenChange(false)
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao criar produto",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao criar produto',
+      )
     },
-  });
+  })
 
   const updateMutation = useMutation({
     mutationFn: (payload: any) =>
       apiClient(`/products/${productToEdit!.id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify(payload),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products-list"] });
-      queryClient.invalidateQueries({ queryKey: storeQueryKeys.dropdown() });
-      toast.success("Produto atualizado com sucesso!");
-      onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: ['products-list'] })
+      queryClient.invalidateQueries({ queryKey: storeQueryKeys.dropdown() })
+      toast.success('Produto atualizado com sucesso!')
+      onOpenChange(false)
     },
     onError: (err: any) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao atualizar produto",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao atualizar produto',
+      )
     },
-  });
+  })
 
   // Submit Handler
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!name.trim()) {
-      toast.error("O nome do produto é obrigatório.");
-      return;
+      toast.error('O nome do produto é obrigatório.')
+      return
     }
 
     if (!storeId && !defaultStoreId) {
-      toast.error("Selecione uma loja vinculada.");
-      return;
+      toast.error('Selecione uma loja vinculada.')
+      return
     }
 
     if (!categoryId) {
-      toast.error("Selecione uma categoria.");
-      return;
+      toast.error('Selecione uma categoria.')
+      return
     }
 
-    if (type === "simple" && (!price || price <= 0)) {
+    if (type === 'simple' && (!price || price <= 0)) {
       toast.error(
-        "Informe um preço de venda maior que zero para o produto simples.",
-      );
-      return;
+        'Informe um preço de venda maior que zero para o produto simples.',
+      )
+      return
     }
 
-    if (type === "variable" && variations.length === 0) {
-      toast.error("Produtos variáveis devem possuir pelo menos 1 variação.");
-      return;
+    if (type === 'variable' && variations.length === 0) {
+      toast.error('Produtos variáveis devem possuir pelo menos 1 variação.')
+      return
     }
 
-    const mainMedia = mediaItems.find((m) => m.isMain) || mediaItems[0];
-    const mediaFileIds = mediaItems.map((m) => m.fileId);
+    const mainMedia = mediaItems.find((m) => m.isMain) || mediaItems[0]
+    const mediaFileIds = mediaItems.map((m) => m.fileId)
 
     const payload: any = {
       storeId: storeId || defaultStoreId,
@@ -850,19 +847,19 @@ export function ProductFormDialog({
 
       mediaFileIds,
       mainMediaFileId: mainMedia?.fileId || null,
-    };
+    }
 
-    if (type === "simple") {
-      payload.price = price;
-      payload.promotionalPrice = promotionalPrice || null;
-      payload.costPrice = costPrice || null;
-      payload.sku = sku.trim() || undefined;
+    if (type === 'simple') {
+      payload.price = price
+      payload.promotionalPrice = promotionalPrice || null
+      payload.costPrice = costPrice || null
+      payload.sku = sku.trim() || undefined
     } else {
       payload.options = options.map((opt, i) => ({
         name: opt.name,
         position: i,
         values: opt.values,
-      }));
+      }))
 
       payload.variations = variations.map((v, i) => ({
         sku: v.sku.trim(),
@@ -876,27 +873,27 @@ export function ProductFormDialog({
         isDefault: i === 0,
         position: i,
         optionValues: v.optionValues,
-      }));
+      }))
     }
 
     if (isEditing) {
-      updateMutation.mutate(payload);
+      updateMutation.mutate(payload)
     } else {
-      createMutation.mutate(payload);
+      createMutation.mutate(payload)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="h-185 max-h-[90vh] min-h-150 w-full max-w-4xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
-            {isEditing ? "Editar Produto" : "Novo Produto"}
+            {isEditing ? 'Editar Produto' : 'Novo Produto'}
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
             {isEditing
-              ? "Atualize as informações comerciais, preços, mídias e variações do produto."
-              : "Cadastre um novo produto simples ou variável para disponibilizar no catálogo."}
+              ? 'Atualize as informações comerciais, preços, mídias e variações do produto.'
+              : 'Cadastre um novo produto simples ou variável para disponibilizar no catálogo.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -934,7 +931,7 @@ export function ProductFormDialog({
                 </TabsTrigger>
                 <TabsTrigger
                   value="variacoes"
-                  disabled={type !== "variable"}
+                  disabled={type !== 'variable'}
                   className="flex items-center space-x-1.5 text-xs"
                 >
                   <RiStackLine className="h-4 w-4" />
@@ -1051,7 +1048,7 @@ export function ProductFormDialog({
                     <NativeSelect
                       value={type}
                       onChange={(e) =>
-                        setType(e.target.value as "simple" | "variable")
+                        setType(e.target.value as 'simple' | 'variable')
                       }
                       disabled={isEditing}
                     >
@@ -1081,7 +1078,9 @@ export function ProductFormDialog({
                     <Checkbox
                       id="isFeatured"
                       checked={isFeatured}
-                      onCheckedChange={(checked) => setIsFeatured(Boolean(checked))}
+                      onCheckedChange={(checked) =>
+                        setIsFeatured(Boolean(checked))
+                      }
                       className="cursor-pointer"
                     />
                     <label
@@ -1123,10 +1122,10 @@ export function ProductFormDialog({
                 value="preco"
                 className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
               >
-                {type === "variable" && (
+                {type === 'variable' && (
                   <div className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-3 text-xs text-amber-300">
                     ℹ️ Para produtos variáveis, os preços e SKUs são definidos
-                    individualmente para cada variação na aba{" "}
+                    individualmente para cada variação na aba{' '}
                     <strong>Variações</strong>.
                   </div>
                 )}
@@ -1134,17 +1133,17 @@ export function ProductFormDialog({
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div>
                     <label className="mb-1 block text-xs font-semibold text-zinc-300">
-                      Preço de Venda{" "}
-                      {type === "simple" && (
+                      Preço de Venda{' '}
+                      {type === 'simple' && (
                         <span className="text-rose-400">*</span>
                       )}
                     </label>
                     <PriceInput
                       value={price}
                       onValueChange={setPrice}
-                      disabled={type === "variable"}
+                      disabled={type === 'variable'}
                       placeholder="R$ 0,00"
-                      required={type === "simple"}
+                      required={type === 'simple'}
                       className="text-zinc-100 placeholder:text-zinc-500"
                     />
                   </div>
@@ -1156,7 +1155,7 @@ export function ProductFormDialog({
                     <PriceInput
                       value={promotionalPrice}
                       onValueChange={setPromotionalPrice}
-                      disabled={type === "variable"}
+                      disabled={type === 'variable'}
                       placeholder="R$ 0,00 (opcional)"
                       className="text-emerald-400 placeholder:text-zinc-500"
                     />
@@ -1169,7 +1168,7 @@ export function ProductFormDialog({
                     <PriceInput
                       value={costPrice}
                       onValueChange={setCostPrice}
-                      disabled={type === "variable"}
+                      disabled={type === 'variable'}
                       placeholder="R$ 0,00 (opcional)"
                       className="text-zinc-300 placeholder:text-zinc-500"
                     />
@@ -1183,7 +1182,7 @@ export function ProductFormDialog({
                     </label>
                     <Input
                       type="text"
-                      disabled={type === "variable"}
+                      disabled={type === 'variable'}
                       placeholder="Gerado automaticamente se vazio"
                       value={sku}
                       onChange={(e) => setSku(e.target.value)}
@@ -1200,7 +1199,7 @@ export function ProductFormDialog({
                     </label>
                     <Input
                       type="text"
-                      disabled={type === "variable"}
+                      disabled={type === 'variable'}
                       placeholder="7891234567890"
                       value={barcode}
                       onChange={(e) => setBarcode(e.target.value)}
@@ -1369,9 +1368,9 @@ export function ProductFormDialog({
                 value="variacoes"
                 className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
               >
-                {type !== "variable" ? (
+                {type !== 'variable' ? (
                   <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-sm text-zinc-400">
-                    Altere o tipo do produto para{" "}
+                    Altere o tipo do produto para{' '}
                     <strong>Produto Variável</strong> na aba Geral para
                     habilitar a gestão de opções e variações.
                   </div>
@@ -1455,16 +1454,16 @@ export function ProductFormDialog({
                                 <Input
                                   type="text"
                                   placeholder={`Novo valor para ${opt.name} (ex: 500g, Curado)`}
-                                  value={opt.valueInput || ""}
+                                  value={opt.valueInput || ''}
                                   onChange={(e) => {
-                                    const next = [...options];
-                                    next[optIdx]!.valueInput = e.target.value;
-                                    setOptions(next);
+                                    const next = [...options]
+                                    next[optIdx]!.valueInput = e.target.value
+                                    setOptions(next)
                                   }}
                                   onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      e.preventDefault();
-                                      addOptionValue(optIdx);
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault()
+                                      addOptionValue(optIdx)
                                     }
                                   }}
                                   className="flex-1"
@@ -1510,7 +1509,7 @@ export function ProductFormDialog({
                                 <span className="text-emerald-400">
                                   {Object.entries(vItem.optionValues)
                                     .map(([k, val]) => `${k}: ${val}`)
-                                    .join(" | ")}
+                                    .join(' | ')}
                                 </span>
                                 <Button
                                   type="button"
@@ -1539,7 +1538,7 @@ export function ProductFormDialog({
                                     onChange={(e) =>
                                       updateVariationField(
                                         vIdx,
-                                        "sku",
+                                        'sku',
                                         e.target.value,
                                       )
                                     }
@@ -1554,11 +1553,7 @@ export function ProductFormDialog({
                                   <PriceInput
                                     value={vItem.price}
                                     onValueChange={(val) =>
-                                      updateVariationField(
-                                        vIdx,
-                                        "price",
-                                        val,
-                                      )
+                                      updateVariationField(vIdx, 'price', val)
                                     }
                                     required
                                     className="font-mono text-xs text-zinc-200"
@@ -1574,7 +1569,7 @@ export function ProductFormDialog({
                                     onValueChange={(val) =>
                                       updateVariationField(
                                         vIdx,
-                                        "promotionalPrice",
+                                        'promotionalPrice',
                                         val || null,
                                       )
                                     }
@@ -1591,7 +1586,7 @@ export function ProductFormDialog({
                                     onValueChange={(val) =>
                                       updateVariationField(
                                         vIdx,
-                                        "costPrice",
+                                        'costPrice',
                                         val || null,
                                       )
                                     }
@@ -1628,7 +1623,7 @@ export function ProductFormDialog({
                     <label className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-500">
                       <RiUpload2Line className="h-4 w-4" />
                       <span>
-                        {isUploadingMedia ? "Enviando..." : "Adicionar Imagem"}
+                        {isUploadingMedia ? 'Enviando...' : 'Adicionar Imagem'}
                       </span>
                       <Input
                         type="file"
@@ -1649,8 +1644,8 @@ export function ProductFormDialog({
                           key={item.fileId}
                           className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-zinc-900 p-2 transition-all ${
                             item.isMain
-                              ? "border-amber-500/80 ring-1 ring-amber-500/30"
-                              : "border-zinc-800"
+                              ? 'border-amber-500/80 ring-1 ring-amber-500/30'
+                              : 'border-zinc-800'
                           }`}
                         >
                           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-950">
@@ -1820,20 +1815,24 @@ export function ProductFormDialog({
 
             <Button
               type="submit"
-              disabled={!isFormDirty || createMutation.isPending || updateMutation.isPending}
+              disabled={
+                !isFormDirty ||
+                createMutation.isPending ||
+                updateMutation.isPending
+              }
             >
               <RiCheckLine className="h-4 w-4" />
               <span>
                 {createMutation.isPending || updateMutation.isPending
-                  ? "Salvando..."
+                  ? 'Salvando...'
                   : isEditing
-                    ? "Salvar Alterações"
-                    : "Cadastrar Produto"}
+                    ? 'Salvar Alterações'
+                    : 'Cadastrar Produto'}
               </span>
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

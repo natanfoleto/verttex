@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { ProductsTable } from "./components/products-table";
+import { ProductsTable } from './components/products-table'
 
 export default function ProductsPage() {
-  return <ProductsTable />;
+  return <ProductsTable />
 }

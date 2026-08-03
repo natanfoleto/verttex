@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { RiTruckLine, RiCheckLine } from "react-icons/ri";
-import { toast } from "sonner";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RiTruckLine, RiCheckLine } from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -13,15 +13,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { apiClient, ApiError } from "@/lib/api-client";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { apiClient, ApiError } from '@/lib/api-client'
 
 interface OrderDispatchDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  orderId: string | null;
-  orderCode?: string;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  orderId: string | null
+  orderCode?: string
 }
 
 export function OrderDispatchDialog({
@@ -30,37 +30,37 @@ export function OrderDispatchDialog({
   orderId,
   orderCode,
 }: OrderDispatchDialogProps) {
-  const queryClient = useQueryClient();
-  const [trackingCode, setTrackingCode] = useState("");
-  const [carrier, setCarrier] = useState("Correios Sedex");
-  const [minShelfLifeDays, setMinShelfLifeDays] = useState(30);
+  const queryClient = useQueryClient()
+  const [trackingCode, setTrackingCode] = useState('')
+  const [carrier, setCarrier] = useState('Correios Sedex')
+  const [minShelfLifeDays, setMinShelfLifeDays] = useState(30)
 
   const dispatchMutation = useMutation({
     mutationFn: async () => {
-      if (!orderId) return;
+      if (!orderId) return
       return apiClient(`/shipping/orders/${orderId}/dispatch`, {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify({
           trackingCode: trackingCode.trim(),
           carrier: carrier.trim(),
           minDeliveryShelfLifeDays: minShelfLifeDays,
         }),
-      });
+      })
     },
     onSuccess: () => {
-      toast.success("Pedido expedido com sucesso com validação de lote FEFO!");
-      queryClient.invalidateQueries({ queryKey: ["manager-orders"] });
-      onOpenChange(false);
-      setTrackingCode("");
+      toast.success('Pedido expedido com sucesso com validação de lote FEFO!')
+      queryClient.invalidateQueries({ queryKey: ['manager-orders'] })
+      onOpenChange(false)
+      setTrackingCode('')
     },
     onError: (err: unknown) => {
       if (err instanceof ApiError) {
-        toast.error(err.message);
+        toast.error(err.message)
       } else {
-        toast.error("Erro ao expedir pedido");
+        toast.error('Erro ao expedir pedido')
       }
     },
-  });
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,17 +68,20 @@ export function OrderDispatchDialog({
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100 flex items-center space-x-2">
             <RiTruckLine className="h-5 w-5 text-emerald-400" />
-            <span>Expedição Sanitária de Pedido {orderCode ? `#${orderCode}` : ""}</span>
+            <span>
+              Expedição Sanitária de Pedido {orderCode ? `#${orderCode}` : ''}
+            </span>
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Informe as credenciais de transporte. A validação de lotes FEFO verificará a margem sanitária de validade antes do despacho.
+            Informe as credenciais de transporte. A validação de lotes FEFO
+            verificará a margem sanitária de validade antes do despacho.
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            dispatchMutation.mutate();
+            e.preventDefault()
+            dispatchMutation.mutate()
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -122,7 +125,8 @@ export function OrderDispatchDialog({
                 className="bg-zinc-900 border-zinc-800 text-xs"
               />
               <p className="text-[11px] text-zinc-500">
-                Bloqueia a expedição caso algum lote reservado vença antes da margem mínima estabelecida.
+                Bloqueia a expedição caso algum lote reservado vença antes da
+                margem mínima estabelecida.
               </p>
             </div>
           </div>
@@ -142,11 +146,15 @@ export function OrderDispatchDialog({
               className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-xs font-bold"
             >
               <RiCheckLine className="h-4 w-4 mr-1.5" />
-              <span>{dispatchMutation.isPending ? "Validando FEFO..." : "Confirmar Expedição"}</span>
+              <span>
+                {dispatchMutation.isPending
+                  ? 'Validando FEFO...'
+                  : 'Confirmar Expedição'}
+              </span>
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

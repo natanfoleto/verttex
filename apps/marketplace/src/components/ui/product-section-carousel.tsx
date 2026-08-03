@@ -1,10 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import {
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-} from 'react-icons/ri'
+import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri'
 
 import { ProductCard } from './product-card'
 
@@ -33,7 +30,8 @@ export function ProductSectionCarousel({
   itemsPerPage = 5,
 }: ProductSectionCarouselProps) {
   const [currentPage, setCurrentPage] = useState(0)
-  const [effectiveItemsPerPage, setEffectiveItemsPerPage] = useState<number>(itemsPerPage)
+  const [effectiveItemsPerPage, setEffectiveItemsPerPage] =
+    useState<number>(itemsPerPage)
 
   // Arraste / Swipe
   const touchStartX = useRef(0)
@@ -44,10 +42,14 @@ export function ProductSectionCarousel({
   useEffect(() => {
     const updateItemsPerPage = () => {
       const w = window.innerWidth
-      if (w < 384) setEffectiveItemsPerPage(1) // < 2xs: 1 item por página (1 linha)
-      else if (w < 640) setEffectiveItemsPerPage(2) // 2xs: 2 itens por página (1 linha)
-      else if (w < 768) setEffectiveItemsPerPage(3) // sm: 3 itens por página (1 linha)
-      else if (w < 1024) setEffectiveItemsPerPage(4) // md: 4 itens por página (1 linha)
+      if (w < 384)
+        setEffectiveItemsPerPage(1) // < 2xs: 1 item por página (1 linha)
+      else if (w < 640)
+        setEffectiveItemsPerPage(2) // 2xs: 2 itens por página (1 linha)
+      else if (w < 768)
+        setEffectiveItemsPerPage(3) // sm: 3 itens por página (1 linha)
+      else if (w < 1024)
+        setEffectiveItemsPerPage(4) // md: 4 itens por página (1 linha)
       else setEffectiveItemsPerPage(itemsPerPage) // lg+: 5 itens por página (1 linha)
     }
 
@@ -132,10 +134,11 @@ export function ProductSectionCarousel({
                 key={index}
                 type="button"
                 onClick={() => setCurrentPage(index)}
-                className={`h-1.5 w-1.5 rounded-full cursor-pointer transition-colors ${index === currentPage
-                  ? 'bg-emerald-700'
-                  : 'bg-stone-200 hover:bg-stone-300'
-                  }`}
+                className={`h-1.5 w-1.5 rounded-full cursor-pointer transition-colors ${
+                  index === currentPage
+                    ? 'bg-emerald-700'
+                    : 'bg-stone-200 hover:bg-stone-300'
+                }`}
                 title={`Página ${index + 1}`}
               />
             ))}

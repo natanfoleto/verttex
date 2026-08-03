@@ -6,12 +6,12 @@
  * Nunca use <Input type="number"> para campos de preço.
  */
 
-const BRL_FORMATTER = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
+const BRL_FORMATTER = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
-});
+})
 
 /**
  * Formata um número para o padrão BRL visual.
@@ -19,7 +19,7 @@ const BRL_FORMATTER = new Intl.NumberFormat("pt-BR", {
  * @example formatPriceBRL(10500.99) → "R$ 10.500,99"
  */
 export function formatPriceBRL(value: number): string {
-  return BRL_FORMATTER.format(value);
+  return BRL_FORMATTER.format(value)
 }
 
 /**
@@ -30,11 +30,11 @@ export function formatPriceBRL(value: number): string {
  * @example parsePriceMask("") → 0
  */
 export function parsePriceMask(formatted: string): number {
-  if (!formatted) return 0;
+  if (!formatted) return 0
   // Remove tudo que não seja dígito ou vírgula decimal
-  const cleaned = formatted.replace(/[^\d,]/g, "").replace(",", ".");
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : parsed;
+  const cleaned = formatted.replace(/[^\d,]/g, '').replace(',', '.')
+  const parsed = parseFloat(cleaned)
+  return isNaN(parsed) ? 0 : parsed
 }
 
 /**
@@ -48,10 +48,10 @@ export function parsePriceMask(formatted: string): number {
  * @example maskPriceFromDigits("")      → "R$ 0,00"
  */
 export function maskPriceFromDigits(digits: string): string {
-  const onlyDigits = digits.replace(/\D/g, "");
-  if (!onlyDigits) return formatPriceBRL(0);
-  const numericValue = parseInt(onlyDigits, 10) / 100;
-  return formatPriceBRL(numericValue);
+  const onlyDigits = digits.replace(/\D/g, '')
+  if (!onlyDigits) return formatPriceBRL(0)
+  const numericValue = parseInt(onlyDigits, 10) / 100
+  return formatPriceBRL(numericValue)
 }
 
 /**
@@ -60,7 +60,7 @@ export function maskPriceFromDigits(digits: string): string {
  * @example extractDigits("R$ 105,00") → "10500"
  */
 export function extractDigits(formatted: string): string {
-  return formatted.replace(/\D/g, "");
+  return formatted.replace(/\D/g, '')
 }
 
 /**
@@ -71,8 +71,10 @@ export function extractDigits(formatted: string): string {
  * @example numericToDigits(10.5) → "1050"
  * @example numericToDigits(0) → ""
  */
-export function numericToDigits(value: number | string | null | undefined): string {
-  const num = Number(value);
-  if (!num || isNaN(num)) return "";
-  return Math.round(num * 100).toString();
+export function numericToDigits(
+  value: number | string | null | undefined,
+): string {
+  const num = Number(value)
+  if (!num || isNaN(num)) return ''
+  return Math.round(num * 100).toString()
 }

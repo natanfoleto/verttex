@@ -1,30 +1,30 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { use, useState } from "react";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { use, useState } from 'react'
 import {
   RiArrowLeftLine,
   RiEditLine,
   RiShieldUserLine,
   RiStoreLine,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 
-import { apiClient } from "../../../../lib/api-client";
-import { userQueryKeys } from "../../../../lib/query-keys";
-import { UserFormDialog } from "../components/user-form-dialog";
+import { apiClient } from '../../../../lib/api-client'
+import { userQueryKeys } from '../../../../lib/query-keys'
+import { UserFormDialog } from '../components/user-form-dialog'
 
 export default function UserDetailPage({
   params,
 }: {
-  params: Promise<{ userId: string }>;
+  params: Promise<{ userId: string }>
 }) {
-  const resolvedParams = use(params);
-  const userId = resolvedParams.userId;
+  const resolvedParams = use(params)
+  const userId = resolvedParams.userId
 
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false)
 
   const {
     data: user,
@@ -33,14 +33,14 @@ export default function UserDetailPage({
   } = useQuery({
     queryKey: userQueryKeys.detail(userId),
     queryFn: () => apiClient(`/users/${userId}`),
-  });
+  })
 
   if (isLoading) {
     return (
       <div className="p-8 text-center text-zinc-400">
         <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-zinc-100" />
       </div>
-    );
+    )
   }
 
   if (isError || !user) {
@@ -48,7 +48,7 @@ export default function UserDetailPage({
       <div className="p-8 text-center text-rose-400">
         Usuário não encontrado ou erro de carregamento.
       </div>
-    );
+    )
   }
 
   return (
@@ -97,12 +97,12 @@ export default function UserDetailPage({
               <span className="block text-xs text-zinc-500">Status</span>
               <span
                 className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                  user.status === "active"
-                    ? "border-emerald-800 bg-emerald-950 text-emerald-400"
-                    : "border-rose-800 bg-rose-950 text-rose-400"
+                  user.status === 'active'
+                    ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                    : 'border-rose-800 bg-rose-950 text-rose-400'
                 }`}
               >
-                {user.status === "active" ? "Ativo" : "Inativo"}
+                {user.status === 'active' ? 'Ativo' : 'Inativo'}
               </span>
             </div>
 
@@ -116,14 +116,14 @@ export default function UserDetailPage({
             <div>
               <span className="block text-xs text-zinc-500">Telefone</span>
               <span className="text-zinc-300">
-                {user.phone || "Não informado"}
+                {user.phone || 'Não informado'}
               </span>
             </div>
 
             <div>
               <span className="block text-xs text-zinc-500">Cadastrado em</span>
               <span className="text-zinc-400">
-                {new Date(user.createdAt).toLocaleDateString("pt-BR")}
+                {new Date(user.createdAt).toLocaleDateString('pt-BR')}
               </span>
             </div>
           </div>
@@ -170,5 +170,5 @@ export default function UserDetailPage({
         userToEdit={user}
       />
     </div>
-  );
+  )
 }

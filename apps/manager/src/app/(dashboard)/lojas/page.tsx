@@ -1,27 +1,27 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { RiAddLine, RiEditLine, RiUserSharedLine } from "react-icons/ri";
+import { useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { RiAddLine, RiEditLine, RiUserSharedLine } from 'react-icons/ri'
 
-import { Button } from "@/components/ui/button";
-import { NativeSelect } from "@/components/ui/native-select";
+import { Button } from '@/components/ui/button'
+import { NativeSelect } from '@/components/ui/native-select'
 
-import { TableWrapper } from "../../../components/ui/table-wrapper";
-import { apiClient } from "../../../lib/api-client";
-import { storeQueryKeys } from "../../../lib/query-keys";
-import { StoreFormDialog, StoreItem } from "./components/store-form-dialog";
+import { TableWrapper } from '../../../components/ui/table-wrapper'
+import { apiClient } from '../../../lib/api-client'
+import { storeQueryKeys } from '../../../lib/query-keys'
+import { StoreFormDialog, StoreItem } from './components/store-form-dialog'
 
 export default function StoresListPage() {
-  const router = useRouter();
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const router = useRouter()
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('')
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingStore, setEditingStore] = useState<StoreItem | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingStore, setEditingStore] = useState<StoreItem | null>(null)
 
   const { data, isLoading, isError } = useQuery({
     queryKey: storeQueryKeys.list({
@@ -31,24 +31,24 @@ export default function StoresListPage() {
       status: statusFilter,
     }),
     queryFn: () => {
-      let url = `/stores?page=${page}&perPage=${perPage}`;
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`;
-      return apiClient(url);
+      let url = `/stores?page=${page}&perPage=${perPage}`
+      if (search) url += `&search=${encodeURIComponent(search)}`
+      if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`
+      return apiClient(url)
     },
-  });
+  })
 
   const openCreateModal = () => {
-    setEditingStore(null);
-    setIsDialogOpen(true);
-  };
+    setEditingStore(null)
+    setIsDialogOpen(true)
+  }
 
   const openEditModal = (store: StoreItem) => {
-    setEditingStore(store);
-    setIsDialogOpen(true);
-  };
+    setEditingStore(store)
+    setIsDialogOpen(true)
+  }
 
-  const hasActiveFilters = Boolean(search || statusFilter);
+  const hasActiveFilters = Boolean(search || statusFilter)
 
   return (
     <div className="space-y-6 font-sans text-zinc-100">
@@ -82,12 +82,12 @@ export default function StoresListPage() {
         isEmpty={!data?.data || data.data.length === 0}
         emptyTitle={
           hasActiveFilters
-            ? "Nenhuma loja encontrada para os filtros selecionados"
-            : "Nenhuma loja cadastrada"
+            ? 'Nenhuma loja encontrada para os filtros selecionados'
+            : 'Nenhuma loja cadastrada'
         }
         emptyDescription={
           hasActiveFilters
-            ? "Tente remover a busca ou trocar o filtro de status."
+            ? 'Tente remover a busca ou trocar o filtro de status.'
             : 'Clique em "Nova Loja" para cadastrar o primeira parceiro.'
         }
         emptyIcon={<RiUserSharedLine className="h-6 w-6 text-zinc-400" />}
@@ -95,8 +95,8 @@ export default function StoresListPage() {
         onPageChange={setPage}
         perPageValue={perPage}
         onPerPageChange={(newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
+          setPerPage(newPerPage)
+          setPage(1)
         }}
       >
         <table className="w-full border-collapse text-left text-sm">
@@ -128,9 +128,9 @@ export default function StoresListPage() {
                       ) : (
                         <span>
                           {store.name
-                            .split(" ")
+                            .split(' ')
                             .map((n) => n[0])
-                            .join("")
+                            .join('')
                             .substring(0, 2)
                             .toUpperCase()}
                         </span>
@@ -157,22 +157,22 @@ export default function StoresListPage() {
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                      store.status === "active"
-                        ? "border-emerald-800 bg-emerald-950 text-emerald-400"
-                        : store.status === "draft"
-                          ? "border-zinc-700 bg-zinc-800 text-zinc-300"
-                          : store.status === "suspended"
-                            ? "border-rose-800 bg-rose-950 text-rose-400"
-                            : "border-amber-800 bg-amber-950 text-amber-400"
+                      store.status === 'active'
+                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                        : store.status === 'draft'
+                          ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
+                          : store.status === 'suspended'
+                            ? 'border-rose-800 bg-rose-950 text-rose-400'
+                            : 'border-amber-800 bg-amber-950 text-amber-400'
                     }`}
                   >
-                    {store.status === "active"
-                      ? "Ativa"
-                      : store.status === "draft"
-                        ? "Rascunho"
-                        : store.status === "suspended"
-                          ? "Suspensa"
-                          : "Inativa"}
+                    {store.status === 'active'
+                      ? 'Ativa'
+                      : store.status === 'draft'
+                        ? 'Rascunho'
+                        : store.status === 'suspended'
+                          ? 'Suspensa'
+                          : 'Inativa'}
                   </span>
                 </td>
                 <td
@@ -206,11 +206,11 @@ export default function StoresListPage() {
       <StoreFormDialog
         open={isDialogOpen}
         onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) setEditingStore(null);
+          setIsDialogOpen(open)
+          if (!open) setEditingStore(null)
         }}
         storeToEdit={editingStore}
       />
     </div>
-  );
+  )
 }

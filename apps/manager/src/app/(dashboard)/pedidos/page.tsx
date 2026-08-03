@@ -1,59 +1,56 @@
-"use client";
+'use client'
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import {
-  RiShoppingBag3Line,
-  RiTruckLine,
-  RiCheckLine,
-} from "react-icons/ri";
-import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RiShoppingBag3Line, RiTruckLine, RiCheckLine } from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
-import { NativeSelect } from "@/components/ui/native-select";
-import { TableWrapper } from "@/components/ui/table-wrapper";
-import { apiClient, ApiError } from "@/lib/api-client";
-import { OrderDispatchDialog } from "./components/order-dispatch-dialog";
+import { Button } from '@/components/ui/button'
+import { NativeSelect } from '@/components/ui/native-select'
+import { TableWrapper } from '@/components/ui/table-wrapper'
+import { apiClient, ApiError } from '@/lib/api-client'
+import { OrderDispatchDialog } from './components/order-dispatch-dialog'
 
 interface OrderItem {
-  id: string;
-  orderId: string;
-  orderCode: string;
-  customerName: string;
-  totalAmount: number;
-  status: "PENDING" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED";
-  paymentStatus: string;
-  trackingCode?: string;
-  createdAt: string;
+  id: string
+  orderId: string
+  orderCode: string
+  customerName: string
+  totalAmount: number
+  status: 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+  paymentStatus: string
+  trackingCode?: string
+  createdAt: string
 }
 
 export default function OrdersManagementPage() {
-  const queryClient = useQueryClient();
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [dispatchOrderId, setDispatchOrderId] = useState<string | null>(null);
-  const [dispatchOrderCode, setDispatchOrderCode] = useState<string>("");
+  const queryClient = useQueryClient()
+  const [statusFilter, setStatusFilter] = useState<string>('ALL')
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const [dispatchOrderId, setDispatchOrderId] = useState<string | null>(null)
+  const [dispatchOrderCode, setDispatchOrderCode] = useState<string>('')
 
   const { data: ordersRes, isLoading } = useQuery<{
-    data: OrderItem[];
-    meta: { page: number; perPage: number; total: number; totalPages: number };
+    data: OrderItem[]
+    meta: { page: number; perPage: number; total: number; totalPages: number }
   }>({
-    queryKey: ["manager-orders", search, statusFilter, page, perPage],
+    queryKey: ['manager-orders', search, statusFilter, page, perPage],
     queryFn: async () => {
-      let url = `/orders?page=${page}&limit=${perPage}`;
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      if (statusFilter && statusFilter !== "ALL") url += `&status=${statusFilter}`;
+      let url = `/orders?page=${page}&limit=${perPage}`
+      if (search) url += `&search=${encodeURIComponent(search)}`
+      if (statusFilter && statusFilter !== 'ALL')
+        url += `&status=${statusFilter}`
 
-      const res = await apiClient<any>(url);
+      const res = await apiClient<any>(url)
       if (res && res.meta) {
         return {
           data: res.data || [],
           meta: res.meta,
-        };
+        }
       }
-      const dataArr = Array.isArray(res) ? res : res?.data ?? [];
+      const dataArr = Array.isArray(res) ? res : (res?.data ?? [])
       return {
         data: dataArr,
         meta: {
@@ -62,33 +59,48 @@ export default function OrdersManagementPage() {
           total: dataArr.length,
           totalPages: Math.ceil(dataArr.length / perPage) || 1,
         },
-      };
+      }
     },
-  });
+  })
 
-  const ordersList = ordersRes?.data || [];
+  const ordersList = ordersRes?.data || []
 
   const deliverMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiClient(`/orders/${id}/deliver`, { method: "POST" });
+      return apiClient(`/orders/${id}/deliver`, { method: 'POST' })
     },
     onSuccess: () => {
-      toast.success("Pedido marcado como Entregue!");
-      queryClient.invalidateQueries({ queryKey: ["manager-orders"] });
+      toast.success('Pedido marcado como Entregue!')
+      queryClient.invalidateQueries({ queryKey: ['manager-orders'] })
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) toast.error(err.message);
-      else toast.error("Erro ao confirmar entrega");
+      if (err instanceof ApiError) toast.error(err.message)
+      else toast.error('Erro ao confirmar entrega')
     },
-  });
+  })
 
   const statusBadges: Record<string, { label: string; bg: string }> = {
-    PENDING: { label: "Pendente", bg: "bg-amber-950/60 text-amber-400 border-amber-800/40" },
-    PAID: { label: "Pago (Aguardando Expedição)", bg: "bg-blue-950/60 text-blue-400 border-blue-800/40" },
-    SHIPPED: { label: "Em Trânsito", bg: "bg-purple-950/60 text-purple-400 border-purple-800/40" },
-    DELIVERED: { label: "Entregue", bg: "bg-emerald-950/60 text-emerald-400 border-emerald-800/40" },
-    CANCELLED: { label: "Cancelado", bg: "bg-rose-950/60 text-rose-400 border-rose-800/40" },
-  };
+    PENDING: {
+      label: 'Pendente',
+      bg: 'bg-amber-950/60 text-amber-400 border-amber-800/40',
+    },
+    PAID: {
+      label: 'Pago (Aguardando Expedição)',
+      bg: 'bg-blue-950/60 text-blue-400 border-blue-800/40',
+    },
+    SHIPPED: {
+      label: 'Em Trânsito',
+      bg: 'bg-purple-950/60 text-purple-400 border-purple-800/40',
+    },
+    DELIVERED: {
+      label: 'Entregue',
+      bg: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/40',
+    },
+    CANCELLED: {
+      label: 'Cancelado',
+      bg: 'bg-rose-950/60 text-rose-400 border-rose-800/40',
+    },
+  }
 
   return (
     <div className="space-y-6 font-sans text-zinc-100 antialiased">
@@ -97,16 +109,16 @@ export default function OrdersManagementPage() {
         description="Acompanhe pedidos, execute a expedição com validação de lotes FEFO e gerencie entregas em domicílio."
         searchValue={search}
         onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
+          setSearch(val)
+          setPage(1)
         }}
         searchPlaceholder="Buscar por código ou cliente..."
         filters={
           <NativeSelect
             value={statusFilter}
             onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
+              setStatusFilter(e.target.value)
+              setPage(1)
             }}
             className="bg-zinc-900 border-zinc-800 text-xs cursor-pointer w-56"
           >
@@ -126,8 +138,8 @@ export default function OrdersManagementPage() {
         onPageChange={setPage}
         perPageValue={perPage}
         onPerPageChange={(newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
+          setPerPage(newPerPage)
+          setPage(1)
         }}
       >
         <table className="w-full text-left text-xs">
@@ -147,29 +159,31 @@ export default function OrdersManagementPage() {
                 <td className="px-5 py-4 font-mono font-bold text-emerald-400">
                   {o.orderCode}
                 </td>
-                <td className="px-5 py-4 font-medium text-zinc-200">{o.customerName}</td>
+                <td className="px-5 py-4 font-medium text-zinc-200">
+                  {o.customerName}
+                </td>
                 <td className="px-5 py-4 font-bold text-zinc-100">
                   R$ {o.totalAmount.toFixed(2)}
                 </td>
                 <td className="px-5 py-4">
                   <span
                     className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                      statusBadges[o.status]?.bg || "bg-zinc-800 text-zinc-300"
+                      statusBadges[o.status]?.bg || 'bg-zinc-800 text-zinc-300'
                     }`}
                   >
                     {statusBadges[o.status]?.label || o.status}
                   </span>
                 </td>
                 <td className="px-5 py-4 font-mono text-zinc-400">
-                  {o.trackingCode || "—"}
+                  {o.trackingCode || '—'}
                 </td>
                 <td className="px-5 py-4 text-right">
-                  {o.status === "PAID" && (
+                  {o.status === 'PAID' && (
                     <Button
                       size="sm"
                       onClick={() => {
-                        setDispatchOrderId(o.id);
-                        setDispatchOrderCode(o.orderCode);
+                        setDispatchOrderId(o.id)
+                        setDispatchOrderCode(o.orderCode)
                       }}
                       className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
                     >
@@ -177,7 +191,7 @@ export default function OrdersManagementPage() {
                       <span>Expedir (FEFO)</span>
                     </Button>
                   )}
-                  {o.status === "SHIPPED" && (
+                  {o.status === 'SHIPPED' && (
                     <Button
                       size="sm"
                       onClick={() => deliverMutation.mutate(o.id)}
@@ -199,11 +213,11 @@ export default function OrdersManagementPage() {
       <OrderDispatchDialog
         open={Boolean(dispatchOrderId)}
         onOpenChange={(open) => {
-          if (!open) setDispatchOrderId(null);
+          if (!open) setDispatchOrderId(null)
         }}
         orderId={dispatchOrderId}
         orderCode={dispatchOrderCode}
       />
     </div>
-  );
+  )
 }

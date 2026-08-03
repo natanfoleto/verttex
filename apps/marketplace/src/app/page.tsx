@@ -60,18 +60,18 @@ export default function MarketplaceHomePage() {
   const allProducts: CarouselProductItem[] =
     featuredProductsRes?.data && featuredProductsRes.data.length > 0
       ? featuredProductsRes.data.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        price: p.promotionalPrice || p.price,
-        originalPrice: p.promotionalPrice ? p.price : undefined,
-        imageUrl: p.mainImageUrl || undefined,
-        installments: `3x R$ ${((p.promotionalPrice || p.price) / 3)
-          .toFixed(2)
-          .replace('.', ',')} com sua Linha de Crédito`,
-        benefitBadge: '20% OFF Saldo no Mercado Pago',
-        freeShipping: true,
-      }))
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          price: p.promotionalPrice || p.price,
+          originalPrice: p.promotionalPrice ? p.price : undefined,
+          imageUrl: p.mainImageUrl || undefined,
+          installments: `3x R$ ${((p.promotionalPrice || p.price) / 3)
+            .toFixed(2)
+            .replace('.', ',')} com sua Linha de Crédito`,
+          benefitBadge: '20% OFF Saldo no Mercado Pago',
+          freeShipping: true,
+        }))
       : []
 
   // Seções compostas por conjuntos de produtos
@@ -82,15 +82,15 @@ export default function MarketplaceHomePage() {
   const storesList: StoreCardProps[] =
     storesRes?.data && storesRes.data.length > 0
       ? storesRes.data.map((s) => ({
-        id: s.id,
-        name: s.name,
-        slug: s.slug,
-        description: s.description || undefined,
-        productsCount: s.productsCount,
-        isVerified: true,
-        coverUrl: s.coverUrl || undefined,
-        logoUrl: s.logoUrl || undefined,
-      }))
+          id: s.id,
+          name: s.name,
+          slug: s.slug,
+          description: s.description || undefined,
+          productsCount: s.productsCount,
+          isVerified: true,
+          coverUrl: s.coverUrl || undefined,
+          logoUrl: s.logoUrl || undefined,
+        }))
       : []
 
   if (isInitialLoading) {

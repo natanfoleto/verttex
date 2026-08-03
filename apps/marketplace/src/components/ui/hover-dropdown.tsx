@@ -62,7 +62,12 @@ export function HoverDropdown({
             : cn('top-full', align === 'right' ? 'right-0' : 'left-0'),
         )}
       >
-        <div className={cn('relative', position === 'bottom' && showArrow && 'pt-2')}>
+        <div
+          className={cn(
+            'relative',
+            position === 'bottom' && showArrow && 'pt-2',
+          )}
+        >
           {/* Flecha indicadora com cor branca fixa (#ffffff) mantida no componente */}
           {position === 'bottom' && showArrow && (
             <div

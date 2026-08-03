@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { RiShieldLine } from "react-icons/ri";
+import { RiShieldLine } from 'react-icons/ri'
 
 export default function MarketplaceLegalPage() {
   return (
@@ -12,8 +12,9 @@ export default function MarketplaceLegalPage() {
         Documentos Legais — Em Breve
       </h1>
       <p className="max-w-md text-xs text-zinc-400 leading-relaxed">
-        O módulo para gestão dos Termos de Uso, Política de Privacidade e Regulamentos Sanitários Regionais estará disponível em breve.
+        O módulo para gestão dos Termos de Uso, Política de Privacidade e
+        Regulamentos Sanitários Regionais estará disponível em breve.
       </p>
     </div>
-  );
+  )
 }

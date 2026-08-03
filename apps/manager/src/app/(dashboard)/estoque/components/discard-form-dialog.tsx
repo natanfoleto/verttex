@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { RiCheckLine } from "react-icons/ri";
-import { toast } from "sonner";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { RiCheckLine } from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -13,27 +13,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
 
-import { apiClient, ApiError } from "../../../../lib/api-client";
-import type { LotItem } from "./status-form-dialog";
+import { apiClient, ApiError } from '../../../../lib/api-client'
+import type { LotItem } from './status-form-dialog'
 
 export interface LotWithStockItem extends LotItem {
   stockItems: Array<{
-    id: string;
-    locationId: string;
-    physicalQuantity: number;
-    reservedQuantity: number;
-  }>;
+    id: string
+    locationId: string
+    physicalQuantity: number
+    reservedQuantity: number
+  }>
 }
 
 interface DiscardFormDialogProps {
-  lot: LotWithStockItem | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  lot: LotWithStockItem | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function DiscardFormDialog({
@@ -41,23 +41,23 @@ export function DiscardFormDialog({
   open,
   onOpenChange,
 }: DiscardFormDialogProps) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  const [discardQty, setDiscardQty] = useState("");
+  const [discardQty, setDiscardQty] = useState('')
   const [discardReason, setDiscardReason] = useState<
-    "expired" | "damaged" | "recalled" | "other"
-  >("expired");
-  const [discardDestination, setDiscardDestination] = useState("");
-  const [discardNotes, setDiscardNotes] = useState("");
+    'expired' | 'damaged' | 'recalled' | 'other'
+  >('expired')
+  const [discardDestination, setDiscardDestination] = useState('')
+  const [discardNotes, setDiscardNotes] = useState('')
 
   const discardMutation = useMutation({
     mutationFn: async () => {
-      if (!lot) return;
-      const locId = lot.stockItems[0]?.locationId;
-      if (!locId) throw new Error("Localização não encontrada");
+      if (!lot) return
+      const locId = lot.stockItems[0]?.locationId
+      if (!locId) throw new Error('Localização não encontrada')
 
-      return apiClient("/stock/discard", {
-        method: "POST",
+      return apiClient('/stock/discard', {
+        method: 'POST',
         body: JSON.stringify({
           storeId: lot.store.id,
           lotId: lot.id,
@@ -67,41 +67,41 @@ export function DiscardFormDialog({
           destination: discardDestination,
           notes: discardNotes,
         }),
-      });
+      })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lots-list"] });
-      toast.success("Descarte formal registrado e auditado com sucesso!");
-      onOpenChange(false);
-      setDiscardQty("");
-      setDiscardDestination("");
-      setDiscardNotes("");
+      queryClient.invalidateQueries({ queryKey: ['lots-list'] })
+      toast.success('Descarte formal registrado e auditado com sucesso!')
+      onOpenChange(false)
+      setDiscardQty('')
+      setDiscardDestination('')
+      setDiscardNotes('')
     },
     onError: (err: unknown) => {
       toast.error(
-        err instanceof ApiError ? err.message : "Erro ao processar descarte",
-      );
+        err instanceof ApiError ? err.message : 'Erro ao processar descarte',
+      )
     },
-  });
+  })
 
-  if (!lot) return null;
+  if (!lot) return null
 
-  const availablePhysical = lot.stockItems[0]?.physicalQuantity ?? 0;
+  const availablePhysical = lot.stockItems[0]?.physicalQuantity ?? 0
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl max-h-[90vh]"
-        style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+        style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
       >
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
             Descarte Formal Auditado de Lote
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Lote:{" "}
+            Lote:{' '}
             <span className="font-mono text-zinc-200">{lot.lotNumber}</span> —
-            Saldo Físico:{" "}
+            Saldo Físico:{' '}
             <span className="font-semibold text-amber-400">
               {availablePhysical} unid.
             </span>
@@ -110,8 +110,8 @@ export function DiscardFormDialog({
 
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            discardMutation.mutate();
+            e.preventDefault()
+            discardMutation.mutate()
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
@@ -142,7 +142,7 @@ export function DiscardFormDialog({
                   onChange={(e) =>
                     setDiscardReason(
                       e.target.value as
-                        "expired" | "damaged" | "recalled" | "other",
+                        'expired' | 'damaged' | 'recalled' | 'other',
                     )
                   }
                   className="w-full bg-zinc-900 border-zinc-800 text-xs rounded-xl cursor-pointer"
@@ -200,12 +200,12 @@ export function DiscardFormDialog({
             >
               <RiCheckLine className="mr-1.5 h-4 w-4" />
               {discardMutation.isPending
-                ? "Processando..."
-                : "Confirmar Descarte Auditado"}
+                ? 'Processando...'
+                : 'Confirmar Descarte Auditado'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

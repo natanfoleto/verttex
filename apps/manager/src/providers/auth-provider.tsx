@@ -1,60 +1,60 @@
-"use client";
+'use client'
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AppAbility, defineAbilityFor, UserToken } from "@verttex/auth";
-import { usePathname, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { AppAbility, defineAbilityFor, UserToken } from '@verttex/auth'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   createContext,
   ReactNode,
   useCallback,
   useContext,
   useMemo,
-} from "react";
+} from 'react'
 
-import { apiClient, ApiError } from "../lib/api-client";
+import { apiClient, ApiError } from '../lib/api-client'
 
 export interface UserPermissionItem {
-  key?: string;
-  effect?: "allow" | "deny";
-  origin?: "role" | "override";
-  permission?: { key: string };
+  key?: string
+  effect?: 'allow' | 'deny'
+  origin?: 'role' | 'override'
+  permission?: { key: string }
 }
 
 export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
+  id: string
+  name: string
+  email: string
+  phone?: string
   role: {
-    id: string;
-    key: string;
-    name: string;
-  };
-  rolePermissions?: { permission: { key: string } }[];
-  permissions?: UserPermissionItem[];
+    id: string
+    key: string
+    name: string
+  }
+  rolePermissions?: { permission: { key: string } }[]
+  permissions?: UserPermissionItem[]
 }
 
 interface AuthContextType {
-  user: UserProfile | null;
-  ability: AppAbility;
-  isLoading: boolean;
-  isError: boolean;
-  refetchUser: () => void;
-  logout: () => Promise<void>;
+  user: UserProfile | null
+  ability: AppAbility
+  isLoading: boolean
+  isError: boolean
+  refetchUser: () => void
+  logout: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const queryClient = useQueryClient();
+  const router = useRouter()
+  const pathname = usePathname()
+  const queryClient = useQueryClient()
 
   const isPublicAuthRoute =
-    pathname === "/login" ||
-    pathname === "/esqueci-minha-senha" ||
-    pathname === "/redefinir-senha" ||
-    pathname === "/sessao-expirada";
+    pathname === '/login' ||
+    pathname === '/esqueci-minha-senha' ||
+    pathname === '/redefinir-senha' ||
+    pathname === '/sessao-expirada'
 
   const {
     data: user,
@@ -62,73 +62,73 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isError,
     refetch,
   } = useQuery<UserProfile | null>({
-    queryKey: ["auth-user-me"],
+    queryKey: ['auth-user-me'],
     queryFn: async () => {
       try {
-        const data = await apiClient<UserProfile>("/auth/users/me");
-        return data;
+        const data = await apiClient<UserProfile>('/auth/users/me')
+        return data
       } catch (err: unknown) {
         if (err instanceof ApiError && err.status === 401) {
-          return null;
+          return null
         }
-        throw err;
+        throw err
       }
     },
     enabled: !isPublicAuthRoute,
     retry: false,
     refetchOnWindowFocus: false,
-  });
+  })
 
   const ability = useMemo(() => {
     if (!user) {
       return defineAbilityFor({
-        id: "anonymous",
-        role: "employee",
-      });
+        id: 'anonymous',
+        role: 'employee',
+      })
     }
 
     const rolePermissions = user.rolePermissions
       ?.map((rp) => rp.permission?.key)
-      .filter((k): k is string => Boolean(k));
+      .filter((k): k is string => Boolean(k))
 
     const userPermissions = user.permissions
       ?.map((up) => {
-        const key = up.key || up.permission?.key;
-        if (!key) return null;
+        const key = up.key || up.permission?.key
+        if (!key) return null
         return {
           permissionKey: key,
-          effect: (up.effect as "allow" | "deny") || "allow",
-        };
+          effect: (up.effect as 'allow' | 'deny') || 'allow',
+        }
       })
       .filter(
-        (p): p is { permissionKey: string; effect: "allow" | "deny" } =>
+        (p): p is { permissionKey: string; effect: 'allow' | 'deny' } =>
           p !== null,
-      );
+      )
 
     const userToken: UserToken = {
       id: user.id,
-      role: (user.role.key as "admin" | "employee" | "supplier") || "employee",
+      role: (user.role.key as 'admin' | 'employee' | 'supplier') || 'employee',
       rolePermissions,
       permissions: userPermissions,
-    };
+    }
 
-    return defineAbilityFor(userToken);
-  }, [user]);
+    return defineAbilityFor(userToken)
+  }, [user])
 
   const logout = useCallback(async () => {
     // Immediately clear state and navigate to login to prevent 401 requests on dashboard unmount
-    queryClient.setQueryData(["auth-user-me"], null);
-    queryClient.cancelQueries();
-    router.replace("/login");
+    queryClient.setQueryData(['auth-user-me'], null)
+    queryClient.cancelQueries()
+    router.replace('/login')
 
     try {
-      await apiClient("/auth/users/logout", { method: "POST" });
+      await apiClient('/auth/users/logout', { method: 'POST' })
     } catch {
       // Ignore network errors during logout call
     } finally {
-      queryClient.clear();
+      queryClient.clear()
     }
-  }, [queryClient, router]);
+  }, [queryClient, router])
 
   const value = useMemo(
     () => ({
@@ -140,15 +140,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
     }),
     [user, ability, isLoading, isError, refetch, logout],
-  );
+  )
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (!context) {
-    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider')
   }
-  return context;
+  return context
 }

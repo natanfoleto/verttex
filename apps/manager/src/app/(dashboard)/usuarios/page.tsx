@@ -1,46 +1,46 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { RiAddLine, RiEditLine, RiShieldUserLine } from "react-icons/ri";
+import { useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { RiAddLine, RiEditLine, RiShieldUserLine } from 'react-icons/ri'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 
-import { TableWrapper } from "../../../components/ui/table-wrapper";
-import { apiClient } from "../../../lib/api-client";
-import { userQueryKeys } from "../../../lib/query-keys";
-import { UserFormDialog, UserItem } from "./components/user-form-dialog";
+import { TableWrapper } from '../../../components/ui/table-wrapper'
+import { apiClient } from '../../../lib/api-client'
+import { userQueryKeys } from '../../../lib/query-keys'
+import { UserFormDialog, UserItem } from './components/user-form-dialog'
 
 export default function UsersListPage() {
-  const router = useRouter();
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [search, setSearch] = useState("");
+  const router = useRouter()
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const [search, setSearch] = useState('')
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserItem | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<UserItem | null>(null)
 
   const { data, isLoading, isError } = useQuery({
     queryKey: userQueryKeys.list({ page, perPage, search }),
     queryFn: () => {
-      let url = `/users?page=${page}&perPage=${perPage}`;
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      return apiClient(url);
+      let url = `/users?page=${page}&perPage=${perPage}`
+      if (search) url += `&search=${encodeURIComponent(search)}`
+      return apiClient(url)
     },
-  });
+  })
 
   const openCreateModal = () => {
-    setEditingUser(null);
-    setIsDialogOpen(true);
-  };
+    setEditingUser(null)
+    setIsDialogOpen(true)
+  }
 
   const openEditModal = (user: UserItem) => {
-    setEditingUser(user);
-    setIsDialogOpen(true);
-  };
+    setEditingUser(user)
+    setIsDialogOpen(true)
+  }
 
-  const hasActiveFilters = Boolean(search);
+  const hasActiveFilters = Boolean(search)
 
   return (
     <div className="space-y-6 font-sans text-zinc-100">
@@ -61,12 +61,12 @@ export default function UsersListPage() {
         isEmpty={!data?.data || data.data.length === 0}
         emptyTitle={
           hasActiveFilters
-            ? "Nenhum usuário encontrado para a busca"
-            : "Nenhum usuário cadastrado"
+            ? 'Nenhum usuário encontrado para a busca'
+            : 'Nenhum usuário cadastrado'
         }
         emptyDescription={
           hasActiveFilters
-            ? "Tente buscar com outro nome ou endereço de e-mail."
+            ? 'Tente buscar com outro nome ou endereço de e-mail.'
             : 'Clique em "Novo Usuário" para cadastrar o primeiro gestor.'
         }
         emptyIcon={<RiShieldUserLine className="h-6 w-6 text-zinc-400" />}
@@ -74,8 +74,8 @@ export default function UsersListPage() {
         onPageChange={setPage}
         perPageValue={perPage}
         onPerPageChange={(newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
+          setPerPage(newPerPage)
+          setPage(1)
         }}
       >
         <table className="w-full border-collapse text-left text-sm">
@@ -107,12 +107,12 @@ export default function UsersListPage() {
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                      user.status === "active"
-                        ? "border-emerald-800 bg-emerald-950 text-emerald-400"
-                        : "border-rose-800 bg-rose-950 text-rose-400"
+                      user.status === 'active'
+                        ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
+                        : 'border-rose-800 bg-rose-950 text-rose-400'
                     }`}
                   >
-                    {user.status === "active" ? "Ativo" : "Inativo"}
+                    {user.status === 'active' ? 'Ativo' : 'Inativo'}
                   </span>
                 </td>
                 <td
@@ -146,11 +146,11 @@ export default function UsersListPage() {
       <UserFormDialog
         open={isDialogOpen}
         onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) setEditingUser(null);
+          setIsDialogOpen(open)
+          if (!open) setEditingUser(null)
         }}
         userToEdit={editingUser}
       />
     </div>
-  );
+  )
 }

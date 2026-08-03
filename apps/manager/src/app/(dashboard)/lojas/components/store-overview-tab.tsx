@@ -1,46 +1,46 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query'
 import {
   RiAlertLine,
   RiHistoryLine,
   RiShoppingBag3Line,
   RiStackLine,
   RiTimeLine,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { apiClient } from "@/lib/api-client";
-import { storeQueryKeys } from "@/lib/query-keys";
+import { apiClient } from '@/lib/api-client'
+import { storeQueryKeys } from '@/lib/query-keys'
 
 interface StoreSummaryData {
-  storeId: string;
+  storeId: string
   metrics: {
-    totalProducts: number;
-    activeProducts: number;
-    totalVariations: number;
-    totalOrders: number;
-    pendingOrders: number;
-    totalPhysicalStock: number;
-    totalReservedStock: number;
-    availableStock: number;
-    lowStockItems: number;
-    expiringLotsCount: number;
-    expiredLotsCount: number;
-    membersCount: number;
-    reservationsCount: number;
-    lotsCount: number;
-  };
+    totalProducts: number
+    activeProducts: number
+    totalVariations: number
+    totalOrders: number
+    pendingOrders: number
+    totalPhysicalStock: number
+    totalReservedStock: number
+    availableStock: number
+    lowStockItems: number
+    expiringLotsCount: number
+    expiredLotsCount: number
+    membersCount: number
+    reservationsCount: number
+    lotsCount: number
+  }
   recentMovements: Array<{
-    id: string;
-    type: string;
-    quantity: number;
-    reason?: string | null;
-    createdAt: string;
+    id: string
+    type: string
+    quantity: number
+    reason?: string | null
+    createdAt: string
     variation?: {
-      sku: string;
-      product?: { name: string };
-    };
-  }>;
+      sku: string
+      product?: { name: string }
+    }
+  }>
 }
 
 export function StoreOverviewTab({ storeId }: { storeId: string }) {
@@ -49,10 +49,10 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
     queryFn: async () => {
       const res = await apiClient<{ data: StoreSummaryData }>(
         `/stores/${storeId}/summary`,
-      );
-      return (res as any)?.data || res;
+      )
+      return (res as any)?.data || res
     },
-  });
+  })
 
   if (isLoading) {
     return (
@@ -67,7 +67,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
         </div>
         <div className="h-64 rounded-2xl bg-zinc-900 animate-pulse border border-zinc-800" />
       </div>
-    );
+    )
   }
 
   if (isError || !data) {
@@ -75,10 +75,10 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
       <div className="rounded-2xl border border-rose-900/40 bg-rose-950/20 p-6 text-center text-xs text-rose-400">
         Não foi possível carregar o resumo da loja. Tente novamente mais tarde.
       </div>
-    );
+    )
   }
 
-  const { metrics, recentMovements } = data;
+  const { metrics, recentMovements } = data
 
   return (
     <div className="space-y-6">
@@ -126,7 +126,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
             </span>
           </div>
           <p className="mt-1 text-[11px] text-emerald-400 font-medium">
-            {metrics.availableStock} disponíveis ({metrics.totalReservedStock}{" "}
+            {metrics.availableStock} disponíveis ({metrics.totalReservedStock}{' '}
             reservados)
           </p>
         </div>
@@ -144,7 +144,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
           <div className="mt-3">
             <span
               className={`text-2xl font-bold ${
-                metrics.lowStockItems > 0 ? "text-amber-400" : "text-zinc-100"
+                metrics.lowStockItems > 0 ? 'text-amber-400' : 'text-zinc-100'
               }`}
             >
               {metrics.lowStockItems}
@@ -170,17 +170,15 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
             <span
               className={`text-2xl font-bold ${
                 metrics.expiredLotsCount > 0
-                  ? "text-rose-400"
+                  ? 'text-rose-400'
                   : metrics.expiringLotsCount > 0
-                    ? "text-amber-400"
-                    : "text-zinc-100"
+                    ? 'text-amber-400'
+                    : 'text-zinc-100'
               }`}
             >
               {metrics.expiringLotsCount}
             </span>
-            <span className="ml-2 text-xs text-zinc-500">
-              vencendo (30d)
-            </span>
+            <span className="ml-2 text-xs text-zinc-500">vencendo (30d)</span>
           </div>
           <p className="mt-1 text-[11px] text-zinc-500">
             {metrics.expiredLotsCount > 0 ? (
@@ -205,9 +203,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
                 Últimas Movimentações de Estoque
               </h3>
             </div>
-            <span className="text-xs text-zinc-500 font-mono">
-              Tempo Real
-            </span>
+            <span className="text-xs text-zinc-500 font-mono">Tempo Real</span>
           </div>
 
           {recentMovements && recentMovements.length > 0 ? (
@@ -221,29 +217,29 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
                     <span
                       className={`inline-flex h-8 w-8 items-center justify-center rounded-lg font-bold ${
                         mov.quantity > 0
-                          ? "bg-emerald-950 text-emerald-400 border border-emerald-800/60"
-                          : "bg-rose-950 text-rose-400 border border-rose-800/60"
+                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60'
+                          : 'bg-rose-950 text-rose-400 border border-rose-800/60'
                       }`}
                     >
                       {mov.quantity > 0 ? `+${mov.quantity}` : mov.quantity}
                     </span>
                     <div>
                       <p className="font-semibold text-zinc-200">
-                        {mov.variation?.product?.name || "Produto"}{" "}
+                        {mov.variation?.product?.name || 'Produto'}{' '}
                         <span className="font-mono text-zinc-500 font-normal">
                           ({mov.variation?.sku})
                         </span>
                       </p>
                       <p className="text-[11px] text-zinc-400">
-                        Tipo: <span className="text-zinc-300">{mov.type}</span>{" "}
+                        Tipo: <span className="text-zinc-300">{mov.type}</span>{' '}
                         {mov.reason && `• ${mov.reason}`}
                       </p>
                     </div>
                   </div>
                   <span className="text-[11px] font-mono text-zinc-500">
-                    {new Date(mov.createdAt).toLocaleDateString("pt-BR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
+                    {new Date(mov.createdAt).toLocaleDateString('pt-BR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })}
                   </span>
                 </div>
@@ -294,5 +290,5 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
         </div>
       </div>
     </div>
-  );
+  )
 }

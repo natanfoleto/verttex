@@ -123,10 +123,11 @@ export function FilterSidebar({
               type="button"
               variant="ghost"
               onClick={() => onSelectCategory && onSelectCategory('')}
-              className={`flex w-full justify-between text-left font-medium cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${!activeCategorySlug
-                ? 'bg-emerald-50 font-medium text-emerald-800 hover:bg-emerald-50 active:bg-emerald-50'
-                : 'text-stone-700 hover:bg-stone-100 active:bg-stone-100'
-                }`}
+              className={`flex w-full justify-between text-left font-medium cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${
+                !activeCategorySlug
+                  ? 'bg-emerald-50 font-medium text-emerald-800 hover:bg-emerald-50 active:bg-emerald-50'
+                  : 'text-stone-700 hover:bg-stone-100 active:bg-stone-100'
+              }`}
             >
               <span>Todas as Categorias</span>
             </Button>
@@ -134,112 +135,117 @@ export function FilterSidebar({
 
           {hasHierarchy
             ? rootCategories.map((root) => {
-              const directCount = Number(root.count || 0)
-              const subs = (subcategoriesMap.get(root.id) || []).filter(
-                (s) => Number(s.count || 0) > 0,
-              )
-              const subsTotal = subs.reduce(
-                (acc, s) => acc + Number(s.count || 0),
-                0,
-              )
-              const totalCount = directCount + subsTotal
+                const directCount = Number(root.count || 0)
+                const subs = (subcategoriesMap.get(root.id) || []).filter(
+                  (s) => Number(s.count || 0) > 0,
+                )
+                const subsTotal = subs.reduce(
+                  (acc, s) => acc + Number(s.count || 0),
+                  0,
+                )
+                const totalCount = directCount + subsTotal
 
-              // Skip root category if total count is 0
-              if (totalCount === 0) return null
+                // Skip root category if total count is 0
+                if (totalCount === 0) return null
 
-              const isRootSelected = activeCategorySlug === root.slug
+                const isRootSelected = activeCategorySlug === root.slug
 
-              return (
-                <li key={root.id || root.slug} className="space-y-0.5">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() =>
-                      onSelectCategory && onSelectCategory(root.slug)
-                    }
-                    className={`flex w-full justify-between text-left cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${isRootSelected
-                      ? 'bg-emerald-50 font-medium text-emerald-800 hover:bg-emerald-50 active:bg-emerald-50'
-                      : 'font-medium text-stone-800 hover:bg-stone-100 active:bg-stone-100'
-                      }`}
-                  >
-                    <span>{root.name}</span>
-                    {totalCount > 0 && (
-                      <span
-                        className={`text-xs font-mono ${isRootSelected
-                          ? 'font-semibold text-emerald-700'
-                          : 'text-stone-400'
-                          }`}
-                      >
-                        ({totalCount})
-                      </span>
-                    )}
-                  </Button>
-
-                  {/* Indented Subcategories */}
-                  {subs.length > 0 && (
-                    <ul className="pl-3 space-y-0.5">
-                      {subs.map((sub) => {
-                        const isSubSelected = activeCategorySlug === sub.slug
-                        const subCount = Number(sub.count || 0)
-                        return (
-                          <li key={sub.id || sub.slug}>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() =>
-                                onSelectCategory && onSelectCategory(sub.slug)
-                              }
-                              className={`flex w-full justify-between text-left text-xs py-1.5 h-auto cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${isSubSelected
-                                ? 'bg-emerald-50 text-emerald-800 font-semibold hover:bg-emerald-50 active:bg-emerald-50'
-                                : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 active:bg-stone-100'
-                                }`}
-                            >
-                              <span className="truncate">{sub.name}</span>
-                              {subCount > 0 && (
-                                <span
-                                  className={`text-[11px] font-mono ml-2 shrink-0 ${isSubSelected
-                                    ? 'font-semibold text-emerald-700'
-                                    : 'text-stone-400'
-                                    }`}
-                                >
-                                  ({subCount})
-                                </span>
-                              )}
-                            </Button>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  )}
-                </li>
-              )
-            })
-            : // Fallback for flat category lists
-            categories
-              .filter((cat) => Number(cat.count || 0) > 0)
-              .map((cat) => {
-                const isSelected = activeCategorySlug === cat.slug
                 return (
-                  <li key={cat.id || cat.slug}>
+                  <li key={root.id || root.slug} className="space-y-0.5">
                     <Button
                       type="button"
                       variant="ghost"
                       onClick={() =>
-                        onSelectCategory && onSelectCategory(cat.slug)
+                        onSelectCategory && onSelectCategory(root.slug)
                       }
-                      className={`flex w-full justify-between text-left cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${isSelected
-                        ? 'bg-emerald-50 font-semibold text-emerald-800 hover:bg-emerald-50 active:bg-emerald-50'
-                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 active:bg-stone-100'
-                        }`}
+                      className={`flex w-full justify-between text-left cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${
+                        isRootSelected
+                          ? 'bg-emerald-50 font-medium text-emerald-800 hover:bg-emerald-50 active:bg-emerald-50'
+                          : 'font-medium text-stone-800 hover:bg-stone-100 active:bg-stone-100'
+                      }`}
                     >
-                      <span>{cat.name}</span>
-                      <span className="text-xs text-stone-400">
-                        ({cat.count})
-                      </span>
+                      <span>{root.name}</span>
+                      {totalCount > 0 && (
+                        <span
+                          className={`text-xs font-mono ${
+                            isRootSelected
+                              ? 'font-semibold text-emerald-700'
+                              : 'text-stone-400'
+                          }`}
+                        >
+                          ({totalCount})
+                        </span>
+                      )}
                     </Button>
+
+                    {/* Indented Subcategories */}
+                    {subs.length > 0 && (
+                      <ul className="pl-3 space-y-0.5">
+                        {subs.map((sub) => {
+                          const isSubSelected = activeCategorySlug === sub.slug
+                          const subCount = Number(sub.count || 0)
+                          return (
+                            <li key={sub.id || sub.slug}>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() =>
+                                  onSelectCategory && onSelectCategory(sub.slug)
+                                }
+                                className={`flex w-full justify-between text-left text-xs py-1.5 h-auto cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${
+                                  isSubSelected
+                                    ? 'bg-emerald-50 text-emerald-800 font-semibold hover:bg-emerald-50 active:bg-emerald-50'
+                                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 active:bg-stone-100'
+                                }`}
+                              >
+                                <span className="truncate">{sub.name}</span>
+                                {subCount > 0 && (
+                                  <span
+                                    className={`text-[11px] font-mono ml-2 shrink-0 ${
+                                      isSubSelected
+                                        ? 'font-semibold text-emerald-700'
+                                        : 'text-stone-400'
+                                    }`}
+                                  >
+                                    ({subCount})
+                                  </span>
+                                )}
+                              </Button>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    )}
                   </li>
                 )
-              })}
+              })
+            : // Fallback for flat category lists
+              categories
+                .filter((cat) => Number(cat.count || 0) > 0)
+                .map((cat) => {
+                  const isSelected = activeCategorySlug === cat.slug
+                  return (
+                    <li key={cat.id || cat.slug}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() =>
+                          onSelectCategory && onSelectCategory(cat.slug)
+                        }
+                        className={`flex w-full justify-between text-left cursor-pointer transition-none duration-0 active:scale-100 focus-visible:ring-0 focus-visible:outline-none ${
+                          isSelected
+                            ? 'bg-emerald-50 font-semibold text-emerald-800 hover:bg-emerald-50 active:bg-emerald-50'
+                            : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 active:bg-stone-100'
+                        }`}
+                      >
+                        <span>{cat.name}</span>
+                        <span className="text-xs text-stone-400">
+                          ({cat.count})
+                        </span>
+                      </Button>
+                    </li>
+                  )
+                })}
         </ul>
       </div>
 

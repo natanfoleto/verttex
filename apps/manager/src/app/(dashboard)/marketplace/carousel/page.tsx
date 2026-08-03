@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useRef } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState, useRef } from 'react'
 import {
   RiAddLine,
   RiArrowDownLine,
@@ -13,8 +13,8 @@ import {
   RiImageAddLine,
   RiImageLine,
   RiLoader4Line,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
 import {
   AlertDialog,
@@ -26,15 +26,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Checkbox } from "@/components/ui/checkbox";
+} from '@/components/ui/tooltip'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -42,252 +42,276 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { apiClient } from "@/lib/api-client";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { apiClient } from '@/lib/api-client'
 
 // =============================================================
 // TIPOS
 // =============================================================
 
 export interface CarouselBanner {
-  id: string;
-  fileId?: string | null;
-  imageUrl?: string | null;
-  title: string;
-  subtitle?: string | null;
-  linkUrl?: string | null;
-  ctaText?: string | null;
-  position: number;
-  isActive: boolean;
-  createdBy?: string | null;
-  updatedBy?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  fileId?: string | null
+  imageUrl?: string | null
+  title: string
+  subtitle?: string | null
+  linkUrl?: string | null
+  ctaText?: string | null
+  position: number
+  isActive: boolean
+  createdBy?: string | null
+  updatedBy?: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 interface CreateBannerState {
-  title: string;
-  subtitle: string;
-  linkUrl: string;
-  ctaText: string;
-  isActive: boolean;
+  title: string
+  subtitle: string
+  linkUrl: string
+  ctaText: string
+  isActive: boolean
 }
 
 interface EditBannerState {
-  title: string;
-  subtitle: string;
-  linkUrl: string;
-  ctaText: string;
-  isActive: boolean;
-  fileId?: string | null;
-  imageUrl?: string | null;
+  title: string
+  subtitle: string
+  linkUrl: string
+  ctaText: string
+  isActive: boolean
+  fileId?: string | null
+  imageUrl?: string | null
 }
 
 const EMPTY_CREATE_FORM: CreateBannerState = {
-  title: "",
-  subtitle: "",
-  linkUrl: "",
-  ctaText: "",
+  title: '',
+  subtitle: '',
+  linkUrl: '',
+  ctaText: '',
   isActive: true,
-};
+}
 
 export default function CarouselPage() {
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Estados dos Modais
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState<CreateBannerState>(EMPTY_CREATE_FORM);
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [createForm, setCreateForm] =
+    useState<CreateBannerState>(EMPTY_CREATE_FORM)
 
-  const [editingBanner, setEditingBanner] = useState<CarouselBanner | null>(null);
+  const [editingBanner, setEditingBanner] = useState<CarouselBanner | null>(
+    null,
+  )
   const [editForm, setEditForm] = useState<EditBannerState>({
-    title: "",
-    subtitle: "",
-    linkUrl: "",
-    ctaText: "",
+    title: '',
+    subtitle: '',
+    linkUrl: '',
+    ctaText: '',
     isActive: true,
-  });
+  })
 
   // Upload no Modal de Edição
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
   // ----- React Query -----
 
-  const { data: bannersRes, isLoading, isError } = useQuery<{
-    success: boolean;
-    data: CarouselBanner[];
+  const {
+    data: bannersRes,
+    isLoading,
+    isError,
+  } = useQuery<{
+    success: boolean
+    data: CarouselBanner[]
   }>({
-    queryKey: ["carousel-banners"],
+    queryKey: ['carousel-banners'],
     queryFn: async () => {
-      const res = await apiClient<CarouselBanner[] | { data: CarouselBanner[] }>("/carousel");
-      const list = Array.isArray(res) ? res : (res as any)?.data ?? [];
-      return { success: true, data: list };
+      const res = await apiClient<
+        CarouselBanner[] | { data: CarouselBanner[] }
+      >('/carousel')
+      const list = Array.isArray(res) ? res : ((res as any)?.data ?? [])
+      return { success: true, data: list }
     },
-  });
+  })
 
-  const banners = bannersRes?.data ?? [];
+  const banners = bannersRes?.data ?? []
 
   const createMutation = useMutation({
     mutationFn: (payload: {
-      title: string;
-      subtitle?: string;
-      linkUrl?: string;
-      ctaText?: string;
-      isActive: boolean;
+      title: string
+      subtitle?: string
+      linkUrl?: string
+      ctaText?: string
+      isActive: boolean
     }) =>
-      apiClient<CarouselBanner>("/carousel", { method: "POST", body: payload }),
+      apiClient<CarouselBanner>('/carousel', { method: 'POST', body: payload }),
     onSuccess: (newBanner) => {
-      queryClient.invalidateQueries({ queryKey: ["carousel-banners"] });
-      toast.success("Banner criado com sucesso! Adicione uma imagem para ativá-lo no carrossel.");
-      setIsCreateOpen(false);
-      setCreateForm(EMPTY_CREATE_FORM);
+      queryClient.invalidateQueries({ queryKey: ['carousel-banners'] })
+      toast.success(
+        'Banner criado com sucesso! Adicione uma imagem para ativá-lo no carrossel.',
+      )
+      setIsCreateOpen(false)
+      setCreateForm(EMPTY_CREATE_FORM)
       if (newBanner?.id) {
-        openEdit(newBanner);
+        openEdit(newBanner)
       }
     },
-    onError: () => toast.error("Não foi possível criar o banner."),
-  });
+    onError: () => toast.error('Não foi possível criar o banner.'),
+  })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<EditBannerState> }) =>
-      apiClient(`/carousel/${id}`, { method: "PATCH", body: payload }),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string
+      payload: Partial<EditBannerState>
+    }) => apiClient(`/carousel/${id}`, { method: 'PATCH', body: payload }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["carousel-banners"] });
-      toast.success("Banner atualizado com sucesso!");
-      handleCloseEditModal();
+      queryClient.invalidateQueries({ queryKey: ['carousel-banners'] })
+      toast.success('Banner atualizado com sucesso!')
+      handleCloseEditModal()
     },
-    onError: () => toast.error("Não foi possível atualizar o banner."),
-  });
+    onError: () => toast.error('Não foi possível atualizar o banner.'),
+  })
 
   const deleteImageMutation = useMutation({
-    mutationFn: (id: string) => apiClient(`/carousel/${id}/image`, { method: "DELETE" }),
+    mutationFn: (id: string) =>
+      apiClient(`/carousel/${id}/image`, { method: 'DELETE' }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["carousel-banners"] });
-      toast.success("Imagem do banner removida.");
+      queryClient.invalidateQueries({ queryKey: ['carousel-banners'] })
+      toast.success('Imagem do banner removida.')
       if (editingBanner) {
-        setEditingBanner({ ...editingBanner, fileId: null, imageUrl: null });
-        setEditForm((prev) => ({ ...prev, fileId: null, imageUrl: null }));
+        setEditingBanner({ ...editingBanner, fileId: null, imageUrl: null })
+        setEditForm((prev) => ({ ...prev, fileId: null, imageUrl: null }))
       }
-      setLocalPreviewUrl(null);
-      setSelectedFile(null);
+      setLocalPreviewUrl(null)
+      setSelectedFile(null)
     },
-    onError: () => toast.error("Não foi possível remover a imagem."),
-  });
+    onError: () => toast.error('Não foi possível remover a imagem.'),
+  })
 
   const deleteBannerMutation = useMutation({
-    mutationFn: (id: string) => apiClient(`/carousel/${id}`, { method: "DELETE" }),
+    mutationFn: (id: string) =>
+      apiClient(`/carousel/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["carousel-banners"] });
-      toast.success("Banner excluído com sucesso.");
+      queryClient.invalidateQueries({ queryKey: ['carousel-banners'] })
+      toast.success('Banner excluído com sucesso.')
     },
-    onError: () => toast.error("Não foi possível excluir o banner."),
-  });
+    onError: () => toast.error('Não foi possível excluir o banner.'),
+  })
 
   const reorderMutation = useMutation({
     mutationFn: (items: { id: string; position: number }[]) =>
-      apiClient("/carousel/reorder", { method: "POST", body: { items } }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["carousel-banners"] }),
-    onError: () => toast.error("Não foi possível reordenar os banners."),
-  });
+      apiClient('/carousel/reorder', { method: 'POST', body: { items } }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['carousel-banners'] }),
+    onError: () => toast.error('Não foi possível reordenar os banners.'),
+  })
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
-      apiClient(`/carousel/${id}`, { method: "PATCH", body: { isActive } }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["carousel-banners"] }),
-    onError: () => toast.error("Não foi possível alterar o status do banner."),
-  });
+      apiClient(`/carousel/${id}`, { method: 'PATCH', body: { isActive } }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['carousel-banners'] }),
+    onError: () => toast.error('Não foi possível alterar o status do banner.'),
+  })
 
   // ----- Handlers -----
 
   function openCreate() {
-    setCreateForm(EMPTY_CREATE_FORM);
-    setIsCreateOpen(true);
+    setCreateForm(EMPTY_CREATE_FORM)
+    setIsCreateOpen(true)
   }
 
   function openEdit(banner: CarouselBanner) {
-    setEditingBanner(banner);
+    setEditingBanner(banner)
     setEditForm({
       title: banner.title,
-      subtitle: banner.subtitle ?? "",
-      linkUrl: banner.linkUrl ?? "",
-      ctaText: banner.ctaText ?? "",
+      subtitle: banner.subtitle ?? '',
+      linkUrl: banner.linkUrl ?? '',
+      ctaText: banner.ctaText ?? '',
       isActive: banner.isActive,
       fileId: banner.fileId,
       imageUrl: banner.imageUrl,
-    });
-    setLocalPreviewUrl(null);
-    setSelectedFile(null);
+    })
+    setLocalPreviewUrl(null)
+    setSelectedFile(null)
   }
 
   function handleCloseEditModal() {
-    if (localPreviewUrl?.startsWith("blob:")) URL.revokeObjectURL(localPreviewUrl);
-    setLocalPreviewUrl(null);
-    setSelectedFile(null);
-    setEditingBanner(null);
+    if (localPreviewUrl?.startsWith('blob:'))
+      URL.revokeObjectURL(localPreviewUrl)
+    setLocalPreviewUrl(null)
+    setSelectedFile(null)
+    setEditingBanner(null)
   }
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]
+    if (!file) return
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Formato não suportado. Use JPG, PNG, WebP ou GIF.");
-      return;
+      toast.error('Formato não suportado. Use JPG, PNG, WebP ou GIF.')
+      return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("A imagem não pode ultrapassar 5 MB.");
-      return;
+      toast.error('A imagem não pode ultrapassar 5 MB.')
+      return
     }
 
-    setSelectedFile(file);
-    const preview = URL.createObjectURL(file);
-    setLocalPreviewUrl(preview);
+    setSelectedFile(file)
+    const preview = URL.createObjectURL(file)
+    setLocalPreviewUrl(preview)
   }
 
-  async function uploadSelectedFile(): Promise<{ fileId: string; publicUrl: string } | null> {
-    if (!selectedFile) return null;
+  async function uploadSelectedFile(): Promise<{
+    fileId: string
+    publicUrl: string
+  } | null> {
+    if (!selectedFile) return null
 
-    setIsUploading(true);
+    setIsUploading(true)
     try {
-      let fileId: string | null = null;
-      let publicUrl: string | null = null;
+      let fileId: string | null = null
+      let publicUrl: string | null = null
 
       // 1. Tenta upload via URL Pré-Assinada
       try {
         const presignedRes = await apiClient<{
-          success: boolean;
-          data: { uploadUrl: string; publicUrl: string; fileId: string };
-        }>("/files/presigned-url", {
-          method: "POST",
+          success: boolean
+          data: { uploadUrl: string; publicUrl: string; fileId: string }
+        }>('/files/presigned-url', {
+          method: 'POST',
           body: {
             fileName: selectedFile.name,
             mimeType: selectedFile.type,
             size: selectedFile.size,
-            purpose: "marketplace_banner",
+            purpose: 'marketplace_banner',
           },
-        });
+        })
 
-        const presigned = presignedRes.data || presignedRes;
+        const presigned = presignedRes.data || presignedRes
         if (presigned?.uploadUrl) {
           const putRes = await fetch(presigned.uploadUrl, {
-            method: "PUT",
+            method: 'PUT',
             body: selectedFile,
-            headers: { "Content-Type": selectedFile.type },
-          });
+            headers: { 'Content-Type': selectedFile.type },
+          })
 
           if (putRes.ok) {
             const finalizedRes = await apiClient<{
-              success: boolean;
-              data: { id: string; publicUrl: string };
-            }>(`/files/${presigned.fileId}/finalize`, { method: "POST" });
+              success: boolean
+              data: { id: string; publicUrl: string }
+            }>(`/files/${presigned.fileId}/finalize`, { method: 'POST' })
 
-            const finalized = finalizedRes.data || finalizedRes;
-            fileId = finalized.id || presigned.fileId;
-            publicUrl = finalized.publicUrl || presigned.publicUrl;
+            const finalized = finalizedRes.data || finalizedRes
+            fileId = finalized.id || presigned.fileId
+            publicUrl = finalized.publicUrl || presigned.publicUrl
           }
         }
       } catch {
@@ -296,42 +320,42 @@ export default function CarouselPage() {
 
       // 2. Fallback: Upload Multipart direto via API (/files/upload em uploads/marketplace/banners)
       if (!publicUrl) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("purpose", "marketplace_banner");
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        formData.append('purpose', 'marketplace_banner')
 
         const uploadRes = await apiClient<{
-          success: boolean;
-          data: { id: string; publicUrl: string };
-        }>("/files/upload", {
-          method: "POST",
+          success: boolean
+          data: { id: string; publicUrl: string }
+        }>('/files/upload', {
+          method: 'POST',
           body: formData,
-        });
+        })
 
-        const uploadedFile = uploadRes.data || uploadRes;
-        fileId = uploadedFile.id;
-        publicUrl = uploadedFile.publicUrl;
+        const uploadedFile = uploadRes.data || uploadRes
+        fileId = uploadedFile.id
+        publicUrl = uploadedFile.publicUrl
       }
 
       if (!publicUrl || !fileId) {
-        throw new Error("Não foi possível realizar o upload da imagem.");
+        throw new Error('Não foi possível realizar o upload da imagem.')
       }
 
-      return { fileId, publicUrl };
+      return { fileId, publicUrl }
     } catch (err: any) {
-      console.error("Erro no upload do banner:", err);
-      toast.error(err?.message || "Falha ao enviar a imagem. Tente novamente.");
-      return null;
+      console.error('Erro no upload do banner:', err)
+      toast.error(err?.message || 'Falha ao enviar a imagem. Tente novamente.')
+      return null
     } finally {
-      setIsUploading(false);
+      setIsUploading(false)
     }
   }
 
   async function handleCreateSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault()
     if (!createForm.title.trim()) {
-      toast.error("O título do banner é obrigatório.");
-      return;
+      toast.error('O título do banner é obrigatório.')
+      return
     }
 
     createMutation.mutate({
@@ -340,24 +364,24 @@ export default function CarouselPage() {
       linkUrl: createForm.linkUrl.trim() || undefined,
       ctaText: createForm.ctaText.trim() || undefined,
       isActive: createForm.isActive,
-    });
+    })
   }
 
   async function handleEditSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault()
     if (!editingBanner || !editForm.title.trim()) {
-      toast.error("O título do banner é obrigatório.");
-      return;
+      toast.error('O título do banner é obrigatório.')
+      return
     }
 
-    let fileId = editForm.fileId;
-    let imageUrl = editForm.imageUrl;
+    let fileId = editForm.fileId
+    let imageUrl = editForm.imageUrl
 
     if (selectedFile) {
-      const uploadResult = await uploadSelectedFile();
-      if (!uploadResult) return;
-      fileId = uploadResult.fileId;
-      imageUrl = uploadResult.publicUrl;
+      const uploadResult = await uploadSelectedFile()
+      if (!uploadResult) return
+      fileId = uploadResult.fileId
+      imageUrl = uploadResult.publicUrl
     }
 
     updateMutation.mutate({
@@ -371,53 +395,52 @@ export default function CarouselPage() {
         fileId: fileId || undefined,
         imageUrl: imageUrl || undefined,
       },
-    });
+    })
   }
 
   function handleMoveUp(index: number) {
-    if (index === 0) return;
-    const reordered = [...banners];
-    const prev = reordered[index - 1];
-    const curr = reordered[index];
+    if (index === 0) return
+    const reordered = [...banners]
+    const prev = reordered[index - 1]
+    const curr = reordered[index]
     if (prev && curr) {
-      reordered[index - 1] = curr;
-      reordered[index] = prev;
-      const items = reordered.map((b, i) => ({ id: b.id, position: i }));
-      reorderMutation.mutate(items);
+      reordered[index - 1] = curr
+      reordered[index] = prev
+      const items = reordered.map((b, i) => ({ id: b.id, position: i }))
+      reorderMutation.mutate(items)
     }
   }
 
   function handleMoveDown(index: number) {
-    if (index >= banners.length - 1) return;
-    const reordered = [...banners];
-    const curr = reordered[index];
-    const next = reordered[index + 1];
+    if (index >= banners.length - 1) return
+    const reordered = [...banners]
+    const curr = reordered[index]
+    const next = reordered[index + 1]
     if (curr && next) {
-      reordered[index] = next;
-      reordered[index + 1] = curr;
-      const items = reordered.map((b, i) => ({ id: b.id, position: i }));
-      reorderMutation.mutate(items);
+      reordered[index] = next
+      reordered[index + 1] = curr
+      const items = reordered.map((b, i) => ({ id: b.id, position: i }))
+      reorderMutation.mutate(items)
     }
   }
 
-  const isSavingEdit = updateMutation.isPending || isUploading;
+  const isSavingEdit = updateMutation.isPending || isUploading
 
   // =============================================================
   // RENDER
   // =============================================================
 
-  const isCreateDirty = createForm.title.trim().length > 0;
+  const isCreateDirty = createForm.title.trim().length > 0
 
   const isEditDirty = Boolean(
-    editingBanner && (
-      editForm.title !== editingBanner.title ||
-      editForm.subtitle !== (editingBanner.subtitle || "") ||
-      editForm.linkUrl !== (editingBanner.linkUrl || "") ||
-      editForm.ctaText !== (editingBanner.ctaText || "") ||
+    editingBanner &&
+    (editForm.title !== editingBanner.title ||
+      editForm.subtitle !== (editingBanner.subtitle || '') ||
+      editForm.linkUrl !== (editingBanner.linkUrl || '') ||
+      editForm.ctaText !== (editingBanner.ctaText || '') ||
       editForm.isActive !== editingBanner.isActive ||
-      selectedFile !== null
-    )
-  );
+      selectedFile !== null),
+  )
 
   return (
     <div className="space-y-6 font-sans text-zinc-100 w-full">
@@ -454,14 +477,18 @@ export default function CarouselPage() {
       ) : banners.length === 0 ? (
         <div className="p-12 text-center text-zinc-400 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
           <RiImageLine className="h-8 w-8 text-zinc-500 mx-auto" />
-          <p className="font-semibold text-zinc-200">Nenhum banner cadastrado</p>
-          <p className="text-xs text-zinc-400">Clique em "Novo Banner" para cadastrar o primeiro.</p>
+          <p className="font-semibold text-zinc-200">
+            Nenhum banner cadastrado
+          </p>
+          <p className="text-xs text-zinc-400">
+            Clique em "Novo Banner" para cadastrar o primeiro.
+          </p>
         </div>
       ) : (
         <TooltipProvider>
           <div className="space-y-4">
             {banners.map((banner, index) => {
-              const hasImage = Boolean(banner.imageUrl);
+              const hasImage = Boolean(banner.imageUrl)
               return (
                 <div
                   key={banner.id}
@@ -482,7 +509,9 @@ export default function CarouselPage() {
                               size="icon"
                               variant="outline"
                               onClick={() => handleMoveUp(index)}
-                              disabled={index === 0 || reorderMutation.isPending}
+                              disabled={
+                                index === 0 || reorderMutation.isPending
+                              }
                               className="cursor-pointer h-8 w-8 border-zinc-700 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30"
                             >
                               <RiArrowUpLine className="h-4 w-4" />
@@ -497,7 +526,10 @@ export default function CarouselPage() {
                               size="icon"
                               variant="outline"
                               onClick={() => handleMoveDown(index)}
-                              disabled={index === banners.length - 1 || reorderMutation.isPending}
+                              disabled={
+                                index === banners.length - 1 ||
+                                reorderMutation.isPending
+                              }
                               className="cursor-pointer h-8 w-8 border-zinc-700 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30"
                             >
                               <RiArrowDownLine className="h-4 w-4" />
@@ -519,7 +551,9 @@ export default function CarouselPage() {
                       ) : (
                         <div className="text-center p-2 space-y-1">
                           <RiImageLine className="h-7 w-7 text-zinc-600 mx-auto" />
-                          <span className="text-[11px] text-zinc-500 font-medium block">Sem Imagem</span>
+                          <span className="text-[11px] text-zinc-500 font-medium block">
+                            Sem Imagem
+                          </span>
                         </div>
                       )}
                     </div>
@@ -543,17 +577,21 @@ export default function CarouselPage() {
                       <div className="flex items-center gap-4 text-[11px] text-zinc-500 flex-wrap">
                         {banner.linkUrl && (
                           <span className="truncate max-w-64">
-                            <strong className="text-zinc-400">Link:</strong> {banner.linkUrl}
+                            <strong className="text-zinc-400">Link:</strong>{' '}
+                            {banner.linkUrl}
                           </span>
                         )}
                         {banner.ctaText && (
                           <span>
-                            <strong className="text-zinc-400">Botão:</strong> {banner.ctaText}
+                            <strong className="text-zinc-400">Botão:</strong>{' '}
+                            {banner.ctaText}
                           </span>
                         )}
                         <span>
-                          <strong className="text-zinc-400">Atualizado:</strong>{" "}
-                          {new Date(banner.updatedAt).toLocaleDateString("pt-BR")}
+                          <strong className="text-zinc-400">Atualizado:</strong>{' '}
+                          {new Date(banner.updatedAt).toLocaleDateString(
+                            'pt-BR',
+                          )}
                         </span>
                       </div>
                     </div>
@@ -567,11 +605,17 @@ export default function CarouselPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          onClick={() => toggleActiveMutation.mutate({ id: banner.id, isActive: !banner.isActive })}
-                          className={`cursor-pointer h-8 w-8 border-zinc-700 ${banner.isActive
-                            ? "text-emerald-400 hover:bg-emerald-950/40"
-                            : "text-zinc-500 hover:bg-zinc-800"
-                            }`}
+                          onClick={() =>
+                            toggleActiveMutation.mutate({
+                              id: banner.id,
+                              isActive: !banner.isActive,
+                            })
+                          }
+                          className={`cursor-pointer h-8 w-8 border-zinc-700 ${
+                            banner.isActive
+                              ? 'text-emerald-400 hover:bg-emerald-950/40'
+                              : 'text-zinc-500 hover:bg-zinc-800'
+                          }`}
                         >
                           {banner.isActive ? (
                             <RiEyeLine className="h-4 w-4" />
@@ -581,7 +625,7 @@ export default function CarouselPage() {
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        {banner.isActive ? "Desativar banner" : "Ativar banner"}
+                        {banner.isActive ? 'Desativar banner' : 'Ativar banner'}
                       </TooltipContent>
                     </Tooltip>
 
@@ -619,10 +663,16 @@ export default function CarouselPage() {
 
                       <AlertDialogContent className="border-zinc-800 bg-zinc-900 text-zinc-100">
                         <AlertDialogHeader>
-                          <AlertDialogTitle className="text-zinc-100">Remover Banner</AlertDialogTitle>
+                          <AlertDialogTitle className="text-zinc-100">
+                            Remover Banner
+                          </AlertDialogTitle>
                           <AlertDialogDescription className="text-zinc-400">
-                            Tem certeza que deseja remover o banner{" "}
-                            <strong className="text-zinc-200">{banner.title}</strong>? Esta ação excluirá a imagem do Cloudflare R2 e não poderá ser desfeita.
+                            Tem certeza que deseja remover o banner{' '}
+                            <strong className="text-zinc-200">
+                              {banner.title}
+                            </strong>
+                            ? Esta ação excluirá a imagem do Cloudflare R2 e não
+                            poderá ser desfeita.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -630,7 +680,9 @@ export default function CarouselPage() {
                             Cancelar
                           </AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => deleteBannerMutation.mutate(banner.id)}
+                            onClick={() =>
+                              deleteBannerMutation.mutate(banner.id)
+                            }
                             className="cursor-pointer bg-red-600 hover:bg-red-500 text-white"
                           >
                             Remover
@@ -640,7 +692,7 @@ export default function CarouselPage() {
                     </AlertDialog>
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         </TooltipProvider>
@@ -651,9 +703,12 @@ export default function CarouselPage() {
         <DialogContent className="sm:max-w-2xl w-full border-zinc-800 bg-zinc-900 text-zinc-100">
           <form onSubmit={handleCreateSubmit}>
             <DialogHeader>
-              <DialogTitle className="text-zinc-100">Cadastrar Novo Banner</DialogTitle>
+              <DialogTitle className="text-zinc-100">
+                Cadastrar Novo Banner
+              </DialogTitle>
               <DialogDescription className="text-zinc-400">
-                Preencha as informações do banner. A imagem poderá ser adicionada na etapa de edição logo a seguir.
+                Preencha as informações do banner. A imagem poderá ser
+                adicionada na etapa de edição logo a seguir.
               </DialogDescription>
             </DialogHeader>
 
@@ -667,7 +722,9 @@ export default function CarouselPage() {
                     required
                     placeholder="Produtos da Estação"
                     value={createForm.title}
-                    onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, title: e.target.value })
+                    }
                     className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
                   />
                 </div>
@@ -679,7 +736,9 @@ export default function CarouselPage() {
                   <Input
                     placeholder="Descubra os melhores produtos coloniais"
                     value={createForm.subtitle}
-                    onChange={(e) => setCreateForm({ ...createForm, subtitle: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, subtitle: e.target.value })
+                    }
                     className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
                   />
                 </div>
@@ -700,7 +759,9 @@ export default function CarouselPage() {
                 disabled={!isCreateDirty || createMutation.isPending}
                 className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {createMutation.isPending && <RiLoader4Line className="h-4 w-4 animate-spin" />}
+                {createMutation.isPending && (
+                  <RiLoader4Line className="h-4 w-4 animate-spin" />
+                )}
                 <span>Criar Banner</span>
               </Button>
             </DialogFooter>
@@ -709,11 +770,16 @@ export default function CarouselPage() {
       </Dialog>
 
       {/* Modal de Edição com Layout Clean e Espaçoso */}
-      <Dialog open={!!editingBanner} onOpenChange={(open) => !open && handleCloseEditModal()}>
+      <Dialog
+        open={!!editingBanner}
+        onOpenChange={(open) => !open && handleCloseEditModal()}
+      >
         <DialogContent className="sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden border-zinc-800 bg-zinc-900 text-zinc-100">
           <form onSubmit={handleEditSubmit} className="overflow-hidden">
             <DialogHeader>
-              <DialogTitle className="text-zinc-100">Editar Banner: {editingBanner?.title}</DialogTitle>
+              <DialogTitle className="text-zinc-100">
+                Editar Banner: {editingBanner?.title}
+              </DialogTitle>
               <DialogDescription className="text-zinc-400">
                 Altere as informações do banner ou atualize a imagem vinculada.
               </DialogDescription>
@@ -730,7 +796,9 @@ export default function CarouselPage() {
                     required
                     placeholder="Ex: Produtos da Estação / Feira Colonial"
                     value={editForm.title}
-                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, title: e.target.value })
+                    }
                     className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
                   />
                 </div>
@@ -742,7 +810,9 @@ export default function CarouselPage() {
                   <Input
                     placeholder="Ex: Descubra os melhores produtos coloniais e artesanais com até 20% de desconto"
                     value={editForm.subtitle}
-                    onChange={(e) => setEditForm({ ...editForm, subtitle: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, subtitle: e.target.value })
+                    }
                     className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
                   />
                 </div>
@@ -768,7 +838,7 @@ export default function CarouselPage() {
                     onClick={() => fileInputRef.current?.click()}
                     className="group relative w-full h-44 rounded-lg overflow-hidden border border-zinc-700/60 bg-zinc-900 flex items-center justify-center shadow-inner cursor-pointer"
                   >
-                    {(localPreviewUrl || editForm.imageUrl) ? (
+                    {localPreviewUrl || editForm.imageUrl ? (
                       <>
                         <img
                           src={localPreviewUrl ?? editForm.imageUrl!}
@@ -804,27 +874,27 @@ export default function CarouselPage() {
                         selectedFile
                           ? selectedFile.name
                           : editForm.imageUrl
-                            ? editForm.imageUrl.split("/").pop()
-                            : ""
+                            ? editForm.imageUrl.split('/').pop()
+                            : ''
                       }
                     >
                       {selectedFile
                         ? selectedFile.name
                         : editForm.imageUrl
-                          ? editForm.imageUrl.split("/").pop()
-                          : ""}
+                          ? editForm.imageUrl.split('/').pop()
+                          : ''}
                     </span>
 
                     {(editForm.imageUrl || editForm.fileId || selectedFile) && (
                       <Button
-                        variant='link'
+                        variant="link"
                         className="p-0 h-0"
                         onClick={() => {
                           if (selectedFile) {
-                            setSelectedFile(null);
-                            setLocalPreviewUrl(null);
+                            setSelectedFile(null)
+                            setLocalPreviewUrl(null)
                           } else if (editingBanner) {
-                            deleteImageMutation.mutate(editingBanner.id);
+                            deleteImageMutation.mutate(editingBanner.id)
                           }
                         }}
                         disabled={deleteImageMutation.isPending}
@@ -849,7 +919,9 @@ export default function CarouselPage() {
                   <Input
                     placeholder="Ex: /produtos ou https://verttex.com.br/ofertas"
                     value={editForm.linkUrl}
-                    onChange={(e) => setEditForm({ ...editForm, linkUrl: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, linkUrl: e.target.value })
+                    }
                     className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
                   />
                 </div>
@@ -861,7 +933,9 @@ export default function CarouselPage() {
                   <Input
                     placeholder="Ex: Explorar Catálogo"
                     value={editForm.ctaText}
-                    onChange={(e) => setEditForm({ ...editForm, ctaText: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, ctaText: e.target.value })
+                    }
                     className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
                   />
                 </div>
@@ -872,7 +946,9 @@ export default function CarouselPage() {
                 <Checkbox
                   id="edit-banner-active"
                   checked={editForm.isActive}
-                  onCheckedChange={(checked) => setEditForm({ ...editForm, isActive: !!checked })}
+                  onCheckedChange={(checked) =>
+                    setEditForm({ ...editForm, isActive: !!checked })
+                  }
                   className="cursor-pointer border-zinc-600 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
                 />
                 <label
@@ -898,7 +974,9 @@ export default function CarouselPage() {
                 disabled={!isEditDirty || isSavingEdit}
                 className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSavingEdit && <RiLoader4Line className="h-4 w-4 animate-spin" />}
+                {isSavingEdit && (
+                  <RiLoader4Line className="h-4 w-4 animate-spin" />
+                )}
                 <span>Salvar Alterações</span>
               </Button>
             </DialogFooter>
@@ -906,5 +984,5 @@ export default function CarouselPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

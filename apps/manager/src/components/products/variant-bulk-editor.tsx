@@ -1,106 +1,111 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { NativeSelect } from "@/components/ui/native-select";
-import { PriceInput } from "@/components/ui/price-input";
+import React, { useState } from 'react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import { NativeSelect } from '@/components/ui/native-select'
+import { PriceInput } from '@/components/ui/price-input'
 import {
   RiEqualizerLine,
   RiCheckboxCircleLine,
   RiDeleteBinLine,
-} from "react-icons/ri";
-import { VariationDraft } from "./variant-matrix-generator";
+} from 'react-icons/ri'
+import { VariationDraft } from './variant-matrix-generator'
 
 interface VariantBulkEditorProps {
-  variations: VariationDraft[];
-  onChangeVariations: (variations: VariationDraft[]) => void;
+  variations: VariationDraft[]
+  onChangeVariations: (variations: VariationDraft[]) => void
 }
 
 export function VariantBulkEditor({
   variations,
   onChangeVariations,
 }: VariantBulkEditorProps) {
-  const [selectedIndexes, setSelectedIndexes] = useState<Set<number>>(new Set());
+  const [selectedIndexes, setSelectedIndexes] = useState<Set<number>>(new Set())
 
   // Bulk Field Inputs
-  const [bulkPrice, setBulkPrice] = useState<number>(0);
-  const [bulkCostPrice, setBulkCostPrice] = useState<number>(0);
-  const [bulkStockMode, setBulkStockMode] = useState("");
-  const [bulkStatus, setBulkStatus] = useState("");
+  const [bulkPrice, setBulkPrice] = useState<number>(0)
+  const [bulkCostPrice, setBulkCostPrice] = useState<number>(0)
+  const [bulkStockMode, setBulkStockMode] = useState('')
+  const [bulkStatus, setBulkStatus] = useState('')
 
   const toggleSelectAll = () => {
     if (selectedIndexes.size === variations.length) {
-      setSelectedIndexes(new Set());
+      setSelectedIndexes(new Set())
     } else {
-      setSelectedIndexes(new Set(variations.map((_, idx) => idx)));
+      setSelectedIndexes(new Set(variations.map((_, idx) => idx)))
     }
-  };
+  }
 
   const toggleSelectIndex = (idx: number) => {
-    const next = new Set(selectedIndexes);
+    const next = new Set(selectedIndexes)
     if (next.has(idx)) {
-      next.delete(idx);
+      next.delete(idx)
     } else {
-      next.add(idx);
+      next.add(idx)
     }
-    setSelectedIndexes(next);
-  };
+    setSelectedIndexes(next)
+  }
 
   const handleApplyBulkChanges = () => {
-    if (selectedIndexes.size === 0) return;
+    if (selectedIndexes.size === 0) return
 
     const updated = variations.map((v, idx) => {
-      if (!selectedIndexes.has(idx)) return v;
+      if (!selectedIndexes.has(idx)) return v
 
       return {
         ...v,
         price: bulkPrice > 0 ? bulkPrice : v.price,
         costPrice: bulkCostPrice > 0 ? bulkCostPrice : v.costPrice,
         stockMode: bulkStockMode ? bulkStockMode : v.stockMode,
-        status: bulkStatus ? (bulkStatus as "active" | "inactive") : v.status,
-      };
-    });
+        status: bulkStatus ? (bulkStatus as 'active' | 'inactive') : v.status,
+      }
+    })
 
-    onChangeVariations(updated);
-  };
+    onChangeVariations(updated)
+  }
 
-  const handleUpdateItemField = (index: number, field: keyof VariationDraft, value: any) => {
-    const updated = [...variations];
-    const target = updated[index];
-    if (!target) return;
+  const handleUpdateItemField = (
+    index: number,
+    field: keyof VariationDraft,
+    value: any,
+  ) => {
+    const updated = [...variations]
+    const target = updated[index]
+    if (!target) return
 
     updated[index] = {
       ...target,
       [field]: value,
-    };
-    onChangeVariations(updated);
-  };
+    }
+    onChangeVariations(updated)
+  }
 
   const handleRemoveVariation = (index: number) => {
-    const updated = variations.filter((_, idx) => idx !== index);
+    const updated = variations.filter((_, idx) => idx !== index)
     if (updated.length > 0 && !updated.some((v) => v.isDefault) && updated[0]) {
-      updated[0].isDefault = true;
+      updated[0].isDefault = true
     }
-    onChangeVariations(updated);
-  };
+    onChangeVariations(updated)
+  }
 
   const handleSetDefault = (index: number) => {
     const updated = variations.map((v, idx) => ({
       ...v,
       isDefault: idx === index,
-    }));
-    onChangeVariations(updated);
-  };
+    }))
+    onChangeVariations(updated)
+  }
 
   if (variations.length === 0) {
     return (
       <div className="text-center p-6 border border-dashed rounded-xl text-stone-400 text-xs">
-        Nenhuma variação adicionada ainda. Utilize a Matriz de Variações acima para gerar combinações.
+        Nenhuma variação adicionada ainda. Utilize a Matriz de Variações acima
+        para gerar combinações.
       </div>
-    );
+    )
   }
 
   return (
@@ -167,7 +172,10 @@ export function VariantBulkEditor({
             <tr className="border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 font-semibold text-stone-700 dark:text-stone-300">
               <th className="p-3 w-10 text-center">
                 <Checkbox
-                  checked={selectedIndexes.size === variations.length && variations.length > 0}
+                  checked={
+                    selectedIndexes.size === variations.length &&
+                    variations.length > 0
+                  }
                   onCheckedChange={toggleSelectAll}
                 />
               </th>
@@ -184,7 +192,14 @@ export function VariantBulkEditor({
           </thead>
           <tbody className="divide-y divide-stone-100 dark:divide-stone-900">
             {variations.map((item, idx) => (
-              <tr key={idx} className={item.isDefault ? "bg-emerald-50/40 dark:bg-emerald-950/20" : ""}>
+              <tr
+                key={idx}
+                className={
+                  item.isDefault
+                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20'
+                    : ''
+                }
+              >
                 <td className="p-3 text-center">
                   <Checkbox
                     checked={selectedIndexes.has(idx)}
@@ -204,7 +219,11 @@ export function VariantBulkEditor({
                 <td className="p-3">
                   <div className="flex flex-wrap gap-1">
                     {Object.entries(item.optionValues).map(([k, v]) => (
-                      <Badge key={k} variant="secondary" className="text-[10px] py-0 px-1.5 font-normal">
+                      <Badge
+                        key={k}
+                        variant="secondary"
+                        className="text-[10px] py-0 px-1.5 font-normal"
+                      >
                         {k}: <span className="font-semibold ml-0.5">{v}</span>
                       </Badge>
                     ))}
@@ -213,14 +232,18 @@ export function VariantBulkEditor({
                 <td className="p-3">
                   <Input
                     value={item.sku}
-                    onChange={(e) => handleUpdateItemField(idx, "sku", e.target.value)}
+                    onChange={(e) =>
+                      handleUpdateItemField(idx, 'sku', e.target.value)
+                    }
                     className="h-8 text-xs font-mono"
                   />
                 </td>
                 <td className="p-3">
                   <PriceInput
                     value={item.price}
-                    onValueChange={(val) => handleUpdateItemField(idx, "price", val)}
+                    onValueChange={(val) =>
+                      handleUpdateItemField(idx, 'price', val)
+                    }
                     className="h-8 text-xs"
                   />
                 </td>
@@ -230,7 +253,7 @@ export function VariantBulkEditor({
                     onValueChange={(val) =>
                       handleUpdateItemField(
                         idx,
-                        "promotionalPrice",
+                        'promotionalPrice',
                         val || null,
                       )
                     }
@@ -242,11 +265,7 @@ export function VariantBulkEditor({
                   <PriceInput
                     value={item.costPrice || 0}
                     onValueChange={(val) =>
-                      handleUpdateItemField(
-                        idx,
-                        "costPrice",
-                        val || null,
-                      )
+                      handleUpdateItemField(idx, 'costPrice', val || null)
                     }
                     className="h-8 text-xs"
                     placeholder="R$ 0,00"
@@ -254,20 +273,26 @@ export function VariantBulkEditor({
                 </td>
                 <td className="p-3">
                   <NativeSelect
-                    value={item.stockMode || "SIMPLE"}
-                    onChange={(e) => handleUpdateItemField(idx, "stockMode", e.target.value)}
+                    value={item.stockMode || 'SIMPLE'}
+                    onChange={(e) =>
+                      handleUpdateItemField(idx, 'stockMode', e.target.value)
+                    }
                     className="h-8 text-xs"
                   >
                     <option value="SIMPLE">Simples</option>
                     <option value="BATCH">Com Lote</option>
-                    <option value="BATCH_WITH_EXPIRATION">Lote + Validade</option>
+                    <option value="BATCH_WITH_EXPIRATION">
+                      Lote + Validade
+                    </option>
                     <option value="NOT_TRACKED">Sem Controle</option>
                   </NativeSelect>
                 </td>
                 <td className="p-3">
                   <NativeSelect
                     value={item.status}
-                    onChange={(e) => handleUpdateItemField(idx, "status", e.target.value)}
+                    onChange={(e) =>
+                      handleUpdateItemField(idx, 'status', e.target.value)
+                    }
                     className="h-8 text-xs"
                   >
                     <option value="active">Ativa</option>
@@ -291,5 +316,5 @@ export function VariantBulkEditor({
         </table>
       </div>
     </div>
-  );
+  )
 }

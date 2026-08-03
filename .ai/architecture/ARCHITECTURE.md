@@ -8,13 +8,11 @@ The monorepo uses `pnpm workspaces` and `Turborepo` for package building and cac
 
 ```mermaid
 graph TD
-  manager[apps/manager] --> ui[@verttex/ui]
-  manager --> env[@verttex/env]
+  manager[apps/manager] --> env[@verttex/env]
   manager --> types[@verttex/types]
   manager --> auth[@verttex/auth]
 
-  marketplace[apps/marketplace] --> ui
-  marketplace --> env
+  marketplace[apps/marketplace] --> env
   marketplace --> types
   marketplace --> auth
 
@@ -22,7 +20,6 @@ graph TD
   api --> types
   api --> auth
 
-  ui --> types
   auth --> types
 ```
 
@@ -30,13 +27,13 @@ graph TD
 
 1.  **Apps**:
     - `apps/api`: Fastify modular-monolith backend application serving API requests.
-    - `apps/manager`: Next.js admin portal UI for management users.
-    - `apps/marketplace`: Next.js customer marketplace platform (`verttexloja.com.br`).
+    - `apps/manager`: Next.js admin portal UI for management users (`components/ui` com Shadcn UI e Tailwind v4).
+    - `apps/marketplace`: Next.js customer marketplace platform (`components/ui` com Shadcn UI e Tailwind v4).
 2.  **Shared Workspace Packages**:
     - `packages/auth`: CASL definitions, abilities, roles, subjects, and shared authorization helpers for both backend and frontend.
     - `packages/env`: Type-safe validation engine for environment variables.
     - `packages/types`: Shared contract types, schemas, and API response schemas.
-    - `packages/ui`: Unified visual components using Tailwind CSS v4 and shadcn/ui.
+    - *(Nota Arquitetural sobre UI: Os componentes visuais reutilizáveis com Shadcn UI/Tailwind v4 são mantidos em `src/components/ui/` em cada aplicação. Veja `DEBT-001` em `.ai/technical-debt/TECHNICAL_DEBT.md`)*.
 3.  **Configs**:
     - `config/eslint`: Shared rules for ESLint code quality.
     - `config/prettier`: Central styling rules.

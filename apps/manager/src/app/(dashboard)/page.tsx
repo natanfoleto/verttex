@@ -1,38 +1,38 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
 import {
   RiArrowRightLine,
   RiCheckDoubleLine,
   RiShieldLine,
   RiStoreLine,
   RiUserLine,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { apiClient } from "../../lib/api-client";
-import { useAuth } from "../../providers/auth-provider";
+import { apiClient } from '../../lib/api-client'
+import { useAuth } from '../../providers/auth-provider'
 
 export default function DashboardPage() {
-  const { user, ability } = useAuth();
+  const { user, ability } = useAuth()
 
   const { data: usersData } = useQuery({
-    queryKey: ["dashboard-users-count"],
-    queryFn: () => apiClient("/users?perPage=1"),
-    enabled: ability.can("read", "User"),
-  });
+    queryKey: ['dashboard-users-count'],
+    queryFn: () => apiClient('/users?perPage=1'),
+    enabled: ability.can('read', 'User'),
+  })
 
   const { data: rolesData } = useQuery({
-    queryKey: ["dashboard-roles-count"],
-    queryFn: () => apiClient("/roles"),
-    enabled: ability.can("read", "Role"),
-  });
+    queryKey: ['dashboard-roles-count'],
+    queryFn: () => apiClient('/roles'),
+    enabled: ability.can('read', 'Role'),
+  })
 
   const { data: storesData } = useQuery({
-    queryKey: ["dashboard-stores-count"],
-    queryFn: () => apiClient("/stores?perPage=1"),
-    enabled: ability.can("read", "Store"),
-  });
+    queryKey: ['dashboard-stores-count'],
+    queryFn: () => apiClient('/stores?perPage=1'),
+    enabled: ability.can('read', 'Store'),
+  })
 
   return (
     <div className="space-y-8">
@@ -44,10 +44,10 @@ export default function DashboardPage() {
             Painel Central de Controle
           </span>
           <h1 className="text-3xl font-bold tracking-tight text-zinc-100">
-            Bem-vindo(a), {user?.name || "Gestor"}!
+            Bem-vindo(a), {user?.name || 'Gestor'}!
           </h1>
           <p className="text-sm leading-relaxed text-zinc-400">
-            Sua conta possui perfil de acesso{" "}
+            Sua conta possui perfil de acesso{' '}
             <strong className="text-zinc-200">{user?.role?.name}</strong>.
             Utilize os atalhos e módulos abaixo para gerenciar a infraestrutura
             do ecossistema Verttex.
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       {/* Summary Cards Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {/* Users Card */}
-        {ability.can("read", "User") && (
+        {ability.can('read', 'User') && (
           <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 transition-colors hover:border-zinc-700">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
@@ -69,7 +69,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-zinc-100">
-              {usersData?.meta?.total ?? "--"}
+              {usersData?.meta?.total ?? '--'}
             </div>
             <Link
               href="/usuarios"
@@ -82,7 +82,7 @@ export default function DashboardPage() {
         )}
 
         {/* Roles Card */}
-        {ability.can("read", "Role") && (
+        {ability.can('read', 'Role') && (
           <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 transition-colors hover:border-zinc-700">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
@@ -93,7 +93,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-zinc-100">
-              {rolesData?.meta?.total ?? rolesData?.data?.length ?? "--"}
+              {rolesData?.meta?.total ?? rolesData?.data?.length ?? '--'}
             </div>
             <Link
               href="/cargos"
@@ -106,7 +106,7 @@ export default function DashboardPage() {
         )}
 
         {/* Stores Card */}
-        {ability.can("read", "Store") && (
+        {ability.can('read', 'Store') && (
           <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 transition-colors hover:border-zinc-700">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
@@ -117,7 +117,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-zinc-100">
-              {storesData?.meta?.total ?? "--"}
+              {storesData?.meta?.total ?? '--'}
             </div>
             <Link
               href="/lojas"
@@ -141,5 +141,5 @@ export default function DashboardPage() {
         <span className="font-mono text-xs text-zinc-500">Verttex v1.0.0</span>
       </div>
     </div>
-  );
+  )
 }
