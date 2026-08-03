@@ -10,8 +10,6 @@ export interface HoverDropdownProps {
   children: React.ReactNode;
   /** Alinhamento do menu em relação ao acionador: "left" ou "right" */
   align?: "left" | "right";
-  /** Classe de borda para a flechinha indicadora no topo (ex: "border-b-zinc-800" ou "border-b-white") */
-  arrowColor?: string;
   /** Posição horizontal da flechinha (ex: "left-6" ou "right-6") */
   arrowOffset?: string;
   /** Classes CSS adicionais para o container pai */
@@ -24,7 +22,6 @@ export function HoverDropdown({
   trigger,
   children,
   align = "left",
-  arrowColor,
   arrowOffset = "left-6",
   containerClassName,
   contentClassName,
@@ -40,16 +37,22 @@ export function HoverDropdown({
         )}
       >
         <div className="relative pt-2">
-          {arrowColor && (
-            <div
-              className={cn(
-                "absolute top-0 w-0 h-0 border-l-[9px] border-r-[9px] border-b-[9px] border-l-transparent border-r-transparent z-10",
-                arrowOffset,
-                arrowColor
-              )}
-            />
-          )}
-          <div className={contentClassName}>{children}</div>
+          {/* Flecha indicadora com cor branca fixa (#ffffff) mantida no componente */}
+          <div
+            className={cn(
+              "absolute top-0 w-0 h-0 border-l-[9px] border-r-[9px] border-b-[9px] border-l-transparent border-r-transparent border-b-white z-10",
+              arrowOffset
+            )}
+          />
+          {/* Container do conteúdo com fundo e bordas brancos por padrão */}
+          <div
+            className={cn(
+              "bg-white rounded-xs shadow-lg font-sans overflow-hidden",
+              contentClassName
+            )}
+          >
+            {children}
+          </div>
         </div>
       </div>
     </div>

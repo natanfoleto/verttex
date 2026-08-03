@@ -301,9 +301,9 @@ export function MarketplaceCarousel() {
             variant="ghost"
             onClick={handlePrev}
             aria-label="Banner anterior"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 items-center justify-center rounded-r-full rounded-l-none bg-white p-0 shadow-none border-[1.5px] border-l-0 border-stone-300 text-stone-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-14 items-center justify-center rounded-r-full rounded-l-none bg-white p-0 shadow-none border border-l-0 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
           >
-            <FiChevronLeft className="size-4 sm:size-5 md:size-7 text-stone-800 stroke-[1.25]" />
+            <FiChevronLeft className="size-4 sm:size-5 md:size-6 stroke-1" />
           </Button>
 
           <Button
@@ -311,9 +311,9 @@ export function MarketplaceCarousel() {
             variant="ghost"
             onClick={handleNext}
             aria-label="Próximo banner"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-16 items-center justify-center rounded-l-full rounded-r-none bg-white p-0 shadow-none border-[1.5px] border-r-0 border-stone-300 text-stone-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-14 items-center justify-center rounded-l-full rounded-r-none bg-white p-0 shadow-none border border-r-0 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
           >
-            <FiChevronRight className="size-4 sm:size-5 md:size-7 text-stone-800 stroke-[1.25]" />
+            <FiChevronRight className="size-4 sm:size-5 md:size-6 stroke-1" />
           </Button>
         </>
       )}

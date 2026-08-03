@@ -76,7 +76,6 @@ export default function MarketplaceHomePage() {
   // Seções compostas por conjuntos de produtos
   const section1Products = allProducts.slice(0, 12);
   const section2Products = allProducts.slice(6, 18);
-  const section3Products = allProducts.slice(12, 24);
   const section4Products = [...allProducts].reverse().slice(0, 12);
 
   const storesList: StoreCardProps[] =
@@ -95,7 +94,7 @@ export default function MarketplaceHomePage() {
 
   if (isInitialLoading) {
     return (
-      <div className="space-y-8 pb-20 lg:pb-28 font-sans text-stone-900 antialiased">
+      <div className="space-y-8 pb-20 lg:pb-28 font-sans antialiased">
         <MarketplaceCarousel />
         <MarketplacePageLoader label="Carregando produtos e carrosséis..." />
       </div>
@@ -103,7 +102,7 @@ export default function MarketplaceHomePage() {
   }
 
   return (
-    <div className="space-y-8 pb-20 lg:pb-28 font-sans text-stone-900 antialiased">
+    <div className="space-y-8 pb-20 lg:pb-28 font-sans antialiased">
       {/* Carrossel do Banner Principal */}
       <MarketplaceCarousel />
 
@@ -118,12 +117,6 @@ export default function MarketplaceHomePage() {
         <ProductSectionCarousel
           title="Ofertas e Descontos Imperdíveis"
           products={section2Products.length > 0 ? section2Products : fallbackDemoProducts}
-        />
-
-        {/* SEÇÃO 3: Mais Vendidos da Semana */}
-        <ProductSectionCarousel
-          title="Mais Vendidos da Semana"
-          products={section3Products.length > 0 ? section3Products : fallbackDemoProducts}
         />
 
         {/* SEÇÃO 4: Recomendados para Você */}

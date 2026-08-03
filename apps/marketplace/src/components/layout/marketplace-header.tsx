@@ -104,7 +104,7 @@ export function MarketplaceHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full font-sans antialiased">
+    <header className="w-full font-sans antialiased pt-1">
       {/* ─── Global Top Announcement Bar ─── */}
       {settings?.announcementActive && settings?.announcementText && !announcementDismissed && (
         <div className="relative w-full bg-emerald-950 text-emerald-100 py-1.5 px-4 text-xs font-medium">
@@ -171,13 +171,13 @@ export function MarketplaceHeader() {
             onSubmit={handleSearchSubmit}
             className="hidden md:flex col-span-6 items-center"
           >
-            <div className="relative w-full flex items-center bg-white rounded-xs shadow-xs text-stone-900 overflow-hidden">
+            <div className="relative w-full flex items-center bg-white rounded-md shadow-md overflow-hidden">
               <Input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar produtos, marcas e muito mais..."
-                className="w-full bg-transparent border-none focus-visible:ring-0 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-600 focus:outline-none"
+                className="w-full bg-transparent border-none focus-visible:ring-0 px-4 py-2.5 text-sm placeholder:text-stone-500 focus:outline-none"
               />
               {searchQuery && (
                 <Button
@@ -194,7 +194,7 @@ export function MarketplaceHeader() {
               <Button
                 type="submit"
                 variant="ghost"
-                className="px-3.5 py-2.5 h-auto text-stone-500 hover:text-emerald-800 hover:bg-transparent transition-colors cursor-pointer"
+                className="px-3.5 py-2.5 h-auto text-stone-500 hover:text-emerald-600 hover:bg-transparent transition-colors cursor-pointer"
                 title="Buscar"
               >
                 <RiSearchLine className="h-4 w-4" />
@@ -203,13 +203,13 @@ export function MarketplaceHeader() {
           </form>
 
           {/* Banner Promocional no Topo Direita (Coluna 9 a 12 - 4 colunas) */}
-          <div className="hidden md:flex col-span-4 items-center justify-end text-xs font-semibold text-white">
+          <div className="hidden md:flex col-span-4 items-center justify-end text-xs font-semibold">
             <Link
               href="/produtos"
               className="inline-flex items-center space-x-2 hover:opacity-90 transition-opacity"
             >
-              <RiDiscountPercentLine className="h-5 w-5 text-white" />
-              <span className="text-xs font-bold tracking-tight text-white">Ofertas por tempo limitado</span>
+              <RiDiscountPercentLine className="h-5 w-5" />
+              <span className="text-xs font-bold tracking-tight">Ofertas por tempo limitado</span>
             </Link>
           </div>
 
@@ -220,7 +220,7 @@ export function MarketplaceHeader() {
               variant="ghost"
               size="icon"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 text-white hover:text-emerald-100 hover:bg-transparent cursor-pointer"
+              className="relative p-2 hover:bg-transparent cursor-pointer"
               aria-label="Carrinho"
             >
               <RiShoppingBag3Line className="h-6 w-6" />
@@ -236,7 +236,7 @@ export function MarketplaceHeader() {
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white hover:bg-emerald-700/50"
+              className="hover:bg-emerald-700/50"
               aria-label="Menu Mobile"
             >
               {mobileMenuOpen ? <RiCloseLine className="h-6 w-6" /> : <RiMenuLine className="h-6 w-6" />}
@@ -252,37 +252,36 @@ export function MarketplaceHeader() {
             <Button
               type="button"
               variant="ghost"
-              className="group inline-flex items-center p-0! h-auto text-left hover:opacity-90 hover:bg-transparent transition-opacity cursor-pointer"
+              className="group inline-flex items-center space-x-1 p-0! h-auto text-left hover:bg-transparent cursor-pointer"
             >
-              <RiMapPinLine className="h-5 w-5 shrink-0 text-white" />
-              <div className="flex flex-col leading-tight">
-                <span className="text-[10px] text-white/80 font-medium">Informe seu</span>
-                <span className="text-xs text-white">CEP</span>
+              <RiMapPinLine className="h-5 w-5 shrink-0 group-hover:text-emerald-600 transition-colors" />
+              <div className="flex flex-col leading-tight group-hover:text-emerald-600 transition-colors">
+                <span className="text-[10px] opacity-80 font-medium">Informe seu</span>
+                <span className="text-xs font-medium">CEP</span>
               </div>
             </Button>
           </div>
 
           {/* Menus Principais Alinhados Exatamente na Coluna 3 a 8 */}
-          <nav className="col-span-6 flex items-center space-x-4 text-xs font-normal text-white">
+          <nav className="col-span-6 flex items-center space-x-4 text-xs font-normal">
 
             {/* Mega Categories Dropdown usando o componente reutilizável HoverDropdown */}
             <HoverDropdown
               align="left"
-              arrowColor="border-b-zinc-800"
               arrowOffset="left-6"
-              contentClassName="w-64 rounded-xs bg-zinc-800 border border-zinc-800 p-2 shadow-2xl space-y-0.5 text-white font-sans"
+              contentClassName="w-64"
               trigger={
                 <button
                   type="button"
-                  className="inline-flex items-end gap-0.5 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                  className="inline-flex items-end gap-0.5 text-xs font-normal hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
                 >
                   <span>Categorias</span>
-                  <RiArrowDownSLine className="h-3.5 w-3.5 text-white/75 shrink-0" />
+                  <RiArrowDownSLine className="h-3.5 w-3.5 opacity-75 shrink-0" />
                 </button>
               }
             >
               {displayCategories && displayCategories.length > 0 ? (
-                <>
+                <div className="py-1.5">
                   {displayCategories.slice(0, 10).map((cat) => {
                     const subs = subcategoriesMap.get(cat.id) || [];
                     const hasChildren = subs.length > 0;
@@ -291,7 +290,7 @@ export function MarketplaceHeader() {
                       <div key={cat.id} className="relative group/sub">
                         <Link
                           href={`/produtos?categorySlug=${cat.slug}`}
-                          className="flex items-center justify-between rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-zinc-700 hover:text-white transition-colors"
+                          className="flex items-center justify-between rounded-xs px-3 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                         >
                           <span className="truncate">{cat.name}</span>
                           {hasChildren && <RiArrowRightSLine className="h-3.5 w-3.5 text-stone-400 shrink-0 ml-2" />}
@@ -300,12 +299,12 @@ export function MarketplaceHeader() {
                         {/* Subcategories Flyout */}
                         {hasChildren && (
                           <div className="invisible absolute left-full top-0 ml-1 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100 z-50">
-                            <div className="w-56 rounded-xs bg-zinc-800 border border-zinc-700 p-2 shadow-2xl space-y-0.5 text-white font-sans">
+                            <div className="w-56 rounded-xs bg-white border border-stone-200/80 p-2 shadow-2xl space-y-0.5 text-stone-900 font-sans">
                               {subs.map((sub) => (
                                 <Link
                                   key={sub.id}
                                   href={`/produtos?categorySlug=${sub.slug}`}
-                                  className="block rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-zinc-700 hover:text-white transition-colors"
+                                  className="block rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                                 >
                                   <span className="truncate">{sub.name}</span>
                                 </Link>
@@ -319,63 +318,62 @@ export function MarketplaceHeader() {
 
                   <Link
                     href="/categorias"
-                    className="block rounded-xs px-3.5 py-2 text-xs font-normal text-stone-200 hover:bg-zinc-700 hover:text-white transition-colors"
+                    className="block rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     <span className="truncate">Ver mais categorias</span>
                   </Link>
-                </>
+                </div>
               ) : (
                 <p className="p-3 text-center text-xs text-stone-400">Nenhuma categoria</p>
               )}
             </HoverDropdown>
 
-            <Link href="/produtos" className="py-1 text-white hover:opacity-80 transition-opacity">
+            <Link href="/produtos" className="py-1 hover:text-emerald-600 transition-opacity">
               Ofertas
             </Link>
 
-            <Link href="/produtos" className="py-1 text-white hover:opacity-80 transition-opacity">
+            <Link href="/produtos" className="py-1 hover:text-emerald-600 transition-opacity">
               Cupons
             </Link>
 
-            <Link href="/produtos" className="py-1 text-white hover:opacity-80 transition-opacity">
+            <Link href="/produtos" className="py-1 hover:text-emerald-600 transition-opacity">
               Supermercado
             </Link>
 
-            <Link href="/lojas" className="py-1 text-white hover:opacity-80 transition-opacity">
+            <Link href="/lojas" className="py-1 hover:text-emerald-600 transition-opacity">
               Produtores
             </Link>
 
-            <Link href="/lojas" className="py-1 text-white hover:opacity-80 transition-opacity">
+            <Link href="/lojas" className="py-1 hover:text-emerald-600 transition-opacity">
               Vender
             </Link>
 
-            <Link href="/atendimento" className="py-1 text-white hover:opacity-80 transition-opacity">
+            <Link href="/atendimento" className="py-1 hover:text-emerald-600 transition-opacity">
               Contato
             </Link>
           </nav>
 
           {/* Controles de Autenticação / Conta Alinhados na Coluna 9 a 12 (Diretamente abaixo das Ofertas) */}
-          <div className="col-span-4 flex items-center justify-end space-x-5 text-xs font-normal text-white">
+          <div className="col-span-4 flex items-center justify-end space-x-5 text-xs font-normal">
             {customer ? (
               <HoverDropdown
                 align="right"
-                arrowColor="border-b-white"
                 arrowOffset="right-6"
-                contentClassName="w-72 rounded-xs bg-white border border-stone-200/80 shadow-2xl text-stone-900 font-sans overflow-hidden"
+                contentClassName="w-72"
                 trigger={
                   <button
                     type="button"
-                    className="flex items-center gap-1 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                    className="flex items-center gap-1 text-xs font-normal hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
                   >
                     <Avatar className="h-5 w-5 shrink-0">
-                      <AvatarFallback className="bg-white text-stone-900 text-[10px] font-bold uppercase">
+                      <AvatarFallback className="text-[10px] font-bold uppercase bg-emerald-600 text-white">
                         {customer.name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="flex items-end gap-0.5">
                       <span className="max-w-28 truncate">{customer.name.split(" ")[0]}</span>
-                      <RiArrowDownSLine className="h-3.5 w-3.5 text-white/75" />
+                      <RiArrowDownSLine className="h-3.5 w-3.5 opacity-75" />
                     </div>
 
                   </button>
@@ -384,16 +382,16 @@ export function MarketplaceHeader() {
                 {/* User Info Header — Botão clicável que leva ao Perfil */}
                 <Link
                   href="/perfil"
-                  className="flex items-center justify-between p-4 border-b border-stone-100 hover:bg-stone-50/80 transition-colors cursor-pointer"
+                  className="flex items-center justify-between p-4 border-b border-stone-100 hover:bg-stone-100 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center space-x-3 min-w-0">
                     <Avatar className="h-11 w-11 shrink-0 shadow-xs">
-                      <AvatarFallback className="bg-stone-900 text-white text-base font-bold uppercase">
+                      <AvatarFallback className="bg-emerald-600 text-white text-base font-bold uppercase">
                         {customer.name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col min-w-0">
-                      <span className="font-bold text-stone-900 text-sm truncate leading-tight">
+                      <span className="font-bold text-sm truncate leading-tight">
                         {customer.name}
                       </span>
                       <span className="text-[11px] text-stone-500 truncate mt-0.5">
@@ -419,25 +417,25 @@ export function MarketplaceHeader() {
                 <div className="border-b border-stone-100 py-1.5">
                   <Link
                     href="/pedidos"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Compras
                   </Link>
                   <Link
                     href="/produtos"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Histórico
                   </Link>
                   <Link
                     href="/atendimento"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Perguntas
                   </Link>
                   <Link
                     href="/perfil"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Opiniões
                   </Link>
@@ -447,19 +445,19 @@ export function MarketplaceHeader() {
                 <div className="border-b border-stone-100 py-1.5">
                   <Link
                     href="/perfil"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Empréstimos
                   </Link>
                   <Link
                     href="/perfil"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Assinaturas
                   </Link>
                   <Link
                     href="/perfil"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Faturamento
                   </Link>
@@ -469,13 +467,13 @@ export function MarketplaceHeader() {
                 <div className="border-b border-stone-100 py-1.5">
                   <Link
                     href="/lojas"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Vender
                   </Link>
                   <Link
                     href="/perfil"
-                    className="block px-4 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                    className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
                   >
                     Resumo
                   </Link>
@@ -487,7 +485,7 @@ export function MarketplaceHeader() {
                     type="button"
                     variant="ghost"
                     onClick={() => logout()}
-                    className="block w-full text-left justify-start px-4 py-1.5 h-auto text-xs font-medium text-stone-700 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer rounded-none"
+                    className="block w-full text-left justify-start px-4 py-1.5 h-auto text-xs font-medium hover:text-rose-600 transition-colors cursor-pointer rounded-none"
                   >
                     Sair
                   </Button>
@@ -499,7 +497,7 @@ export function MarketplaceHeader() {
                   type="button"
                   variant="ghost"
                   onClick={() => openAuthModal("register")}
-                  className="p-0 h-auto text-xs font-normal text-white hover:opacity-80 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
+                  className="p-0 h-auto text-xs font-normal hover:text-emerald-600 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
                 >
                   Crie a sua conta
                 </Button>
@@ -507,7 +505,7 @@ export function MarketplaceHeader() {
                   type="button"
                   variant="ghost"
                   onClick={() => openAuthModal("login")}
-                  className="p-0 h-auto text-xs font-normal text-white hover:opacity-80 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
+                  className="p-0 h-auto text-xs font-normal hover:text-emerald-600 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
                 >
                   Entre
                 </Button>
@@ -523,7 +521,7 @@ export function MarketplaceHeader() {
                   openAuthModal("login");
                 }
               }}
-              className="text-white hover:opacity-80 transition-opacity cursor-pointer font-medium"
+              className="hover:text-emerald-600 transition-opacity cursor-pointer"
             >
               Compras
             </Link>
@@ -532,38 +530,37 @@ export function MarketplaceHeader() {
             {customer && (
               <HoverDropdown
                 align="right"
-                arrowColor="border-b-white"
                 arrowOffset="right-6"
-                contentClassName="w-80 rounded-xs bg-white border border-stone-200/80 shadow-2xl text-stone-900 font-sans overflow-hidden"
+                contentClassName="w-100"
                 trigger={
                   <button
                     type="button"
-                    className="inline-flex items-end gap-0.5 text-xs font-normal text-white hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none focus:outline-none focus:ring-0"
+                    className="inline-flex items-end gap-0.5 text-xs font-normal hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none focus:outline-none focus:ring-0"
                   >
                     <span>Favoritos</span>
-                    <RiArrowDownSLine className="h-3.5 w-3.5 text-white/75 shrink-0" />
+                    <RiArrowDownSLine className="h-3.5 w-3.5 opacity-75 shrink-0" />
                   </button>
                 }
               >
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-stone-100">
-                  <h4 className="font-semibold text-stone-900 text-sm tracking-tight">
+                <div className="px-4 py-3">
+                  <h4 className="font-medium text-stone-900 text-sm tracking-tight">
                     Favoritos
                   </h4>
                 </div>
 
                 {/* Body */}
-                <div className="bg-stone-100 py-12 px-6 text-center">
-                  <p className="text-xs text-stone-800 font-normal leading-relaxed max-w-60 mx-auto">
+                <div className="border-y py-12 px-6 text-center">
+                  <p className="text-xs text-stone-500 font-normal max-w-60 mx-auto">
                     Adicione aqui os produtos que você gostou para poder vê-los mais tarde.
                   </p>
                 </div>
 
                 {/* Footer */}
-                <div className="py-4 px-4 bg-white border-t border-stone-100 text-center">
+                <div className="py-4 px-4 text-center">
                   <Link
                     href="/perfil"
-                    className="text-xs font-normal text-blue-500 hover:text-blue-600 transition-colors"
+                    className="text-xs font-normal text-emerald-600 hover:text-emerald-700 transition-colors"
                   >
                     Ver todos os favoritos e listas
                   </Link>
@@ -577,12 +574,12 @@ export function MarketplaceHeader() {
               variant="ghost"
               size="icon"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-1 h-auto w-auto text-white hover:opacity-80 hover:bg-transparent transition-opacity cursor-pointer"
+              className="relative p-1 h-auto w-auto hover:opacity-80 hover:text-emerald-600 cursor-pointer"
               title="Carrinho de Compras"
             >
-              <RiShoppingBag3Line className="h-5 w-5 text-white" />
+              <RiShoppingBag3Line className="h-5 w-5" />
               {cartTotalItems > 0 && (
-                <Badge className="absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-950 px-1 p-0 text-[9px] font-bold text-white border-none">
+                <Badge className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 p-0 text-[9px] font-bold text-white border-none">
                   {cartTotalItems}
                 </Badge>
               )}
@@ -624,7 +621,7 @@ export function MarketplaceHeader() {
             <Link
               href="/produtos"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 hover:bg-emerald-600/50"
+              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 hover:bg-emerald-600"
             >
               <RiDiscountPercentLine className="h-4.5 w-4.5 text-white" />
               <span>Ofertas</span>
@@ -633,7 +630,7 @@ export function MarketplaceHeader() {
             <Link
               href="/lojas"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 hover:bg-emerald-600/50"
+              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 hover:bg-emerald-600"
             >
               <RiStore2Line className="h-4.5 w-4.5 text-white" />
               <span>Produtores Parceiros</span>
@@ -642,10 +639,10 @@ export function MarketplaceHeader() {
             <Link
               href="/categorias"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 font-bold hover:bg-emerald-600/50"
+              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 font-bold hover:bg-emerald-600"
             >
               <RiGridLine className="h-4.5 w-4.5 text-white" />
-              <span>Ver todas as categorias</span>
+              <span>Ver mais categorias</span>
             </Link>
           </div>
 
