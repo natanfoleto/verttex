@@ -557,47 +557,64 @@ The Verttex Marketplace connects regional consumers with artisan producers, farm
 - **Regional + Profissional**
 - **Bonito + Funcional**
 
-### 11.2 Palette & Color Tokens
+### 11.2 Palette & Color Tokens (Padrão Canônico)
 
-- **Brand Primary**: Emerald (`#065f46` / `emerald-800`) — represents freshness, regional origin, and trust.
-- **Brand Secondary / Origin Highlights**: Warm Amber/Terracotta (`#b45309` / `amber-700`, `bg-amber-50`, `border-amber-200`) — represents craft, passion, and local heritage.
-- **Background Neutral**: Warm Off-White (`#faf8f5` / `stone-50`).
-- **Surface Neutral**: Pure White (`#ffffff` / `bg-white`) with subtle borders (`border-stone-200/80`) and soft shadows (`shadow-xs` / `shadow-sm`).
-- **Text Neutral**: Deep Charcoal (`#1c1917` / `stone-900`) for headers, Muted Gray (`#78716c` / `stone-500`) for metadata.
-- **Feedback States**: Success (`emerald-700`), Alert (`amber-600`), Error (`rose-600`).
+- **Brand Primary (Emerald)**: `emerald-800` / `emerald-700` / `emerald-600` (`#059669` / `#047857`) — representa frescor, procedência regional, confiança e botões de ação primária (`bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs`). Badges de produto e produtor verificado usam `bg-emerald-50 text-emerald-800` ou `bg-emerald-700 text-white`.
+- **Brand Secondary / Origin Highlights (Warm Amber / Terracota)**: `amber-700` / `amber-600` / `amber-500` (`#d97706` / `#b45309`) — representa tradição artesanal, estrelas de avaliação (`RiStarFill text-amber-500`), destaques de origem regional e tags de oferta.
+- **Background Neutral**: Warm Off-White (`#faf8f5` / `bg-stone-50`) para fundo de páginas.
+- **Surface Neutral**: Pure White (`#ffffff` / `bg-white`) com bordas sutis (`border-stone-200/80` ou `border-stone-200`) e sombras de alta definição (`shadow-2xs`, `shadow-xs`, `shadow-md`, `shadow-2xl`).
+- **Text Neutral**: Deep Charcoal (`#1c1917` / `text-stone-900`, `text-stone-800`) para títulos e cabeçalhos, Muted Gray (`#78716c` / `text-stone-600`, `text-stone-500`) para subtítulos e metadados, e `text-stone-400` para ícone e placeholders.
+- **Feedback States**: Success (`emerald-600`), Alert (`amber-600`), Error (`rose-600`).
 
-### 11.3 Core Component Standards
+### 11.2.1 Regras Mandatórias de Arquitetura de Cores (Non-Negotiable)
 
-- **Border Radius Scale**: Moderated border radius across all marketplace components (`rounded-xl` for cards/containers, `rounded-lg` for inputs, buttons, and inner elements, `rounded-full` for badges and avatar circles). Avoid overly rounded `rounded-3xl` radii.
-- **Micro-Interactions**: Clean color transitions (`hover:border-emerald-300`, `hover:bg-emerald-700`) without intrusive `scale-105`/`scale-110` transform shifts.
-- **Header (`MarketplaceHeader`) — Double-Tier Architecture**:
-  - **Tier 1 (Announcement Bar)**: Slim dark utility bar (`bg-stone-900 text-stone-200 text-xs py-1.5`).
-  - **Tier 2 (Main Header Row)**: Brand logo, wide global search input (center), and customer account / wishlist buttons (`rounded-lg`).
-  - **Tier 3 (Secondary Sub-Header Bar)**: Secondary navigation bar (`bg-stone-50/90 border-t border-stone-200/80`) featuring hover dropdown submenus (_"Todas as Categorias"_, _"Queijos Artesanais"_, _"Vinhos & Bebidas"_, _"Produtores & Lojas"_, _"Ofertas Regionais"_). Hovering any menu item displays a clean floating dropdown (`rounded-lg bg-white border border-stone-200 shadow-xl p-2`).
-- **Footer (`MarketplaceFooter`) — Mercado Livre Style**:
-  - **Top Value Props**: Clean white section with 3 centered value columns (`Escolha como pagar`, `Frete e entrega na sua região`, `Segurança, do início ao fim`) with clean icons (`RiBankCardLine`, `RiTruckLine`, `RiShieldCheckLine`) and action links.
-  - **Bottom Compact Bar**: Light gray background (`bg-stone-50`) featuring inline navigation links, copyright notice (`Copyright © 2026 Verttex Mercado Regional Ltda.`), and CNPJ / location info.
+1. **Regra Mandatória de Fundo Padrão Branco (`bg-white`)**:
+   - O layout raiz (`MarketplaceLayout`) e a folha de estilos global (`globals.css`) já definem o fundo da aplicação como branco (`bg-white` / `#ffffff`) por padrão.
+   - É **estritamente proibido** passar a classe `bg-white` em contêineres raiz de páginas, seções ou componentes (ex: `MarketplaceCarousel`, wrappers de `page.tsx`).
+   - A classe `bg-white` só deve ser utilizada de forma pontual em elementos flutuantes ou sobrepostos (cards, modais, dropdowns, popovers, badges) que precisem destacar sua superfície.
+
+2. **Regra Mandatória de Redundância de Cor de Texto Escuro (`text-stone-900`) e Fundo Escuro (`bg-stone-900`)**:
+   - A cor padrão do texto no marketplace já é o grafite escuro (`color: #1c1917` / `text-stone-900`).
+   - É **estritamente proibido** aplicar `text-stone-900` de forma redundante em contêineres raiz ou wrappers de páginas quando a cor do texto herdada já é escura.
+3. **Regra Mandatória de Contêiner de Página e Tipografia Padrão (Non-Negotiable)**:
+   - **Largura do Contêiner Único**: Todas as páginas do marketplace (`/categorias`, `/lojas`, `/produtos`, etc.) **DEVEM utilizar um único contêiner de página raiz** com `mx-auto max-w-7xl px-4 sm:px-6 lg:px-8` para garantir alinhamento perfeito de 100% da largura com o Header (`MarketplaceHeader`).
+   - **Espaçamento Vertical da Página**: O contêiner de página raiz deve utilizar `py-8 sm:py-12` e `space-y-8` entre seções.
+   - **Título Principal de Página (`h1`)**: Deve seguir rigorosamente a escala `text-2xl font-bold tracking-tight sm:text-3xl` (ex: `Categorias para comprar e vender`, `Lojas e Produtores Parceiros`, `Catálogo de Produtos Artesanais`).
+   - **Subtítulo / Descrição de Página**: Deve seguir o padrão `mt-2 text-xs text-stone-500`.
+   - **Título de Seção (`h2`)**: Deve seguir o padrão `text-base sm:text-lg font-bold tracking-tight` ou `text-lg font-bold`.
+
+### 11.3 Core Component Standards (Visuais Consolidados)
+
+- **Border Radius Scale**: Moderated border radius across all marketplace components (`rounded-2xl` / `rounded-xl` para modais e cards principais, `rounded-md` / `rounded-lg` para inputs, botões e sub-containers, `rounded-xs` para badges de catálogo, `rounded-full` para botões circulares de ação e avatares).
+- **Regra Mandatória Interativa (`cursor-pointer`)**: Todos os botões, links, ícones clicáveis, abas e triggers do marketplace **DEVEM conter obrigatoriamente a classe `cursor-pointer`**.
+- **Header (`MarketplaceHeader`) — Arquitetura de 12 Colunas**:
+  - **Tier 1 (Announcement Bar)**: Barra de comunicado em verde escuro (`bg-emerald-950 text-emerald-100 text-xs py-1.5 px-4`).
+  - **Tier 2 (Main Row - 12 Colunas)**: Logo alinhada (Col 1-2), Barra de busca global em `bg-white shadow-md rounded-md border-none` (Col 3-8), Banner promocional de ofertas (Col 9-12).
+  - **Tier 3 (Sub-Header Row)**: Seleção de CEP (Col 1-2), Navegação por categorias via `HoverDropdown` com submenu flyout (`bg-white border border-stone-200/80 shadow-2xl p-2 rounded-xs`) (Col 3-8), Controles de conta do cliente e carrinho de compras (Col 9-12).
+- **Footer & Propostas de Valor**:
+  - **Componente de Propostas de Valor (`MarketplaceValueProps`)**: Componente separado (`apps/marketplace/src/components/layout/marketplace-value-props.tsx`) contendo os 3 cards de benefícios (`Escolha como pagar`, `Frete e entrega na sua região`, `Segurança, do início ao fim`). Renderizado **exclusivamente na Home Page (`/`)**.
+  - **Rodapé Compacto (`MarketplaceFooter`)**: Rodapé limpo (`bg-stone-50 py-8`) com links de navegação, termos, política de privacidade, suporte e dados de copyright. Renderizado em todas as páginas via layout raiz.
 - **Product Card (`ProductCard`)**:
-  - Image container (4:3 aspect ratio, rounded corners `rounded-xl`).
-  - Badges on image overlay (`Selo de Origem`, `Produtor Local`, `Mais Vendido`, discount badge).
-  - Store link, product title (2-line clamp), rating stars, formatted prices (bold current + line-through original price).
-  - CTA button ("Ver Loja").
+  - Container de imagem (proporção 4:3 ou 1:1, cantos `rounded-xl border border-stone-200/80 bg-white`).
+  - Badges na imagem (`Destaque`, `Mais Vendido`, `Novo`, tag de localização de origem).
+  - Link da loja parceira em `text-emerald-700 font-medium hover:underline`, título do produto em 2 linhas, estrelas de avaliação em `amber-500`, preços formatados em BRL e botão de ação ("Ver").
 - **Store Card (`StoreCard`)**:
-  - Cover header image preview, overlapping store logo avatar.
-  - Location badge (`Serra Gaúcha, RS`), bio snippet, total products count badge.
-  - Action button ("Visitar Loja").
-- **Category Components (`CategoryCircleCard`, `CategoryPill`)**:
-  - Circular category cards with high-impact images for home page exploration.
-  - Pill badges with item counts for catalog filtering.
-- **Filter Sidebar (`FilterSidebar`)**:
-  - Category list accordion with counts, sorting selector, active filter chips with quick remove buttons.
-- **Empty States & Skeletons (`EmptyState`, `SkeletonLoader`)**:
-  - Clean illustrated empty states and pulse loading skeletons for grids.
+  - Imagem de capa/logo em proporção 4:3 `rounded-sm bg-stone-100`.
+  - Nome do produtor com hover verde (`group-hover:text-emerald-700`), selo `RiShieldCheckLine text-emerald-600`, localização (`RiMapPinLine text-amber-600`), descrição em 2 linhas e badge `bg-emerald-50 text-emerald-800`.
+- **Componente de Input (`Input`) — Estilo Canônico Padrão**:
+  - **Uso Geral**: O componente Shadcn UI `<Input />` em `apps/marketplace/src/components/ui/input.tsx` possui por padrão a altura `h-10`, cantos arredondados `rounded-lg`, fundo `bg-white`, borda sutil `border-stone-200/80`, sombra `shadow-2xs`, tipografia `text-xs`, placeholder em `placeholder:text-stone-400` e foco elegante em borda verde emerald (`focus:border-emerald-600 focus-visible:border-emerald-600 focus-visible:ring-0`).
+  - **Exceção**: O input de busca rápida dentro do `MarketplaceHeader` possui visual customizado transparente integrado à barra de navegação.
 
-### 10.15 Padronização do Componente de Foto de Perfil da Loja (StoreLogoUpload)
+- **Diálogo de Autenticação (`AuthDialog`)**:
+  - Estrutura em `Dialog` de 2 colunas (`sm:max-w-5xl rounded-2xl overflow-hidden border-0 shadow-2xl`).
+  - Painel de Formulário (Coluna Esquerda): Fundo `bg-white`, logo Verttex com tile `bg-emerald-600 text-white rounded-lg`, subtítulo `text-stone-500`, botões de login social (`Button variant="outline"` com `hover:bg-stone-50 border-stone-200 text-stone-700 cursor-pointer`), inputs com ícones alinhados à esquerda e foco sutil em borda verde sem anel grosso (`focus:border-emerald-600 focus-visible:ring-0`), alternador de senha com `cursor-pointer`, e botão de envio em `bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 shadow-xs cursor-pointer`.
+  - Painel Visual da Marca (Coluna Direita): Gradiente `bg-linear-to-br from-stone-900 via-stone-850 to-amber-950 text-white`, iluminação radial `bg-emerald-600/20` e `bg-amber-600/20`, badge `100% Produtores Verificados` em `bg-emerald-950/60 text-emerald-300 border-emerald-500/40`, e card glassmorphic em `bg-white/10 border-white/15 backdrop-blur-md`.
+
+### 11.4 Padronização do Componente de Foto de Perfil da Loja (StoreLogoUpload)
 
 - **Componente (`StoreLogoUpload`)**:
   - Exibe avatar quadrado com cantos arredondados (`rounded-2xl border-2 border-zinc-800 bg-zinc-900 w-24 h-24`).
   - Pré-visualização instantânea local via `FileReader` / `URL.createObjectURL`.
   - Botão de upload/troca com ícone `RiCameraLine` / `RiImageAddLine` e confirmação de remoção com `AlertDialog` do shadcn.
   - Exibe fallback com as iniciais da loja quando não houver imagem definida.
+

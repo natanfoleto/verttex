@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import {
   RiAppleFill,
   RiEyeLine,
@@ -12,90 +12,90 @@ import {
   RiMailLine,
   RiShieldCheckLine,
   RiUser3Line,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { apiClient, ApiError } from "@/lib/api-client";
-import { useCustomer } from "@/providers/customer-auth-provider";
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { apiClient, ApiError } from '@/lib/api-client'
+import { useCustomer } from '@/providers/customer-auth-provider'
 
 interface AuthDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  initialMode?: "login" | "register";
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  initialMode?: 'login' | 'register'
 }
 
 export function AuthDialog({
   open,
   onOpenChange,
-  initialMode = "login",
+  initialMode = 'login',
 }: AuthDialogProps) {
-  const { refetchCustomer } = useCustomer();
-  const [mode, setMode] = useState<"login" | "register">(initialMode);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { refetchCustomer } = useCustomer()
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode)
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Form State
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   // Sync mode state whenever dialog opens or initialMode prop changes
   useEffect(() => {
     if (open) {
-      setMode(initialMode);
-      setShowPassword(false);
+      setMode(initialMode)
+      setShowPassword(false)
     }
-  }, [open, initialMode]);
+  }, [open, initialMode])
 
-  const handleModeSwitch = (newMode: "login" | "register") => {
-    setMode(newMode);
-    setShowPassword(false);
-  };
+  const handleModeSwitch = (newMode: 'login' | 'register') => {
+    setMode(newMode)
+    setShowPassword(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    e.preventDefault()
+    setIsSubmitting(true)
 
     try {
-      if (mode === "login") {
-        await apiClient("/auth/customers/login", {
-          method: "POST",
+      if (mode === 'login') {
+        await apiClient('/auth/customers/login', {
+          method: 'POST',
           body: JSON.stringify({ email, password }),
-        });
-        toast.success("Login realizado com sucesso!");
+        })
+        toast.success('Login realizado com sucesso!')
       } else {
-        await apiClient("/auth/customers/register", {
-          method: "POST",
+        await apiClient('/auth/customers/register', {
+          method: 'POST',
           body: JSON.stringify({ name, email, password }),
-        });
-        toast.success("Conta criada com sucesso!");
+        })
+        toast.success('Conta criada com sucesso!')
       }
 
-      refetchCustomer();
-      onOpenChange(false);
+      refetchCustomer()
+      onOpenChange(false)
       // Reset form
-      setName("");
-      setEmail("");
-      setPassword("");
+      setName('')
+      setEmail('')
+      setPassword('')
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        toast.error(err.message || "Erro ao realizar autenticação");
+        toast.error(err.message || 'Erro ao realizar autenticação')
       } else {
-        toast.error("Ocorreu um erro inesperado");
+        toast.error('Ocorreu um erro inesperado')
       }
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl md:max-w-5xl w-[95vw] h-170 overflow-hidden p-0 border-0 bg-stone-950 text-stone-900 shadow-2xl rounded-2xl [&>button:last-child]:h-9 [&>button:last-child]:w-9 [&>button:last-child]:rounded-full [&>button:last-child]:border [&>button:last-child]:border-stone-200/80 [&>button:last-child]:bg-white [&>button:last-child]:shadow-md [&>button:last-child]:opacity-100 [&>button:last-child]:flex [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:text-stone-900 [&>button:last-child]:transition-all [&>button:last-child]:hover:bg-stone-100 [&>button:last-child]:hover:scale-105 [&>button:last-child]:top-4 [&>button:last-child]:right-4">
+      <DialogContent className="sm:max-w-5xl md:max-w-5xl w-[95vw] h-170 overflow-hidden p-0 border-0 bg-stone-950 text-stone-900 shadow-2xl rounded-2xl [&>button:last-child]:h-9 [&>button:last-child]:w-9 [&>button:last-child]:rounded-full [&>button:last-child]:border [&>button:last-child]:border-stone-200/80 [&>button:last-child]:bg-white [&>button:last-child]:shadow-md [&>button:last-child]:opacity-100 [&>button:last-child]:flex [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:text-stone-900 [&>button:last-child]:transition-all [&>button:last-child]:hover:bg-stone-100 [&>button:last-child]:hover:scale-105 [&>button:last-child]:top-4 [&>button:last-child]:right-4 [&>button:last-child]:cursor-pointer">
         <DialogTitle className="sr-only">
-          {mode === "login" ? "Fazer Login" : "Criar Conta"}
+          {mode === 'login' ? 'Fazer Login' : 'Criar Conta'}
         </DialogTitle>
 
         <div className="grid h-full grid-cols-1 md:grid-cols-12">
@@ -104,14 +104,14 @@ export function AuthDialog({
             <div>
               {/* Header Branding */}
               <div className="flex items-center space-x-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-800 font-bold text-white text-base shadow-xs">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 font-bold text-white text-base shadow-xs">
                   V
                 </div>
                 <div className="flex flex-col">
                   <span className="text-base font-extrabold tracking-tight text-stone-900">
                     Verttex
                   </span>
-                  <span className="-mt-1 text-[10px] font-semibold tracking-widest text-amber-700 uppercase">
+                  <span className="-mt-1 text-[10px] font-bold tracking-widest text-amber-700 uppercase">
                     Mercado Regional
                   </span>
                 </div>
@@ -120,12 +120,12 @@ export function AuthDialog({
               {/* Title & Subtitle */}
               <div className="mt-8 space-y-1.5">
                 <h2 className="text-3xl font-extrabold tracking-tight text-stone-900 sm:text-4xl">
-                  {mode === "login" ? "Bem-vindo de volta!" : "Crie sua conta"}
+                  {mode === 'login' ? 'Bem-vindo de volta!' : 'Crie sua conta'}
                 </h2>
                 <p className="text-sm text-stone-500">
-                  {mode === "login"
-                    ? "Acesse sua conta para acompanhar pedidos e produtos favoritos."
-                    : "Cadastre-se gratuitamente para comprar direto da origem."}
+                  {mode === 'login'
+                    ? 'Acesse sua conta para acompanhar pedidos e produtos favoritos.'
+                    : 'Cadastre-se gratuitamente para comprar direto da origem.'}
                 </p>
               </div>
 
@@ -135,9 +135,9 @@ export function AuthDialog({
                   type="button"
                   variant="outline"
                   onClick={() =>
-                    toast.info("Login social com Google em breve!")
+                    toast.info('Login social com Google em breve!')
                   }
-                  className="h-11"
+                  className="h-11 border-stone-200 hover:bg-stone-50 text-stone-700 cursor-pointer"
                 >
                   <RiGoogleFill className="h-4.5 w-4.5 text-emerald-700" />
                   <span>Google</span>
@@ -146,8 +146,8 @@ export function AuthDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => toast.info("Login social com Apple em breve!")}
-                  className="h-11"
+                  onClick={() => toast.info('Login social com Apple em breve!')}
+                  className="h-11 border-stone-200 hover:bg-stone-50 text-stone-700 cursor-pointer"
                 >
                   <RiAppleFill className="h-4.5 w-4.5 text-stone-900" />
                   <span>Apple</span>
@@ -164,9 +164,9 @@ export function AuthDialog({
 
               {/* Form Input Fields */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                {mode === "register" && (
+                {mode === 'register' && (
                   <div className="space-y-1">
-                    <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase">
+                    <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
                       Nome Completo
                     </label>
                     <div className="relative">
@@ -177,14 +177,14 @@ export function AuthDialog({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Seu nome completo"
-                        className="h-11 pl-10"
+                        className="h-11 pl-10 border-stone-200 focus-visible:ring-emerald-600 text-stone-900"
                       />
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase">
+                  <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
                     E-mail
                   </label>
                   <div className="relative">
@@ -195,21 +195,21 @@ export function AuthDialog({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="seu.email@exemplo.com"
-                      className="h-11 pl-10"
+                      className="h-11 pl-10 border-stone-200 focus-visible:ring-emerald-600 text-stone-900"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase">
+                    <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
                       Senha
                     </label>
-                    {mode === "login" && (
+                    {mode === 'login' && (
                       <Link
                         href="/esqueci-minha-senha"
                         onClick={() => onOpenChange(false)}
-                        className="text-xs font-semibold text-emerald-800 transition-colors hover:underline"
+                        className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors hover:underline cursor-pointer"
                       >
                         Esqueceu a senha?
                       </Link>
@@ -218,23 +218,23 @@ export function AuthDialog({
                   <div className="relative">
                     <RiLockLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
                     <Input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={
-                        mode === "login"
-                          ? "Sua senha"
-                          : "Crie uma senha de acesso"
+                        mode === 'login'
+                          ? 'Sua senha'
+                          : 'Crie uma senha de acesso'
                       }
-                      className="h-11 pr-10 pl-10"
+                      className="h-11 pr-10 pl-10 border-stone-200 focus-visible:ring-emerald-600 text-stone-900"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600"
+                      className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600 cursor-pointer"
                     >
                       {showPassword ? (
                         <RiEyeOffLine className="h-4 w-4" />
@@ -248,42 +248,41 @@ export function AuthDialog({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  size="lg"
-                  className="w-full mt-2"
+                  className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 shadow-xs cursor-pointer"
                 >
                   {isSubmitting
-                    ? "Aguarde..."
-                    : mode === "login"
-                      ? "Entrar no Marketplace"
-                      : "Criar Minha Conta"}
+                    ? 'Aguarde...'
+                    : mode === 'login'
+                      ? 'Entrar no Marketplace'
+                      : 'Criar Minha Conta'}
                 </Button>
               </form>
             </div>
 
             {/* Bottom Mode Switcher */}
             <div className="pt-4 text-center text-xs text-stone-500">
-              {mode === "login" ? (
+              {mode === 'login' ? (
                 <>
-                  Ainda não possui uma conta?{" "}
+                  Ainda não possui uma conta?{' '}
                   <Button
                     type="button"
                     variant="link"
                     size="sm"
-                    onClick={() => handleModeSwitch("register")}
-                    className="p-0 font-bold text-emerald-800 hover:underline h-auto text-xs"
+                    onClick={() => handleModeSwitch('register')}
+                    className="p-0 font-bold text-emerald-700 hover:text-emerald-800 hover:underline h-auto text-xs cursor-pointer"
                   >
                     Cadastrar-se agora
                   </Button>
                 </>
               ) : (
                 <>
-                  Já possui uma conta?{" "}
+                  Já possui uma conta?{' '}
                   <Button
                     type="button"
                     variant="link"
                     size="sm"
-                    onClick={() => handleModeSwitch("login")}
-                    className="p-0 font-bold text-emerald-800 hover:underline h-auto text-xs"
+                    onClick={() => handleModeSwitch('login')}
+                    className="p-0 font-bold text-emerald-700 hover:text-emerald-800 hover:underline h-auto text-xs cursor-pointer"
                   >
                     Fazer login
                   </Button>
@@ -310,7 +309,7 @@ export function AuthDialog({
             <div className="relative z-10 my-auto space-y-4 py-8">
               <h3 className="text-3xl font-extrabold tracking-tight text-white leading-snug sm:text-4xl">
                 100+ Produtores Locais. <br />
-                <span className="text-emerald-400">1.000+ Produtos</span>{" "}
+                <span className="text-emerald-400">1.000+ Produtos</span>{' '}
                 Artesanais.
               </h3>
               <p className="text-xs leading-relaxed text-stone-300 sm:text-sm">
@@ -334,5 +333,5 @@ export function AuthDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

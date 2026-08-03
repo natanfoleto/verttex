@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { redirect } from "next/navigation";
-import { useEffect } from "react";
+import { redirect } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function CustomerLoginPage() {
   useEffect(() => {
-    redirect("/?auth=login");
-  }, []);
+    redirect('/?auth=login')
+  }, [])
 
-  return null;
+  return null
 }

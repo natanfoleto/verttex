@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 export function ProductDetailSkeleton() {
   return (
@@ -89,5 +89,5 @@ export function ProductDetailSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,50 +1,50 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import { ReactNode, useEffect, useState } from "react";
+import { useQuery } from '@tanstack/react-query'
+import { ReactNode, useEffect, useState } from 'react'
 
-import { MarketplaceFooter } from "./marketplace-footer";
-import { MarketplaceHeader } from "./marketplace-header";
-import { apiClient } from "../../lib/api-client";
+import { apiClient } from '../../lib/api-client'
+import { MarketplaceFooter } from './marketplace-footer'
+import { MarketplaceHeader } from './marketplace-header'
 
 interface MarketplaceLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function MarketplaceLayout({ children }: MarketplaceLayoutProps) {
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   // Pre-load marketplace settings globally for header & branding
   useQuery<any>({
-    queryKey: ["public-marketplace-settings"],
+    queryKey: ['public-marketplace-settings'],
     queryFn: async () => {
-      const res = await apiClient<any>("/public/marketplace/settings");
-      return res?.data || res;
+      const res = await apiClient<any>('/public/marketplace/settings')
+      return res?.data || res
     },
-  });
+  })
 
   // Pre-load public categories globally for header mega-dropdown
   useQuery<any[]>({
-    queryKey: ["public-categories"],
+    queryKey: ['public-categories'],
     queryFn: async () => {
-      const res = await apiClient<any[]>("/public/catalog/categories");
-      return res;
+      const res = await apiClient<any[]>('/public/catalog/categories')
+      return res
     },
-  });
+  })
 
   if (!mounted) {
-    return null;
+    return null
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50 font-sans text-stone-900 antialiased selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="flex min-h-screen flex-col bg-white font-sans text-stone-900 antialiased selection:bg-emerald-100 selection:text-emerald-900">
       <MarketplaceHeader />
       <main className="w-full flex-1">{children}</main>
       <MarketplaceFooter />
     </div>
-  );
+  )
 }

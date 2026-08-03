@@ -1,16 +1,16 @@
-import Link from "next/link";
-import { IconType } from "react-icons";
-import { RiSearchLine } from "react-icons/ri";
+import Link from 'next/link'
+import { IconType } from 'react-icons'
+import { RiSearchLine } from 'react-icons/ri'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 
 export interface EmptyStateProps {
-  icon?: IconType;
-  title: string;
-  description: string;
-  actionLabel?: string;
-  actionHref?: string;
-  onActionClick?: () => void;
+  icon?: IconType
+  title: string
+  description: string
+  actionLabel?: string
+  actionHref?: string
+  onActionClick?: () => void
 }
 
 export function EmptyState({
@@ -22,9 +22,9 @@ export function EmptyState({
   onActionClick,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-stone-200/80 bg-white p-12 text-center shadow-xs">
-      <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-amber-200/60 bg-amber-50 text-amber-800 shadow-xs">
-        <Icon className="h-8 w-8 text-amber-700" />
+    <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-12 text-center shadow-xs">
+      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-amber-50 text-amber-800 shadow-xs">
+        <Icon className="h-6 w-6 text-amber-700" />
       </div>
 
       <h3 className="mt-4 text-lg font-bold text-stone-900">{title}</h3>
@@ -42,10 +42,14 @@ export function EmptyState({
       )}
 
       {actionLabel && !actionHref && onActionClick && (
-        <Button type="button" onClick={onActionClick} className="mt-6">
+        <Button
+          type="button"
+          onClick={onActionClick}
+          className="mt-6 cursor-pointer hover:text-emerald-700"
+        >
           <span>{actionLabel}</span>
         </Button>
       )}
     </div>
-  );
+  )
 }

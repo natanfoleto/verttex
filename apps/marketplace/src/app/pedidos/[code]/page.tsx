@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
-import { use, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
+import { use, useState } from 'react'
 import {
   RiArrowLeftLine,
   RiFileCopyLine,
@@ -10,114 +10,123 @@ import {
   RiQrCodeLine,
   RiShoppingBag3Line,
   RiStore2Line,
-} from "react-icons/ri";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { apiClient } from "../../../lib/api-client";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+
+import { apiClient } from '../../../lib/api-client'
 
 interface OrderDetailResponse {
-  id: string;
-  code: string;
-  status: "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED";
-  subtotal: number;
-  shippingFee: number;
-  discount: number;
-  totalAmount: number;
-  paymentMethod: string;
-  paymentStatus: string;
-  notes?: string;
-  cancelReason?: string;
-  createdAt: string;
+  id: string
+  code: string
+  status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+  subtotal: number
+  shippingFee: number
+  discount: number
+  totalAmount: number
+  paymentMethod: string
+  paymentStatus: string
+  notes?: string
+  cancelReason?: string
+  createdAt: string
   store: {
-    id: string;
-    name: string;
-    logoUrl?: string;
-    phone?: string;
-    email?: string;
-  };
+    id: string
+    name: string
+    logoUrl?: string
+    phone?: string
+    email?: string
+  }
   address: {
-    recipient: string;
-    street: string;
-    number: string;
-    complement?: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-    zipCode: string;
-  };
+    recipient: string
+    street: string
+    number: string
+    complement?: string
+    neighborhood: string
+    city: string
+    state: string
+    zipCode: string
+  }
   items: {
-    id: string;
-    productName: string;
-    variationName: string;
-    sku: string;
-    price: number;
-    quantity: number;
-    subtotal: number;
-    imageUrl?: string;
-    ncm?: string;
+    id: string
+    productName: string
+    variationName: string
+    sku: string
+    price: number
+    quantity: number
+    subtotal: number
+    imageUrl?: string
+    ncm?: string
     itemLots?: {
-      id: string;
-      quantity: number;
+      id: string
+      quantity: number
       lot: {
-        lotNumber: string;
-        expirationDate?: string;
-      };
-    }[];
-  }[];
+        lotNumber: string
+        expirationDate?: string
+      }
+    }[]
+  }[]
 }
 
 export default function OrderDetailPage({
   params,
 }: {
-  params: Promise<{ code: string }>;
+  params: Promise<{ code: string }>
 }) {
-  const resolvedParams = use(params);
-  const queryClient = useQueryClient();
-  const [cancelReason, setCancelReason] = useState("");
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [returnReason, setReturnReason] = useState("");
-  const [showReturnModal, setShowReturnModal] = useState(false);
+  const resolvedParams = use(params)
+  const queryClient = useQueryClient()
+  const [cancelReason, setCancelReason] = useState('')
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [returnReason, setReturnReason] = useState('')
+  const [showReturnModal, setShowReturnModal] = useState(false)
 
   const { data: order, isLoading } = useQuery<OrderDetailResponse>({
-    queryKey: ["order-detail", resolvedParams.code],
-    queryFn: async () => apiClient<OrderDetailResponse>(`/orders/${resolvedParams.code}`),
-  });
+    queryKey: ['order-detail', resolvedParams.code],
+    queryFn: async () =>
+      apiClient<OrderDetailResponse>(`/orders/${resolvedParams.code}`),
+  })
 
   const cancelMutation = useMutation({
     mutationFn: async () => {
-      if (!order) return;
+      if (!order) return
       return apiClient(`/orders/${order.id}/cancel`, {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify({ cancelReason }),
-      });
+      })
     },
     onSuccess: () => {
-      toast.success("Pedido cancelado e reservas de estoque liberadas.");
-      queryClient.invalidateQueries({ queryKey: ["order-detail", resolvedParams.code] });
-      setShowCancelModal(false);
+      toast.success('Pedido cancelado e reservas de estoque liberadas.')
+      queryClient.invalidateQueries({
+        queryKey: ['order-detail', resolvedParams.code],
+      })
+      setShowCancelModal(false)
     },
     onError: (err: any) => {
-      toast.error(err.message || "Erro ao cancelar pedido");
+      toast.error(err.message || 'Erro ao cancelar pedido')
     },
-  });
+  })
 
   const returnMutation = useMutation({
     mutationFn: async () => {
-      if (!order) return;
-      return apiClient("/returns/request", {
-        method: "POST",
+      if (!order) return
+      return apiClient('/returns/request', {
+        method: 'POST',
         body: JSON.stringify({ orderId: order.id, reason: returnReason }),
-      });
+      })
     },
     onSuccess: () => {
-      toast.success("Solicitação de devolução/troca enviada com sucesso! Acompanhe o processo em Devoluções.");
-      queryClient.invalidateQueries({ queryKey: ["order-detail", resolvedParams.code] });
-      setShowReturnModal(false);
+      toast.success(
+        'Solicitação de devolução/troca enviada com sucesso! Acompanhe o processo em Devoluções.',
+      )
+      queryClient.invalidateQueries({
+        queryKey: ['order-detail', resolvedParams.code],
+      })
+      setShowReturnModal(false)
     },
     onError: (err: any) => {
-      toast.error(err.message || "Erro ao solicitar devolução");
+      toast.error(err.message || 'Erro ao solicitar devolução')
     },
-  });
+  })
 
   if (isLoading) {
     return (
@@ -128,14 +137,16 @@ export default function OrderDetailPage({
           <div className="h-32 bg-stone-100 rounded-2xl" />
         </div>
       </div>
-    );
+    )
   }
 
   if (!order) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-24 text-center font-sans antialiased">
         <RiShoppingBag3Line className="mx-auto h-16 w-16 text-stone-300" />
-        <h1 className="mt-4 text-2xl font-bold text-stone-900">Pedido não encontrado</h1>
+        <h1 className="mt-4 text-2xl font-bold text-stone-900">
+          Pedido não encontrado
+        </h1>
         <Link
           href="/pedidos"
           className="mt-6 inline-flex items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900 cursor-pointer"
@@ -144,10 +155,10 @@ export default function OrderDetailPage({
           <span>Voltar aos meus pedidos</span>
         </Link>
       </div>
-    );
+    )
   }
 
-  const isPending = order.status === "PENDING";
+  const isPending = order.status === 'PENDING'
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 font-sans text-stone-900 antialiased space-y-8">
@@ -160,7 +171,9 @@ export default function OrderDetailPage({
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Voltar aos Pedidos</span>
         </Link>
-        <h1 className="text-lg font-extrabold text-stone-900">Pedido #{order.code}</h1>
+        <h1 className="text-lg font-extrabold text-stone-900">
+          Pedido #{order.code}
+        </h1>
       </div>
 
       {/* Main Order Card */}
@@ -172,11 +185,12 @@ export default function OrderDetailPage({
               Status do Pedido
             </span>
             <span className="text-base font-extrabold text-stone-900">
-              {order.status === "PENDING" && "Aguardando Pagamento"}
-              {order.status === "CONFIRMED" && "Pedido Confirmado & Em Separação"}
-              {order.status === "SHIPPED" && "Pedido Em Transporte"}
-              {order.status === "DELIVERED" && "Pedido Entregue"}
-              {order.status === "CANCELLED" && "Pedido Cancelado"}
+              {order.status === 'PENDING' && 'Aguardando Pagamento'}
+              {order.status === 'CONFIRMED' &&
+                'Pedido Confirmado & Em Separação'}
+              {order.status === 'SHIPPED' && 'Pedido Em Transporte'}
+              {order.status === 'DELIVERED' && 'Pedido Entregue'}
+              {order.status === 'CANCELLED' && 'Pedido Cancelado'}
             </span>
           </div>
 
@@ -192,7 +206,7 @@ export default function OrderDetailPage({
             </Button>
           )}
 
-          {order.status === "DELIVERED" && (
+          {order.status === 'DELIVERED' && (
             <Button
               type="button"
               variant="outline"
@@ -206,13 +220,16 @@ export default function OrderDetailPage({
         </div>
 
         {/* PIX Payment Box if pending & PIX */}
-        {isPending && order.paymentMethod === "pix" && (
+        {isPending && order.paymentMethod === 'pix' && (
           <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-200 space-y-4 text-center">
             <RiQrCodeLine className="mx-auto h-12 w-12 text-emerald-800" />
             <div>
-              <h3 className="font-extrabold text-sm text-emerald-950">Pagamento via PIX</h3>
+              <h3 className="font-extrabold text-sm text-emerald-950">
+                Pagamento via PIX
+              </h3>
               <p className="text-xs text-emerald-800">
-                Copie a chave abaixo ou escaneie o QR Code no seu aplicativo do banco.
+                Copie a chave abaixo ou escaneie o QR Code no seu aplicativo do
+                banco.
               </p>
             </div>
             <div className="flex items-center justify-center space-x-2">
@@ -225,8 +242,12 @@ export default function OrderDetailPage({
                 type="button"
                 size="sm"
                 onClick={() => {
-                  navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-42661417400052040000");
-                  toast.success("Código PIX copiado para a área de transferência!");
+                  navigator.clipboard.writeText(
+                    '00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-42661417400052040000',
+                  )
+                  toast.success(
+                    'Código PIX copiado para a área de transferência!',
+                  )
                 }}
                 className="bg-emerald-800 hover:bg-emerald-900 text-white cursor-pointer text-xs"
               >
@@ -242,22 +263,29 @@ export default function OrderDetailPage({
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
               <RiStore2Line className="h-4 w-4 text-emerald-800" /> Vendedor
             </h3>
-            <p className="font-bold text-stone-900 text-sm">{order.store.name}</p>
-            {order.store.email && <p className="text-xs text-stone-500">{order.store.email}</p>}
+            <p className="font-bold text-stone-900 text-sm">
+              {order.store.name}
+            </p>
+            {order.store.email && (
+              <p className="text-xs text-stone-500">{order.store.email}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
-              <RiMapPinLine className="h-4 w-4 text-emerald-800" /> Endereço de Entrega
+              <RiMapPinLine className="h-4 w-4 text-emerald-800" /> Endereço de
+              Entrega
             </h3>
-            <p className="font-bold text-stone-900 text-xs">{order.address.recipient}</p>
+            <p className="font-bold text-stone-900 text-xs">
+              {order.address.recipient}
+            </p>
             <p className="text-xs text-stone-600">
-              {order.address.street}, {order.address.number}{" "}
+              {order.address.street}, {order.address.number}{' '}
               {order.address.complement && `- ${order.address.complement}`}
             </p>
             <p className="text-xs text-stone-500">
-              {order.address.neighborhood} — {order.address.city}/{order.address.state} (CEP:{" "}
-              {order.address.zipCode})
+              {order.address.neighborhood} — {order.address.city}/
+              {order.address.state} (CEP: {order.address.zipCode})
             </p>
           </div>
         </div>
@@ -273,9 +301,15 @@ export default function OrderDetailPage({
               <div key={item.id} className="p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-xs text-stone-900">{item.productName}</p>
-                    <p className="text-[11px] text-stone-500">{item.variationName}</p>
-                    <p className="text-[10px] font-mono text-stone-400">SKU: {item.sku}</p>
+                    <p className="font-bold text-xs text-stone-900">
+                      {item.productName}
+                    </p>
+                    <p className="text-[11px] text-stone-500">
+                      {item.variationName}
+                    </p>
+                    <p className="text-[10px] font-mono text-stone-400">
+                      SKU: {item.sku}
+                    </p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-bold text-stone-900">
@@ -291,10 +325,20 @@ export default function OrderDetailPage({
                 {item.itemLots && item.itemLots.length > 0 && (
                   <div className="p-2 bg-stone-50 rounded-xl text-[11px] font-mono text-stone-600 flex flex-wrap gap-2">
                     {item.itemLots.map((il) => (
-                      <span key={il.id} className="bg-white border border-stone-200 px-2 py-0.5 rounded-md">
-                        Lote Reservado FEFO: <strong>{il.lot.lotNumber}</strong> ({il.quantity} un.)
+                      <span
+                        key={il.id}
+                        className="bg-white border border-stone-200 px-2 py-0.5 rounded-md"
+                      >
+                        Lote Reservado FEFO: <strong>{il.lot.lotNumber}</strong>{' '}
+                        ({il.quantity} un.)
                         {il.lot.expirationDate && (
-                          <span> — Val: {new Date(il.lot.expirationDate).toLocaleDateString("pt-BR")}</span>
+                          <span>
+                            {' '}
+                            — Val:{' '}
+                            {new Date(il.lot.expirationDate).toLocaleDateString(
+                              'pt-BR',
+                            )}
+                          </span>
                         )}
                       </span>
                     ))}
@@ -317,7 +361,9 @@ export default function OrderDetailPage({
           </div>
           <div className="flex justify-between border-t border-stone-200 pt-3 text-sm font-black text-stone-900">
             <span>Total do Pedido</span>
-            <span className="text-lg text-emerald-900">R$ {Number(order.totalAmount).toFixed(2)}</span>
+            <span className="text-lg text-emerald-900">
+              R$ {Number(order.totalAmount).toFixed(2)}
+            </span>
           </div>
         </div>
       </div>
@@ -326,12 +372,17 @@ export default function OrderDetailPage({
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 shadow-xl">
-            <h3 className="text-base font-bold text-stone-900">Cancelar Pedido #{order.code}</h3>
+            <h3 className="text-base font-bold text-stone-900">
+              Cancelar Pedido #{order.code}
+            </h3>
             <p className="text-xs text-stone-600">
-              Esta ação liberará imediatamente a reserva de estoque dos lotes alocados para o catálogo.
+              Esta ação liberará imediatamente a reserva de estoque dos lotes
+              alocados para o catálogo.
             </p>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-stone-700 block">Motivo do Cancelamento</label>
+              <label className="text-xs font-semibold text-stone-700 block">
+                Motivo do Cancelamento
+              </label>
               <textarea
                 rows={2}
                 placeholder="Ex: Mudei de ideia, endereço incorreto..."
@@ -355,7 +406,9 @@ export default function OrderDetailPage({
                 disabled={cancelMutation.isPending}
                 className="bg-rose-600 hover:bg-rose-700 text-white cursor-pointer text-xs"
               >
-                {cancelMutation.isPending ? "Cancelando..." : "Confirmar Cancelamento"}
+                {cancelMutation.isPending
+                  ? 'Cancelando...'
+                  : 'Confirmar Cancelamento'}
               </Button>
             </div>
           </div>
@@ -366,12 +419,17 @@ export default function OrderDetailPage({
       {showReturnModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 shadow-xl">
-            <h3 className="text-base font-bold text-stone-900">Solicitar Devolução / Troca #{order.code}</h3>
+            <h3 className="text-base font-bold text-stone-900">
+              Solicitar Devolução / Troca #{order.code}
+            </h3>
             <p className="text-xs text-stone-600">
-              Descreva o motivo da devolução. O item passará por entrada compulsória em Quarentena Sanitária de Inspeção.
+              Descreva o motivo da devolução. O item passará por entrada
+              compulsória em Quarentena Sanitária de Inspeção.
             </p>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-stone-700 block">Motivo da Devolução</label>
+              <label className="text-xs font-semibold text-stone-700 block">
+                Motivo da Devolução
+              </label>
               <textarea
                 rows={3}
                 placeholder="Ex: Embalagem danificada no transporte, produto com defeito ou divergência..."
@@ -395,12 +453,14 @@ export default function OrderDetailPage({
                 disabled={returnMutation.isPending || !returnReason.trim()}
                 className="bg-amber-700 hover:bg-amber-800 text-white cursor-pointer text-xs font-bold"
               >
-                {returnMutation.isPending ? "Solicitando..." : "Enviar Solicitação"}
+                {returnMutation.isPending
+                  ? 'Solicitando...'
+                  : 'Enviar Solicitação'}
               </Button>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

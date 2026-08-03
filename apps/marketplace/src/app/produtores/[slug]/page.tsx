@@ -1,54 +1,58 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { use } from "react";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { use } from 'react'
 import {
   RiArrowLeftLine,
   RiShoppingBag3Line,
   RiStore2Line,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { apiClient } from "../../../lib/api-client";
+import { apiClient } from '../../../lib/api-client'
 
 interface StoreDetailsResponse {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  logoUrl?: string;
-  coverUrl?: string;
+  id: string
+  name: string
+  slug: string
+  description?: string
+  logoUrl?: string
+  coverUrl?: string
   products: {
-    id: string;
-    name: string;
-    slug: string;
-    shortDescription?: string;
-    price: number;
-    promotionalPrice?: number;
-    mainImageUrl?: string;
-    category: { id: string; name: string; slug: string };
-    commercialStockAvailable: number;
-    isAvailable: boolean;
-  }[];
-  totalProducts: number;
+    id: string
+    name: string
+    slug: string
+    shortDescription?: string
+    price: number
+    promotionalPrice?: number
+    mainImageUrl?: string
+    category: { id: string; name: string; slug: string }
+    commercialStockAvailable: number
+    isAvailable: boolean
+  }[]
+  totalProducts: number
 }
 
 export default function ProducerStorePage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>
 }) {
-  const resolvedParams = use(params);
+  const resolvedParams = use(params)
 
-  const { data: store, isLoading, isError } = useQuery<StoreDetailsResponse>({
-    queryKey: ["public-store", resolvedParams.slug],
+  const {
+    data: store,
+    isLoading,
+    isError,
+  } = useQuery<StoreDetailsResponse>({
+    queryKey: ['public-store', resolvedParams.slug],
     queryFn: async () => {
       const res = await apiClient<StoreDetailsResponse>(
         `/public/catalog/stores/${resolvedParams.slug}`,
-      );
-      return res;
+      )
+      return res
     },
-  });
+  })
 
   if (isLoading) {
     return (
@@ -62,7 +66,7 @@ export default function ProducerStorePage({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   if (isError || !store) {
@@ -83,7 +87,7 @@ export default function ProducerStorePage({
           <span>Voltar ao Catálogo</span>
         </Link>
       </div>
-    );
+    )
   }
 
   return (
@@ -196,5 +200,5 @@ export default function ProducerStorePage({
         )}
       </div>
     </div>
-  );
+  )
 }

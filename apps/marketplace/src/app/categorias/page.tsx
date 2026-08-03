@@ -1,59 +1,61 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { RiGridLine } from "react-icons/ri";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { RiGridLine } from 'react-icons/ri'
 
-import { apiClient } from "../../lib/api-client";
+import { apiClient } from '../../lib/api-client'
 
 export interface PublicCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  imageUrl?: string | null;
-  iconUrl?: string | null;
-  parentId?: string | null;
-  productsCount: number;
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  imageUrl?: string | null
+  iconUrl?: string | null
+  parentId?: string | null
+  productsCount: number
 }
 
 export default function CategoriesOverviewPage() {
   const { data: rawCategories = [], isLoading } = useQuery<PublicCategory[]>({
-    queryKey: ["public-categories"],
+    queryKey: ['public-categories'],
     queryFn: async () => {
-      const res = await apiClient<PublicCategory[]>("/public/catalog/categories");
-      return Array.isArray(res) ? res : (res as any)?.data ?? [];
+      const res = await apiClient<PublicCategory[]>(
+        '/public/catalog/categories',
+      )
+      return Array.isArray(res) ? res : ((res as any)?.data ?? [])
     },
-  });
+  })
 
   // Subcategories with direct products > 0
   const validSubcategories = rawCategories.filter(
     (c) => Boolean(c.parentId) && Number(c.productsCount) > 0,
-  );
+  )
 
   // Root categories are shown if they have direct products > 0 OR if any of their subcategories has products > 0
   const rootCategories = rawCategories.filter((c) => {
-    if (c.parentId) return false;
-    const hasDirectProducts = Number(c.productsCount) > 0;
+    if (c.parentId) return false
+    const hasDirectProducts = Number(c.productsCount) > 0
     const hasChildWithProducts = rawCategories.some(
       (sub) => sub.parentId === c.id && Number(sub.productsCount) > 0,
-    );
-    return hasDirectProducts || hasChildWithProducts;
-  });
+    )
+    return hasDirectProducts || hasChildWithProducts
+  })
 
-  const subcategoriesMap = new Map<string, PublicCategory[]>();
+  const subcategoriesMap = new Map<string, PublicCategory[]>()
   validSubcategories.forEach((cat) => {
     if (cat.parentId) {
-      const existing = subcategoriesMap.get(cat.parentId) || [];
-      existing.push(cat);
-      subcategoriesMap.set(cat.parentId, existing);
+      const existing = subcategoriesMap.get(cat.parentId) || []
+      existing.push(cat)
+      subcategoriesMap.set(cat.parentId, existing)
     }
-  });
+  })
 
-  const hasContent = rootCategories.length > 0;
+  const hasContent = rootCategories.length > 0
 
   return (
-    <div className="bg-white min-h-screen py-8 sm:py-12 text-stone-900">
+    <div className="min-h-screen py-8 sm:py-12 text-stone-900">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Page Title */}
         <div>
@@ -79,9 +81,12 @@ export default function CategoriesOverviewPage() {
         {!isLoading && hasContent && (
           <div className="pl-4 sm:pl-8 space-y-10 pt-2">
             {rootCategories.map((parent) => {
-              const subs = subcategoriesMap.get(parent.id) || [];
+              const subs = subcategoriesMap.get(parent.id) || []
               return (
-                <section key={parent.id} className="space-y-3 pb-8 border-b border-stone-100 last:border-0">
+                <section
+                  key={parent.id}
+                  className="space-y-3 pb-8 border-b border-stone-100 last:border-0"
+                >
                   <Link
                     href={`/produtos?categorySlug=${parent.slug}`}
                     className="inline-block group cursor-pointer"
@@ -117,7 +122,7 @@ export default function CategoriesOverviewPage() {
                     )}
                   </div>
                 </section>
-              );
+              )
             })}
           </div>
         )}
@@ -139,5 +144,5 @@ export default function CategoriesOverviewPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

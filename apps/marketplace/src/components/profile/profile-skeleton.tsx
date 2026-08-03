@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 export function ProfileSkeleton() {
   return (
@@ -56,5 +56,5 @@ export function ProfileSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 export function CartSkeleton() {
   return (
@@ -63,5 +63,5 @@ export function CartSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }

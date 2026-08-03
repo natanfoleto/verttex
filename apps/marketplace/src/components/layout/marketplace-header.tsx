@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { useState } from "react";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { useState } from 'react'
 import {
   RiArrowDownSLine,
   RiArrowRightSLine,
@@ -12,147 +12,159 @@ import {
   RiMenuLine,
   RiSearchLine,
   RiShoppingBag3Line,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { HoverDropdown } from "@/components/ui/hover-dropdown";
-import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { HoverDropdown } from '@/components/ui/hover-dropdown'
+import { Input } from '@/components/ui/input'
 
-import { CartSheet } from "../cart/cart-sheet";
-import { MobileMenuDrawer } from "./mobile-menu-drawer";
-import { apiClient } from "../../lib/api-client";
-import { useCustomer } from "../../providers/customer-auth-provider";
+import { apiClient } from '../../lib/api-client'
+import { useCustomer } from '../../providers/customer-auth-provider'
+import { CartSheet } from '../cart/cart-sheet'
+import { MobileMenuDrawer } from './mobile-menu-drawer'
 
 interface PublicCategory {
-  id: string;
-  name: string;
-  slug: string;
-  parentId?: string | null;
-  productsCount: number;
+  id: string
+  name: string
+  slug: string
+  parentId?: string | null
+  productsCount: number
 }
 
 export function MarketplaceHeader() {
-  const { customer, logout, openAuthModal } = useCustomer();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+  const { customer, logout, openAuthModal } = useCustomer()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false)
 
   // Fetch marketplace settings
   const { data: settings } = useQuery<any>({
-    queryKey: ["public-marketplace-settings"],
+    queryKey: ['public-marketplace-settings'],
     queryFn: async () => {
-      const res = await apiClient<any>("/public/marketplace/settings");
-      return res?.data || res;
+      const res = await apiClient<any>('/public/marketplace/settings')
+      return res?.data || res
     },
-  });
+  })
 
   // Fetch categories
   const { data: categories } = useQuery<PublicCategory[]>({
-    queryKey: ["public-categories"],
+    queryKey: ['public-categories'],
     queryFn: async () => {
-      const res = await apiClient<PublicCategory[]>("/public/catalog/categories");
-      return res;
+      const res = await apiClient<PublicCategory[]>(
+        '/public/catalog/categories',
+      )
+      return res
     },
-  });
+  })
 
   // Fetch cart summary for item counter
   const { data: cartSummary } = useQuery<any>({
-    queryKey: ["cart-summary"],
+    queryKey: ['cart-summary'],
     queryFn: async () => {
       try {
-        const res = await apiClient<any>("/customer/cart");
-        return res;
+        const res = await apiClient<any>('/customer/cart')
+        return res
       } catch {
-        return null;
+        return null
       }
     },
     enabled: !!customer,
-  });
+  })
 
   const cartTotalItems =
     cartSummary?.stores?.reduce(
       (acc: number, store: any) =>
         acc +
-        (store.items?.reduce((iAcc: number, item: any) => iAcc + item.quantity, 0) || 0),
+        (store.items?.reduce(
+          (iAcc: number, item: any) => iAcc + item.quantity,
+          0,
+        ) || 0),
       0,
-    ) || 0;
+    ) || 0
 
   // Group categories into parent & subcategories
-  const rootCategories = (categories || []).filter((c) => !c.parentId);
-  const subcategoriesMap = new Map<string, PublicCategory[]>();
+  const rootCategories = (categories || []).filter((c) => !c.parentId)
+  const subcategoriesMap = new Map<string, PublicCategory[]>()
 
-  (categories || []).forEach((cat) => {
-    if (cat.parentId) {
-      const existing = subcategoriesMap.get(cat.parentId) || [];
-      existing.push(cat);
-      subcategoriesMap.set(cat.parentId, existing);
-    }
-  });
+    ; (categories || []).forEach((cat) => {
+      if (cat.parentId) {
+        const existing = subcategoriesMap.get(cat.parentId) || []
+        existing.push(cat)
+        subcategoriesMap.set(cat.parentId, existing)
+      }
+    })
 
-  const displayCategories = rootCategories.length > 0 ? rootCategories : categories || [];
+  const displayCategories =
+    rootCategories.length > 0 ? rootCategories : categories || []
 
   const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    window.location.href = `/produtos?q=${encodeURIComponent(searchQuery)}`;
-  };
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+    window.location.href = `/produtos?q=${encodeURIComponent(searchQuery)}`
+  }
 
   return (
-    <header className="w-full font-sans antialiased">
+    <header className="bg-stone-50 w-full font-sans antialiased">
       {/* ─── Global Top Announcement Bar ─── */}
-      {settings?.announcementActive && settings?.announcementText && !announcementDismissed && (
-        <div className="relative w-full bg-emerald-950 text-emerald-100 py-1.5 px-4 text-xs font-medium">
-          <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 text-center">
-            {settings.announcementLink ? (
-              <Link href={settings.announcementLink} className="hover:underline font-semibold flex items-center gap-1">
+      {settings?.announcementActive &&
+        settings?.announcementText &&
+        !announcementDismissed && (
+          <div className="relative w-full bg-emerald-950 text-emerald-100 py-1.5 px-4 text-xs font-medium">
+            <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 text-center">
+              {settings.announcementLink ? (
+                <Link
+                  href={settings.announcementLink}
+                  className="hover:underline font-semibold flex items-center gap-1"
+                >
+                  <span>{settings.announcementText}</span>
+                  <RiArrowRightSLine className="h-4 w-4 shrink-0" />
+                </Link>
+              ) : (
                 <span>{settings.announcementText}</span>
-                <RiArrowRightSLine className="h-4 w-4 shrink-0" />
-              </Link>
-            ) : (
-              <span>{settings.announcementText}</span>
-            )}
-            {settings.announcementDismissible !== false && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => setAnnouncementDismissed(true)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-emerald-300 hover:text-white hover:bg-transparent transition-colors cursor-pointer"
-                aria-label="Fechar comunicado"
-              >
-                <RiCloseLine className="h-4 w-4" />
-              </Button>
-            )}
+              )}
+              {settings.announcementDismissible !== false && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setAnnouncementDismissed(true)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-emerald-300 hover:text-white hover:bg-transparent transition-colors cursor-pointer"
+                  aria-label="Fechar comunicado"
+                >
+                  <RiCloseLine className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* ─── Grid Header (12 Colunas Perfeitamente Alinhadas) ─── */}
       <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-
         {/* ROW 1: Logo (Col 1-3) | Search Input (Col 4-9) | Promo Banner (Col 10-12) */}
         <div className="grid grid-cols-12 items-center gap-4">
-
           {/* Logo Alinhada na Coluna 1 a 2 (Reduzido para aproximar a busca) */}
           <div className="col-span-6 md:col-span-2 flex items-center">
-            <Link href="/" className="inline-flex items-center space-x-2.5 group">
+            <Link
+              href="/"
+              className="inline-flex items-center space-x-2.5 group"
+            >
               {settings?.logoUrl ? (
                 <img
                   src={settings.logoUrl}
-                  alt={settings?.publicName || "Verttex"}
+                  alt={settings?.publicName || 'Verttex'}
                   className="h-9 max-w-44 object-contain"
                 />
               ) : (
                 <div className="flex items-center space-x-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white font-black text-base shadow-xs">
-                    {(settings?.publicName || "Verttex").charAt(0)}
+                    {(settings?.publicName || 'Verttex').charAt(0)}
                   </div>
                   <div className="flex flex-col">
                     <span className="text-lg font-black tracking-tight leading-none">
-                      {settings?.publicName || "Verttex"}
+                      {settings?.publicName || 'Verttex'}
                     </span>
                     <span className="text-[9px] font-bold tracking-widest uppercase mt-0.5">
                       Mercado Local
@@ -168,7 +180,7 @@ export function MarketplaceHeader() {
             onSubmit={handleSearchSubmit}
             className="hidden md:flex col-span-6 items-center"
           >
-            <div className="relative w-full flex items-center bg-white rounded-md shadow-md overflow-hidden">
+            <div className="relative w-full flex items-center bg-white rounded-md shadow-sm overflow-hidden">
               <Input
                 type="text"
                 value={searchQuery}
@@ -181,7 +193,7 @@ export function MarketplaceHeader() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => setSearchQuery('')}
                   className="h-7 w-7 p-0 text-stone-400 hover:text-stone-700 hover:bg-transparent transition-colors cursor-pointer mr-1"
                 >
                   <RiCloseLine className="h-4 w-4" />
@@ -206,7 +218,9 @@ export function MarketplaceHeader() {
               className="inline-flex items-center space-x-2 hover:opacity-90 transition-opacity"
             >
               <RiDiscountPercentLine className="h-5 w-5" />
-              <span className="text-xs font-bold tracking-tight">Ofertas por tempo limitado</span>
+              <span className="text-xs font-bold tracking-tight">
+                Ofertas por tempo limitado
+              </span>
             </Link>
           </div>
 
@@ -235,14 +249,17 @@ export function MarketplaceHeader() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Menu Mobile"
             >
-              {mobileMenuOpen ? <RiCloseLine className="size-5" /> : <RiMenuLine className="size-5" />}
+              {mobileMenuOpen ? (
+                <RiCloseLine className="size-5" />
+              ) : (
+                <RiMenuLine className="size-5" />
+              )}
             </Button>
           </div>
         </div>
 
         {/* ROW 2: CEP (Col 1-2) | Menus Nav (Col 3-8) | Auth Controls (Col 9-12) */}
         <div className="hidden md:grid grid-cols-12 items-center gap-4 pt-3.5 pb-0.5">
-
           {/* CEP / Região Alinhado Exatamente na Coluna 1 a 2 */}
           <div className="col-span-2 flex items-center">
             <Button
@@ -252,7 +269,9 @@ export function MarketplaceHeader() {
             >
               <RiMapPinLine className="h-5 w-5 shrink-0 group-hover:text-emerald-600 transition-colors" />
               <div className="flex flex-col leading-tight group-hover:text-emerald-600 transition-colors">
-                <span className="text-[10px] opacity-80 font-medium">Informe seu</span>
+                <span className="text-[10px] opacity-80 font-medium">
+                  Informe seu
+                </span>
                 <span className="text-xs font-medium">CEP</span>
               </div>
             </Button>
@@ -260,12 +279,11 @@ export function MarketplaceHeader() {
 
           {/* Menus Principais Alinhados Exatamente na Coluna 3 a 8 */}
           <nav className="col-span-6 flex items-center space-x-4 text-xs font-normal">
-
             {/* Mega Categories Dropdown usando o componente reutilizável HoverDropdown */}
             <HoverDropdown
               align="left"
               arrowOffset="left-6"
-              contentClassName="w-64"
+              contentClassName="w-64 overflow-visible"
               trigger={
                 <button
                   type="button"
@@ -279,37 +297,45 @@ export function MarketplaceHeader() {
               {displayCategories && displayCategories.length > 0 ? (
                 <div className="py-1.5">
                   {displayCategories.slice(0, 10).map((cat) => {
-                    const subs = subcategoriesMap.get(cat.id) || [];
-                    const hasChildren = subs.length > 0;
+                    const subs = subcategoriesMap.get(cat.id) || []
+                    const hasChildren = subs.length > 0
+
+                    const categoryItemLink = (
+                      <Link
+                        href={`/produtos?categorySlug=${cat.slug}`}
+                        className="flex items-center justify-between rounded-xs px-3 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      >
+                        <span className="truncate">{cat.name}</span>
+                        {hasChildren && (
+                          <RiArrowRightSLine className="h-3.5 w-3.5 text-stone-400 shrink-0 ml-2" />
+                        )}
+                      </Link>
+                    )
+
+                    if (!hasChildren) {
+                      return <div key={cat.id}>{categoryItemLink}</div>
+                    }
 
                     return (
-                      <div key={cat.id} className="relative group/sub">
-                        <Link
-                          href={`/produtos?categorySlug=${cat.slug}`}
-                          className="flex items-center justify-between rounded-xs px-3 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
-                        >
-                          <span className="truncate">{cat.name}</span>
-                          {hasChildren && <RiArrowRightSLine className="h-3.5 w-3.5 text-stone-400 shrink-0 ml-2" />}
-                        </Link>
-
-                        {/* Subcategories Flyout */}
-                        {hasChildren && (
-                          <div className="invisible absolute left-full top-0 ml-1 opacity-0 transition-all duration-150 group-hover/sub:visible group-hover/sub:opacity-100 z-50">
-                            <div className="w-56 rounded-xs bg-white border border-stone-200/80 p-2 shadow-2xl space-y-0.5 text-stone-900 font-sans">
-                              {subs.map((sub) => (
-                                <Link
-                                  key={sub.id}
-                                  href={`/produtos?categorySlug=${sub.slug}`}
-                                  className="block rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
-                                >
-                                  <span className="truncate">{sub.name}</span>
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
+                      <HoverDropdown
+                        key={cat.id}
+                        groupId="sub"
+                        position="right"
+                        showArrow={false}
+                        contentClassName="w-56 p-2 space-y-0.5"
+                        trigger={categoryItemLink}
+                      >
+                        {subs.map((sub) => (
+                          <Link
+                            key={sub.id}
+                            href={`/produtos?categorySlug=${sub.slug}`}
+                            className="block rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                          >
+                            <span className="truncate">{sub.name}</span>
+                          </Link>
+                        ))}
+                      </HoverDropdown>
+                    )
                   })}
 
                   <Link
@@ -320,31 +346,51 @@ export function MarketplaceHeader() {
                   </Link>
                 </div>
               ) : (
-                <p className="p-3 text-center text-xs text-stone-400">Nenhuma categoria</p>
+                <p className="p-3 text-center text-xs text-stone-400">
+                  Nenhuma categoria
+                </p>
               )}
             </HoverDropdown>
 
-            <Link href="/produtos" className="py-1 hover:text-emerald-600 transition-opacity">
+            <Link
+              href="/produtos"
+              className="py-1 hover:text-emerald-600 transition-opacity"
+            >
               Ofertas
             </Link>
 
-            <Link href="/produtos" className="py-1 hover:text-emerald-600 transition-opacity">
+            <Link
+              href="/produtos"
+              className="py-1 hover:text-emerald-600 transition-opacity"
+            >
               Cupons
             </Link>
 
-            <Link href="/produtos" className="py-1 hover:text-emerald-600 transition-opacity">
+            <Link
+              href="/produtos"
+              className="py-1 hover:text-emerald-600 transition-opacity"
+            >
               Supermercado
             </Link>
 
-            <Link href="/lojas" className="py-1 hover:text-emerald-600 transition-opacity">
+            <Link
+              href="/lojas"
+              className="py-1 hover:text-emerald-600 transition-opacity"
+            >
               Produtores
             </Link>
 
-            <Link href="/lojas" className="py-1 hover:text-emerald-600 transition-opacity">
+            <Link
+              href="/lojas"
+              className="py-1 hover:text-emerald-600 transition-opacity"
+            >
               Vender
             </Link>
 
-            <Link href="/atendimento" className="py-1 hover:text-emerald-600 transition-opacity">
+            <Link
+              href="/atendimento"
+              className="py-1 hover:text-emerald-600 transition-opacity"
+            >
               Contato
             </Link>
           </nav>
@@ -368,10 +414,11 @@ export function MarketplaceHeader() {
                     </Avatar>
 
                     <div className="flex items-end gap-0.5">
-                      <span className="max-w-28 truncate">{customer.name.split(" ")[0]}</span>
+                      <span className="max-w-28 truncate">
+                        {customer.name.split(' ')[0]}
+                      </span>
                       <RiArrowDownSLine className="h-3.5 w-3.5 opacity-75" />
                     </div>
-
                   </button>
                 }
               >
@@ -492,7 +539,7 @@ export function MarketplaceHeader() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => openAuthModal("register")}
+                  onClick={() => openAuthModal('register')}
                   className="p-0 h-auto text-xs font-normal hover:text-emerald-600 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
                 >
                   Crie a sua conta
@@ -500,7 +547,7 @@ export function MarketplaceHeader() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => openAuthModal("login")}
+                  onClick={() => openAuthModal('login')}
                   className="p-0 h-auto text-xs font-normal hover:text-emerald-600 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
                 >
                   Entre
@@ -510,11 +557,11 @@ export function MarketplaceHeader() {
 
             {/* Link Compras / Pedidos */}
             <Link
-              href={customer ? "/pedidos" : "#"}
+              href={customer ? '/pedidos' : '#'}
               onClick={(e) => {
                 if (!customer) {
-                  e.preventDefault();
-                  openAuthModal("login");
+                  e.preventDefault()
+                  openAuthModal('login')
                 }
               }}
               className="hover:text-emerald-600 transition-opacity cursor-pointer"
@@ -548,7 +595,8 @@ export function MarketplaceHeader() {
                 {/* Body */}
                 <div className="border-y py-12 px-6 text-center">
                   <p className="text-xs text-stone-500 font-normal max-w-60 mx-auto">
-                    Adicione aqui os produtos que você gostou para poder vê-los mais tarde.
+                    Adicione aqui os produtos que você gostou para poder vê-los
+                    mais tarde.
                   </p>
                 </div>
 
@@ -597,5 +645,5 @@ export function MarketplaceHeader() {
       {/* ─── Cart Sheet Drawer Component ─── */}
       <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />
     </header>
-  );
+  )
 }

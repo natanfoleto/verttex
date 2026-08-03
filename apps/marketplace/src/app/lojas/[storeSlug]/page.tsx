@@ -1,47 +1,47 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { use } from "react";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { use } from 'react'
 import {
   RiArrowLeftLine,
   RiCheckLine,
   RiShieldCheckLine,
   RiStore2Line,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { EmptyState } from "../../../components/ui/empty-state";
+import { EmptyState } from '../../../components/ui/empty-state'
 import {
   ProductCard,
   ProductCardProps,
-} from "../../../components/ui/product-card";
-import { ProductCardSkeleton } from "../../../components/ui/skeleton-loader";
-import { apiClient } from "../../../lib/api-client";
+} from '../../../components/ui/product-card'
+import { ProductCardSkeleton } from '../../../components/ui/skeleton-loader'
+import { apiClient } from '../../../lib/api-client'
 
 export default function StoreDetailPage({
   params,
 }: {
-  params: Promise<{ storeSlug: string }>;
+  params: Promise<{ storeSlug: string }>
 }) {
-  const resolvedParams = use(params);
-  const storeSlug = resolvedParams.storeSlug;
+  const resolvedParams = use(params)
+  const storeSlug = resolvedParams.storeSlug
 
   const { data: storeDetails, isLoading } = useQuery<any>({
-    queryKey: ["public-store-details", storeSlug],
+    queryKey: ['public-store-details', storeSlug],
     queryFn: async () => {
-      const res = await apiClient(`/public/catalog/stores/${storeSlug}`);
-      return res;
+      const res = await apiClient(`/public/catalog/stores/${storeSlug}`)
+      return res
     },
-  });
+  })
 
   const formattedStoreName =
     storeDetails?.name ||
     storeSlug
-      .split("-")
+      .split('-')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+      .join(' ')
 
-  const products = storeDetails?.products || [];
+  const products = storeDetails?.products || []
 
   const mappedProducts: ProductCardProps[] = products.map((p: any) => ({
     id: p.id,
@@ -50,14 +50,14 @@ export default function StoreDetailPage({
     price: p.promotionalPrice || p.price,
     originalPrice: p.promotionalPrice ? p.price : undefined,
     imageUrl: p.mainImageUrl || undefined,
-    storeName: storeDetails?.name || "Produtor",
+    storeName: storeDetails?.name || 'Produtor',
     storeSlug: storeDetails?.slug || storeSlug,
-    badge: p.isFeatured ? "Destaque" : undefined,
+    badge: p.isFeatured ? 'Destaque' : undefined,
     isBestSeller: p.isFeatured,
-  }));
+  }))
 
   return (
-    <div className="space-y-8 pb-16 font-sans text-stone-900">
+    <div className="space-y-8 pb-16 font-sans">
       {/* Cover Header Banner */}
       <div className="relative h-64 w-full bg-linear-to-r from-stone-900 via-emerald-950 to-stone-900">
         {storeDetails?.coverUrl ? (
@@ -130,7 +130,7 @@ export default function StoreDetailPage({
 
           <p className="max-w-3xl border-t border-stone-100 pt-4 text-xs leading-relaxed text-stone-600">
             {storeDetails?.description ||
-              "Tradição familiar na elaboração de produtos coloniais e artesanais de alta qualidade no mercado VERTTEX."}
+              'Tradição familiar na elaboração de produtos coloniais e artesanais de alta qualidade no mercado VERTTEX.'}
           </p>
 
           {/* Producer Trust Highlights */}
@@ -177,11 +177,11 @@ export default function StoreDetailPage({
             description="Este produtor ainda não possui produtos ativos no catálogo público."
             actionLabel="Ver Outros Produtores"
             onActionClick={() => {
-              window.location.href = "/lojas";
+              window.location.href = '/lojas'
             }}
           />
         )}
       </div>
     </div>
-  );
+  )
 }

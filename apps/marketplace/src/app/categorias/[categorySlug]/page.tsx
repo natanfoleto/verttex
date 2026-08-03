@@ -1,45 +1,45 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { use } from "react";
-import { RiArrowLeftLine } from "react-icons/ri";
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { use } from 'react'
+import { RiArrowLeftLine } from 'react-icons/ri'
 
-import { EmptyState } from "../../../components/ui/empty-state";
+import { EmptyState } from '../../../components/ui/empty-state'
 import {
   ProductCard,
   ProductCardProps,
-} from "../../../components/ui/product-card";
-import { ProductCardSkeleton } from "../../../components/ui/skeleton-loader";
-import { apiClient } from "../../../lib/api-client";
+} from '../../../components/ui/product-card'
+import { ProductCardSkeleton } from '../../../components/ui/skeleton-loader'
+import { apiClient } from '../../../lib/api-client'
 
 export default function CategoryDetailPage({
   params,
 }: {
-  params: Promise<{ categorySlug: string }>;
+  params: Promise<{ categorySlug: string }>
 }) {
-  const resolvedParams = use(params);
-  const categorySlug = resolvedParams.categorySlug;
+  const resolvedParams = use(params)
+  const categorySlug = resolvedParams.categorySlug
 
   const { data: catalogRes, isLoading } = useQuery<{
-    data: any[];
-    meta: any;
+    data: any[]
+    meta: any
   }>({
-    queryKey: ["public-category-products", categorySlug],
+    queryKey: ['public-category-products', categorySlug],
     queryFn: async () => {
       const res = await apiClient(
         `/public/catalog/products?categorySlug=${categorySlug}&page=1&perPage=50`,
-      );
-      return res;
+      )
+      return res
     },
-  });
+  })
 
   const formattedCategoryName = categorySlug
-    .split("-")
+    .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .join(' ')
 
-  const productsList = catalogRes?.data || [];
+  const productsList = catalogRes?.data || []
 
   const mappedProducts: ProductCardProps[] = productsList.map((p: any) => ({
     id: p.id,
@@ -48,11 +48,11 @@ export default function CategoryDetailPage({
     price: p.promotionalPrice || p.price,
     originalPrice: p.promotionalPrice ? p.price : undefined,
     imageUrl: p.mainImageUrl || undefined,
-    storeName: p.store?.name || "Produtor",
-    storeSlug: p.store?.slug || "",
-    badge: p.isFeatured ? "Destaque" : undefined,
+    storeName: p.store?.name || 'Produtor',
+    storeSlug: p.store?.slug || '',
+    badge: p.isFeatured ? 'Destaque' : undefined,
     isBestSeller: p.isFeatured,
-  }));
+  }))
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 font-sans text-stone-900 mb-24 lg:mb-32 sm:px-6 lg:px-8">
@@ -78,7 +78,7 @@ export default function CategoryDetailPage({
               {formattedCategoryName}
             </h1>
             <p className="mt-1.5 text-sm text-stone-500">
-              Produtos artesanais selecionados na categoria{" "}
+              Produtos artesanais selecionados na categoria{' '}
               {formattedCategoryName}.
             </p>
           </div>
@@ -112,10 +112,10 @@ export default function CategoryDetailPage({
           description="Ainda não existem produtos publicados nesta categoria de produto."
           actionLabel="Ver Todos os Produtos"
           onActionClick={() => {
-            window.location.href = "/produtos";
+            window.location.href = '/produtos'
           }}
         />
       )}
     </div>
-  );
+  )
 }

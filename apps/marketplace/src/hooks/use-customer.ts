@@ -1,1 +1,1 @@
-export { useCustomer } from "../providers/customer-auth-provider";
+export { useCustomer } from '../providers/customer-auth-provider'

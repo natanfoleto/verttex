@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
+import { useState } from 'react'
 import {
   RiAddLine,
   RiArrowRightLine,
@@ -12,98 +12,98 @@ import {
   RiStore2Line,
   RiSubtractLine,
   RiTicketLine,
-} from "react-icons/ri";
-import { toast } from "sonner";
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-import { MarketplacePageLoader } from "../../components/ui/marketplace-page-loader";
-import { CartSummary } from "../../components/cart/cart-sheet";
-import { apiClient, ApiError } from "../../lib/api-client";
+import { CartSummary } from '../../components/cart/cart-sheet'
+import { MarketplacePageLoader } from '../../components/ui/marketplace-page-loader'
+import { apiClient, ApiError } from '../../lib/api-client'
 
 export default function CartPage() {
-  const queryClient = useQueryClient();
-  const [couponCode, setCouponCode] = useState("");
+  const queryClient = useQueryClient()
+  const [couponCode, setCouponCode] = useState('')
 
   const { data: summary, isLoading } = useQuery<CartSummary>({
-    queryKey: ["cart-summary"],
+    queryKey: ['cart-summary'],
     queryFn: async () => {
-      const res = await apiClient<CartSummary>("/customer/cart");
-      return res;
+      const res = await apiClient<CartSummary>('/customer/cart')
+      return res
     },
-  });
+  })
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({
       itemId,
       quantity,
     }: {
-      itemId: string;
-      quantity: number;
+      itemId: string
+      quantity: number
     }) => {
       await apiClient(`/customer/cart/items/${itemId}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify({ quantity }),
-      });
+      })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
+      queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
     },
     onError: (err: ApiError) => {
-      toast.error(err.message || "Erro ao atualizar quantidade.");
+      toast.error(err.message || 'Erro ao atualizar quantidade.')
     },
-  });
+  })
 
   const removeItemMutation = useMutation({
     mutationFn: async (itemId: string) => {
       await apiClient(`/customer/cart/items/${itemId}`, {
-        method: "DELETE",
-      });
+        method: 'DELETE',
+      })
     },
     onSuccess: () => {
-      toast.success("Item removido do carrinho.");
-      queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
+      toast.success('Item removido do carrinho.')
+      queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
     },
     onError: (err: ApiError) => {
-      toast.error(err.message || "Erro ao remover item.");
+      toast.error(err.message || 'Erro ao remover item.')
     },
-  });
+  })
 
   const applyCouponMutation = useMutation({
     mutationFn: async (code: string) => {
-      await apiClient("/customer/cart/coupons", {
-        method: "POST",
+      await apiClient('/customer/cart/coupons', {
+        method: 'POST',
         body: JSON.stringify({ code }),
-      });
+      })
     },
     onSuccess: () => {
-      toast.success("Cupom aplicado com sucesso!");
-      setCouponCode("");
-      queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
+      toast.success('Cupom aplicado com sucesso!')
+      setCouponCode('')
+      queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
     },
     onError: (err: ApiError) => {
-      toast.error(err.message || "Cupom inválido ou expirado.");
+      toast.error(err.message || 'Cupom inválido ou expirado.')
     },
-  });
+  })
 
   const removeCouponMutation = useMutation({
     mutationFn: async () => {
-      await apiClient("/customer/cart/coupons", {
-        method: "DELETE",
-      });
+      await apiClient('/customer/cart/coupons', {
+        method: 'DELETE',
+      })
     },
     onSuccess: () => {
-      toast.success("Cupom removido");
-      queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
+      toast.success('Cupom removido')
+      queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
     },
-  });
+  })
 
   if (isLoading) {
-    return <MarketplacePageLoader label="Carregando carrinho..." />;
+    return <MarketplacePageLoader label="Carregando carrinho..." />
   }
 
-  const hasItems = summary && summary.stores.length > 0;
+  const hasItems = summary && summary.stores.length > 0
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
@@ -113,7 +113,8 @@ export default function CartPage() {
           Meu Carrinho de Compras
         </h1>
         <p className="mt-1 text-xs text-stone-500">
-          Revise seus produtos artesanais agrupados por produtor antes do checkout.
+          Revise seus produtos artesanais agrupados por produtor antes do
+          checkout.
         </p>
       </div>
 
@@ -192,9 +193,9 @@ export default function CartPage() {
                                 updateQuantityMutation.mutate({
                                   itemId: item.id,
                                   quantity: item.quantity - 1,
-                                });
+                                })
                               } else {
-                                removeItemMutation.mutate(item.id);
+                                removeItemMutation.mutate(item.id)
                               }
                             }}
                             className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
@@ -210,7 +211,7 @@ export default function CartPage() {
                               updateQuantityMutation.mutate({
                                 itemId: item.id,
                                 quantity: item.quantity + 1,
-                              });
+                              })
                             }}
                             className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
                           >
@@ -257,7 +258,9 @@ export default function CartPage() {
                   <Input
                     type="text"
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setCouponCode(e.target.value.toUpperCase())
+                    }
                     placeholder="EX: VERTTEX10"
                     className="text-xs uppercase"
                   />
@@ -265,10 +268,12 @@ export default function CartPage() {
                     type="button"
                     onClick={() => {
                       if (couponCode.trim()) {
-                        applyCouponMutation.mutate(couponCode);
+                        applyCouponMutation.mutate(couponCode)
                       }
                     }}
-                    disabled={applyCouponMutation.isPending || !couponCode.trim()}
+                    disabled={
+                      applyCouponMutation.isPending || !couponCode.trim()
+                    }
                     className="cursor-pointer"
                   >
                     Aplicar
@@ -347,7 +352,8 @@ export default function CartPage() {
             Seu carrinho de compras está vazio
           </h2>
           <p className="text-xs text-stone-500 max-w-sm mx-auto">
-            Você ainda não adicionou nenhum item. Explore o catálogo de produtos artesanais e apoie os produtores locais!
+            Você ainda não adicionou nenhum item. Explore o catálogo de produtos
+            artesanais e apoie os produtores locais!
           </p>
           <Link
             href="/produtos"
@@ -359,5 +365,5 @@ export default function CartPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

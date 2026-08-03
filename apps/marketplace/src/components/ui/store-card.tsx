@@ -1,22 +1,22 @@
-import Link from "next/link";
+import Link from 'next/link'
 import {
   RiArrowRightLine,
   RiMapPinLine,
   RiShieldCheckLine,
   RiStore2Line,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
 export interface StoreCardProps {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  coverUrl?: string;
-  logoUrl?: string;
-  city?: string;
-  state?: string;
-  productsCount?: number;
-  isVerified?: boolean;
+  id: string
+  name: string
+  slug: string
+  description?: string
+  coverUrl?: string
+  logoUrl?: string
+  city?: string
+  state?: string
+  productsCount?: number
+  isVerified?: boolean
 }
 
 export function StoreCard({
@@ -30,8 +30,9 @@ export function StoreCard({
   productsCount = 0,
   isVerified = true,
 }: StoreCardProps) {
-  const location = city && state ? `${city}, ${state}` : city || state || undefined;
-  const imageUrl = coverUrl || logoUrl;
+  const location =
+    city && state ? `${city}, ${state}` : city || state || undefined
+  const imageUrl = coverUrl || logoUrl
 
   return (
     <div className="group flex flex-col cursor-pointer font-sans">
@@ -57,7 +58,9 @@ export function StoreCard({
         {/* Badge de Produtos no Canto Superior */}
         <div className="absolute top-2.5 right-2.5 z-10 flex items-center space-x-1 rounded-xs bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
           <RiStore2Line className="h-3 w-3 text-white shrink-0" />
-          <span>{productsCount} {productsCount === 1 ? "produto" : "produtos"}</span>
+          <span>
+            {productsCount} {productsCount === 1 ? 'produto' : 'produtos'}
+          </span>
         </div>
       </Link>
 
@@ -111,5 +114,5 @@ export function StoreCard({
         </Link>
       </div>
     </div>
-  );
+  )
 }

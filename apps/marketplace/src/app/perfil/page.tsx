@@ -1,64 +1,64 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { RiCheckLine, RiUser3Line } from "react-icons/ri";
+import { useEffect, useState } from 'react'
+import { RiCheckLine, RiUser3Line } from 'react-icons/ri'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-import { CustomerAuthGuard } from "../../components/guards/customer-auth-guard";
-import { ProfileHeader } from "../../components/profile/profile-header";
-import { apiClient, ApiError } from "../../lib/api-client";
-import { useCustomer } from "../../providers/customer-auth-provider";
+import { CustomerAuthGuard } from '../../components/guards/customer-auth-guard'
+import { ProfileHeader } from '../../components/profile/profile-header'
+import { apiClient, ApiError } from '../../lib/api-client'
+import { useCustomer } from '../../providers/customer-auth-provider'
 
 export default function CustomerProfilePage() {
-  const { customer, refetchCustomer } = useCustomer();
+  const { customer, refetchCustomer } = useCustomer()
 
-  const [name, setName] = useState(customer?.name || "");
-  const [phone, setPhone] = useState(customer?.phone || "");
-  const [cpfCnpj, setCpfCnpj] = useState(customer?.cpfCnpj || "");
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState(customer?.name || '')
+  const [phone, setPhone] = useState(customer?.phone || '')
+  const [cpfCnpj, setCpfCnpj] = useState(customer?.cpfCnpj || '')
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (customer) {
-      setName(customer.name || "");
-      setPhone(customer.phone || "");
-      setCpfCnpj(customer.cpfCnpj || "");
+      setName(customer.name || '')
+      setPhone(customer.phone || '')
+      setCpfCnpj(customer.cpfCnpj || '')
     }
-  }, [customer]);
+  }, [customer])
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSuccessMessage(null);
-    setErrorMessage(null);
+    e.preventDefault()
+    setSuccessMessage(null)
+    setErrorMessage(null)
 
     try {
-      setIsSubmitting(true);
-      await apiClient("/customer/profile", {
-        method: "PATCH",
+      setIsSubmitting(true)
+      await apiClient('/customer/profile', {
+        method: 'PATCH',
         body: JSON.stringify({ name, phone, cpfCnpj }),
-      });
-      refetchCustomer();
-      setSuccessMessage("Perfil atualizado com sucesso!");
-      setTimeout(() => setSuccessMessage(null), 4000);
+      })
+      refetchCustomer()
+      setSuccessMessage('Perfil atualizado com sucesso!')
+      setTimeout(() => setSuccessMessage(null), 4000)
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        setErrorMessage(err.message || "Erro ao atualizar perfil.");
+        setErrorMessage(err.message || 'Erro ao atualizar perfil.')
       } else {
-        setErrorMessage("Erro inesperado ao atualizar perfil.");
+        setErrorMessage('Erro inesperado ao atualizar perfil.')
       }
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const isDirty = customer
     ? name !== customer.name ||
-      phone !== (customer.phone || "") ||
-      cpfCnpj !== (customer.cpfCnpj || "")
-    : false;
+      phone !== (customer.phone || '') ||
+      cpfCnpj !== (customer.cpfCnpj || '')
+    : false
 
   return (
     <CustomerAuthGuard>
@@ -100,7 +100,7 @@ export default function CustomerProfilePage() {
               </label>
               <Input
                 type="email"
-                value={customer?.email || ""}
+                value={customer?.email || ''}
                 disabled
                 className="mt-1.5 bg-stone-100/80 text-stone-500 cursor-not-allowed text-xs"
               />
@@ -153,11 +153,11 @@ export default function CustomerProfilePage() {
               className="mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RiCheckLine className="h-4 w-4" />
-              <span>{isSubmitting ? "Salvando..." : "Salvar Alterações"}</span>
+              <span>{isSubmitting ? 'Salvando...' : 'Salvar Alterações'}</span>
             </Button>
           </form>
         </div>
       </div>
     </CustomerAuthGuard>
-  );
+  )
 }

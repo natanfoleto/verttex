@@ -1,102 +1,97 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
 import {
   RiAddLine,
   RiArrowRightLine,
   RiDeleteBin6Line,
   RiShoppingBag3Line,
-  RiSubtractLine,
   RiStore2Line,
-} from "react-icons/ri";
-import { toast } from "sonner";
+  RiSubtractLine,
+} from 'react-icons/ri'
+import { toast } from 'sonner'
 
-import { Button } from "../ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "../ui/sheet";
-import { apiClient } from "../../lib/api-client";
+import { apiClient } from '../../lib/api-client'
+import { Button } from '../ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet'
 
 export interface CartSummary {
-  cartId: string;
-  itemCount: number;
+  cartId: string
+  itemCount: number
   stores: {
-    store: { id: string; name: string; slug: string; logoUrl?: string };
-    storeSubtotal: number;
+    store: { id: string; name: string; slug: string; logoUrl?: string }
+    storeSubtotal: number
     items: {
-      id: string;
-      variationId: string;
-      productName: string;
-      productSlug: string;
-      sku: string;
-      imageUrl?: string;
-      quantity: number;
-      unitPrice: number;
-      itemTotal: number;
-    }[];
-  }[];
-  subtotal: number;
-  discount: number;
-  total: number;
+      id: string
+      variationId: string
+      productName: string
+      productSlug: string
+      sku: string
+      imageUrl?: string
+      quantity: number
+      unitPrice: number
+      itemTotal: number
+    }[]
+  }[]
+  subtotal: number
+  discount: number
+  total: number
   coupons: {
-    id: string;
-    code: string;
-    type: string;
-    value: number;
-    discountAmount: number;
-  }[];
+    id: string
+    code: string
+    type: string
+    value: number
+    discountAmount: number
+  }[]
 }
 
 export function CartSheet({
   open,
   onOpenChange,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   const { data: summary, isLoading } = useQuery<CartSummary>({
-    queryKey: ["cart-summary"],
+    queryKey: ['cart-summary'],
     queryFn: async () => {
-      const res = await apiClient<CartSummary>("/cart");
-      return res;
+      const res = await apiClient<CartSummary>('/cart')
+      return res
     },
     enabled: open,
-  });
+  })
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
       return apiClient(`/cart/items/${id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         body: JSON.stringify({ quantity }),
-      });
+      })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
+      queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
     },
     onError: (err: any) => {
-      toast.error(err.message || "Erro ao atualizar quantidade");
+      toast.error(err.message || 'Erro ao atualizar quantidade')
     },
-  });
+  })
 
   const removeItemMutation = useMutation({
     mutationFn: async (id: string) => {
       return apiClient(`/cart/items/${id}`, {
-        method: "DELETE",
-      });
+        method: 'DELETE',
+      })
     },
     onSuccess: () => {
-      toast.success("Item removido do carrinho");
-      queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
+      toast.success('Item removido do carrinho')
+      queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
     },
-  });
+  })
 
-  const hasItems = Boolean(summary && summary.itemCount > 0);
+  const hasItems = Boolean(summary && summary.itemCount > 0)
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -167,9 +162,9 @@ export function CartSheet({
                               updateQuantityMutation.mutate({
                                 id: item.id,
                                 quantity: item.quantity - 1,
-                              });
+                              })
                             } else {
-                              removeItemMutation.mutate(item.id);
+                              removeItemMutation.mutate(item.id)
                             }
                           }}
                           className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
@@ -187,7 +182,7 @@ export function CartSheet({
                             updateQuantityMutation.mutate({
                               id: item.id,
                               quantity: item.quantity + 1,
-                            });
+                            })
                           }}
                           className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
                         >
@@ -257,5 +252,5 @@ export function CartSheet({
         )}
       </SheetContent>
     </Sheet>
-  );
+  )
 }

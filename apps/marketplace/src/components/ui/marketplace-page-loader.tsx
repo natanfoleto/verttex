@@ -1,18 +1,18 @@
-"use client";
+'use client'
 
-import { RiLoader4Line } from "react-icons/ri";
+import { RiLoader4Line } from 'react-icons/ri'
 
 interface MarketplacePageLoaderProps {
-  label?: string;
-  minHeight?: string;
+  label?: string
+  minHeight?: string
 }
 
 /**
   Loader centralizado elegante para substituição de esqueletos.
  */
 export function MarketplacePageLoader({
-  label = "Carregando...",
-  minHeight = "min-h-[400px]",
+  label = 'Carregando...',
+  minHeight = 'min-h-[400px]',
 }: MarketplacePageLoaderProps) {
   return (
     <div
@@ -30,5 +30,5 @@ export function MarketplacePageLoader({
         </p>
       )}
     </div>
-  );
+  )
 }

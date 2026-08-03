@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
   * {
     border-color: #e7e5e4;
   }
   body {
-    background-color: #f5f5f4;
+    background-color: #ffffff;
     color: #1c1917;
     font-family:
       system-ui,

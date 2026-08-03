@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useState } from "react";
+import Link from 'next/link'
+import { useState } from 'react'
 import {
   RiArrowDownSLine,
   RiArrowRightSLine,
@@ -20,27 +20,27 @@ import {
   RiShoppingBasket2Line,
   RiStore2Line,
   RiUser3Line,
-} from "react-icons/ri";
+} from 'react-icons/ri'
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export interface PublicCategory {
-  id: string;
-  name: string;
-  slug: string;
-  parentId?: string | null;
-  productsCount: number;
+  id: string
+  name: string
+  slug: string
+  parentId?: string | null
+  productsCount: number
 }
 
 interface MobileMenuDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  customer: any;
-  logout: () => void;
-  openAuthModal: (mode: "login" | "register") => void;
-  displayCategories: PublicCategory[];
+  isOpen: boolean
+  onClose: () => void
+  customer: any
+  logout: () => void
+  openAuthModal: (mode: 'login' | 'register') => void
+  displayCategories: PublicCategory[]
 }
 
 export function MobileMenuDrawer({
@@ -51,9 +51,9 @@ export function MobileMenuDrawer({
   openAuthModal,
   displayCategories,
 }: MobileMenuDrawerProps) {
-  const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
+  const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className="md:hidden border-t border-stone-200 bg-white shadow-2xl animate-fadeIn text-stone-900 font-sans">
@@ -110,8 +110,8 @@ export function MobileMenuDrawer({
             <Button
               type="button"
               onClick={() => {
-                onClose();
-                openAuthModal("login");
+                onClose()
+                openAuthModal('login')
               }}
               className="flex-1 bg-white hover:text-emerald-600 hover:bg-stone-50 rounded-sm text-xs font-semibold cursor-pointer"
             >
@@ -121,8 +121,8 @@ export function MobileMenuDrawer({
               type="button"
               variant="outline"
               onClick={() => {
-                onClose();
-                openAuthModal("register");
+                onClose()
+                openAuthModal('register')
               }}
               className="flex-1 bg-white hover:text-emerald-600 hover:bg-stone-50 rounded-sm text-xs font-semibold cursor-pointer"
             >
@@ -258,8 +258,8 @@ export function MobileMenuDrawer({
             </div>
             <RiArrowDownSLine
               className={cn(
-                "h-5 w-5 text-stone-500 transition-transform duration-200",
-                isMobileCategoriesOpen && "rotate-180"
+                'h-5 w-5 text-stone-500 transition-transform duration-200',
+                isMobileCategoriesOpen && 'rotate-180',
               )}
             />
           </button>
@@ -319,8 +319,8 @@ export function MobileMenuDrawer({
           <button
             type="button"
             onClick={() => {
-              logout();
-              onClose();
+              logout()
+              onClose()
             }}
             className="flex w-full items-center space-x-3.5 px-5 py-3 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
           >
@@ -330,5 +330,5 @@ export function MobileMenuDrawer({
         )}
       </nav>
     </div>
-  );
+  )
 }

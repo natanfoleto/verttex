@@ -1,51 +1,51 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { use } from "react";
-import { RiArrowLeftLine } from "react-icons/ri";
+import Link from 'next/link'
+import { use } from 'react'
+import { RiArrowLeftLine } from 'react-icons/ri'
 
 import {
   ProductCard,
   ProductCardProps,
-} from "../../../../components/ui/product-card";
+} from '../../../../components/ui/product-card'
 
 const MOCK_STORE_PRODUCTS: ProductCardProps[] = [
   {
-    id: "p1",
-    name: "Queijo Colonial Meia Cura da Serra",
+    id: 'p1',
+    name: 'Queijo Colonial Meia Cura da Serra',
     price: 48.9,
     originalPrice: 58.9,
-    unit: "peça (500g)",
-    storeName: "Queijaria Alvorada",
-    storeSlug: "queijaria-alvorada",
+    unit: 'peça (500g)',
+    storeName: 'Queijaria Alvorada',
+    storeSlug: 'queijaria-alvorada',
     isBestSeller: true,
   },
   {
-    id: "p2",
-    name: "Queijo Parmesão Artesanal Maturado 12 Meses",
+    id: 'p2',
+    name: 'Queijo Parmesão Artesanal Maturado 12 Meses',
     price: 78.0,
-    unit: "peça (500g)",
-    storeName: "Queijaria Alvorada",
-    storeSlug: "queijaria-alvorada",
-    badge: "Edição Especial",
+    unit: 'peça (500g)',
+    storeName: 'Queijaria Alvorada',
+    storeSlug: 'queijaria-alvorada',
+    badge: 'Edição Especial',
   },
-];
+]
 
 export default function StoreProductsPage({
   params,
 }: {
-  params: Promise<{ storeSlug: string }>;
+  params: Promise<{ storeSlug: string }>
 }) {
-  const resolvedParams = use(params);
-  const storeSlug = resolvedParams.storeSlug;
+  const resolvedParams = use(params)
+  const storeSlug = resolvedParams.storeSlug
 
   const formattedStoreName = storeSlug
-    .split("-")
+    .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .join(' ')
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans text-stone-900 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans sm:px-6 lg:px-8">
       {/* Header */}
       <div className="space-y-4 border-b border-stone-200 pb-6">
         <div className="flex items-center space-x-2 text-xs text-stone-500">
@@ -89,5 +89,5 @@ export default function StoreProductsPage({
         ))}
       </div>
     </div>
-  );
+  )
 }

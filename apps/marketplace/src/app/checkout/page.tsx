@@ -1,115 +1,123 @@
-"use client";
+'use client'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import {
-  RiArrowLeftLine,
-  RiCheckLine,
-  RiBankCardLine,
-  RiQrCodeLine,
-  RiBarcodeLine,
-  RiMapPinLine,
-  RiShoppingBag3Line,
-  RiShieldCheckLine,
-  RiTruckLine,
   RiAddLine,
-} from "react-icons/ri";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { apiClient } from "../../lib/api-client";
+  RiArrowLeftLine,
+  RiBankCardLine,
+  RiBarcodeLine,
+  RiCheckLine,
+  RiMapPinLine,
+  RiQrCodeLine,
+  RiShieldCheckLine,
+  RiShoppingBag3Line,
+  RiTruckLine,
+} from 'react-icons/ri'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+
+import { apiClient } from '../../lib/api-client'
 
 interface CustomerAddress {
-  id: string;
-  label?: string;
-  recipient: string;
-  phone?: string;
-  zipCode: string;
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  isDefault: boolean;
+  id: string
+  label?: string
+  recipient: string
+  phone?: string
+  zipCode: string
+  street: string
+  number: string
+  complement?: string
+  neighborhood: string
+  city: string
+  state: string
+  isDefault: boolean
 }
 
 interface CartItem {
-  id: string;
-  quantity: number;
+  id: string
+  quantity: number
   variation: {
-    id: string;
-    sku: string;
-    price: number;
-    promotionalPrice?: number;
-    medias?: { url: string; isMain: boolean }[];
+    id: string
+    sku: string
+    price: number
+    promotionalPrice?: number
+    medias?: { url: string; isMain: boolean }[]
     product: {
-      id: string;
-      name: string;
-      medias: { url: string; isMain: boolean }[];
-    };
-    values: { optionValue: { value: string; option: { name: string } } }[];
-  };
+      id: string
+      name: string
+      medias: { url: string; isMain: boolean }[]
+    }
+    values: { optionValue: { value: string; option: { name: string } } }[]
+  }
 }
 
 interface CartResponse {
-  id: string;
-  items: CartItem[];
-  subtotal: number;
-  total: number;
+  id: string
+  items: CartItem[]
+  subtotal: number
+  total: number
   store?: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
 }
 
 export default function CheckoutPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card" | "boleto">("pix");
-  const [notes, setNotes] = useState("");
-  const [showAddAddressModal, setShowAddAddressModal] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  )
+  const [paymentMethod, setPaymentMethod] = useState<
+    'pix' | 'credit_card' | 'boleto'
+  >('pix')
+  const [notes, setNotes] = useState('')
+  const [showAddAddressModal, setShowAddAddressModal] = useState(false)
 
   // New Address Form State
-  const [newRecipient, setNewRecipient] = useState("");
-  const [newZipCode, setNewZipCode] = useState("");
-  const [newStreet, setNewStreet] = useState("");
-  const [newNumber, setNewNumber] = useState("");
-  const [newNeighborhood, setNewNeighborhood] = useState("");
-  const [newCity, setNewCity] = useState("");
-  const [newState, setNewState] = useState("");
-  const [newLabel, setNewLabel] = useState("Casa");
+  const [newRecipient, setNewRecipient] = useState('')
+  const [newZipCode, setNewZipCode] = useState('')
+  const [newStreet, setNewStreet] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [newNeighborhood, setNewNeighborhood] = useState('')
+  const [newCity, setNewCity] = useState('')
+  const [newState, setNewState] = useState('')
+  const [newLabel, setNewLabel] = useState('Casa')
 
   // Fetch Cart Items
   const { data: cart, isLoading: isLoadingCart } = useQuery<CartResponse>({
-    queryKey: ["cart-summary"],
-    queryFn: async () => apiClient<CartResponse>("/cart"),
-  });
+    queryKey: ['cart-summary'],
+    queryFn: async () => apiClient<CartResponse>('/cart'),
+  })
 
   // Fetch Customer Addresses
-  const { data: addresses, isLoading: isLoadingAddresses } = useQuery<CustomerAddress[]>({
-    queryKey: ["customer-addresses"],
-    queryFn: async () => apiClient<CustomerAddress[]>("/customer/addresses"),
+  const { data: addresses, isLoading: isLoadingAddresses } = useQuery<
+    CustomerAddress[]
+  >({
+    queryKey: ['customer-addresses'],
+    queryFn: async () => apiClient<CustomerAddress[]>('/customer/addresses'),
     select: (data) => {
       if (data && data.length > 0 && !selectedAddressId) {
-        const defaultAddr = data.find((a) => a.isDefault) || data[0];
-        if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+        const defaultAddr = data.find((a) => a.isDefault) || data[0]
+        if (defaultAddr) setSelectedAddressId(defaultAddr.id)
       }
-      return data;
+      return data
     },
-  });
+  })
 
   // Add Address Mutation
   const addAddressMutation = useMutation({
     mutationFn: async () => {
-      return apiClient<CustomerAddress>("/customer/addresses", {
-        method: "POST",
+      return apiClient<CustomerAddress>('/customer/addresses', {
+        method: 'POST',
         body: JSON.stringify({
           recipient: newRecipient,
-          zipCode: newZipCode.replace(/\D/g, ""),
+          zipCode: newZipCode.replace(/\D/g, ''),
           street: newStreet,
           number: newNumber,
           neighborhood: newNeighborhood,
@@ -118,45 +126,45 @@ export default function CheckoutPage() {
           label: newLabel,
           isDefault: true,
         }),
-      });
+      })
     },
     onSuccess: (newAddr) => {
-      toast.success("Endereço cadastrado com sucesso!");
-      queryClient.invalidateQueries({ queryKey: ["customer-addresses"] });
-      setSelectedAddressId(newAddr.id);
-      setShowAddAddressModal(false);
+      toast.success('Endereço cadastrado com sucesso!')
+      queryClient.invalidateQueries({ queryKey: ['customer-addresses'] })
+      setSelectedAddressId(newAddr.id)
+      setShowAddAddressModal(false)
     },
     onError: (err: any) => {
-      toast.error(err.message || "Falha ao cadastrar endereço");
+      toast.error(err.message || 'Falha ao cadastrar endereço')
     },
-  });
+  })
 
   // Checkout Mutation
   const checkoutMutation = useMutation({
     mutationFn: async () => {
       if (!selectedAddressId) {
-        throw new Error("Selecione um endereço de entrega");
+        throw new Error('Selecione um endereço de entrega')
       }
-      return apiClient<{ id: string; code: string }>("/orders/checkout", {
-        method: "POST",
+      return apiClient<{ id: string; code: string }>('/orders/checkout', {
+        method: 'POST',
         body: JSON.stringify({
           customerAddressId: selectedAddressId,
           paymentMethod,
           notes: notes || undefined,
         }),
-      });
+      })
     },
     onSuccess: (order) => {
-      toast.success(`Pedido #${order.code} realizado com sucesso!`);
-      queryClient.invalidateQueries({ queryKey: ["cart-summary"] });
-      router.push(`/pedidos/${order.code}`);
+      toast.success(`Pedido #${order.code} realizado com sucesso!`)
+      queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
+      router.push(`/pedidos/${order.code}`)
     },
     onError: (err: any) => {
-      toast.error(err.message || "Ocorreu um erro ao processar o checkout");
+      toast.error(err.message || 'Ocorreu um erro ao processar o checkout')
     },
-  });
+  })
 
-  const isLoading = isLoadingCart || isLoadingAddresses;
+  const isLoading = isLoadingCart || isLoadingAddresses
 
   if (isLoading) {
     return (
@@ -186,18 +194,28 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  const items = cart?.items || [];
-  const subtotal = cart?.subtotal || items.reduce((acc, i) => acc + (i.variation.promotionalPrice || i.variation.price) * i.quantity, 0);
+  const items = cart?.items || []
+  const subtotal =
+    cart?.subtotal ||
+    items.reduce(
+      (acc, i) =>
+        acc + (i.variation.promotionalPrice || i.variation.price) * i.quantity,
+      0,
+    )
 
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-24 text-center font-sans antialiased">
         <RiShoppingBag3Line className="mx-auto h-16 w-16 text-stone-300" />
-        <h1 className="mt-4 text-2xl font-bold text-stone-900">Seu carrinho está vazio</h1>
-        <p className="mt-2 text-xs text-stone-500">Adicione produtos artesanais para prosseguir com o checkout.</p>
+        <h1 className="mt-4 text-2xl font-bold text-stone-900">
+          Seu carrinho está vazio
+        </h1>
+        <p className="mt-2 text-xs text-stone-500">
+          Adicione produtos artesanais para prosseguir com o checkout.
+        </p>
         <Link
           href="/produtos"
           className="mt-6 inline-flex items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900 cursor-pointer"
@@ -206,7 +224,7 @@ export default function CheckoutPage() {
           <span>Explorar Catálogo</span>
         </Link>
       </div>
-    );
+    )
   }
 
   return (
@@ -220,7 +238,9 @@ export default function CheckoutPage() {
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Voltar às compras</span>
         </Link>
-        <h1 className="text-xl font-extrabold text-stone-900">Finalizar Pedido</h1>
+        <h1 className="text-xl font-extrabold text-stone-900">
+          Finalizar Pedido
+        </h1>
         <div className="flex items-center space-x-1.5 text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
           <RiShieldCheckLine className="h-4 w-4" />
           <span>Checkout Seguro SSL</span>
@@ -249,7 +269,7 @@ export default function CheckoutPage() {
               </Button>
             </div>
 
-            {(!addresses || addresses.length === 0) ? (
+            {!addresses || addresses.length === 0 ? (
               <div className="p-6 text-center border border-dashed rounded-2xl bg-stone-50 text-xs text-stone-500 space-y-3">
                 <p>Nenhum endereço cadastrado para entrega.</p>
                 <Button
@@ -263,37 +283,43 @@ export default function CheckoutPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {addresses.map((addr) => {
-                  const isSelected = selectedAddressId === addr.id;
+                  const isSelected = selectedAddressId === addr.id
                   return (
                     <div
                       key={addr.id}
                       onClick={() => setSelectedAddressId(addr.id)}
                       className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 relative ${
                         isSelected
-                          ? "border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20"
-                          : "border-stone-200 bg-white hover:border-stone-400"
+                          ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
+                          : 'border-stone-200 bg-white hover:border-stone-400'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
-                          {addr.label || "Endereço"}
+                          {addr.label || 'Endereço'}
                           {addr.isDefault && (
                             <span className="text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded-md font-normal">
                               Padrão
                             </span>
                           )}
                         </span>
-                        {isSelected && <RiCheckLine className="h-5 w-5 text-emerald-800 font-bold" />}
+                        {isSelected && (
+                          <RiCheckLine className="h-5 w-5 text-emerald-800 font-bold" />
+                        )}
                       </div>
-                      <p className="text-xs font-semibold text-stone-800">{addr.recipient}</p>
+                      <p className="text-xs font-semibold text-stone-800">
+                        {addr.recipient}
+                      </p>
                       <p className="text-xs text-stone-600">
-                        {addr.street}, {addr.number} {addr.complement && `- ${addr.complement}`}
+                        {addr.street}, {addr.number}{' '}
+                        {addr.complement && `- ${addr.complement}`}
                       </p>
                       <p className="text-xs text-stone-500">
-                        {addr.neighborhood} — {addr.city}/{addr.state} (CEP: {addr.zipCode})
+                        {addr.neighborhood} — {addr.city}/{addr.state} (CEP:{' '}
+                        {addr.zipCode})
                       </p>
                     </div>
-                  );
+                  )
                 })}
               </div>
             )}
@@ -310,11 +336,11 @@ export default function CheckoutPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setPaymentMethod("pix")}
+                onClick={() => setPaymentMethod('pix')}
                 className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
-                  paymentMethod === "pix"
-                    ? "border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20"
-                    : "border-stone-200 bg-white hover:border-stone-400"
+                  paymentMethod === 'pix'
+                    ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
+                    : 'border-stone-200 bg-white hover:border-stone-400'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -325,45 +351,55 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <p className="font-bold text-xs text-stone-900">PIX</p>
-                  <p className="text-[11px] text-stone-500">Aprovação imediata com QR Code</p>
+                  <p className="text-[11px] text-stone-500">
+                    Aprovação imediata com QR Code
+                  </p>
                 </div>
               </Button>
 
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setPaymentMethod("credit_card")}
+                onClick={() => setPaymentMethod('credit_card')}
                 className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
-                  paymentMethod === "credit_card"
-                    ? "border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20"
-                    : "border-stone-200 bg-white hover:border-stone-400"
+                  paymentMethod === 'credit_card'
+                    ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
+                    : 'border-stone-200 bg-white hover:border-stone-400'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <RiBankCardLine className="h-6 w-6 text-stone-700" />
                 </div>
                 <div>
-                  <p className="font-bold text-xs text-stone-900">Cartão de Crédito</p>
-                  <p className="text-[11px] text-stone-500">Em até 3x sem juros</p>
+                  <p className="font-bold text-xs text-stone-900">
+                    Cartão de Crédito
+                  </p>
+                  <p className="text-[11px] text-stone-500">
+                    Em até 3x sem juros
+                  </p>
                 </div>
               </Button>
 
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setPaymentMethod("boleto")}
+                onClick={() => setPaymentMethod('boleto')}
                 className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
-                  paymentMethod === "boleto"
-                    ? "border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20"
-                    : "border-stone-200 bg-white hover:border-stone-400"
+                  paymentMethod === 'boleto'
+                    ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
+                    : 'border-stone-200 bg-white hover:border-stone-400'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <RiBarcodeLine className="h-6 w-6 text-stone-700" />
                 </div>
                 <div>
-                  <p className="font-bold text-xs text-stone-900">Boleto Bancário</p>
-                  <p className="text-[11px] text-stone-500">Vencimento em 2 dias úteis</p>
+                  <p className="font-bold text-xs text-stone-900">
+                    Boleto Bancário
+                  </p>
+                  <p className="text-[11px] text-stone-500">
+                    Vencimento em 2 dias úteis
+                  </p>
                 </div>
               </Button>
             </div>
@@ -397,14 +433,22 @@ export default function CheckoutPage() {
                 const imgUrl =
                   item.variation.medias?.find((m) => m.isMain)?.url ||
                   item.variation.product.medias?.find((m) => m.isMain)?.url ||
-                  item.variation.product.medias?.[0]?.url;
-                const unitPrice = item.variation.promotionalPrice || item.variation.price;
+                  item.variation.product.medias?.[0]?.url
+                const unitPrice =
+                  item.variation.promotionalPrice || item.variation.price
 
                 return (
-                  <div key={item.id} className="flex items-center space-x-3 pt-3 first:pt-0">
+                  <div
+                    key={item.id}
+                    className="flex items-center space-x-3 pt-3 first:pt-0"
+                  >
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
                       {imgUrl ? (
-                        <img src={imgUrl} alt="" className="h-full w-full object-cover" />
+                        <img
+                          src={imgUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         <RiShoppingBag3Line className="h-6 w-6 text-stone-300 m-auto mt-3" />
                       )}
@@ -421,7 +465,7 @@ export default function CheckoutPage() {
                       R$ {(unitPrice * item.quantity).toFixed(2)}
                     </span>
                   </div>
-                );
+                )
               })}
             </div>
 
@@ -429,15 +473,21 @@ export default function CheckoutPage() {
             <div className="space-y-2 border-t border-stone-100 pt-4 text-xs">
               <div className="flex justify-between text-stone-600">
                 <span>Subtotal ({items.length} itens)</span>
-                <span className="font-semibold text-stone-900">R$ {subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-stone-900">
+                  R$ {subtotal.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Frete Regional</span>
-                <span className="font-bold text-emerald-800 uppercase text-[11px]">Grátis</span>
+                <span className="font-bold text-emerald-800 uppercase text-[11px]">
+                  Grátis
+                </span>
               </div>
               <div className="flex justify-between border-t border-stone-200 pt-3 text-sm font-extrabold text-stone-900">
                 <span>Total a pagar</span>
-                <span className="text-lg text-emerald-900">R$ {subtotal.toFixed(2)}</span>
+                <span className="text-lg text-emerald-900">
+                  R$ {subtotal.toFixed(2)}
+                </span>
               </div>
             </div>
 
@@ -448,7 +498,9 @@ export default function CheckoutPage() {
               disabled={checkoutMutation.isPending || !selectedAddressId}
               className="w-full h-12 rounded-xl bg-emerald-800 text-xs font-extrabold text-white hover:bg-emerald-900 shadow-md cursor-pointer transition-all"
             >
-              {checkoutMutation.isPending ? "Processando Pedido..." : "Finalizar Pedido"}
+              {checkoutMutation.isPending
+                ? 'Processando Pedido...'
+                : 'Finalizar Pedido'}
             </Button>
 
             <div className="flex items-center justify-center space-x-2 text-[11px] text-stone-500 pt-2">
@@ -463,16 +515,20 @@ export default function CheckoutPage() {
       {showAddAddressModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 shadow-xl">
-            <h3 className="text-base font-bold text-stone-900">Cadastrar Novo Endereço</h3>
+            <h3 className="text-base font-bold text-stone-900">
+              Cadastrar Novo Endereço
+            </h3>
             <form
               onSubmit={(e) => {
-                e.preventDefault();
-                addAddressMutation.mutate();
+                e.preventDefault()
+                addAddressMutation.mutate()
               }}
               className="space-y-3 text-xs"
             >
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">Nome do Destinatário *</label>
+                <label className="font-semibold text-stone-700 block mb-1">
+                  Nome do Destinatário *
+                </label>
                 <input
                   required
                   placeholder="Ex: Maria da Silva"
@@ -484,7 +540,9 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">CEP *</label>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    CEP *
+                  </label>
                   <input
                     required
                     placeholder="37925-000"
@@ -494,7 +552,9 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">Identificador</label>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    Identificador
+                  </label>
                   <input
                     placeholder="Ex: Casa, Trabalho"
                     value={newLabel}
@@ -506,7 +566,9 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2">
-                  <label className="font-semibold text-stone-700 block mb-1">Rua / Logradouro *</label>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    Rua / Logradouro *
+                  </label>
                   <input
                     required
                     placeholder="Rua da Canastra"
@@ -516,7 +578,9 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">Número *</label>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    Número *
+                  </label>
                   <input
                     required
                     placeholder="100"
@@ -529,7 +593,9 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">Bairro *</label>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    Bairro *
+                  </label>
                   <input
                     required
                     placeholder="Centro"
@@ -539,7 +605,9 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">Cidade *</label>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    Cidade *
+                  </label>
                   <input
                     required
                     placeholder="São Roque"
@@ -549,7 +617,9 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">UF *</label>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    UF *
+                  </label>
                   <input
                     required
                     maxLength={2}
@@ -575,7 +645,9 @@ export default function CheckoutPage() {
                   disabled={addAddressMutation.isPending}
                   className="bg-emerald-800 hover:bg-emerald-900 text-white cursor-pointer"
                 >
-                  {addAddressMutation.isPending ? "Salvando..." : "Salvar Endereço"}
+                  {addAddressMutation.isPending
+                    ? 'Salvando...'
+                    : 'Salvar Endereço'}
                 </Button>
               </div>
             </form>
@@ -583,5 +655,5 @@ export default function CheckoutPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
