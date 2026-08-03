@@ -49,7 +49,7 @@ export function StoreCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-emerald-800 text-white font-serif text-3xl font-bold">
+          <div className="flex h-full w-full items-center justify-center bg-emerald-800 text-white text-3xl font-bold">
             {name.charAt(0).toUpperCase()}
           </div>
         )}
