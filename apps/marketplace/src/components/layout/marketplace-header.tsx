@@ -8,14 +8,10 @@ import {
   RiArrowRightSLine,
   RiCloseLine,
   RiDiscountPercentLine,
-  RiGridLine,
-  RiLogoutBoxRLine,
   RiMapPinLine,
   RiMenuLine,
   RiSearchLine,
   RiShoppingBag3Line,
-  RiStore2Line,
-  RiUser3Line,
 } from "react-icons/ri";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -25,6 +21,7 @@ import { HoverDropdown } from "@/components/ui/hover-dropdown";
 import { Input } from "@/components/ui/input";
 
 import { CartSheet } from "../cart/cart-sheet";
+import { MobileMenuDrawer } from "./mobile-menu-drawer";
 import { apiClient } from "../../lib/api-client";
 import { useCustomer } from "../../providers/customer-auth-provider";
 
@@ -104,7 +101,7 @@ export function MarketplaceHeader() {
   };
 
   return (
-    <header className="w-full font-sans antialiased pt-1">
+    <header className="w-full font-sans antialiased">
       {/* ─── Global Top Announcement Bar ─── */}
       {settings?.announcementActive && settings?.announcementText && !announcementDismissed && (
         <div className="relative w-full bg-emerald-950 text-emerald-100 py-1.5 px-4 text-xs font-medium">
@@ -134,7 +131,7 @@ export function MarketplaceHeader() {
       )}
 
       {/* ─── Grid Header (12 Colunas Perfeitamente Alinhadas) ─── */}
-      <div className="mx-auto max-w-7xl px-4 pt-2 pb-1.5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
 
         {/* ROW 1: Logo (Col 1-3) | Search Input (Col 4-9) | Promo Banner (Col 10-12) */}
         <div className="grid grid-cols-12 items-center gap-4">
@@ -150,7 +147,7 @@ export function MarketplaceHeader() {
                 />
               ) : (
                 <div className="flex items-center space-x-2">
-                  <div className="flex h-8.5 w-8.5 items-center justify-center rounded-lg bg-emerald-950 text-white font-black text-base shadow-xs">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white font-black text-base shadow-xs">
                     {(settings?.publicName || "Verttex").charAt(0)}
                   </div>
                   <div className="flex flex-col">
@@ -214,18 +211,18 @@ export function MarketplaceHeader() {
           </div>
 
           {/* Mobile Actions Toggle */}
-          <div className="col-span-6 flex items-center justify-end space-x-2 md:hidden">
+          <div className="col-span-6 flex items-center justify-end space-x-1 md:hidden">
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 hover:bg-transparent cursor-pointer"
+              className="relative"
               aria-label="Carrinho"
             >
-              <RiShoppingBag3Line className="h-6 w-6" />
+              <RiShoppingBag3Line className="size-5" />
               {cartTotalItems > 0 && (
-                <Badge className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-950 p-0 text-[10px] font-bold text-white border-none">
+                <Badge className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-emerald-600 p-0 text-[10px] font-bold text-white border-none">
                   {cartTotalItems}
                 </Badge>
               )}
@@ -236,10 +233,9 @@ export function MarketplaceHeader() {
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="hover:bg-emerald-700/50"
               aria-label="Menu Mobile"
             >
-              {mobileMenuOpen ? <RiCloseLine className="h-6 w-6" /> : <RiMenuLine className="h-6 w-6" />}
+              {mobileMenuOpen ? <RiCloseLine className="size-5" /> : <RiMenuLine className="size-5" />}
             </Button>
           </div>
         </div>
@@ -588,120 +584,15 @@ export function MarketplaceHeader() {
         </div>
       </div>
 
-      {/* ─── Mobile Menu Drawer ─── */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-emerald-700 bg-emerald-700 px-4 py-5 space-y-4 shadow-xl animate-fadeIn text-white">
-          {/* Mobile Search Form */}
-          <form onSubmit={handleSearchSubmit} className="relative">
-            <div className="flex items-center rounded-xs bg-white text-stone-900 px-3 py-2 shadow-xs">
-              <RiSearchLine className="h-4 w-4 text-stone-400 shrink-0" />
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar produtos, marcas e muito mais..."
-                className="w-full bg-transparent border-none focus-visible:ring-0 px-2.5 text-sm text-stone-900 placeholder:text-stone-600 focus:outline-none"
-              />
-              {searchQuery && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSearchQuery("")}
-                  className="h-6 w-6 p-0 text-stone-400 hover:text-stone-700 hover:bg-transparent cursor-pointer"
-                >
-                  <RiCloseLine className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </form>
-
-          {/* Mobile Links */}
-          <div className="space-y-1 text-xs font-medium text-white">
-            <Link
-              href="/produtos"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 hover:bg-emerald-600"
-            >
-              <RiDiscountPercentLine className="h-4.5 w-4.5 text-white" />
-              <span>Ofertas</span>
-            </Link>
-
-            <Link
-              href="/lojas"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 hover:bg-emerald-600"
-            >
-              <RiStore2Line className="h-4.5 w-4.5 text-white" />
-              <span>Produtores Parceiros</span>
-            </Link>
-
-            <Link
-              href="/categorias"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center space-x-2.5 rounded-xs px-3 py-2.5 font-bold hover:bg-emerald-600"
-            >
-              <RiGridLine className="h-4.5 w-4.5 text-white" />
-              <span>Ver mais categorias</span>
-            </Link>
-          </div>
-
-          {/* Customer Account Mobile */}
-          <div className="pt-3 border-t border-emerald-800/40">
-            {customer ? (
-              <div className="space-y-2">
-                <div className="px-3 py-1.5">
-                  <p className="text-xs font-bold text-white">{customer.name}</p>
-                  <p className="text-[11px] text-white/80">{customer.email}</p>
-                </div>
-                <Link
-                  href="/perfil"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-2.5 rounded-xs px-3 py-2 text-xs font-medium text-white hover:bg-emerald-600/50"
-                >
-                  <RiUser3Line className="h-4 w-4 text-white" />
-                  <span>Meu Perfil</span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex w-full items-center space-x-2.5 rounded-xs px-3 py-2 text-xs font-medium text-rose-200 hover:bg-rose-950/20 cursor-pointer"
-                >
-                  <RiLogoutBoxRLine className="h-4 w-4" />
-                  <span>Sair da Conta</span>
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    openAuthModal("login");
-                  }}
-                  className="bg-emerald-950 text-white hover:bg-emerald-900 font-bold"
-                >
-                  Entre
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    openAuthModal("register");
-                  }}
-                  className="bg-white/80 text-emerald-950 hover:bg-white font-bold"
-                >
-                  Crie a sua conta
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* ─── Mobile Menu Drawer Component ─── */}
+      <MobileMenuDrawer
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        customer={customer}
+        logout={logout}
+        openAuthModal={openAuthModal}
+        displayCategories={displayCategories}
+      />
 
       {/* ─── Cart Sheet Drawer Component ─── */}
       <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />
