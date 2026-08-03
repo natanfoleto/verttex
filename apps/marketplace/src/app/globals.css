@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-2xs: 24rem;
+  --breakpoint-xs: 30rem;
+  --breakpoint-4xl: 56rem;
+}
+
 @layer base {
   html {
     overflow-y: scroll;

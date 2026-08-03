@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { Menu, ShoppingBag, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import {
@@ -9,9 +10,7 @@ import {
   RiCloseLine,
   RiDiscountPercentLine,
   RiMapPinLine,
-  RiMenuLine,
   RiSearchLine,
-  RiShoppingBag3Line,
 } from 'react-icons/ri'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -146,7 +145,7 @@ export function MarketplaceHeader() {
         {/* ROW 1: Logo (Col 1-3) | Search Input (Col 4-9) | Promo Banner (Col 10-12) */}
         <div className="grid grid-cols-12 items-center gap-4">
           {/* Logo Alinhada na Coluna 1 a 2 (Reduzido para aproximar a busca) */}
-          <div className="col-span-6 md:col-span-2 flex items-center">
+          <div className="col-span-6 4xl:col-span-2 flex items-center">
             <Link
               href="/"
               className="inline-flex items-center space-x-2.5 group"
@@ -178,7 +177,7 @@ export function MarketplaceHeader() {
           {/* Input de Busca Alinhado na Coluna 3 a 8 (6 colunas) */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden md:flex col-span-6 items-center"
+            className="hidden 4xl:flex col-span-6 items-center"
           >
             <div className="relative w-full flex items-center bg-white rounded-md shadow-sm overflow-hidden">
               <Input
@@ -212,7 +211,7 @@ export function MarketplaceHeader() {
           </form>
 
           {/* Banner Promocional no Topo Direita (Coluna 9 a 12 - 4 colunas) */}
-          <div className="hidden md:flex col-span-4 items-center justify-end text-xs font-semibold">
+          <div className="hidden 4xl:flex col-span-4 items-center justify-end text-xs font-semibold">
             <Link
               href="/produtos"
               className="inline-flex items-center space-x-2 hover:opacity-90 transition-opacity"
@@ -225,7 +224,7 @@ export function MarketplaceHeader() {
           </div>
 
           {/* Mobile Actions Toggle */}
-          <div className="col-span-6 flex items-center justify-end space-x-1 md:hidden">
+          <div className="col-span-6 flex items-center justify-end space-x-1 4xl:hidden">
             <Button
               type="button"
               variant="ghost"
@@ -234,7 +233,7 @@ export function MarketplaceHeader() {
               className="relative"
               aria-label="Carrinho"
             >
-              <RiShoppingBag3Line className="size-5" />
+              <ShoppingBag className="size-5 stroke-[1.5px]" />
               {cartTotalItems > 0 && (
                 <Badge className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-emerald-600 p-0 text-[10px] font-bold text-white border-none">
                   {cartTotalItems}
@@ -250,16 +249,16 @@ export function MarketplaceHeader() {
               aria-label="Menu Mobile"
             >
               {mobileMenuOpen ? (
-                <RiCloseLine className="size-5" />
+                <X className="size-5 stroke-[1.5px]" />
               ) : (
-                <RiMenuLine className="size-5" />
+                <Menu className="size-5 stroke-[1.5px]" />
               )}
             </Button>
           </div>
         </div>
 
         {/* ROW 2: CEP (Col 1-2) | Menus Nav (Col 3-8) | Auth Controls (Col 9-12) */}
-        <div className="hidden md:grid grid-cols-12 items-center gap-4 pt-3.5 pb-0.5">
+        <div className="hidden 4xl:grid grid-cols-12 items-center gap-4 pt-3.5 pb-0.5">
           {/* CEP / Região Alinhado Exatamente na Coluna 1 a 2 */}
           <div className="col-span-2 flex items-center">
             <Button
@@ -364,13 +363,6 @@ export function MarketplaceHeader() {
               className="py-1 hover:text-emerald-600 transition-opacity"
             >
               Cupons
-            </Link>
-
-            <Link
-              href="/produtos"
-              className="py-1 hover:text-emerald-600 transition-opacity"
-            >
-              Supermercado
             </Link>
 
             <Link
@@ -621,7 +613,7 @@ export function MarketplaceHeader() {
               className="relative p-1 h-auto w-auto hover:opacity-80 hover:text-emerald-600 cursor-pointer"
               title="Carrinho de Compras"
             >
-              <RiShoppingBag3Line className="h-5 w-5" />
+              <ShoppingBag className="size-4.5 stroke-[1.5px]" />
               {cartTotalItems > 0 && (
                 <Badge className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 p-0 text-[9px] font-bold text-white border-none">
                   {cartTotalItems}

@@ -56,7 +56,7 @@ export function MobileMenuDrawer({
   if (!isOpen) return null
 
   return (
-    <div className="md:hidden border-t border-stone-200 bg-white shadow-2xl animate-fadeIn text-stone-900 font-sans">
+    <div className="4xl:hidden border-t border-stone-200 bg-white shadow-2xl animate-fadeIn text-stone-900 font-sans">
       {/* Header Top Section (Logado vs Deslogado) */}
       {customer ? (
         <div className="bg-emerald-600 p-4 space-y-3">

@@ -23,9 +23,11 @@ export function MarketplaceCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
-  // Touch Swipe
+  // Touch & Mouse Swipe / Drag
   const touchStartX = useRef(0)
   const touchEndX = useRef(0)
+  const isDragging = useRef(false)
+  const hasDragged = useRef(false)
 
   // Motion preference
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -71,7 +73,7 @@ export function MarketplaceCarousel() {
       if (saved) {
         setCachedBanners(JSON.parse(saved))
       }
-    } catch {}
+    } catch { }
   }, [])
 
   // Busca banners públicos com imagem
@@ -98,7 +100,7 @@ export function MarketplaceCarousel() {
           'verttex_cached_carousel_banners',
           JSON.stringify(bannersRes.data),
         )
-      } catch {}
+      } catch { }
       setCachedBanners(bannersRes.data)
     }
   }, [bannersRes?.data])
@@ -158,7 +160,7 @@ export function MarketplaceCarousel() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handlePrev, handleNext])
 
-  // Swipe em dispositivos móveis
+  // Swipe em dispositivos móveis (Touch)
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0]
     if (touch) touchStartX.current = touch.clientX
@@ -170,13 +172,56 @@ export function MarketplaceCarousel() {
       touchEndX.current = touch.clientX
       const diff = touchStartX.current - touchEndX.current
 
-      if (Math.abs(diff) > 50) {
+      if (Math.abs(diff) > 40) {
         if (diff > 0) {
           handleNext()
         } else {
           handlePrev()
         }
       }
+    }
+  }
+
+  // Arraste com o Mouse (Mouse Drag)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true
+    hasDragged.current = false
+    touchStartX.current = e.clientX
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return
+    const diff = Math.abs(e.clientX - touchStartX.current)
+    if (diff > 5) {
+      hasDragged.current = true
+    }
+  }
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isDragging.current) return
+    touchEndX.current = e.clientX
+    const diff = touchStartX.current - touchEndX.current
+
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        handleNext()
+      } else {
+        handlePrev()
+      }
+    }
+    isDragging.current = false
+  }
+
+  const handleMouseLeave = () => {
+    if (isDragging.current) {
+      isDragging.current = false
+    }
+    setIsPaused(false)
+  }
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    if (hasDragged.current) {
+      e.preventDefault()
     }
   }
 
@@ -224,21 +269,23 @@ export function MarketplaceCarousel() {
     <section
       ref={containerRef}
       onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="group relative w-full py-0 mb-8 sm:mb-12 overflow-hidden"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      className="group relative w-full py-0 mb-8 sm:mb-12 overflow-hidden select-none cursor-grab active:cursor-grabbing"
       aria-label="Carrossel de Banners"
     >
-      {/* Container principal ocupando 100% da largura da tela */}
-      <div className="relative w-full aspect-16/4.5 overflow-hidden">
+      {/* Container principal ocupando 100% da largura da tela com altura fixa a partir de sm */}
+      <div className="relative w-full aspect-16/4.5 min-h-45 overflow-hidden">
         {/* Slider track deslizante */}
         <div
-          className={`flex w-full h-full ${
-            prefersReducedMotion
-              ? ''
-              : 'transition-transform duration-500 ease-in-out'
-          }`}
+          className={`flex w-full h-full ${prefersReducedMotion
+            ? ''
+            : 'transition-transform duration-500 ease-in-out'
+            }`}
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {banners.map((banner) => (
@@ -252,40 +299,43 @@ export function MarketplaceCarousel() {
                   href={banner.linkUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full h-full cursor-pointer"
+                  onClick={handleLinkClick}
+                  className="block w-full h-full max-w-360 mx-auto cursor-pointer"
                   aria-label={banner.title ?? 'Banner'}
                 >
                   <img
                     src={banner.imageUrl!}
                     alt={banner.title ?? 'Banner'}
-                    className="w-full h-full object-cover"
+                    draggable={false}
+                    className="w-full h-full object-cover select-none pointer-events-none"
                   />
                 </a>
               ) : (
-                <img
-                  src={banner.imageUrl!}
-                  alt={banner.title ?? 'Banner'}
-                  className="w-full h-full object-contain"
-                />
+                <div className="w-full h-full max-w-360 mx-auto">
+                  <img
+                    src={banner.imageUrl!}
+                    alt={banner.title ?? 'Banner'}
+                    draggable={false}
+                    className="w-full h-full object-cover select-none pointer-events-none"
+                  />
+                </div>
               )}
 
               {/* Overlay de Título & Subtítulo conforme posição/alinhamento */}
               {carouselTitlePosition !== 'NONE' &&
                 (banner.title || banner.subtitle) && (
                   <div
-                    className={`absolute inset-0 px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${
-                      carouselTitlePosition === 'TOP'
-                        ? 'justify-start pt-6 sm:pt-10'
-                        : carouselTitlePosition === 'BOTTOM'
-                          ? 'justify-end pb-6 sm:pb-10'
-                          : 'justify-center'
-                    } ${
-                      carouselTitleHAlign === 'RIGHT'
+                    className={`absolute inset-0 max-w-360 mx-auto px-8 sm:px-16 md:px-24 lg:px-40 flex flex-col pointer-events-none ${carouselTitlePosition === 'TOP'
+                      ? 'justify-start pt-6 sm:pt-10'
+                      : carouselTitlePosition === 'BOTTOM'
+                        ? 'justify-end pb-6 sm:pb-10'
+                        : 'justify-center'
+                      } ${carouselTitleHAlign === 'RIGHT'
                         ? 'items-end text-right'
                         : carouselTitleHAlign === 'CENTER'
                           ? 'items-center text-center'
                           : 'items-start text-left'
-                    }`}
+                      }`}
                   >
                     {banner.title && (
                       <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold text-white drop-shadow-md tracking-tight">
@@ -313,18 +363,17 @@ export function MarketplaceCarousel() {
                 variant="ghost"
                 onClick={() => setCurrentIndex(idx)}
                 aria-label={`Ir para o banner ${idx + 1}`}
-                className={`p-0 min-h-0 h-1.5 rounded-full cursor-pointer hover:bg-transparent ${
-                  idx === currentIndex
-                    ? 'w-6 bg-white shadow-xs'
-                    : 'w-1.5 bg-white/50 hover:bg-white/80'
-                }`}
+                className={`p-0 min-h-0 h-1.5 rounded-full cursor-pointer hover:bg-transparent ${idx === currentIndex
+                  ? 'w-6 bg-white shadow-xs'
+                  : 'w-1.5 bg-white/50 hover:bg-white/80'
+                  }`}
               />
             ))}
           </div>
         )}
       </div>
 
-      {/* Botões cápsula/pill shape nas extremidades */}
+      {/* Botões cápsula/pill shape nas extremidades — Exibidos EXCLUSIVAMENTE no desktop (4xl) */}
       {hasMultiple && (
         <>
           <Button
@@ -332,9 +381,9 @@ export function MarketplaceCarousel() {
             variant="ghost"
             onClick={handlePrev}
             aria-label="Banner anterior"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-14 items-center justify-center rounded-r-full rounded-l-none bg-white p-0 shadow-none border border-l-0 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
+            className="hidden 4xl:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-12 sm:w-10 md:h-14 md:w-12 bg-white items-center justify-center rounded-r-full rounded-l-none group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto shadow-xl hover:bg-stone-50 hover:text-emerald-700 cursor-pointer transition-all"
           >
-            <FiChevronLeft className="size-4 sm:size-5 md:size-6 stroke-1" />
+            <FiChevronLeft className="size-3.5 sm:size-4 md:size-5" />
           </Button>
 
           <Button
@@ -342,9 +391,9 @@ export function MarketplaceCarousel() {
             variant="ghost"
             onClick={handleNext}
             aria-label="Próximo banner"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex h-10 w-8 sm:h-12 sm:w-10 md:h-16 md:w-14 items-center justify-center rounded-l-full rounded-r-none bg-white p-0 shadow-none border border-r-0 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto hover:bg-white hover:shadow-[0_4px_8px_rgba(0,0,0,0.08)] cursor-pointer"
+            className="hidden 4xl:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-12 sm:w-10 md:h-14 md:w-12 bg-white items-center justify-center rounded-l-full rounded-r-none group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto shadow-xl hover:bg-stone-50 hover:text-emerald-700 cursor-pointer transition-all"
           >
-            <FiChevronRight className="size-4 sm:size-5 md:size-6 stroke-1" />
+            <FiChevronRight className="size-3.5 sm:size-4 md:size-5" />
           </Button>
         </>
       )}
