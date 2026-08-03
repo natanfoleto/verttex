@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { apiClient } from '@/lib/api-client'
+import { apiClient, ApiError } from '@/lib/api-client'
 
 interface StoreLogoUploadProps {
   storeId?: string
@@ -94,8 +94,12 @@ export function StoreLogoUpload({
         setPreviewUrl(null)
         onLogoChange?.(newUrl)
         toast.success('Foto da loja atualizada com sucesso!')
-      } catch (err: any) {
-        toast.error(err.message || 'Falha ao enviar a foto da loja')
+      } catch (err: unknown) {
+        toast.error(
+          err instanceof ApiError
+            ? err.message
+            : 'Falha ao enviar a foto da loja',
+        )
         setPreviewUrl(null)
       } finally {
         setIsUploading(false)
@@ -125,8 +129,10 @@ export function StoreLogoUpload({
       setPreviewUrl(null)
       onLogoChange?.(null)
       toast.success('Foto da loja removida com sucesso!')
-    } catch (err: any) {
-      toast.error(err.message || 'Falha ao remover a foto')
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof ApiError ? err.message : 'Falha ao remover a foto',
+      )
     } finally {
       setIsDeleting(false)
       setIsDeleteDialogOpen(false)

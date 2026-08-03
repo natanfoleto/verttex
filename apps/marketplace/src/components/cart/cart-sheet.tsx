@@ -74,7 +74,7 @@ export function CartSheet({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao atualizar quantidade')
     },
   })

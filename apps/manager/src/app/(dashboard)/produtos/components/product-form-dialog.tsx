@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import {
   RiAddLine,
+  RiCalendarEventLine,
   RiCheckLine,
   RiCloseLine,
   RiDeleteBin6Line,
@@ -15,7 +16,6 @@ import {
   RiStarLine,
   RiTruckLine,
   RiUpload2Line,
-  RiCalendarEventLine,
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 
@@ -31,17 +31,17 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { PriceInput } from '@/components/ui/price-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
 import {
-  categoryQueryKeys,
   brandQueryKeys,
+  categoryQueryKeys,
   storeQueryKeys,
 } from '../../../../lib/query-keys'
 import { sanitizeSlug } from '../../../../lib/slug'
-import { PriceInput } from '@/components/ui/price-input'
 
 interface Store {
   id: string
@@ -86,6 +86,9 @@ export interface ProductToEdit {
   storeId: string
   categoryId: string
   brandId?: string | null
+  store?: { id: string; name: string }
+  category?: { id: string; name: string }
+  brand?: { id: string; name: string } | null
   name: string
   slug: string
   shortDescription?: string | null
@@ -357,14 +360,17 @@ export function ProductFormDialog({
       // Populate Media Items
       if (productToEdit.medias && productToEdit.medias.length > 0) {
         setMediaItems(
-          productToEdit.medias.map((m) => ({
-            fileId: m.fileId,
-            previewUrl:
-              (m.file as any)?.publicUrl ||
-              `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${m.file.objectKey}`,
-            originalName: m.file.originalName,
-            isMain: m.isMain,
-          })),
+          productToEdit.medias.map((m) => {
+            const f = m.file as { publicUrl?: string; objectKey?: string }
+            return {
+              fileId: m.fileId,
+              previewUrl:
+                f.publicUrl ||
+                `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${f.objectKey}`,
+              originalName: m.file.originalName,
+              isMain: m.isMain,
+            }
+          }),
         )
       } else {
         setMediaItems([])
@@ -726,7 +732,7 @@ export function ProductFormDialog({
   const updateVariationField = (
     index: number,
     field: keyof ProductVariationItem,
-    val: any,
+    val: unknown,
   ) => {
     setVariations((prev) => {
       const next = [...prev]
@@ -737,7 +743,7 @@ export function ProductFormDialog({
 
   // Mutations
   const createMutation = useMutation({
-    mutationFn: (payload: any) =>
+    mutationFn: (payload: Record<string, unknown>) =>
       apiClient('/products', {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -748,7 +754,7 @@ export function ProductFormDialog({
       toast.success('Produto criado com sucesso!')
       onOpenChange(false)
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       toast.error(
         err instanceof ApiError ? err.message : 'Erro ao criar produto',
       )
@@ -756,7 +762,7 @@ export function ProductFormDialog({
   })
 
   const updateMutation = useMutation({
-    mutationFn: (payload: any) =>
+    mutationFn: (payload: Record<string, unknown>) =>
       apiClient(`/products/${productToEdit!.id}`, {
         method: 'PATCH',
         body: JSON.stringify(payload),
@@ -767,7 +773,7 @@ export function ProductFormDialog({
       toast.success('Produto atualizado com sucesso!')
       onOpenChange(false)
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       toast.error(
         err instanceof ApiError ? err.message : 'Erro ao atualizar produto',
       )
@@ -808,7 +814,7 @@ export function ProductFormDialog({
     const mainMedia = mediaItems.find((m) => m.isMain) || mediaItems[0]
     const mediaFileIds = mediaItems.map((m) => m.fileId)
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       storeId: storeId || defaultStoreId,
       categoryId,
       brandId: brandId || null,
@@ -1065,7 +1071,12 @@ export function ProductFormDialog({
                     </label>
                     <NativeSelect
                       value={status}
-                      onChange={(e) => setStatus(e.target.value as any)}
+                      onChange={(e) =>
+                        setStatus(
+                          e.target.value as
+                            'draft' | 'active' | 'inactive' | 'archived',
+                        )
+                      }
                     >
                       <option value="draft">Rascunho (Draft)</option>
                       <option value="active">Ativo (Active)</option>
@@ -1235,11 +1246,12 @@ export function ProductFormDialog({
                         Exigir código do lote no recebimento
                       </span>
                     </div>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={hasBatchControl}
-                      onChange={(e) => setHasBatchControl(e.target.checked)}
-                      className="h-4 w-4 cursor-pointer rounded border-zinc-700 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                      onCheckedChange={(checked) =>
+                        setHasBatchControl(!!checked)
+                      }
+                      className="cursor-pointer"
                     />
                   </div>
 
@@ -1252,13 +1264,12 @@ export function ProductFormDialog({
                         Rastrear vencimento de lotes (FEFO)
                       </span>
                     </div>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={hasExpirationControl}
-                      onChange={(e) =>
-                        setHasExpirationControl(e.target.checked)
+                      onCheckedChange={(checked) =>
+                        setHasExpirationControl(!!checked)
                       }
-                      className="h-4 w-4 cursor-pointer rounded border-zinc-700 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                      className="cursor-pointer"
                     />
                   </div>
 
@@ -1271,13 +1282,12 @@ export function ProductFormDialog({
                         Bloquear recebimento sem validade
                       </span>
                     </div>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={isExpirationRequired}
-                      onChange={(e) =>
-                        setIsExpirationRequired(e.target.checked)
+                      onCheckedChange={(checked) =>
+                        setIsExpirationRequired(!!checked)
                       }
-                      className="h-4 w-4 cursor-pointer rounded border-zinc-700 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                      className="cursor-pointer"
                     />
                   </div>
                 </div>
@@ -1356,7 +1366,7 @@ export function ProductFormDialog({
                         className="font-mono text-amber-400"
                       />
                       <span className="mt-1 block text-[11px] text-zinc-500">
-                        Faixa de aviso "Próximo do Vencimento".
+                        Faixa de aviso &quot;Próximo do Vencimento&quot;.
                       </span>
                     </div>
                   </div>

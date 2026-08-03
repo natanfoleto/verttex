@@ -32,6 +32,27 @@ interface PublicCategory {
   productsCount: number
 }
 
+interface MarketplaceHeaderSettings {
+  publicName?: string
+  logoUrl?: string | null
+  announcementActive?: boolean
+  announcementText?: string | null
+  announcementLink?: string | null
+  announcementDismissible?: boolean
+}
+
+interface CartItemSummary {
+  quantity: number
+}
+
+interface CartStoreSummary {
+  items?: CartItemSummary[]
+}
+
+interface CartSummaryData {
+  stores?: CartStoreSummary[]
+}
+
 export function MarketplaceHeader() {
   const { customer, logout, openAuthModal } = useCustomer()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -40,11 +61,13 @@ export function MarketplaceHeader() {
   const [announcementDismissed, setAnnouncementDismissed] = useState(false)
 
   // Fetch marketplace settings
-  const { data: settings } = useQuery<any>({
+  const { data: settings } = useQuery<MarketplaceHeaderSettings>({
     queryKey: ['public-marketplace-settings'],
     queryFn: async () => {
-      const res = await apiClient<any>('/public/marketplace/settings')
-      return res?.data || res
+      const res = await apiClient<
+        MarketplaceHeaderSettings | { data: MarketplaceHeaderSettings }
+      >('/public/marketplace/settings')
+      return 'data' in res ? res.data : res
     },
   })
 
@@ -60,11 +83,11 @@ export function MarketplaceHeader() {
   })
 
   // Fetch cart summary for item counter
-  const { data: cartSummary } = useQuery<any>({
+  const { data: cartSummary } = useQuery<CartSummaryData | null>({
     queryKey: ['cart-summary'],
     queryFn: async () => {
       try {
-        const res = await apiClient<any>('/customer/cart')
+        const res = await apiClient<CartSummaryData>('/customer/cart')
         return res
       } catch {
         return null
@@ -75,10 +98,10 @@ export function MarketplaceHeader() {
 
   const cartTotalItems =
     cartSummary?.stores?.reduce(
-      (acc: number, store: any) =>
+      (acc: number, store: CartStoreSummary) =>
         acc +
         (store.items?.reduce(
-          (iAcc: number, item: any) => iAcc + item.quantity,
+          (iAcc: number, item: CartItemSummary) => iAcc + item.quantity,
           0,
         ) || 0),
       0,

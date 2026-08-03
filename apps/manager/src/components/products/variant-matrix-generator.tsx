@@ -1,15 +1,17 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
+  RiCheckboxBlankLine,
+  RiCheckboxLine,
   RiGridLine,
   RiMagicLine,
-  RiCheckboxLine,
-  RiCheckboxBlankLine,
 } from 'react-icons/ri'
+
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
+
 import { ProductOptionDraft } from './options-manager-dialog'
 
 export interface VariationDraft {

@@ -14,8 +14,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
-import { apiClient } from '@/lib/api-client'
 import type { AuditLogEntry } from '@/lib/api/audit'
+import { apiClient } from '@/lib/api-client'
 
 // ─── Entity Labels ─────────────────────────────────────────────────────────────
 

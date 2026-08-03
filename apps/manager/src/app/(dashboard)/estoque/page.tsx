@@ -20,11 +20,11 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
 
 import { apiClient } from '../../../lib/api-client'
+import type { LotWithStockItem } from './components/discard-form-dialog'
 import { DiscardFormDialog } from './components/discard-form-dialog'
 import { ReceivingFormDialog } from './components/receiving-form-dialog'
-import { StatusFormDialog } from './components/status-form-dialog'
-import type { LotWithStockItem } from './components/discard-form-dialog'
 import type { LotItem } from './components/status-form-dialog'
+import { StatusFormDialog } from './components/status-form-dialog'
 
 interface Store {
   id: string

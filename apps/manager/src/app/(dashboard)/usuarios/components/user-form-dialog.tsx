@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-
 import { RiCheckLine } from 'react-icons/ri'
 
 import { Button } from '@/components/ui/button'
@@ -18,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
-import { roleQueryKeys, invalidateUsers } from '../../../../lib/query-keys'
+import { invalidateUsers, roleQueryKeys } from '../../../../lib/query-keys'
 
 export interface UserItem {
   id: string

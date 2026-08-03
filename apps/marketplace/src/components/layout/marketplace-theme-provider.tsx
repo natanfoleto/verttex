@@ -34,10 +34,10 @@ export function MarketplaceThemeProvider({
   const { data: settingsRes } = useQuery<PublicMarketplaceSettings>({
     queryKey: ['public-marketplace-settings'],
     queryFn: async () => {
-      const res = await apiClient<{ data: PublicMarketplaceSettings }>(
-        '/public/marketplace/settings',
-      )
-      return (res as any)?.data ?? res
+      const res = await apiClient<
+        PublicMarketplaceSettings | { data: PublicMarketplaceSettings }
+      >('/public/marketplace/settings')
+      return 'data' in res ? res.data : res
     },
     staleTime: 1000 * 60 * 10,
   })

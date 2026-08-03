@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { RiShieldCheckLine, RiCheckLine } from 'react-icons/ri'
+import { RiCheckLine, RiShieldCheckLine } from 'react-icons/ri'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'

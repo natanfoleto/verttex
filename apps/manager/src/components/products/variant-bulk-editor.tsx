@@ -1,17 +1,19 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { NativeSelect } from '@/components/ui/native-select'
-import { PriceInput } from '@/components/ui/price-input'
 import {
-  RiEqualizerLine,
   RiCheckboxCircleLine,
   RiDeleteBinLine,
+  RiEqualizerLine,
 } from 'react-icons/ri'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/ui/native-select'
+import { PriceInput } from '@/components/ui/price-input'
+
 import { VariationDraft } from './variant-matrix-generator'
 
 interface VariantBulkEditorProps {
@@ -59,7 +61,7 @@ export function VariantBulkEditor({
         ...v,
         price: bulkPrice > 0 ? bulkPrice : v.price,
         costPrice: bulkCostPrice > 0 ? bulkCostPrice : v.costPrice,
-        stockMode: bulkStockMode ? bulkStockMode : v.stockMode,
+        stockMode: bulkStockMode || v.stockMode,
         status: bulkStatus ? (bulkStatus as 'active' | 'inactive') : v.status,
       }
     })
@@ -70,7 +72,7 @@ export function VariantBulkEditor({
   const handleUpdateItemField = (
     index: number,
     field: keyof VariationDraft,
-    value: any,
+    value: unknown,
   ) => {
     const updated = [...variations]
     const target = updated[index]
@@ -207,6 +209,7 @@ export function VariantBulkEditor({
                   />
                 </td>
                 <td className="p-3 text-center">
+                  {/* eslint-disable-next-line react/forbid-elements */}
                   <input
                     type="radio"
                     name="default-variation-radio"

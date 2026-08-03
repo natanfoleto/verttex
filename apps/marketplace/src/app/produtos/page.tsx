@@ -15,6 +15,20 @@ import { MarketplacePageLoader } from '../../components/ui/marketplace-page-load
 import { ProductCard, ProductCardProps } from '../../components/ui/product-card'
 import { apiClient } from '../../lib/api-client'
 
+interface PublicProductCatalogItem {
+  id: string
+  name: string
+  slug: string
+  price: number
+  promotionalPrice?: number | null
+  mainImageUrl?: string | null
+  isFeatured?: boolean
+  store?: {
+    name?: string
+    slug?: string
+  } | null
+}
+
 export default function ProductsListingPage() {
   const searchParams = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState(
@@ -45,7 +59,7 @@ export default function ProductsListingPage() {
 
   // Query Public Products Catalog
   const { data: catalogRes, isLoading } = useQuery<{
-    data: any[]
+    data: PublicProductCatalogItem[]
     meta: {
       page: number
       perPage: number

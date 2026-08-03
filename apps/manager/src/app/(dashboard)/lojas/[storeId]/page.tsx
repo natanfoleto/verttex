@@ -25,16 +25,16 @@ import { StoreLogoUpload } from '@/components/ui/store-logo-upload'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { apiClient } from '../../../../lib/api-client'
-import { storeQueryKeys, invalidateStores } from '../../../../lib/query-keys'
+import { invalidateStores, storeQueryKeys } from '../../../../lib/query-keys'
 import { ProductsTable } from '../../produtos/components/products-table'
+import { StoreAuditTab } from '../components/store-audit-tab'
 import { StoreFormDialog } from '../components/store-form-dialog'
-import { StoreOverviewTab } from '../components/store-overview-tab'
 import { StoreInventoryTab } from '../components/store-inventory-tab'
 import { StoreLotsTab } from '../components/store-lots-tab'
 import { StoreMovementsTab } from '../components/store-movements-tab'
 import { StoreOrdersTab } from '../components/store-orders-tab'
+import { StoreOverviewTab } from '../components/store-overview-tab'
 import { StoreTeamTab } from '../components/store-team-tab'
-import { StoreAuditTab } from '../components/store-audit-tab'
 
 export default function StoreDetailPage({
   params,

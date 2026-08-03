@@ -1,12 +1,12 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import {
-  RiNotification3Line,
-  RiCheckLine,
-  RiRefreshLine,
   RiAlertLine,
+  RiCheckLine,
+  RiNotification3Line,
+  RiRefreshLine,
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 
@@ -33,9 +33,9 @@ export default function NotificationsCenterPage() {
     queryKey: ['notifications', unreadOnly],
     queryFn: async () => {
       try {
-        const res = await apiClient<any>(
-          `/notifications?unreadOnly=${unreadOnly}`,
-        )
+        const res = await apiClient<{
+          data: { unreadCount: number; notifications: NotificationItem[] }
+        }>(`/notifications?unreadOnly=${unreadOnly}`)
         return res.data
       } catch {
         return {
@@ -81,9 +81,12 @@ export default function NotificationsCenterPage() {
 
   const runExpirationCheckMutation = useMutation({
     mutationFn: async () => {
-      return apiClient('/notifications/expiration-check', { method: 'POST' })
+      return apiClient<{ data?: { newAlertsCount?: number } }>(
+        '/notifications/expiration-check',
+        { method: 'POST' },
+      )
     },
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       toast.success(
         `Varredura sanitária executada! ${res.data?.newAlertsCount || 0} novos alertas gerados.`,
       )

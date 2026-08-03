@@ -32,14 +32,13 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { TableWrapper } from '@/components/ui/table-wrapper'
 import { Textarea } from '@/components/ui/textarea'
+import { sanitizeSlug } from '@/lib/slug'
 
 import { apiClient, ApiError } from '../../../lib/api-client'
 import { brandQueryKeys, invalidateBrands } from '../../../lib/query-keys'
-import { sanitizeSlug } from '@/lib/slug'
 import { useAuth } from '../../../providers/auth-provider'
-
-import { TableWrapper } from '@/components/ui/table-wrapper'
 
 interface Brand {
   id: string

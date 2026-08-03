@@ -35,13 +35,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { sanitizeSlug } from '@/lib/slug'
 
 import { apiClient, ApiError } from '../../../lib/api-client'
 import {
   categoryQueryKeys,
   invalidateCategories,
 } from '../../../lib/query-keys'
-import { sanitizeSlug } from '@/lib/slug'
 import { useAuth } from '../../../providers/auth-provider'
 
 interface Category {

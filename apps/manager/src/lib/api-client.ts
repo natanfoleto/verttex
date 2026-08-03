@@ -138,7 +138,7 @@ export async function apiClient<T = any>(
     return blob as unknown as T
   }
 
-  let data = await response.json().catch(() => null)
+  const data = await response.json().catch(() => null)
 
   if (!response.ok || (data && data.success === false)) {
     const errorData = data?.error

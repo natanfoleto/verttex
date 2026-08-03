@@ -18,8 +18,6 @@ import {
 } from 'react-icons/ri'
 import { toast } from 'sonner'
 
-import { TableWrapper } from '@/components/ui/table-wrapper'
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,11 +31,12 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
+import { TableWrapper } from '@/components/ui/table-wrapper'
 
 import { apiClient, ApiError } from '../../../../lib/api-client'
 import {
-  categoryQueryKeys,
   brandQueryKeys,
+  categoryQueryKeys,
   storeQueryKeys,
 } from '../../../../lib/query-keys'
 import { useAuth } from '../../../../providers/auth-provider'
@@ -150,7 +149,7 @@ export function ProductsTable({
       queryClient.invalidateQueries({ queryKey: ['products-list'] })
       toast.success('Produto publicado no Marketplace com sucesso!')
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       toast.error(
         err instanceof ApiError ? err.message : 'Erro ao publicar produto',
       )
@@ -167,7 +166,7 @@ export function ProductsTable({
       toast.success('Produto arquivado com sucesso!')
       setDeletingProduct(null)
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       toast.error(
         err instanceof ApiError ? err.message : 'Erro ao arquivar produto',
       )
@@ -204,10 +203,13 @@ export function ProductsTable({
   const getMainImage = (prod: ProductToEdit) => {
     const mainMedia = prod.medias?.find((m) => m.isMain) || prod.medias?.[0]
     if (mainMedia?.file) {
-      if ((mainMedia.file as any).publicUrl)
-        return (mainMedia.file as any).publicUrl
-      if (mainMedia.file.objectKey) {
-        return `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${mainMedia.file.objectKey}`
+      const fileObj = mainMedia.file as {
+        publicUrl?: string
+        objectKey?: string
+      }
+      if (fileObj.publicUrl) return fileObj.publicUrl
+      if (fileObj.objectKey) {
+        return `https://pub-8c380f0027ec4da2864242b9f076f3fd.r2.dev/${fileObj.objectKey}`
       }
     }
     return null
@@ -263,7 +265,7 @@ export function ProductsTable({
                 wrapperClassName="w-40"
               >
                 <option value="">Todas as Lojas</option>
-                {storesList.map((st: any) => (
+                {storesList.map((st: { id: string; name: string }) => (
                   <option key={st.id} value={st.id}>
                     {st.name}
                   </option>
@@ -280,7 +282,7 @@ export function ProductsTable({
               wrapperClassName="w-40"
             >
               <option value="">Todas as Categorias</option>
-              {categoriesList.map((cat: any) => (
+              {categoriesList.map((cat: { id: string; name: string }) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
@@ -296,7 +298,7 @@ export function ProductsTable({
               wrapperClassName="w-40"
             >
               <option value="">Todas as Marcas</option>
-              {brandsList.map((br: any) => (
+              {brandsList.map((br: { id: string; name: string }) => (
                 <option key={br.id} value={br.id}>
                   {br.name}
                 </option>
@@ -331,11 +333,12 @@ export function ProductsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
-            {productsList.map((prod: any) => {
+            {productsList.map((prod: ProductToEdit) => {
               const imgUrl = getMainImage(prod)
               const defaultVar =
-                prod.variations?.find((v: any) => v.isDefault) ||
-                prod.variations?.[0]
+                prod.variations?.find(
+                  (v: { isDefault?: boolean }) => v.isDefault,
+                ) || prod.variations?.[0]
 
               return (
                 <tr

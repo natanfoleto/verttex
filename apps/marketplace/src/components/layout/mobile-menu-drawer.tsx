@@ -34,10 +34,15 @@ export interface PublicCategory {
   productsCount: number
 }
 
+interface MobileCustomer {
+  name: string
+  email: string
+}
+
 interface MobileMenuDrawerProps {
   isOpen: boolean
   onClose: () => void
-  customer: any
+  customer: MobileCustomer | null
   logout: () => void
   openAuthModal: (mode: 'login' | 'register') => void
   displayCategories: PublicCategory[]

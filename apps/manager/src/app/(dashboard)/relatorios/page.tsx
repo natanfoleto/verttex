@@ -11,8 +11,9 @@ import {
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { apiClient } from '@/lib/api-client'
+import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
+import { apiClient } from '@/lib/api-client'
 
 interface SalesSummaryData {
   orderCount: number
@@ -48,7 +49,9 @@ export default function ReportsAndBiPage() {
       queryKey: ['report-sales'],
       queryFn: async () => {
         try {
-          const res = await apiClient<any>('/reports/sales-summary')
+          const res = await apiClient<SalesSummaryData>(
+            '/reports/sales-summary',
+          )
           return (
             res ?? {
               orderCount: 42,
@@ -73,7 +76,9 @@ export default function ReportsAndBiPage() {
     queryKey: ['report-abc'],
     queryFn: async () => {
       try {
-        const res = await apiClient<any>('/reports/top-products')
+        const res = await apiClient<{ products: AbcProductItem[] }>(
+          '/reports/top-products',
+        )
         return (
           res ?? {
             products: [
@@ -139,7 +144,9 @@ export default function ReportsAndBiPage() {
       queryKey: ['report-losses'],
       queryFn: async () => {
         try {
-          const res = await apiClient<any>('/reports/inventory-losses')
+          const res = await apiClient<InventoryLossesData>(
+            '/reports/inventory-losses',
+          )
           return (
             res ?? {
               totalDiscardedQuantity: 14,
@@ -206,14 +213,14 @@ export default function ReportsAndBiPage() {
         </div>
 
         <div className="flex items-center space-x-2 shrink-0">
-          <select
+          <NativeSelect
             value={exportFormat}
             onChange={(e) => setExportFormat(e.target.value as 'csv' | 'json')}
-            className="bg-zinc-900 border border-zinc-800 text-xs rounded-xl px-3 py-2 text-zinc-200 cursor-pointer outline-none"
+            className="w-36 text-xs bg-zinc-900 border-zinc-800 text-zinc-200 cursor-pointer"
           >
             <option value="csv">Formato CSV</option>
             <option value="json">Formato JSON</option>
-          </select>
+          </NativeSelect>
 
           <Button
             onClick={handleExport}

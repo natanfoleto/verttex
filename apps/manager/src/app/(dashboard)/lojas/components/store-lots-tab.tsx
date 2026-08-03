@@ -16,11 +16,11 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
 import { apiClient } from '@/lib/api-client'
 
+import type { LotWithStockItem } from '../../estoque/components/discard-form-dialog'
 import { DiscardFormDialog } from '../../estoque/components/discard-form-dialog'
 import { ReceivingFormDialog } from '../../estoque/components/receiving-form-dialog'
-import { StatusFormDialog } from '../../estoque/components/status-form-dialog'
-import type { LotWithStockItem } from '../../estoque/components/discard-form-dialog'
 import type { LotItem } from '../../estoque/components/status-form-dialog'
+import { StatusFormDialog } from '../../estoque/components/status-form-dialog'
 
 interface ExtendedLotItem extends LotItem {
   id: string

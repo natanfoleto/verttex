@@ -124,11 +124,16 @@ export default function UserPermissionsPage({
   const rolePermissionKeys = new Set<string>()
   const isSystemAdmin = user?.role?.key === 'admin'
 
-  user?.role?.permissions?.forEach((rp: any) => {
-    if (rp.permissionId) rolePermissionIds.add(rp.permissionId)
-    if (rp.permission?.id) rolePermissionIds.add(rp.permission.id)
-    if (rp.permission?.key) rolePermissionKeys.add(rp.permission.key)
-  })
+  user?.role?.permissions?.forEach(
+    (rp: {
+      permissionId?: string
+      permission?: { id?: string; key?: string }
+    }) => {
+      if (rp.permissionId) rolePermissionIds.add(rp.permissionId)
+      if (rp.permission?.id) rolePermissionIds.add(rp.permission.id)
+      if (rp.permission?.key) rolePermissionKeys.add(rp.permission.key)
+    },
+  )
 
   // Current Overrides Map
   const currentOverridesMap = new Map<string, 'allow' | 'deny'>()
@@ -193,7 +198,14 @@ export default function UserPermissionsPage({
 
   const availableModulesSet = new Set<string>()
 
-  allPermissions?.forEach((perm: any) => {
+  interface PermissionItem {
+    id: string
+    key: string
+    module?: string
+    description?: string
+  }
+
+  allPermissions?.forEach((perm: PermissionItem) => {
     if (perm.module) availableModulesSet.add(perm.module)
     const info = getEffectiveInfo(perm)
     if (info.isGranted) grantedCount++
@@ -227,76 +239,54 @@ export default function UserPermissionsPage({
   }
 
   // Filter Permissions
-  const filteredPermissions = allPermissions?.filter((perm: any) => {
+  const filteredPermissions = allPermissions?.filter((perm: PermissionItem) => {
     const effective = getEffectiveInfo(perm)
     const override = currentOverridesMap.get(perm.id)
 
     // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
-      const matchesKey = perm.key.toLowerCase().includes(q)
-      const matchesDesc = perm.description?.toLowerCase().includes(q)
-      const matchesMod = perm.module?.toLowerCase().includes(q)
-      if (!matchesKey && !matchesDesc && !matchesMod) return false
+      const matchKey = perm.key.toLowerCase().includes(q)
+      const matchDesc = (perm.description || '').toLowerCase().includes(q)
+      const matchModule = (perm.module || '').toLowerCase().includes(q)
+      if (!matchKey && !matchDesc && !matchModule) return false
     }
 
     // Status filter
     if (statusFilter === 'granted' && !effective.isGranted) return false
     if (statusFilter === 'denied' && effective.isGranted) return false
 
-    // Override action filter
-    if (overrideFilter === 'inherit' && override) return false
+    // Override filter
+    if (overrideFilter === 'inherit' && override !== undefined) return false
     if (overrideFilter === 'allow' && override !== 'allow') return false
     if (overrideFilter === 'deny' && override !== 'deny') return false
 
-    // Operation type filter
+    // Action Type Filter
     if (actionTypeFilter !== 'all') {
-      const k = perm.key.toLowerCase()
-      if (
-        actionTypeFilter === 'read' &&
-        !k.includes('read') &&
-        !k.includes('list')
-      )
+      const action = perm.key.split('.').pop()
+      if (actionTypeFilter === 'read' && action !== 'read' && action !== 'list')
         return false
-      if (
-        actionTypeFilter === 'create' &&
-        !k.includes('create') &&
-        !k.includes('add')
-      )
-        return false
-      if (
-        actionTypeFilter === 'update' &&
-        !k.includes('update') &&
-        !k.includes('edit')
-      )
-        return false
-      if (
-        actionTypeFilter === 'delete' &&
-        !k.includes('delete') &&
-        !k.includes('remove')
-      )
-        return false
-      if (
-        actionTypeFilter === 'manage' &&
-        !k.includes('manage') &&
-        !k.includes('admin')
-      )
-        return false
+      if (actionTypeFilter === 'create' && action !== 'create') return false
+      if (actionTypeFilter === 'update' && action !== 'update') return false
+      if (actionTypeFilter === 'delete' && action !== 'delete') return false
+      if (actionTypeFilter === 'manage' && action !== 'manage') return false
     }
 
-    // Module filter
-    if (moduleFilter !== 'all' && perm.module !== moduleFilter) return false
+    // Module Filter
+    if (moduleFilter !== 'all') {
+      if (perm.module !== moduleFilter) return false
+    }
 
     return true
   })
 
-  // Group filtered permissions by module
+  // Group by Module
   const permissionsByModule = new Map<
     string,
-    Array<{ id: string; key: string; module: string; description: string }>
+    Array<{ id: string; key: string; module?: string; description?: string }>
   >()
 
-  filteredPermissions?.forEach((perm: any) => {
+  filteredPermissions?.forEach((perm: PermissionItem) => {
     const mod = perm.module || 'Outros'
     if (!permissionsByModule.has(mod)) {
       permissionsByModule.set(mod, [])
@@ -427,7 +417,9 @@ export default function UserPermissionsPage({
           {/* Status Filter */}
           <NativeSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as 'all' | 'granted' | 'denied')
+            }
           >
             <option value="all">Status: Todos</option>
             <option value="granted">Concedidas</option>
@@ -437,7 +429,11 @@ export default function UserPermissionsPage({
           {/* Override Action Filter */}
           <NativeSelect
             value={overrideFilter}
-            onChange={(e) => setOverrideFilter(e.target.value as any)}
+            onChange={(e) =>
+              setOverrideFilter(
+                e.target.value as 'all' | 'inherit' | 'allow' | 'deny',
+              )
+            }
           >
             <option value="all">Ação: Todas</option>
             <option value="inherit">Herdar</option>
@@ -448,7 +444,12 @@ export default function UserPermissionsPage({
           {/* Operation Filter */}
           <NativeSelect
             value={actionTypeFilter}
-            onChange={(e) => setActionTypeFilter(e.target.value as any)}
+            onChange={(e) =>
+              setActionTypeFilter(
+                e.target.value as
+                  'all' | 'read' | 'create' | 'update' | 'delete' | 'manage',
+              )
+            }
           >
             <option value="all">Operação: Todas</option>
             <option value="read">Ler / Listar</option>

@@ -1,14 +1,15 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { RiShoppingBag3Line, RiTruckLine, RiCheckLine } from 'react-icons/ri'
+import { RiCheckLine, RiShoppingBag3Line, RiTruckLine } from 'react-icons/ri'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
 import { apiClient, ApiError } from '@/lib/api-client'
+
 import { OrderDispatchDialog } from './components/order-dispatch-dialog'
 
 interface OrderItem {
@@ -43,7 +44,15 @@ export default function OrdersManagementPage() {
       if (statusFilter && statusFilter !== 'ALL')
         url += `&status=${statusFilter}`
 
-      const res = await apiClient<any>(url)
+      const res = await apiClient<{
+        data: OrderItem[]
+        meta?: {
+          page: number
+          perPage: number
+          total: number
+          totalPages: number
+        }
+      }>(url)
       if (res && res.meta) {
         return {
           data: res.data || [],

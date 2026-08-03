@@ -1,18 +1,19 @@
 'use client'
 
 import React, { useState } from 'react'
-import { RiInboxArchiveLine, RiFileTextLine, RiCheckLine } from 'react-icons/ri'
+import { RiCheckLine, RiFileTextLine, RiInboxArchiveLine } from 'react-icons/ri'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { apiClient } from '@/lib/api-client'
+import { apiClient, ApiError } from '@/lib/api-client'
 
 interface StockReceivingDialogProps {
   open: boolean
@@ -82,9 +83,11 @@ export function StockReceivingDialog({
 
       onReceiveSuccess()
       onOpenChange(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setErrorMessage(
-        err.message || 'Ocorreu um erro ao processar o recebimento.',
+        err instanceof ApiError
+          ? err.message
+          : 'Ocorreu um erro ao processar o recebimento.',
       )
     } finally {
       setIsSubmitting(false)

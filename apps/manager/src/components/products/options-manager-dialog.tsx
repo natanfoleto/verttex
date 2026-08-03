@@ -3,22 +3,23 @@
 import React, { useState } from 'react'
 import {
   RiAddLine,
-  RiDeleteBinLine,
   RiCheckLine,
-  RiStackLine,
+  RiDeleteBinLine,
   RiDraggable,
+  RiStackLine,
 } from 'react-icons/ri'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 
 export interface ProductOptionDraft {
   id: string

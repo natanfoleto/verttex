@@ -488,8 +488,8 @@ export default function ProductDetailPage({
                       </span>
                     </div>
                     <p className="mt-2 text-stone-600">
-                      "Excelente qualidade e sabor autêntico. Embalagem chegou
-                      perfeita e dentro da validade esperada!"
+                      &quot;Excelente qualidade e sabor autêntico. Embalagem
+                      chegou perfeita e dentro da validade esperada!&quot;
                     </p>
                   </div>
                 </div>
