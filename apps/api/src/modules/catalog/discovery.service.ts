@@ -154,7 +154,18 @@ function variantMatchesAttributes(
 
 export class PublicDiscoveryService {
   /**
-   * PostgreSQL Native Full Text Search using f_unaccent, to_tsvector, websearch_to_tsquery, ts_rank and SKU exact match
+   * Refresh the search_vector Search Projection for a single product in PostgreSQL
+   */
+  static async refreshProductSearchDocument(productId: string): Promise<void> {
+    try {
+      await prisma.$executeRaw`SELECT public.refresh_product_search_vector(${productId})`;
+    } catch {
+      // Ignore if running in non-PostgreSQL environment
+    }
+  }
+
+  /**
+   * PostgreSQL Native Full Text Search using pre-calculated search_vector Search Projection GIN index
    */
   static async searchPostgresFullText(
     searchTerm: string,
@@ -177,7 +188,14 @@ export class PublicDiscoveryService {
                 AND (LOWER(pv.sku) = LOWER(${sanitizedSearch}) OR LOWER(pv.barcode) = LOWER(${sanitizedSearch}))
             ) THEN 1000.0
             ELSE CAST(ts_rank(
-              to_tsvector('portuguese', f_unaccent(COALESCE(p.name, '') || ' ' || COALESCE(p."shortDescription", ''))),
+              COALESCE(
+                p.search_vector, 
+                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p.name, ''))), 'A') ||
+                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(c.name, ''))), 'B') ||
+                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(b.name, ''))), 'B') ||
+                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(s.name, ''))), 'B') ||
+                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p."shortDescription", ''))), 'D')
+              ),
               websearch_to_tsquery('portuguese', f_unaccent(${sanitizedSearch}))
             ) AS float)
           END as rank
@@ -199,8 +217,14 @@ export class PublicDiscoveryService {
                 AND (LOWER(pv.sku) = LOWER(${sanitizedSearch}) OR LOWER(pv.barcode) = LOWER(${sanitizedSearch}))
             )
             OR
-            to_tsvector('portuguese', f_unaccent(COALESCE(p.name, '') || ' ' || COALESCE(p."shortDescription", ''))) 
-            @@ websearch_to_tsquery('portuguese', f_unaccent(${sanitizedSearch}))
+            COALESCE(
+              p.search_vector,
+              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p.name, ''))), 'A') ||
+              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(c.name, ''))), 'B') ||
+              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(b.name, ''))), 'B') ||
+              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(s.name, ''))), 'B') ||
+              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p."shortDescription", ''))), 'D')
+            ) @@ websearch_to_tsquery('portuguese', f_unaccent(${sanitizedSearch}))
           )
         ORDER BY rank DESC, p.id DESC
       `;

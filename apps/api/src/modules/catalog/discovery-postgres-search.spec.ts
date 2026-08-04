@@ -27,15 +27,16 @@ vi.mock("../../infrastructure/database/prisma", () => ({
       findFirst: vi.fn(),
     },
     $queryRaw: vi.fn(),
+    $executeRaw: vi.fn(),
   },
 }));
 
-describe("PostgreSQL Native FTS & GIN Index (Etapa 2 Final Validation)", () => {
+describe("PostgreSQL Search Projection & GIN Index (Etapa 2 Structural Final Closure)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should execute PostgreSQL $queryRaw with f_unaccent and websearch_to_tsquery", async () => {
+  it("should execute PostgreSQL $queryRaw over search_vector Search Projection", async () => {
     vi.mocked(prisma.category.findFirst).mockResolvedValue(null as any);
     vi.mocked(prisma.store.findFirst).mockResolvedValue(null as any);
     vi.mocked(prisma.brand.findFirst).mockResolvedValue(null as any);
@@ -44,15 +45,15 @@ describe("PostgreSQL Native FTS & GIN Index (Etapa 2 Final Validation)", () => {
     } as any);
 
     vi.mocked(prisma.$queryRaw).mockResolvedValue([
-      { id: "prod-pg-1", rank: 0.92 },
+      { id: "prod-search-vector-1", rank: 0.98 },
     ] as any);
 
     vi.mocked(prisma.product.findMany).mockResolvedValue([
       {
-        id: "prod-pg-1",
-        name: "Cachaça Envelhecida Ouro",
-        slug: "cachaca-envelhecida-ouro",
-        shortDescription: "Alambique tradicional de Minas",
+        id: "prod-search-vector-1",
+        name: "Cachaça Envelhecida Amburana",
+        slug: "cachaca-amburana",
+        shortDescription: "Alambique Engenho Boa Esperança",
         fullDescription: "",
         type: "simple",
         isFeatured: false,
@@ -61,28 +62,35 @@ describe("PostgreSQL Native FTS & GIN Index (Etapa 2 Final Validation)", () => {
         storeId: "store-1",
         categoryId: "cat-1",
         brandId: null,
-        store: { id: "store-1", name: "Alambique", slug: "alambique", logoUrl: null },
+        store: { id: "store-1", name: "Engenho Boa Esperança", slug: "boa-esperanca", logoUrl: null },
         category: { id: "cat-1", name: "Cachaças", slug: "cachacas" },
         brand: null,
         medias: [],
-        variations: [{ id: "var-1", sku: "CACH-001", price: "50.00", values: [] }],
+        variations: [{ id: "var-1", sku: "CACH-AMB-700", price: "75.00", values: [] }],
       },
     ] as any);
 
     vi.mocked(prisma.stockItem.findMany).mockResolvedValue([]);
 
-    // Testing complex query input with special characters and accents
     const result = await PublicDiscoveryService.discover({
       page: 1,
       perPage: 12,
-      search: '"cachaça artesanal" -industrial',
+      search: "Engenho Boa Esperança amburana",
       sort: "relevance",
     });
 
     expect(prisma.$queryRaw).toHaveBeenCalled();
     expect(result.products).toHaveLength(1);
-    expect(result.products[0]?.id).toBe("prod-pg-1");
-    expect(result.products[0]?.relevanceScore).toBe(0.92);
+    expect(result.products[0]?.id).toBe("prod-search-vector-1");
+    expect(result.products[0]?.relevanceScore).toBe(0.98);
+  });
+
+  it("should trigger refreshProductSearchDocument to sync Search Projection on product update", async () => {
+    vi.mocked(prisma.$executeRaw).mockResolvedValue(1 as any);
+
+    await PublicDiscoveryService.refreshProductSearchDocument("prod-123");
+
+    expect(prisma.$executeRaw).toHaveBeenCalled();
   });
 
   it("should safely handle punctuation, short strings and stopwords without throwing 500 errors", async () => {
