@@ -48,11 +48,11 @@ export function StoreLogoUpload({
   const displayUrl = previewUrl || logoUrl
   const initials = storeName
     ? storeName
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase()
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase()
     : 'VT'
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { formatApiErrorMessage } from './format-api-error'
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
 
 export interface ApiErrorResponse {
@@ -105,9 +107,13 @@ export async function apiClient<T = any>(
 
   if (!response.ok || (data && data.success === false)) {
     const errorData = data?.error
+    const rawMessage =
+      errorData?.message || 'Ocorreu um erro ao processar a requisição'
+    const formattedMessage = formatApiErrorMessage(rawMessage)
+
     throw new ApiError(
       errorData?.code || 'HTTP_ERROR',
-      errorData?.message || 'Ocorreu um erro ao processar a requisição',
+      formattedMessage,
       response.status,
       errorData?.fieldErrors,
     )

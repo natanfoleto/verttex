@@ -12,6 +12,7 @@ export const httpErrorHandler: FastifyErrorHandler = (
 ) => {
   const store = requestContextStorage.getStore();
   const requestId = store?.requestId || "req_unknown";
+  const errAny = error as any;
 
   if (error instanceof ZodError) {
     request.log.warn({ err: error }, "Validation error");
@@ -21,6 +22,54 @@ export const httpErrorHandler: FastifyErrorHandler = (
         code: "VALIDATION_ERROR",
         message: "Os dados enviados são inválidos",
         fieldErrors: error.flatten().fieldErrors,
+        requestId,
+      },
+    });
+  }
+
+  // Handle Fastify schema validation errors (when Fastify wraps Zod/AJV validation in error.validation)
+  if (errAny?.validation && Array.isArray(errAny.validation) && errAny.validation.length > 0) {
+    request.log.warn({ err: error }, "Fastify schema validation error");
+
+    const fieldErrors: Record<string, string[]> = {};
+    const friendlyMessages: string[] = [];
+
+    for (const item of errAny.validation) {
+      const rawPath = (item.instancePath || item.path || "").replace(/^\/?(body\/)?/, "");
+      const fieldName = rawPath || "body";
+      const msg = item.message || "Campo inválido";
+
+      if (!fieldErrors[fieldName]) {
+        fieldErrors[fieldName] = [];
+      }
+      fieldErrors[fieldName].push(msg);
+
+      let formattedField = fieldName;
+      if (fieldName.includes("variations")) {
+        formattedField = fieldName.replace(
+          /variations[\/\.](\d+)[\/\.](\w+)/,
+          (_: string, idx: string, prop: string) => {
+            const propLabel =
+              prop === "price"
+                ? "Preço"
+                : prop === "sku"
+                ? "SKU"
+                : prop === "stock"
+                ? "Estoque"
+                : prop;
+            return `Variação #${Number(idx) + 1} (${propLabel})`;
+          },
+        );
+      }
+      friendlyMessages.push(`${formattedField}: ${msg}`);
+    }
+
+    return reply.status(400).send({
+      success: false,
+      error: {
+        code: "VALIDATION_ERROR",
+        message: friendlyMessages.join(" | ") || "Os dados enviados são inválidos",
+        fieldErrors,
         requestId,
       },
     });
@@ -39,7 +88,6 @@ export const httpErrorHandler: FastifyErrorHandler = (
     });
   }
 
-  const errAny = error as any;
   const statusCode =
     errAny?.statusCode ||
     (errAny?.error === "RATE_LIMIT_EXCEEDED" ? 429 : undefined) ||

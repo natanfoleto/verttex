@@ -611,10 +611,11 @@ export default function CarouselPage() {
                               isActive: !banner.isActive,
                             })
                           }
-                          className={`cursor-pointer h-8 w-8 border-zinc-700 ${banner.isActive
-                            ? 'text-emerald-400 hover:bg-emerald-950/40'
-                            : 'text-zinc-500 hover:bg-zinc-800'
-                            }`}
+                          className={`cursor-pointer h-8 w-8 border-zinc-700 ${
+                            banner.isActive
+                              ? 'text-emerald-400 hover:bg-emerald-950/40'
+                              : 'text-zinc-500 hover:bg-zinc-800'
+                          }`}
                         >
                           {banner.isActive ? (
                             <RiEyeLine className="h-4 w-4" />

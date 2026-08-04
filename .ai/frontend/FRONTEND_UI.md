@@ -60,6 +60,14 @@ Applications `apps/manager` and `apps/marketplace` are Next.js App Router projec
   2. À medida que o usuário edita qualquer campo (texto, select, checkbox, upload de arquivo, etc.), o estado `isDirty` torna-se `true` e o botão é habilitado.
   3. Após a submissão bem-sucedida, o formulário faz `reset(newValues)` ou atualiza o snapshot de comparação, retornando o botão para o estado desabilitado até a próxima alteração.
 
+### 4.2 Regra Mandatória de Exibição de Erros de Submissão via `<ErrorDialog />`
+
+- **Uso do Componente `<ErrorDialog />` para Erros de API/Validação:** Em formulários e ações de mutação onde a submissão falhe devido a erros de validação da API (ex: campos aninhados, variações de produto sem preço, erros de regra de negócio 400/422), **DEVE-SE obrigatoriamente utilizar o componente `<ErrorDialog />`** (`@/components/ui/error-dialog`) em vez de Toasts temporários de 4 segundos.
+- **Motivação e UX:**
+  1. O `<ErrorDialog />` não desaparece automaticamente, garantindo que o usuário tenha todo o tempo necessário para ler, entender os motivos e corrigir os campos sem que a mensagem suma da tela.
+  2. Apresenta os erros de forma estruturada e em marcadores legíveis (ex: `Variação #1 (Preço): Preço deve ser maior que zero`).
+  3. Oferece o botão de ação *"Entendi, vou corrigir"* com classe `cursor-pointer`.
+
 ---
 
 ## 5. Authorization in the Frontend

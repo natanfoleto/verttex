@@ -206,7 +206,7 @@ export default function MarketplaceSettingsPage() {
     } catch (err: any) {
       toast.error(
         `Falha no upload do arquivo (${purpose}): ` +
-        (err?.message || 'Tente novamente'),
+          (err?.message || 'Tente novamente'),
       )
       return null
     } finally {

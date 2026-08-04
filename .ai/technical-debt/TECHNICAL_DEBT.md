@@ -18,7 +18,7 @@ Este documento funciona como a fonte única da verdade para o backlog de **Débi
 | **DEBT-004** | Uso de Tags `<img>` Nativas em vez de `next/image` | Frontend / Infraestrutura | Marketplace | `LOW` | `LOW` | `ACCEPTED` (Mantido por custo/recursos Vercel) |
 | **DEBT-005** | Regras de Formatação Prettier e Ordenação de Imports Desalinhadas no ESLint | Tooling / DX | Workspace | `MEDIUM` | `LOW` | `RESOLVED` |
 | **DEBT-006** | Vulnerabilidades de Autenticação e Rate Limiting (`VULN-001`, `VULN-002`, `VULN-003`) | Segurança | API Fastify | `CRITICAL` | `HIGH` | `RESOLVED` |
-| **DEBT-007** | Mensagens Brutas de Validação de Erros nos Formulários (`body/variations/0/price...`) | UX / Frontend | Manager / API Client | `MEDIUM` | `LOW` | `OPEN` |
+| **DEBT-007** | Mensagens Brutas de Validação de Erros nos Formulários (`body/variations/0/price...`) | UX / Frontend | Manager / API Client | `MEDIUM` | `LOW` | `RESOLVED` |
 
 ---
 
@@ -160,5 +160,5 @@ Este documento funciona como a fonte única da verdade para o backlog de **Débi
 - **Dependências:** Utilitário de tratamento/higienização de erros da API Fastify/Zod para exibição em Toasts ou erros de campo.
 - **Recomendação:** Implementar um formatador de erros de validação no `apiClient` para converter caminhos como `body/variations/0/price` em mensagens amigáveis (ex: *"Variação #1: Preço deve ser maior que zero"*).
 - **Possibilidade de Correção:** Alta.
-- **Status:** `OPEN` (Registrado em 2026-08-03).
+- **Status:** `RESOLVED` (Corrigido em 2026-08-03 com formatador e higienizador de erros no `httpErrorHandler` e no `apiClient`).
 
