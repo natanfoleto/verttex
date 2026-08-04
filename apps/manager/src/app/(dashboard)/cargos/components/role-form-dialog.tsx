@@ -16,8 +16,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
+import { apiClient } from '../../../../lib/api-client'
 import { invalidateRoles } from '../../../../lib/query-keys'
 import { sanitizeSlug } from '../../../../lib/slug'
 
@@ -68,10 +69,12 @@ export function RoleFormDialog({
     setErrorMessage(null)
   }, [roleToEdit, open])
 
+  const { showError } = useErrorDialog()
+
   const mutation = useMutation({
     mutationFn: async () => {
       setErrorMessage(null)
-      const finalKey = key || sanitizeSlug(name).replace(/-/g, '_')
+      const finalKey = key || sanitizeSlug(name).replaceAll('-', '_')
 
       if (isEditing && roleToEdit) {
         return apiClient(`/roles/${roleToEdit.id}`, {
@@ -98,11 +101,7 @@ export function RoleFormDialog({
       onOpenChange(false)
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) {
-        setErrorMessage(err.message)
-      } else {
-        setErrorMessage('Erro ao salvar cargo. Tente novamente.')
-      }
+      showError(err, 'Atenção: Não foi possível salvar o cargo')
     },
   })
 

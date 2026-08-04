@@ -20,7 +20,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { apiClient, ApiError } from '@/lib/api-client'
+import { apiClient } from '@/lib/api-client'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
+
 import { Input } from './input'
 
 interface StoreLogoUploadProps {
@@ -55,20 +57,22 @@ export function StoreLogoUpload({
         .toUpperCase()
     : 'VT'
 
+  const { showError } = useErrorDialog()
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     // Validate size (5 MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('O arquivo deve ter no máximo 5 MB.')
+      showError('O arquivo deve ter no máximo 5 MB.')
       return
     }
 
     // Validate type
     const validTypes = ['image/jpeg', 'image/png', 'image/webp']
     if (!validTypes.includes(file.type)) {
-      toast.error('Formato não suportado. Utilize JPEG, PNG ou WebP.')
+      showError('Formato não suportado. Utilize JPEG, PNG ou WebP.')
       return
     }
 
@@ -96,11 +100,7 @@ export function StoreLogoUpload({
         onLogoChange?.(newUrl)
         toast.success('Foto da loja atualizada com sucesso!')
       } catch (err: unknown) {
-        toast.error(
-          err instanceof ApiError
-            ? err.message
-            : 'Falha ao enviar a foto da loja',
-        )
+        showError(err, 'Atenção: Não foi possível enviar a foto da loja')
         setPreviewUrl(null)
       } finally {
         setIsUploading(false)
@@ -131,9 +131,7 @@ export function StoreLogoUpload({
       onLogoChange?.(null)
       toast.success('Foto da loja removida com sucesso!')
     } catch (err: unknown) {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Falha ao remover a foto',
-      )
+      showError(err, 'Atenção: Não foi possível remover a foto da loja')
     } finally {
       setIsDeleting(false)
       setIsDeleteDialogOpen(false)

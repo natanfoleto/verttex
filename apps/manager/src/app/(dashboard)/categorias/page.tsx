@@ -35,9 +35,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { apiClient } from '@/lib/api-client'
 import { sanitizeSlug } from '@/lib/slug'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../lib/api-client'
 import {
   categoryQueryKeys,
   invalidateCategories,
@@ -125,6 +126,8 @@ export default function CategoriesPage() {
     listRes?.data ?? (Array.isArray(listRes) ? listRes : [])
 
   // Mutations
+  const { showError } = useErrorDialog()
+
   const createMutation = useMutation({
     mutationFn: (body: any) =>
       apiClient('/categories', {
@@ -136,10 +139,8 @@ export default function CategoriesPage() {
       toast.success('Categoria criada com sucesso!')
       closeModal()
     },
-    onError: (err: any) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao criar categoria',
-      )
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível criar a categoria')
     },
   })
 
@@ -154,10 +155,8 @@ export default function CategoriesPage() {
       toast.success('Categoria atualizada com sucesso!')
       closeModal()
     },
-    onError: (err: any) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao atualizar categoria',
-      )
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível atualizar a categoria')
     },
   })
 
@@ -171,10 +170,8 @@ export default function CategoriesPage() {
       toast.success('Categoria arquivada com sucesso!')
       setDeletingCategory(null)
     },
-    onError: (err: any) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao arquivar categoria',
-      )
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível arquivar a categoria')
     },
   })
 

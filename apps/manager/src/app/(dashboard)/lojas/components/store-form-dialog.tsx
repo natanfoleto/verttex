@@ -16,8 +16,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
+import { apiClient } from '../../../../lib/api-client'
 import { invalidateStores } from '../../../../lib/query-keys'
 import { sanitizeSlug } from '../../../../lib/slug'
 
@@ -83,6 +84,8 @@ export function StoreFormDialog({
     setSlug(sanitizeSlug(value))
   }
 
+  const { showError } = useErrorDialog()
+
   const mutation = useMutation({
     mutationFn: async () => {
       setErrorMessage(null)
@@ -111,11 +114,7 @@ export function StoreFormDialog({
       onOpenChange(false)
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) {
-        setErrorMessage(err.message)
-      } else {
-        setErrorMessage('Erro ao salvar loja. Tente novamente.')
-      }
+      showError(err, 'Atenção: Não foi possível salvar a loja')
     },
   })
 

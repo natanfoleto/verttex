@@ -24,6 +24,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
 interface MarketplaceSettingsData {
   publicName: string
@@ -90,6 +91,8 @@ export default function MarketplaceSettingsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null)
   const [ogImagePreview, setOgImagePreview] = useState<string | null>(null)
+
+  const { showError } = useErrorDialog()
 
   const { data, isLoading } = useQuery({
     queryKey: ['marketplace-settings'],
@@ -260,8 +263,8 @@ export default function MarketplaceSettingsPage() {
       })
       setSavedSettings(settings)
       toast.success('Configurações do Marketplace salvas com sucesso!')
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao salvar configurações.')
+    } catch (err: unknown) {
+      showError(err, 'Atenção: Não foi possível salvar as configurações')
     } finally {
       setIsSubmitting(false)
     }

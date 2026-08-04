@@ -13,7 +13,8 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
-import { apiClient, ApiError } from '@/lib/api-client'
+import { apiClient } from '@/lib/api-client'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
 import { OrderDispatchDialog } from '../../pedidos/components/order-dispatch-dialog'
 
@@ -83,6 +84,8 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
 
   const ordersList = ordersRes?.data || []
 
+  const { showError } = useErrorDialog()
+
   const deliverMutation = useMutation({
     mutationFn: async (id: string) => {
       return apiClient(`/orders/${id}/deliver`, { method: 'POST' })
@@ -92,8 +95,7 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
       queryClient.invalidateQueries({ queryKey: ['store-orders-tab'] })
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) toast.error(err.message)
-      else toast.error('Erro ao confirmar entrega')
+      showError(err, 'Atenção: Não foi possível confirmar a entrega')
     },
   })
 

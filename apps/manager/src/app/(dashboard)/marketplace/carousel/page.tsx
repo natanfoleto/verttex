@@ -45,6 +45,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { apiClient } from '@/lib/api-client'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
 // =============================================================
 // TIPOS
@@ -138,14 +139,22 @@ export default function CarouselPage() {
   })
 
   const banners = bannersRes?.data ?? []
+  const { showError } = useErrorDialog()
 
   const createMutation = useMutation({
     mutationFn: (payload: {
       title: string
-      subtitle?: string
-      linkUrl?: string
-      ctaText?: string
-      isActive: boolean
+      subtitle?: string | null
+      targetUrl?: string | null
+      badgeText?: string | null
+      primaryButtonText?: string | null
+      primaryButtonUrl?: string | null
+      secondaryButtonText?: string | null
+      secondaryButtonUrl?: string | null
+      backgroundColor?: string | null
+      textColor?: string | null
+      startDate?: string | null
+      endDate?: string | null
     }) =>
       apiClient<CarouselBanner>('/carousel', { method: 'POST', body: payload }),
     onSuccess: (newBanner) => {
@@ -159,7 +168,9 @@ export default function CarouselPage() {
         openEdit(newBanner)
       }
     },
-    onError: () => toast.error('Não foi possível criar o banner.'),
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível criar o banner')
+    },
   })
 
   const updateMutation = useMutation({
@@ -175,7 +186,9 @@ export default function CarouselPage() {
       toast.success('Banner atualizado com sucesso!')
       handleCloseEditModal()
     },
-    onError: () => toast.error('Não foi possível atualizar o banner.'),
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível atualizar o banner')
+    },
   })
 
   const deleteImageMutation = useMutation({
@@ -191,7 +204,9 @@ export default function CarouselPage() {
       setLocalPreviewUrl(null)
       setSelectedFile(null)
     },
-    onError: () => toast.error('Não foi possível remover a imagem.'),
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível remover a imagem')
+    },
   })
 
   const deleteBannerMutation = useMutation({
@@ -201,7 +216,9 @@ export default function CarouselPage() {
       queryClient.invalidateQueries({ queryKey: ['carousel-banners'] })
       toast.success('Banner excluído com sucesso.')
     },
-    onError: () => toast.error('Não foi possível excluir o banner.'),
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível excluir o banner')
+    },
   })
 
   const reorderMutation = useMutation({
@@ -209,7 +226,9 @@ export default function CarouselPage() {
       apiClient('/carousel/reorder', { method: 'POST', body: { items } }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['carousel-banners'] }),
-    onError: () => toast.error('Não foi possível reordenar os banners.'),
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível reordenar os banners')
+    },
   })
 
   const toggleActiveMutation = useMutation({
@@ -217,7 +236,9 @@ export default function CarouselPage() {
       apiClient(`/carousel/${id}`, { method: 'PATCH', body: { isActive } }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['carousel-banners'] }),
-    onError: () => toast.error('Não foi possível alterar o status do banner.'),
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível alterar o status do banner')
+    },
   })
 
   // ----- Handlers -----
@@ -361,9 +382,8 @@ export default function CarouselPage() {
     createMutation.mutate({
       title: createForm.title.trim(),
       subtitle: createForm.subtitle.trim() || undefined,
-      linkUrl: createForm.linkUrl.trim() || undefined,
-      ctaText: createForm.ctaText.trim() || undefined,
-      isActive: createForm.isActive,
+      targetUrl: createForm.linkUrl.trim() || undefined,
+      primaryButtonText: createForm.ctaText.trim() || undefined,
     })
   }
 

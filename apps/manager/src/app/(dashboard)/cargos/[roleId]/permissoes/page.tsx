@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
 import { apiClient } from '../../../../../lib/api-client'
 import { invalidateRoles } from '../../../../../lib/query-keys'
@@ -77,9 +78,12 @@ export default function RolePermissionsPage({
     }
   }, [role])
 
+  const { showError } = useErrorDialog()
+
   const updateRolePermissionsMutation = useMutation({
     mutationFn: (payload: {
-      permissionIds: string[]
+      permissionIds?: string[]
+      permissions?: string[]
       strategy: 'ALL' | 'PRESERVE_ALL' | 'CUSTOM'
       targetUserIds?: string[]
     }) =>
@@ -94,8 +98,11 @@ export default function RolePermissionsPage({
       setFeedbackMessage('Permissões do cargo atualizadas com sucesso!')
       setTimeout(() => setFeedbackMessage(null), 3000)
     },
-    onError: () => {
-      toast.error('Erro ao atualizar permissões do cargo.')
+    onError: (err: unknown) => {
+      showError(
+        err,
+        'Atenção: Não foi possível atualizar as permissões do cargo',
+      )
     },
   })
 

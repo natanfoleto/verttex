@@ -34,9 +34,10 @@ import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
 import { Textarea } from '@/components/ui/textarea'
+import { apiClient } from '@/lib/api-client'
 import { sanitizeSlug } from '@/lib/slug'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../lib/api-client'
 import { brandQueryKeys, invalidateBrands } from '../../../lib/query-keys'
 import { useAuth } from '../../../providers/auth-provider'
 
@@ -115,6 +116,8 @@ export default function BrandsPage() {
   const meta = listRes?.meta
 
   // Mutations
+  const { showError } = useErrorDialog()
+
   const createMutation = useMutation({
     mutationFn: (body: any) =>
       apiClient('/brands', {
@@ -126,8 +129,8 @@ export default function BrandsPage() {
       toast.success('Marca criada com sucesso!')
       closeModal()
     },
-    onError: (err: any) => {
-      toast.error(err instanceof ApiError ? err.message : 'Erro ao criar marca')
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível criar a marca')
     },
   })
 
@@ -142,10 +145,8 @@ export default function BrandsPage() {
       toast.success('Marca atualizada com sucesso!')
       closeModal()
     },
-    onError: (err: any) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao atualizar marca',
-      )
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível atualizar a marca')
     },
   })
 
@@ -159,10 +160,8 @@ export default function BrandsPage() {
       toast.success('Marca arquivada com sucesso!')
       setDeletingBrand(null)
     },
-    onError: (err: any) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao arquivar marca',
-      )
+    onError: (err: unknown) => {
+      showError(err, 'Atenção: Não foi possível arquivar a marca')
     },
   })
 

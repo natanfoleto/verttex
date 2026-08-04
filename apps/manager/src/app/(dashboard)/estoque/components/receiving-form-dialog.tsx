@@ -16,8 +16,9 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
+import { apiClient } from '../../../../lib/api-client'
 
 interface Store {
   id: string
@@ -70,6 +71,8 @@ export function ReceivingFormDialog({
     enabled: Boolean(recStoreId),
   })
 
+  const { showError } = useErrorDialog()
+
   const receiveMutation = useMutation({
     mutationFn: async () => {
       const selectedProd = productsRes.find((p) => p.id === recProductId)
@@ -91,7 +94,7 @@ export function ReceivingFormDialog({
             expirationDate: l.expirationDate
               ? new Date(l.expirationDate).toISOString()
               : null,
-            quantity: Number(l.quantity),
+            quantity: Number(l.quantity) || 0,
             notes: l.notes || null,
           })),
         }),
@@ -104,9 +107,7 @@ export function ReceivingFormDialog({
       resetForm()
     },
     onError: (err: unknown) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao registrar recebimento',
-      )
+      showError(err, 'Atenção: Não foi possível registrar o recebimento')
     },
   })
 

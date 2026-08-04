@@ -5,6 +5,7 @@ import * as React from 'react'
 import { Toaster } from 'sonner'
 
 import { AuthProvider } from '../providers/auth-provider'
+import { ErrorDialogProvider } from '../providers/error-dialog-provider'
 import { QueryProvider } from '../providers/query-provider'
 import { ThemeProvider } from '../providers/theme-provider'
 
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <ThemeProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              <ErrorDialogProvider>{children}</ErrorDialogProvider>
+            </AuthProvider>
             <Toaster position="bottom-right" theme="dark" richColors />
           </ThemeProvider>
         </QueryProvider>

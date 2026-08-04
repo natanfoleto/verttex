@@ -60,13 +60,17 @@ Applications `apps/manager` and `apps/marketplace` are Next.js App Router projec
   2. À medida que o usuário edita qualquer campo (texto, select, checkbox, upload de arquivo, etc.), o estado `isDirty` torna-se `true` e o botão é habilitado.
   3. Após a submissão bem-sucedida, o formulário faz `reset(newValues)` ou atualiza o snapshot de comparação, retornando o botão para o estado desabilitado até a próxima alteração.
 
-### 4.2 Regra Mandatória de Exibição de Erros de Submissão via `<ErrorDialog />`
+### 4.2 Regra Mandatória de Exibição de Erros via `<ErrorDialog />` (Padrão de Sistema)
 
-- **Uso do Componente `<ErrorDialog />` para Erros de API/Validação:** Em formulários e ações de mutação onde a submissão falhe devido a erros de validação da API (ex: campos aninhados, variações de produto sem preço, erros de regra de negócio 400/422), **DEVE-SE obrigatoriamente utilizar o componente `<ErrorDialog />`** (`@/components/ui/error-dialog`) em vez de Toasts temporários de 4 segundos.
+- **Uso Obrigatório do Componente `<ErrorDialog />` para Estados de Erro (Regra Arquitetural de UX):** Em formulários, modais, páginas e ações de mutação onde a submissão falhar ou houver retornos de erro da API (erros de validação Zod/Fastify, erros de campos aninhados, regra de negócio 400/422/500 ou falha de requisição), **DEVE-SE obrigatoriamente utilizar o componente `<ErrorDialog />`** via Provider central e hook `useErrorDialog()` (`const { showError } = useErrorDialog()`) em vez de Toasts temporários de 4 segundos.
+- **Integração Centralizada:**
+  1. A aplicação é envolvida pelo `<ErrorDialogProvider>` no `layout.tsx` raiz.
+  2. Qualquer componente ou formulário invoca `showError(error, title?, description?)`.
 - **Motivação e UX:**
-  1. O `<ErrorDialog />` não desaparece automaticamente, garantindo que o usuário tenha todo o tempo necessário para ler, entender os motivos e corrigir os campos sem que a mensagem suma da tela.
-  2. Apresenta os erros de forma estruturada e em marcadores legíveis (ex: `Variação #1 (Preço): Preço deve ser maior que zero`).
-  3. Oferece o botão de ação *"Entendi, vou corrigir"* com classe `cursor-pointer`.
+  1. **Persistência Sem Auto-Dismiss:** O `<ErrorDialog />` fica aberto na tela até que o usuário leia a mensagem e clique explicitamente no botão *"Entendi"*.
+  2. **Formatação de Erros de Campo:** Transforma chaves técnicas de API (ex: `variations.0.price`) em marcadores legíveis ao usuário final (ex: `Variação #1 (Preço): Preço deve ser maior que zero`).
+  3. **Adaptação Dinâmica ao Tema:** O modal responde automaticamente aos temas Claro (Light) e Escuro (Dark) configurados no sistema através dos design tokens do Tailwind CSS (`bg-zinc-900`, `border-zinc-800`, `text-zinc-100`, `text-rose-500`).
+  4. Botão de confirmação com texto *"Entendi"* e classe Tailwind `cursor-pointer`.
 
 ---
 

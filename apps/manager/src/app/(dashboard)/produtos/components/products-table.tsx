@@ -32,8 +32,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
+import { apiClient } from '@/lib/api-client'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
 import {
   brandQueryKeys,
   categoryQueryKeys,
@@ -139,6 +140,8 @@ export function ProductsTable({
     totalPages: 1,
   }
 
+  const { showError } = useErrorDialog()
+
   // Mutations
   const publishMutation = useMutation({
     mutationFn: (id: string) =>
@@ -150,9 +153,7 @@ export function ProductsTable({
       toast.success('Produto publicado no Marketplace com sucesso!')
     },
     onError: (err: unknown) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao publicar produto',
-      )
+      showError(err, 'Atenção: Não foi possível publicar o produto')
     },
   })
 
@@ -167,9 +168,7 @@ export function ProductsTable({
       setDeletingProduct(null)
     },
     onError: (err: unknown) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao arquivar produto',
-      )
+      showError(err, 'Atenção: Não foi possível arquivar o produto')
     },
   })
 

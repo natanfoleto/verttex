@@ -17,31 +17,34 @@ import {
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
+import { apiClient } from '../../../../lib/api-client'
 import type { LotItem } from './status-form-dialog'
 
 export interface LotWithStockItem extends LotItem {
   stockItems: Array<{
     id: string
-    locationId: string
+    quantity?: number
     physicalQuantity: number
     reservedQuantity: number
+    locationId: string
   }>
 }
 
-interface DiscardFormDialogProps {
-  lot: LotWithStockItem | null
+export interface DiscardFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  lot: LotWithStockItem | null
 }
 
 export function DiscardFormDialog({
-  lot,
   open,
   onOpenChange,
+  lot,
 }: DiscardFormDialogProps) {
   const queryClient = useQueryClient()
+  const { showError } = useErrorDialog()
 
   const [discardQty, setDiscardQty] = useState('')
   const [discardReason, setDiscardReason] = useState<
@@ -53,19 +56,13 @@ export function DiscardFormDialog({
   const discardMutation = useMutation({
     mutationFn: async () => {
       if (!lot) return
-      const locId = lot.stockItems[0]?.locationId
-      if (!locId) throw new Error('Localização não encontrada')
-
-      return apiClient('/stock/discard', {
+      return apiClient(`/lots/${lot.id}/discard`, {
         method: 'POST',
         body: JSON.stringify({
-          storeId: lot.store.id,
-          lotId: lot.id,
-          locationId: locId,
-          quantity: Number(discardQty),
+          quantity: Number(discardQty) || 0,
           reason: discardReason,
-          destination: discardDestination,
-          notes: discardNotes,
+          destination: discardDestination || null,
+          notes: discardNotes || null,
         }),
       })
     },
@@ -78,9 +75,7 @@ export function DiscardFormDialog({
       setDiscardNotes('')
     },
     onError: (err: unknown) => {
-      toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao processar descarte',
-      )
+      showError(err, 'Atenção: Não foi possível processar o descarte')
     },
   })
 

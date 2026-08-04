@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
 import { apiClient } from '../../../../../lib/api-client'
 import { invalidateUsers } from '../../../../../lib/query-keys'
@@ -92,6 +93,8 @@ export default function UserPermissionsPage({
     queryFn: () => apiClient('/permissions'),
   })
 
+  const { showError } = useErrorDialog()
+
   const updatePermissionsMutation = useMutation({
     mutationFn: (
       overrides: Array<{ permissionId: string; effect: 'allow' | 'deny' }>,
@@ -104,10 +107,11 @@ export default function UserPermissionsPage({
       invalidateUsers(queryClient, userId)
       toast.success('Exceções de permissão atualizadas com sucesso!')
     },
-    onError: (err: Error) => {
-      toast.error('Erro ao atualizar permissões', {
-        description: err.message,
-      })
+    onError: (err: unknown) => {
+      showError(
+        err,
+        'Atenção: Não foi possível atualizar as permissões do usuário',
+      )
     },
   })
 

@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { NativeSelect } from '@/components/ui/native-select'
 import { TableWrapper } from '@/components/ui/table-wrapper'
 import { apiClient } from '@/lib/api-client'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
 interface SalesSummaryData {
   orderCount: number
@@ -162,16 +163,16 @@ export default function ReportsAndBiPage() {
       },
     })
 
+  const { showError } = useErrorDialog()
+
   const handleExport = async () => {
     try {
-      const text = await apiClient<string>(
-        `/reports/export?format=${exportFormat}`,
-        { responseType: 'text' },
-      )
-
-      const blob = new Blob([text], {
-        type: exportFormat === 'csv' ? 'text/csv' : 'application/json',
+      const blob = await apiClient<Blob>('/reports/export', {
+        method: 'POST',
+        body: JSON.stringify({ format: exportFormat }),
+        responseType: 'blob',
       })
+
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -180,8 +181,8 @@ export default function ReportsAndBiPage() {
       toast.success(
         `Relatório exportado em formato ${exportFormat.toUpperCase()} com sucesso!`,
       )
-    } catch {
-      toast.error('Erro ao exportar relatório')
+    } catch (err: unknown) {
+      showError(err, 'Atenção: Não foi possível exportar o relatório')
     }
   }
 

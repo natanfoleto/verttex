@@ -16,8 +16,9 @@ import {
 } from '@/components/ui/dialog'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
+import { apiClient } from '../../../../lib/api-client'
 
 export interface LotItem {
   id: string
@@ -45,6 +46,8 @@ export function StatusFormDialog({
   >(lot?.status ?? 'quarantine')
   const [statusReason, setStatusReason] = useState('')
 
+  const { showError } = useErrorDialog()
+
   const updateStatusMutation = useMutation({
     mutationFn: async () => {
       if (!lot) return
@@ -63,11 +66,7 @@ export function StatusFormDialog({
       setStatusReason('')
     },
     onError: (err: unknown) => {
-      toast.error(
-        err instanceof ApiError
-          ? err.message
-          : 'Erro ao alterar status do lote',
-      )
+      showError(err, 'Atenção: Não foi possível alterar o status do lote')
     },
   })
 

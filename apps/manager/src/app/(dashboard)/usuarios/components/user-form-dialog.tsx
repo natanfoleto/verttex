@@ -15,8 +15,9 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
-import { apiClient, ApiError } from '../../../../lib/api-client'
+import { apiClient } from '../../../../lib/api-client'
 import { invalidateUsers, roleQueryKeys } from '../../../../lib/query-keys'
 
 export interface UserItem {
@@ -79,6 +80,8 @@ export function UserFormDialog({
     setErrorMessage(null)
   }, [userToEdit, open, roles])
 
+  const { showError } = useErrorDialog()
+
   const mutation = useMutation({
     mutationFn: async () => {
       setErrorMessage(null)
@@ -109,11 +112,7 @@ export function UserFormDialog({
       onOpenChange(false)
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) {
-        setErrorMessage(err.message)
-      } else {
-        setErrorMessage('Erro ao salvar usuário. Tente novamente.')
-      }
+      showError(err, 'Atenção: Não foi possível salvar o usuário')
     },
   })
 

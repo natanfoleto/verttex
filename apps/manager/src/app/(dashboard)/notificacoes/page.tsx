@@ -11,7 +11,8 @@ import {
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { apiClient, ApiError } from '@/lib/api-client'
+import { apiClient } from '@/lib/api-client'
+import { useErrorDialog } from '@/providers/error-dialog-provider'
 
 interface NotificationItem {
   id: string
@@ -65,6 +66,8 @@ export default function NotificationsCenterPage() {
     },
   })
 
+  const { showError } = useErrorDialog()
+
   const markReadMutation = useMutation({
     mutationFn: async (id: string) => {
       return apiClient(`/notifications/${id}/read`, { method: 'PATCH' })
@@ -74,8 +77,7 @@ export default function NotificationsCenterPage() {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) toast.error(err.message)
-      else toast.error('Erro ao atualizar notificação')
+      showError(err, 'Atenção: Não foi possível atualizar a notificação')
     },
   })
 
@@ -93,8 +95,7 @@ export default function NotificationsCenterPage() {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (err: unknown) => {
-      if (err instanceof ApiError) toast.error(err.message)
-      else toast.error('Erro ao executar varredura sanitária')
+      showError(err, 'Atenção: Não foi possível executar a varredura sanitária')
     },
   })
 
