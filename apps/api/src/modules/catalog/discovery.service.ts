@@ -2,7 +2,8 @@ import { prisma } from "../../infrastructure/database/prisma";
 import { AppError } from "../../shared/errors/app-error";
 import { LotsService } from "../lots/lots.service";
 import { DiscoveryQuery } from "./discovery.schemas";
-import { normalizeSearchText, ProductSearchIndexService } from "./product-search-index.service";
+import { normalizeSearchText, ProductSearchIndexService, tokenizeQuery } from "./product-search-index.service";
+
 
 export interface DiscoveryBreadcrumb {
   name: string;
@@ -155,6 +156,10 @@ export class PublicDiscoveryService {
 
   /**
    * 100% Pure Prisma Client Search Engine (Zero Raw SQL / Zero $queryRaw / Zero $executeRaw)
+   *
+   * Multi-term semantics: tokens derived from searchTerm are AND-combined.
+   * "mel silvestre" → each candidate doc must contain BOTH "mel" AND "silvestre"
+   * across its searchTextNormalized. Ranking is then computed per-field.
    */
   static async searchPrismaClient(
     searchTerm: string,
@@ -163,11 +168,27 @@ export class PublicDiscoveryService {
     storeId?: string,
   ): Promise<Map<string, number>> {
     const rankMap = new Map<string, number>();
-    const normalizedQuery = normalizeSearchText(searchTerm);
+    const tokens = tokenizeQuery(searchTerm);
 
-    if (!normalizedQuery) return rankMap;
+    if (tokens.length === 0) return rankMap;
 
-    // 1. Exact SKU / Barcode lookup via Prisma Client
+    // The first token is used to narrow the candidate set via the index.
+    // Subsequent tokens are AND-filtered in JavaScript over the small result set.
+    // This is safe because the DB returns only docs matching the first (anchor) token,
+    // typically a small fraction of the catalog.
+    const anchorToken = tokens[0]!;
+
+    const productFilter: any = {
+      status: "active",
+      isPublished: true,
+      deletedAt: null,
+      store: { status: "active", deletedAt: null },
+      ...(categoryIdsToFilter.length > 0 ? { categoryId: { in: categoryIdsToFilter } } : {}),
+      ...(brandId ? { brandId } : {}),
+      ...(storeId ? { storeId } : {}),
+    };
+
+    // 1. Exact SKU / Barcode lookup via Prisma Client (single-token original query)
     const exactMatchingVariants = await prisma.productVariation.findMany({
       where: {
         status: "active",
@@ -184,21 +205,11 @@ export class PublicDiscoveryService {
       rankMap.set(v.productId, 1000);
     }
 
-    // 2. Global Text Search via Prisma Client over ProductSearchDocument
-    const searchDocs = await prisma.productSearchDocument.findMany({
+    // 2. Candidate selection using anchor token (hits the searchTextNormalized index)
+    const candidates = await prisma.productSearchDocument.findMany({
       where: {
-        product: {
-          status: "active",
-          isPublished: true,
-          deletedAt: null,
-          store: { status: "active", deletedAt: null },
-          ...(categoryIdsToFilter.length > 0 ? { categoryId: { in: categoryIdsToFilter } } : {}),
-          ...(brandId ? { brandId } : {}),
-          ...(storeId ? { storeId } : {}),
-        },
-        searchTextNormalized: {
-          contains: normalizedQuery,
-        },
+        product: productFilter,
+        searchTextNormalized: { contains: anchorToken },
       },
       select: {
         productId: true,
@@ -206,23 +217,39 @@ export class PublicDiscoveryService {
         contextNormalized: true,
         attributesNormalized: true,
         descriptionNormalized: true,
+        searchTextNormalized: true,
       },
     });
 
-    for (const doc of searchDocs) {
+    // 3. AND-filter remaining tokens in JavaScript (fast: operates on already-small candidate set)
+    const remainingTokens = tokens.slice(1);
+
+    for (const doc of candidates) {
       if (rankMap.has(doc.productId)) continue; // Keep SKU top score 1000
 
+      // AND semantics: all tokens must appear somewhere across all fields combined
+      const allTokensPresent = remainingTokens.every((token) =>
+        doc.searchTextNormalized.includes(token),
+      );
+
+      if (!allTokensPresent) continue;
+
+      // Per-field ranking: tokens found in higher-priority fields score more
       let score = 10; // Base match score
-      if (doc.titleNormalized.includes(normalizedQuery)) score += 500;
-      if (doc.contextNormalized.includes(normalizedQuery)) score += 200;
-      if (doc.attributesNormalized.includes(normalizedQuery)) score += 100;
-      if (doc.descriptionNormalized.includes(normalizedQuery)) score += 50;
+
+      for (const token of tokens) {
+        if (doc.titleNormalized.includes(token)) score += 500;
+        if (doc.contextNormalized.includes(token)) score += 200;
+        if (doc.attributesNormalized.includes(token)) score += 100;
+        if (doc.descriptionNormalized.includes(token)) score += 50;
+      }
 
       rankMap.set(doc.productId, score);
     }
 
     return rankMap;
   }
+
 
   /**
    * Validate full category path chain (e.g. ['alimentos', 'doces', 'artesanais'])

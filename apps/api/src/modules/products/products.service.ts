@@ -10,6 +10,7 @@ import {
 } from "./products.schemas";
 
 import { UploadService } from "../../shared/services/upload.service";
+import { ProductSearchIndexService } from "../catalog/product-search-index.service";
 
 export function slugify(text: string): string {
   return text
@@ -411,6 +412,9 @@ export class ProductsService {
       req,
     });
 
+    // Sync Search Projection after creation
+    await ProductSearchIndexService.syncProductSearchDocument(product.id).catch(() => {});
+
     return this.getProduct(product.id);
   }
 
@@ -576,6 +580,9 @@ export class ProductsService {
       req,
     });
 
+    // Sync Search Projection after update
+    await ProductSearchIndexService.syncProductSearchDocument(id).catch(() => {});
+
     return this.getProduct(id);
   }
 
@@ -636,6 +643,9 @@ export class ProductsService {
       newValues: { isPublished: true },
       req,
     });
+
+    // Sync Search Projection after publish (isPublished changed)
+    await ProductSearchIndexService.syncProductSearchDocument(id).catch(() => {});
 
     return this.getProduct(id);
   }

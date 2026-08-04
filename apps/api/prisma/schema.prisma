@@ -400,10 +400,10 @@ model ProductSearchDocument {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([productId])
   @@index([searchTextNormalized])
   @@map("product_search_documents")
 }
+
 
 model ProductOption {
   id        String               @id @default(cuid())
