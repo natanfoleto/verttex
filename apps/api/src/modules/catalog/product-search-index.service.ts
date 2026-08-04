@@ -98,69 +98,84 @@ export class ProductSearchIndexService {
    * Upsert Search Document for a single product via 100% Prisma Client (No Raw SQL)
    */
   static async syncProductSearchDocument(productId: string): Promise<void> {
-    const data = await ProductSearchIndexService.buildSearchDocumentData(productId);
-    if (!data) return;
+    try {
+      const data = await ProductSearchIndexService.buildSearchDocumentData(productId);
+      if (!data) return;
 
-    await prisma.productSearchDocument.upsert({
-      where: { productId: data.productId },
-      create: data,
-      update: {
-        titleNormalized: data.titleNormalized,
-        contextNormalized: data.contextNormalized,
-        attributesNormalized: data.attributesNormalized,
-        descriptionNormalized: data.descriptionNormalized,
-        searchTextNormalized: data.searchTextNormalized,
-      },
-    });
+      await prisma.productSearchDocument.upsert({
+        where: { productId: data.productId },
+        create: data,
+        update: {
+          titleNormalized: data.titleNormalized,
+          contextNormalized: data.contextNormalized,
+          attributesNormalized: data.attributesNormalized,
+          descriptionNormalized: data.descriptionNormalized,
+          searchTextNormalized: data.searchTextNormalized,
+        },
+      });
+    } catch (error) {
+      console.error(`[ProductSearchIndexService] Failed to sync document for product ${productId}:`, error);
+    }
   }
 
   /**
    * Refresh all Search Documents for products of a given brand.
-   * Used when a brand is renamed. Processes in pages to avoid N+1.
+   * Used when a brand is renamed. Safely handles errors per product.
    */
   static async refreshByBrand(brandId: string): Promise<void> {
-    const productIds = await prisma.product.findMany({
-      where: { brandId, deletedAt: null },
-      select: { id: true },
-    });
-    for (const p of productIds) {
-      await ProductSearchIndexService.syncProductSearchDocument(p.id);
+    try {
+      const productIds = await prisma.product.findMany({
+        where: { brandId, deletedAt: null },
+        select: { id: true },
+      });
+      for (const p of productIds) {
+        await ProductSearchIndexService.syncProductSearchDocument(p.id);
+      }
+    } catch (error) {
+      console.error(`[ProductSearchIndexService] Error refreshing brand ${brandId}:`, error);
     }
   }
 
   /**
    * Refresh all Search Documents for products of a given category.
-   * Used when a category is renamed.
+   * Used when a category is renamed. Safely handles errors per product.
    */
   static async refreshByCategory(categoryId: string): Promise<void> {
-    const productIds = await prisma.product.findMany({
-      where: { categoryId, deletedAt: null },
-      select: { id: true },
-    });
-    for (const p of productIds) {
-      await ProductSearchIndexService.syncProductSearchDocument(p.id);
+    try {
+      const productIds = await prisma.product.findMany({
+        where: { categoryId, deletedAt: null },
+        select: { id: true },
+      });
+      for (const p of productIds) {
+        await ProductSearchIndexService.syncProductSearchDocument(p.id);
+      }
+    } catch (error) {
+      console.error(`[ProductSearchIndexService] Error refreshing category ${categoryId}:`, error);
     }
   }
 
   /**
    * Refresh all Search Documents for products of a given store.
-   * Used when a store/producer is renamed.
+   * Used when a store/producer is renamed. Safely handles errors per product.
    */
   static async refreshByStore(storeId: string): Promise<void> {
-    const productIds = await prisma.product.findMany({
-      where: { storeId, deletedAt: null },
-      select: { id: true },
-    });
-    for (const p of productIds) {
-      await ProductSearchIndexService.syncProductSearchDocument(p.id);
+    try {
+      const productIds = await prisma.product.findMany({
+        where: { storeId, deletedAt: null },
+        select: { id: true },
+      });
+      for (const p of productIds) {
+        await ProductSearchIndexService.syncProductSearchDocument(p.id);
+      }
+    } catch (error) {
+      console.error(`[ProductSearchIndexService] Error refreshing store ${storeId}:`, error);
     }
   }
 
   /**
    * Rebuild ALL Search Documents via Prisma Client.
-   * Processes in batches of 100 to avoid memory exhaustion (no N+1 per-product query list).
+   * Processes in batches of 100 to avoid memory exhaustion.
    * Idempotent: safe to run multiple times.
-   * Do NOT call automatically on startup.
    */
   static async rebuildAllSearchDocuments(): Promise<number> {
     const BATCH_SIZE = 100;
@@ -187,5 +202,43 @@ export class ProductSearchIndexService {
     }
 
     return count;
+  }
+
+  /**
+   * Diagnostic utility: Report discrepancies between Products and Search Documents.
+   * Identifies missing documents for active products and orphan documents for deleted products.
+   */
+  static async getDiscrepancyReport(): Promise<{
+    totalActiveProducts: number;
+    totalSearchDocuments: number;
+    missingDocumentProductIds: string[];
+    orphanDocumentProductIds: string[];
+  }> {
+    const activeProducts = await prisma.product.findMany({
+      where: { deletedAt: null },
+      select: { id: true },
+    });
+
+    const searchDocs = await prisma.productSearchDocument.findMany({
+      select: { productId: true },
+    });
+
+    const activeProductSet = new Set(activeProducts.map((p) => p.id));
+    const searchDocSet = new Set(searchDocs.map((d) => d.productId));
+
+    const missingDocumentProductIds = activeProducts
+      .filter((p) => !searchDocSet.has(p.id))
+      .map((p) => p.id);
+
+    const orphanDocumentProductIds = searchDocs
+      .filter((d) => !activeProductSet.has(d.productId))
+      .map((d) => d.productId);
+
+    return {
+      totalActiveProducts: activeProducts.length,
+      totalSearchDocuments: searchDocs.length,
+      missingDocumentProductIds,
+      orphanDocumentProductIds,
+    };
   }
 }

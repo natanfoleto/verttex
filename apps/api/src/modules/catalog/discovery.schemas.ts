@@ -1,23 +1,51 @@
 import { z } from "zod";
 
 export const discoveryQuerySchema = z.object({
-  page: z.coerce.number().min(1, "A página deve ser maior ou igual a 1").optional().default(1),
+  page: z.coerce
+    .number()
+    .min(1, "A página deve ser maior ou igual a 1")
+    .max(500, "Página máxima permitida é 500")
+    .optional()
+    .default(1),
   perPage: z.coerce
     .number()
     .min(1, "perPage deve ser no mínimo 1")
     .max(100, "perPage deve ser no máximo 100")
     .optional()
     .default(12),
-  search: z.string().optional(),
-  query: z.string().optional(),
-  categorySlug: z.string().optional(),
+  search: z
+    .string()
+    .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
+    .optional(),
+  query: z
+    .string()
+    .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
+    .optional(),
+  categorySlug: z
+    .string()
+    .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
+    .optional(),
   categoryId: z.string().optional(),
-  brandSlug: z.string().optional(),
+  brandSlug: z
+    .string()
+    .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
+    .optional(),
   brandId: z.string().optional(),
-  storeSlug: z.string().optional(),
+  storeSlug: z
+    .string()
+    .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
+    .optional(),
   storeId: z.string().optional(),
-  minPrice: z.coerce.number().optional(),
-  maxPrice: z.coerce.number().optional(),
+  minPrice: z.coerce
+    .number()
+    .min(0, "Preço mínimo não pode ser negativo")
+    .max(1000000, "Preço mínimo excede o limite máximo permitido")
+    .optional(),
+  maxPrice: z.coerce
+    .number()
+    .min(0, "Preço máximo não pode ser negativo")
+    .max(1000000, "Preço máximo excede o limite máximo permitido")
+    .optional(),
   isFeatured: z
     .union([z.boolean(), z.string()])
     .transform((val) => val === true || val === "true")

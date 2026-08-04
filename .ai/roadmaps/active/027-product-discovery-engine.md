@@ -94,8 +94,15 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
   - `apps/api/src/modules/catalog/seo-discovery.spec.ts` — 5 testes de contrato cobrindo busca, categoria, produtor, marca e ofertas.
 
 
-### Etapa 8: Auditoria Final de Testes, Integração, Observabilidade & Benchmark
-- **Qualidade:** Testes integrados regressivos, observabilidade (logs de tempo de discovery), benchmark de performance (fixtures 1k+ produtos) e hardening.
+### Etapa 8: Auditoria Final de Testes, Integração, Observabilidade & Benchmark `[CONCLUÍDA & VALIDADA]`
+- **Status:** `completed`
+- **Artefatos:**
+  - `apps/api/src/modules/catalog/discovery.schemas.ts` — hardening de Zod schema (limites de paginação `max: 500`, sanitização e corte de strings `max: 200`, limites numéricos de preço).
+  - `apps/api/src/modules/catalog/product-search-index.service.ts` — tratamento seguro de exceções em `refreshByBrand`, `refreshByCategory`, `refreshByStore` e método de diagnóstico `getDiscrepancyReport()` para identificar documentos ausentes e órfãos.
+  - `apps/api/src/modules/catalog/discovery.service.ts` — medição e observabilidade de latência com métricas de tempo por etapa (`totalTimeMs`, `candidatesCount`).
+  - `apps/api/src/modules/catalog/discovery-benchmark.spec.ts` — 7 cenários de benchmark automatizados testando latência (< 100ms) para 1.000 produtos e verificação de discrepância.
+- **Suíte Total do Módulo de Catálogo:** 45/45 testes passando, 0 erros TypeScript.
+
 
 ### Etapa 9: Seed Diversificada de Desenvolvimento
 - **Dados:** Atualização do `seed.ts` com dados realistas (Queijos, Mel, Cachaças, Doces, floradas, marcas e lotes).
