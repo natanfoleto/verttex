@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 import {
+  discoverPublicProductsController,
   getPublicProductDetailsController,
   getPublicStoreDetailsController,
   listPublicBrandsController,
@@ -13,9 +14,23 @@ import {
   publicProductListQuerySchema,
   publicStoreListQuerySchema,
 } from "./catalog.schemas";
+import { discoveryQuerySchema } from "./discovery.schemas";
 
 export async function catalogRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>();
+
+  // Public Product Discovery Engine (Unified Search, Categories, Brands, Stores, Facets, SEO)
+  typedApp.get(
+    "/discover",
+    {
+      schema: {
+        tags: ["Public Catalog — Marketplace"],
+        summary: "Product Discovery Engine: busca unificada, categorias, facetas, ordenação, breadcrumbs e SEO",
+        querystring: discoveryQuerySchema,
+      },
+    },
+    discoverPublicProductsController,
+  );
 
   // Public Products Catalog Listing
   typedApp.get(

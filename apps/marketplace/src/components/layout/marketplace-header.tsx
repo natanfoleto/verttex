@@ -125,7 +125,7 @@ export function MarketplaceHeader() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
-    window.location.href = `/produtos?q=${encodeURIComponent(searchQuery)}`
+    window.location.href = `/busca?q=${encodeURIComponent(searchQuery)}`
   }
 
   return (

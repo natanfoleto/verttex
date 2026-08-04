@@ -1,0 +1,217 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { prisma } from "../../infrastructure/database/prisma";
+import { AppError } from "../../shared/errors/app-error";
+import { PublicDiscoveryService } from "./discovery.service";
+
+vi.mock("../../infrastructure/database/prisma", () => ({
+  prisma: {
+    product: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
+    },
+    category: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+    },
+    store: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+    },
+    brand: {
+      findFirst: vi.fn(),
+    },
+    stockItem: {
+      findMany: vi.fn(),
+    },
+    marketplaceSettings: {
+      findFirst: vi.fn(),
+    },
+  },
+}));
+
+describe("Product Discovery Engine (PublicDiscoveryService)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should return unified discovery response for catalog search", async () => {
+    vi.mocked(prisma.category.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.store.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.brand.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.marketplaceSettings.findFirst).mockResolvedValue({
+      outOfStockBehavior: "show_badge",
+    } as any);
+
+    vi.mocked(prisma.product.findMany).mockResolvedValue([
+      {
+        id: "prod-1",
+        name: "Mel Silvestre 500g",
+        slug: "mel-silvestre-500g",
+        shortDescription: "Mel puro de florada silvestre",
+        fullDescription: "Colheita artesanal",
+        type: "simple",
+        isFeatured: true,
+        status: "active",
+        isPublished: true,
+        storeId: "store-1",
+        categoryId: "cat-1",
+        brandId: "brand-1",
+        createdAt: new Date(),
+        store: { id: "store-1", name: "Apiário Serra", slug: "apiario-serra", logoUrl: null },
+        category: { id: "cat-1", name: "Mel", slug: "mel" },
+        brand: { id: "brand-1", name: "Serra Verde", slug: "serra-verde" },
+        medias: [],
+        variations: [
+          {
+            id: "var-1",
+            sku: "MEL-500G",
+            price: "35.00" as any,
+            promotionalPrice: null,
+            status: "active",
+            isDefault: true,
+            values: [],
+          },
+        ],
+      },
+    ] as any);
+
+    vi.mocked(prisma.stockItem.findMany).mockResolvedValue([
+      {
+        id: "stock-1",
+        storeId: "store-1",
+        variationId: "var-1",
+        physicalQuantity: 10,
+        reservedQuantity: 0,
+        lot: {
+          id: "lot-1",
+          status: "available",
+          expirationDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        },
+      },
+    ] as any);
+
+    const result = await PublicDiscoveryService.discover({
+      page: 1,
+      perPage: 12,
+      search: "mel",
+      sort: "relevance",
+    });
+
+    expect(result).toBeDefined();
+    expect(result.context.type).toBe("search");
+    expect(result.context.title).toContain("mel");
+    expect(result.products).toHaveLength(1);
+    expect(result.products[0]?.name).toBe("Mel Silvestre 500g");
+    expect(result.products[0]?.commercialStockAvailable).toBe(10);
+    expect(result.products[0]?.isAvailable).toBe(true);
+    expect(result.availableFilters).toHaveLength(2);
+    expect(result.seo.canonicalUrl).toContain("/busca");
+  });
+
+  it("should prioritize exact SKU match in relevance ranking", async () => {
+    vi.mocked(prisma.category.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.store.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.brand.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.marketplaceSettings.findFirst).mockResolvedValue({
+      outOfStockBehavior: "show_badge",
+    } as any);
+
+    vi.mocked(prisma.product.findMany).mockResolvedValue([
+      {
+        id: "prod-description-only",
+        name: "Cachaça Prata",
+        slug: "cachaca-prata",
+        shortDescription: "Garrafa de cachaça artesanal de minas",
+        fullDescription: "Qualidade premium",
+        type: "simple",
+        isFeatured: false,
+        status: "active",
+        isPublished: true,
+        storeId: "store-1",
+        categoryId: "cat-1",
+        brandId: null,
+        store: { id: "store-1", name: "Alambique", slug: "alambique", logoUrl: null },
+        category: { id: "cat-1", name: "Cachaças", slug: "cachacas" },
+        brand: null,
+        medias: [],
+        variations: [{ id: "var-1", sku: "CACHACA-PRATA-700ML", price: "40.00", values: [] }],
+      },
+      {
+        id: "prod-sku-match",
+        name: "Cachaça Envelhecida Ouro",
+        slug: "cachaca-ouro",
+        shortDescription: "Cachaça premium ouro",
+        fullDescription: "Barril de carvalho",
+        type: "simple",
+        isFeatured: false,
+        status: "active",
+        isPublished: true,
+        storeId: "store-1",
+        categoryId: "cat-1",
+        brandId: null,
+        store: { id: "store-1", name: "Alambique", slug: "alambique", logoUrl: null },
+        category: { id: "cat-1", name: "Cachaças", slug: "cachacas" },
+        brand: null,
+        medias: [],
+        variations: [{ id: "var-2", sku: "EXACT-SKU-999", price: "80.00", values: [] }],
+      },
+    ] as any);
+
+    vi.mocked(prisma.stockItem.findMany).mockResolvedValue([] as any);
+
+    const result = await PublicDiscoveryService.discover({
+      page: 1,
+      perPage: 12,
+      search: "EXACT-SKU-999",
+      sort: "relevance",
+    });
+
+    expect(result.products).toHaveLength(2);
+    expect(result.products[0]?.id).toBe("prod-sku-match");
+    expect(result.products[0]?.relevanceScore).toBeGreaterThan(500);
+  });
+
+  it("should validate full category path chain (parent -> child)", async () => {
+    vi.mocked(prisma.category.findFirst)
+      .mockResolvedValueOnce({
+        id: "cat-alimentos",
+        name: "Alimentos",
+        slug: "alimentos",
+        parentId: null,
+      } as any)
+      .mockResolvedValueOnce({
+        id: "cat-doces",
+        name: "Doces",
+        slug: "doces",
+        parentId: "cat-alimentos",
+      } as any);
+
+    vi.mocked(prisma.category.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.product.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.stockItem.findMany).mockResolvedValue([]);
+
+    const result = await PublicDiscoveryService.discover({
+      page: 1,
+      perPage: 12,
+      categorySlug: "alimentos/doces",
+      sort: "relevance",
+    });
+
+    expect(result.context.type).toBe("category");
+    expect(result.context.title).toBe("Doces");
+  });
+
+  it("should throw 404 AppError when full category path chain is invalid", async () => {
+    vi.mocked(prisma.category.findFirst).mockResolvedValue(null as any);
+
+    await expect(
+      PublicDiscoveryService.discover({
+        page: 1,
+        perPage: 12,
+        sort: "relevance",
+        categorySlug: "alimentos/caminho-invalido",
+      }),
+    ).rejects.toThrow(AppError);
+  });
+});

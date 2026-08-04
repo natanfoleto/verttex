@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { PublicCatalogService } from "./catalog.service";
 import { PublicProductListQuery, PublicStoreListQuery } from "./catalog.schemas";
+import { DiscoveryQuery } from "./discovery.schemas";
+import { PublicDiscoveryService } from "./discovery.service";
 
 export async function listPublicProductsController(
   req: FastifyRequest<{ Querystring: PublicProductListQuery }>,
@@ -11,6 +13,17 @@ export async function listPublicProductsController(
     success: true,
     data: result.data,
     meta: result.meta,
+  });
+}
+
+export async function discoverPublicProductsController(
+  req: FastifyRequest<{ Querystring: DiscoveryQuery }>,
+  reply: FastifyReply,
+) {
+  const result = await PublicDiscoveryService.discover(req.query);
+  return reply.status(200).send({
+    success: true,
+    data: result,
   });
 }
 
