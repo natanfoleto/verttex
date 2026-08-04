@@ -381,6 +381,7 @@ model Product {
   @@index([brandId])
   @@index([status])
   @@index([isPublished])
+  @@index([status, isPublished, deletedAt])
   @@map("products")
 }
 
@@ -461,6 +462,8 @@ model ProductVariation {
   @@index([storeId])
   @@index([publicId])
   @@index([sku])
+  @@index([barcode])
+  @@index([sku, barcode])
   @@index([status])
   @@map("product_variations")
 }

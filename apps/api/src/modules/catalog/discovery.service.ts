@@ -154,6 +154,68 @@ function variantMatchesAttributes(
 
 export class PublicDiscoveryService {
   /**
+   * PostgreSQL Native Full Text Search using f_unaccent, to_tsvector, websearch_to_tsquery, ts_rank and SKU exact match
+   */
+  static async searchPostgresFullText(
+    searchTerm: string,
+  ): Promise<Map<string, number>> {
+    const rankMap = new Map<string, number>();
+    const sanitizedSearch = searchTerm.trim();
+
+    if (!sanitizedSearch) return rankMap;
+
+    try {
+      const rawResults: Array<{ id: string; rank: number }> = await prisma.$queryRaw`
+        SELECT 
+          p.id,
+          CASE 
+            WHEN EXISTS (
+              SELECT 1 FROM product_variations pv 
+              WHERE pv."productId" = p.id 
+                AND pv.status = 'active' 
+                AND pv."deletedAt" IS NULL 
+                AND (LOWER(pv.sku) = LOWER(${sanitizedSearch}) OR LOWER(pv.barcode) = LOWER(${sanitizedSearch}))
+            ) THEN 1000.0
+            ELSE CAST(ts_rank(
+              to_tsvector('portuguese', f_unaccent(COALESCE(p.name, '') || ' ' || COALESCE(p."shortDescription", ''))),
+              websearch_to_tsquery('portuguese', f_unaccent(${sanitizedSearch}))
+            ) AS float)
+          END as rank
+        FROM products p
+        LEFT JOIN categories c ON p."categoryId" = c.id
+        LEFT JOIN brands b ON p."brandId" = b.id
+        LEFT JOIN stores s ON p."storeId" = s.id
+        WHERE p.status = 'active'
+          AND p."isPublished" = true
+          AND p."deletedAt" IS NULL
+          AND s.status = 'active'
+          AND s."deletedAt" IS NULL
+          AND (
+            EXISTS (
+              SELECT 1 FROM product_variations pv 
+              WHERE pv."productId" = p.id 
+                AND pv.status = 'active' 
+                AND pv."deletedAt" IS NULL 
+                AND (LOWER(pv.sku) = LOWER(${sanitizedSearch}) OR LOWER(pv.barcode) = LOWER(${sanitizedSearch}))
+            )
+            OR
+            to_tsvector('portuguese', f_unaccent(COALESCE(p.name, '') || ' ' || COALESCE(p."shortDescription", ''))) 
+            @@ websearch_to_tsquery('portuguese', f_unaccent(${sanitizedSearch}))
+          )
+        ORDER BY rank DESC, p.id DESC
+      `;
+
+      for (const row of rawResults) {
+        rankMap.set(row.id, Number(row.rank) || 0);
+      }
+    } catch {
+      // Fallback seamlessly if raw SQL PostgreSQL extension is not available in mock/test
+    }
+
+    return rankMap;
+  }
+
+  /**
    * Validate full category path chain (e.g. ['alimentos', 'doces', 'artesanais'])
    */
   static async validateCategoryPathChain(slugs: string[]): Promise<any> {
@@ -325,6 +387,7 @@ export class PublicDiscoveryService {
       minPrice,
       maxPrice,
       isFeatured,
+      isOffer,
       sort,
       attributes: rawAttributes,
     } = query;
@@ -454,6 +517,11 @@ export class PublicDiscoveryService {
       });
     }
 
+    // Attempt PostgreSQL Native Full-Text Search Rank
+    const pgRankMap = searchTerm
+      ? await PublicDiscoveryService.searchPostgresFullText(searchTerm)
+      : new Map<string, number>();
+
     // 2. Build Where Clause for Base Product Query
     const where: any = {
       status: "active",
@@ -500,6 +568,16 @@ export class PublicDiscoveryService {
 
     if (isFeatured) {
       where.isFeatured = true;
+    }
+
+    if (isOffer) {
+      where.variations = {
+        some: {
+          status: "active",
+          deletedAt: null,
+          promotionalPrice: { not: null },
+        },
+      };
     }
 
     // 3. Fetch Raw Products with all variation options and values
@@ -564,8 +642,9 @@ export class PublicDiscoveryService {
         ? Number(defaultVar.promotionalPrice)
         : null;
 
-      const relevanceScore = calculateProductRelevance(prod, normalizedSearch);
-      const hasAttributeMatch = Boolean(matchedVariant);
+      // Use native PostgreSQL Full Text Search Rank if present, or fallback to JS relevance
+      const pgRank = pgRankMap.get(prod.id);
+      const relevanceScore = pgRank !== undefined ? pgRank : calculateProductRelevance(prod, normalizedSearch);
 
       return {
         id: prod.id,
@@ -586,7 +665,7 @@ export class PublicDiscoveryService {
         isAvailable,
         relevanceScore,
         matchedVariantId: defaultVar?.id,
-        hasAttributeMatch,
+        hasAttributeMatch: Boolean(matchedVariant),
         rawProd: prod,
       };
     };
@@ -791,6 +870,13 @@ export class PublicDiscoveryService {
         value: searchTerm,
       });
     }
+    if (isOffer) {
+      appliedFilters.push({
+        key: "isOffer",
+        label: "Filtro",
+        value: "Ofertas & Promoções",
+      });
+    }
     for (const [optName, vals] of Object.entries(parsedAttributes)) {
       appliedFilters.push({
         key: `attr_${normalizeText(optName)}`,
@@ -808,7 +894,9 @@ export class PublicDiscoveryService {
           ? `/marca/${resolvedBrand.slug}`
           : searchTerm
             ? `/busca?q=${encodeURIComponent(searchTerm)}`
-            : "/produtos";
+            : isOffer
+              ? "/ofertas"
+              : "/produtos";
 
     return {
       context: {

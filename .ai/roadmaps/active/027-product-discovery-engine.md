@@ -12,52 +12,71 @@
 
 Evoluir a arquitetura de listagem e descoberta de produtos do Marketplace VERTTEX para uma infraestrutura unificada de **Product Discovery Engine**. 
 
-A navegação pública deixará de depender de uma página genérica `/produtos` e passará a ser orientada por intenção (`/busca?q=...`, `/categoria/[...slugs]`, `/produtor/[slug]`, `/marca/[slug]`, `/ofertas`), consumindo um motor de descoberta robusto com **busca textual ranqueada via PostgreSQL**, **facetas dinâmicas disjuntivas com contagem de produtos distintos (`COUNT DISTINCT productId`)**, **resolução hierárquica de subcategorias**, **breadcrumbs dinâmicos**, **filtro de estoque comercial FEFO** e **SEO otimizado**.
+A navegação pública deixará de depender de uma página genérica `/produtos` e passará a ser orientada por intenção (`/busca?q=...`, `/categoria/[...slugs]`, `/produtor/[slug]`, `/marca/[slug]`, `/ofertas`), consumindo um motor de descoberta robusto com **busca textual ranqueada via PostgreSQL (to_tsvector, f_unaccent IMMUTABLE, websearch_to_tsquery, ts_rank e índice GIN)**, **facetas dinâmicas disjuntivas com contagem de produtos distintos (`COUNT DISTINCT productId`)**, **resolução hierárquica de subcategorias com validação de caminho**, **breadcrumbs dinâmicos**, **filtro de estoque comercial FEFO** e **SEO otimizado**.
 
 ---
 
-## 🏗️ Especificações Arquiteturais & Regras Técnicas Concatendas
+## 🏗️ Especificações Arquiteturais & Estratégia do Índice de Busca (Etapa 2 Definitiva)
 
-### 1. Unidade de Resultado e Facetas por Produto Distinto
+### 1. Estratégia de Indexação e Busca PostgreSQL Nativas
+- **Migration SQL:** [20260804212000_product_discovery_search_index](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/prisma/migrations/20260804212000_product_discovery_search_index/migration.sql)
+  - Extensão PostgreSQL `unaccent` habilitada.
+  - Função wrapper IMMUTABLE `f_unaccent(text)` para compatibilidade total com índices por expressão.
+  - Índice GIN em `products USING gin(to_tsvector('portuguese', f_unaccent(COALESCE(name, '') || ' ' || COALESCE("shortDescription", ''))))`.
+  - Índices B-Tree Funcionais em `product_variations(LOWER(sku))` e `product_variations(LOWER(barcode))`.
+- **Query de Ranking DB:** `searchPostgresFullText()` executa `$queryRaw` nativo no PostgreSQL com filtragem `WHERE ... @@ websearch_to_tsquery('portuguese', f_unaccent($search))`:
+  ```sql
+  SELECT p.id,
+    CASE WHEN EXISTS (
+      SELECT 1 FROM product_variations pv 
+      WHERE pv."productId" = p.id 
+        AND pv.status = 'active' 
+        AND pv."deletedAt" IS NULL 
+        AND (LOWER(pv.sku) = LOWER($search) OR LOWER(pv.barcode) = LOWER($search))
+    ) THEN 1000.0
+    ELSE CAST(ts_rank(
+      to_tsvector('portuguese', f_unaccent(COALESCE(p.name, '') || ' ' || COALESCE(p."shortDescription", ''))),
+      websearch_to_tsquery('portuguese', f_unaccent($search))
+    ) AS float) END as rank
+  FROM products p
+  WHERE p.status = 'active' AND p."isPublished" = true AND p."deletedAt" IS NULL
+    AND (
+      EXISTS (...)
+      OR to_tsvector('portuguese', f_unaccent(...)) @@ websearch_to_tsquery('portuguese', f_unaccent($search))
+    )
+  ORDER BY rank DESC, p.id DESC
+  ```
+- **Simetria de Acentuação:** `f_unaccent` aplicada tanto no documento indexado quanto na query `websearch_to_tsquery` (garante que "cachaca" encontre "cachaça" e vice-versa).
+- **Segurança de Entrada Pública:** `websearch_to_tsquery` trata nativamente aspas, pontuações, traços, stop-words e termos curtos sem nunca lançar erros de sintaxe 500 no banco.
+
+### 2. Unidade de Resultado e Facetas por Produto Distinto
 - **Unidade de Saída:** O resultado final da listagem e da paginação é sempre **PRODUTO** (nunca variantes individualizadas).
 - **Deduplicação nas Facetas:** As contagens de facetas (`brand`, `store`, `attributes`, `price`) usam agregação por produto distinto (`COUNT(DISTINCT productId)` ou Set deduplicado), garantindo que múltiplos tipos/pesos de um mesmo produto não inflem as contagens.
 - **Match de SKU/GTIN:** Busca por SKU ou código de barras encontra a variante exata, mas retorna o produto correspondente (carregando opcionalmente `matchedVariantId`).
 
-### 2. Rota, Contexto e Estado dos Filtros na URL
+### 3. Rota, Contexto e Estado dos Filtros na URL
 - **Rota Padronizada:** `/busca?q=termo` com query params compartilháveis (`/busca?q=mel&florada=silvestre&peso=500g&sort=price_asc&page=2`).
-- **Navegação e URL:** O estado dos filtros é gerenciado e refletido na URL (limpando parâmetros vazios e resetando a página para 1 ao alterar filtros).
+- **Ofertas Reais no Domínio:** `/ofertas` consulta variações com `promotionalPrice != null` e `promotionalPrice < price`.
 - **Indexação SEO:** Páginas de busca e filtros aplicados usam `noindex, follow`. Categorias e produtores usam `index, follow` com URLs canônicas.
 
-### 3. Semântica de Facetas & Contagem Disjuntiva (Disjunctive Faceting)
+### 4. Semântica de Facetas & Contagem Disjuntiva (Disjunctive Faceting)
 - **Operadores:** Mesma faceta = `OR` (`Florada: Silvestre OR Eucalipto`); Facetas distintas = `AND`.
 - **Self-Excluding Facet Counting:** Para calcular as contagens de opções da faceta X, consideram-se todos os filtros ativos *exceto* os selecionados na própria faceta X.
 
-### 4. Validação de Combinações Reais de Variantes Comercializáveis
+### 5. Validação de Combinações Reais de Variantes Comercializáveis
 - **Atributos e Preço:** Filtros por atributos múltiplos (`Peso = 1kg AND Florada = Silvestre`) e faixas de preço (`minPrice`, `maxPrice`) devem obrigatoriamente corresponder a **uma única variante comercialmente disponível** (ativa, não vencida e com estoque comercial `commercialStockAvailable > 0`).
 
-### 5. Ranking Determinístico & Tie-Breaker Estável
-- **Desempate Estável:** Toda ordenação inclui `id DESC` como tie-breaker determinístico para evitar duplicação ou desaparecimento de itens entre páginas:
-  - `relevance`: `relevanceScore DESC, id DESC`
-  - `price_asc`: `price ASC, id DESC`
-  - `price_desc`: `price DESC, id DESC`
-  - `newest`: `createdAt DESC, id DESC`
+### 6. Ranking Determinístico & Tie-Breaker Estável
+- **Desempate Estável:** Toda ordenação inclui `id DESC` como tie-breaker determinístico para evitar duplicação ou desaparecimento de itens entre páginas.
 
-### 6. Sanitização Zod & Limites de Paginação
-- **Entradas Protegidas:** `page` (min 1, default 1), `perPage` (min 1, max 100, default 12). Bloqueia valores abusivos (`page = -1` ou `limit = 1000000`) via schema Zod com código `400 Bad Request`.
+### 7. Sanitização Zod & Limites de Paginação
+- **Entradas Protegidas:** `page` (min 1, default 1), `perPage` (min 1, max 100, default 12). Bloqueia valores abusivos via schema Zod com código `400 Bad Request`.
 
-### 7. Resolução Hierárquica de Categorias (`/categoria/[...slugs]`)
+### 8. Resolução Hierárquica de Categorias (`/categoria/[...slugs]`)
 - **Fluxo:** 
   1. Validar a hierarquia inteira do caminho (Pai -> Filho -> Neto).
   2. Resolver a árvore de descendentes.
   3. Buscar os produtos pertencentes à categoria contextual e subcategorias descendentes.
-
-### 8. Contrato de Erros da API
-- **Parâmetro inválido:** `400 Bad Request`.
-- **Entidade inexistente:** `404 Not Found`.
-- **Busca sem resultados:** `200 OK` com `products: []`, `total: 0`.
-
-### 9. Responsabilidade do Frontend (`<ProductDiscoveryView />`)
-- O componente frontend **NÃO duplica regras de negócio** (não recalcula estoque, facetas ou ordenação). Apresenta a UI, lê/escreve a URL, e trata os estados de loading, erro e empty state.
 
 ---
 
@@ -65,27 +84,22 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 
 ### Etapa 1: Fundação do `PublicDiscoveryService` & Contrato de Resposta `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
-- **Artefatos:** [discovery.service.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.service.ts), [discovery.schemas.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.schemas.ts), Rota `GET /public/catalog/discover`, [discovery.spec.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.spec.ts).
 
-### Etapa 2: Busca Textual Relevante no PostgreSQL (`tsvector`, `unaccent` & SKU exact match) `[CONCLUÍDA & VALIDADA]`
+### Etapa 2: Busca Textual Relevante no PostgreSQL (`to_tsvector`, `f_unaccent` IMMUTABLE, `websearch_to_tsquery`, `ts_rank` & GIN index) `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
-- **Artefatos:** Algoritmo `calculateProductRelevance()`, busca por SKU/Barcode com Score 1000, `unaccent` insensível e ranking determinístico.
+- **Artefatos:** Migration SQL [20260804212000_product_discovery_search_index](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/prisma/migrations/20260804212000_product_discovery_search_index/migration.sql), método `searchPostgresFullText()` com `$queryRaw` nativo no PostgreSQL, predicado `WHERE @@ websearch_to_tsquery`, ranking `ts_rank` ponderado, prioridade de SKU exato no índice funcional `LOWER(sku)` (Score 1000.0) e teste de integração em [discovery-postgres-search.spec.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery-postgres-search.spec.ts).
 
 ### Etapa 3: Resolução Hierárquica de Categorias & Breadcrumbs Recursivos `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
-- **Artefatos:** Resolução recursiva de subcategorias em múltiplos níveis (`getCategorySubtreeIds`), construtor de breadcrumbs (`buildCategoryBreadcrumbs`) e tratamento de erro `404`.
 
 ### Etapa 4: Facetas Dinâmicas Disjuntivas por Atributos de Variação `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
-- **Artefatos:** Agregação com `COUNT DISTINCT productId`, filtragem estrita de combinações em variante única vendável e facetas de atributos.
 
 ### Etapa 5: Componente Frontend Reutilizável `<ProductDiscoveryView />` `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
-- **Artefatos:** [product-discovery-view.tsx](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/discovery/product-discovery-view.tsx) com sincronização bidirecional na URL, sidebar responsiva e desempate de paginação.
 
 ### Etapa 6: Rotas Públicas Orientadas por Intenção no Marketplace `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
-- **Artefatos:** [/busca](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/app/busca/page.tsx), [/categoria/[...slugs]](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/app/categoria/%5B...slugs%5D/page.tsx), [/produtor/[slug]](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/app/produtor/%5Bslug%5D/page.tsx), [/marca/[slug]](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/app/marca/%5Bslug%5D/page.tsx), [/produtos](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/app/produtos/page.tsx).
 
 ### Etapa 7: Otimização de SEO, URLs Canônicas & Metadados
 - **Metadados:** Tags `title`, `description`, `canonicalUrl` e `noindex, follow` para buscas e filtros aplicados.

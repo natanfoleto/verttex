@@ -22,6 +22,10 @@ export const discoveryQuerySchema = z.object({
     .union([z.boolean(), z.string()])
     .transform((val) => val === true || val === "true")
     .optional(),
+  isOffer: z
+    .union([z.boolean(), z.string()])
+    .transform((val) => val === true || val === "true")
+    .optional(),
   sort: z
     .string()
     .optional()
