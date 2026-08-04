@@ -375,6 +375,8 @@ model Product {
   lots       ProductLot[]
   orderItems OrderItem[]
 
+  searchDocument ProductSearchDocument?
+
   @@unique([storeId, slug])
   @@index([storeId])
   @@index([categoryId])
@@ -383,6 +385,24 @@ model Product {
   @@index([isPublished])
   @@index([status, isPublished, deletedAt])
   @@map("products")
+}
+
+model ProductSearchDocument {
+  id                    String   @id @default(uuid())
+  productId             String   @unique
+  titleNormalized       String
+  contextNormalized     String
+  attributesNormalized  String
+  descriptionNormalized String
+  searchTextNormalized  String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([searchTextNormalized])
+  @@map("product_search_documents")
 }
 
 model ProductOption {

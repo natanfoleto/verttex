@@ -27,6 +27,14 @@ vi.mock("../../infrastructure/database/prisma", () => ({
     marketplaceSettings: {
       findFirst: vi.fn(),
     },
+    productVariation: {
+      findMany: vi.fn(),
+    },
+    productSearchDocument: {
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+    },
   },
 }));
 
@@ -42,6 +50,17 @@ describe("Product Discovery Engine (PublicDiscoveryService)", () => {
     vi.mocked(prisma.marketplaceSettings.findFirst).mockResolvedValue({
       outOfStockBehavior: "show_badge",
     } as any);
+
+    vi.mocked(prisma.productVariation.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValue([
+      {
+        productId: "prod-1",
+        titleNormalized: "mel silvestre 500g",
+        contextNormalized: "mel apiario serra serra verde",
+        attributesNormalized: "500g",
+        descriptionNormalized: "mel puro",
+      },
+    ] as any);
 
     vi.mocked(prisma.product.findMany).mockResolvedValue([
       {
@@ -117,6 +136,11 @@ describe("Product Discovery Engine (PublicDiscoveryService)", () => {
       outOfStockBehavior: "show_badge",
     } as any);
 
+    vi.mocked(prisma.productVariation.findMany).mockResolvedValue([
+      { productId: "prod-sku-match" } as any,
+    ]);
+    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValue([]);
+
     vi.mocked(prisma.product.findMany).mockResolvedValue([
       {
         id: "prod-description-only",
@@ -190,6 +214,8 @@ describe("Product Discovery Engine (PublicDiscoveryService)", () => {
     vi.mocked(prisma.category.findMany).mockResolvedValue([]);
     vi.mocked(prisma.product.findMany).mockResolvedValue([]);
     vi.mocked(prisma.stockItem.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.productVariation.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValue([]);
 
     const result = await PublicDiscoveryService.discover({
       page: 1,

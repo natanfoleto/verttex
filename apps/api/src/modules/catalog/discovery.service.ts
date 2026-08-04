@@ -2,6 +2,7 @@ import { prisma } from "../../infrastructure/database/prisma";
 import { AppError } from "../../shared/errors/app-error";
 import { LotsService } from "../lots/lots.service";
 import { DiscoveryQuery } from "./discovery.schemas";
+import { normalizeSearchText, ProductSearchIndexService } from "./product-search-index.service";
 
 export interface DiscoveryBreadcrumb {
   name: string;
@@ -69,29 +70,21 @@ export interface DiscoveryResponse {
   };
 }
 
-function normalizeText(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
 function calculateProductRelevance(prod: any, normalizedSearch: string): number {
   if (!normalizedSearch) return 0;
 
   let score = 0;
-  const normName = normalizeText(prod.name || "");
-  const normShort = normalizeText(prod.shortDescription || "");
-  const normFull = normalizeText(prod.fullDescription || "");
-  const normCat = normalizeText(prod.category?.name || "");
-  const normBrand = normalizeText(prod.brand?.name || "");
-  const normStore = normalizeText(prod.store?.name || "");
+  const normName = normalizeSearchText(prod.name || "");
+  const normShort = normalizeSearchText(prod.shortDescription || "");
+  const normFull = normalizeSearchText(prod.fullDescription || "");
+  const normCat = normalizeSearchText(prod.category?.name || "");
+  const normBrand = normalizeSearchText(prod.brand?.name || "");
+  const normStore = normalizeSearchText(prod.store?.name || "");
 
   // 1. SKU / Barcode Exact Match (Highest Priority)
   const hasExactSkuOrBarcode = prod.variations?.some((v: any) => {
-    const skuNorm = normalizeText(v.sku || "");
-    const barcodeNorm = normalizeText(v.barcode || "");
+    const skuNorm = normalizeSearchText(v.sku || "");
+    const barcodeNorm = normalizeSearchText(v.barcode || "");
     return skuNorm === normalizedSearch || barcodeNorm === normalizedSearch;
   });
 
@@ -143,8 +136,8 @@ function variantMatchesAttributes(
       const optionVal = vv.optionValue?.value;
       return (
         optionName &&
-        normalizeText(optionName) === normalizeText(optName) &&
-        targetValues.some((tv) => normalizeText(tv) === normalizeText(optionVal))
+        normalizeSearchText(optionName) === normalizeSearchText(optName) &&
+        targetValues.some((tv) => normalizeSearchText(tv) === normalizeSearchText(optionVal))
       );
     });
     if (!hasMatchingValue) return false;
@@ -154,86 +147,78 @@ function variantMatchesAttributes(
 
 export class PublicDiscoveryService {
   /**
-   * Refresh the search_vector Search Projection for a single product in PostgreSQL
+   * Refresh the Search Document Search Projection for a single product via 100% Prisma Client
    */
   static async refreshProductSearchDocument(productId: string): Promise<void> {
-    try {
-      await prisma.$executeRaw`SELECT public.refresh_product_search_vector(${productId})`;
-    } catch {
-      // Ignore if running in non-PostgreSQL environment
-    }
+    await ProductSearchIndexService.syncProductSearchDocument(productId);
   }
 
   /**
-   * PostgreSQL Native Full Text Search using pre-calculated search_vector Search Projection GIN index
+   * 100% Pure Prisma Client Search Engine (Zero Raw SQL / Zero $queryRaw / Zero $executeRaw)
    */
-  static async searchPostgresFullText(
+  static async searchPrismaClient(
     searchTerm: string,
+    categoryIdsToFilter: string[],
+    brandId?: string,
+    storeId?: string,
   ): Promise<Map<string, number>> {
     const rankMap = new Map<string, number>();
-    const sanitizedSearch = searchTerm.trim();
+    const normalizedQuery = normalizeSearchText(searchTerm);
 
-    if (!sanitizedSearch) return rankMap;
+    if (!normalizedQuery) return rankMap;
 
-    try {
-      const rawResults: Array<{ id: string; rank: number }> = await prisma.$queryRaw`
-        SELECT 
-          p.id,
-          CASE 
-            WHEN EXISTS (
-              SELECT 1 FROM product_variations pv 
-              WHERE pv."productId" = p.id 
-                AND pv.status = 'active' 
-                AND pv."deletedAt" IS NULL 
-                AND (LOWER(pv.sku) = LOWER(${sanitizedSearch}) OR LOWER(pv.barcode) = LOWER(${sanitizedSearch}))
-            ) THEN 1000.0
-            ELSE CAST(ts_rank(
-              COALESCE(
-                p.search_vector, 
-                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p.name, ''))), 'A') ||
-                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(c.name, ''))), 'B') ||
-                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(b.name, ''))), 'B') ||
-                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(s.name, ''))), 'B') ||
-                setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p."shortDescription", ''))), 'D')
-              ),
-              websearch_to_tsquery('portuguese', f_unaccent(${sanitizedSearch}))
-            ) AS float)
-          END as rank
-        FROM products p
-        LEFT JOIN categories c ON p."categoryId" = c.id
-        LEFT JOIN brands b ON p."brandId" = b.id
-        LEFT JOIN stores s ON p."storeId" = s.id
-        WHERE p.status = 'active'
-          AND p."isPublished" = true
-          AND p."deletedAt" IS NULL
-          AND s.status = 'active'
-          AND s."deletedAt" IS NULL
-          AND (
-            EXISTS (
-              SELECT 1 FROM product_variations pv 
-              WHERE pv."productId" = p.id 
-                AND pv.status = 'active' 
-                AND pv."deletedAt" IS NULL 
-                AND (LOWER(pv.sku) = LOWER(${sanitizedSearch}) OR LOWER(pv.barcode) = LOWER(${sanitizedSearch}))
-            )
-            OR
-            COALESCE(
-              p.search_vector,
-              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p.name, ''))), 'A') ||
-              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(c.name, ''))), 'B') ||
-              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(b.name, ''))), 'B') ||
-              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(s.name, ''))), 'B') ||
-              setweight(to_tsvector('portuguese', f_unaccent(COALESCE(p."shortDescription", ''))), 'D')
-            ) @@ websearch_to_tsquery('portuguese', f_unaccent(${sanitizedSearch}))
-          )
-        ORDER BY rank DESC, p.id DESC
-      `;
+    // 1. Exact SKU / Barcode lookup via Prisma Client
+    const exactMatchingVariants = await prisma.productVariation.findMany({
+      where: {
+        status: "active",
+        deletedAt: null,
+        OR: [
+          { sku: { equals: searchTerm, mode: "insensitive" } },
+          { barcode: { equals: searchTerm, mode: "insensitive" } },
+        ],
+      },
+      select: { productId: true },
+    });
 
-      for (const row of rawResults) {
-        rankMap.set(row.id, Number(row.rank) || 0);
-      }
-    } catch {
-      // Fallback seamlessly if raw SQL PostgreSQL extension is not available in mock/test
+    for (const v of exactMatchingVariants) {
+      rankMap.set(v.productId, 1000);
+    }
+
+    // 2. Global Text Search via Prisma Client over ProductSearchDocument
+    const searchDocs = await prisma.productSearchDocument.findMany({
+      where: {
+        product: {
+          status: "active",
+          isPublished: true,
+          deletedAt: null,
+          store: { status: "active", deletedAt: null },
+          ...(categoryIdsToFilter.length > 0 ? { categoryId: { in: categoryIdsToFilter } } : {}),
+          ...(brandId ? { brandId } : {}),
+          ...(storeId ? { storeId } : {}),
+        },
+        searchTextNormalized: {
+          contains: normalizedQuery,
+        },
+      },
+      select: {
+        productId: true,
+        titleNormalized: true,
+        contextNormalized: true,
+        attributesNormalized: true,
+        descriptionNormalized: true,
+      },
+    });
+
+    for (const doc of searchDocs) {
+      if (rankMap.has(doc.productId)) continue; // Keep SKU top score 1000
+
+      let score = 10; // Base match score
+      if (doc.titleNormalized.includes(normalizedQuery)) score += 500;
+      if (doc.contextNormalized.includes(normalizedQuery)) score += 200;
+      if (doc.attributesNormalized.includes(normalizedQuery)) score += 100;
+      if (doc.descriptionNormalized.includes(normalizedQuery)) score += 50;
+
+      rankMap.set(doc.productId, score);
     }
 
     return rankMap;
@@ -417,7 +402,7 @@ export class PublicDiscoveryService {
     } = query;
 
     const searchTerm = (queryInput || searchInput || "").trim();
-    const normalizedSearch = normalizeText(searchTerm);
+    const normalizedSearch = normalizeSearchText(searchTerm);
 
     // Normalize attribute filters
     const parsedAttributes: Record<string, string[]> = {};
@@ -541,9 +526,14 @@ export class PublicDiscoveryService {
       });
     }
 
-    // Attempt PostgreSQL Native Full-Text Search Rank
-    const pgRankMap = searchTerm
-      ? await PublicDiscoveryService.searchPostgresFullText(searchTerm)
+    // Attempt 100% Pure Prisma Client Search Rank
+    const prismaRankMap = searchTerm
+      ? await PublicDiscoveryService.searchPrismaClient(
+          searchTerm,
+          categoryIdsToFilter,
+          resolvedBrand?.id,
+          resolvedStore?.id,
+        )
       : new Map<string, number>();
 
     // 2. Build Where Clause for Base Product Query
@@ -666,9 +656,9 @@ export class PublicDiscoveryService {
         ? Number(defaultVar.promotionalPrice)
         : null;
 
-      // Use native PostgreSQL Full Text Search Rank if present, or fallback to JS relevance
-      const pgRank = pgRankMap.get(prod.id);
-      const relevanceScore = pgRank !== undefined ? pgRank : calculateProductRelevance(prod, normalizedSearch);
+      // Use 100% Prisma Client Search Rank or fallback to JS relevance
+      const prismaRank = prismaRankMap.get(prod.id);
+      const relevanceScore = prismaRank !== undefined ? prismaRank : calculateProductRelevance(prod, normalizedSearch);
 
       return {
         id: prod.id,
@@ -848,7 +838,7 @@ export class PublicDiscoveryService {
 
     for (const [optName, valMap] of attributeFacetCounts.entries()) {
       availableFilters.push({
-        key: `attr_${normalizeText(optName)}`,
+        key: `attr_${normalizeSearchText(optName)}`,
         label: optName,
         options: Array.from(valMap.entries()).map(([val, data]) => ({
           value: val,
@@ -903,7 +893,7 @@ export class PublicDiscoveryService {
     }
     for (const [optName, vals] of Object.entries(parsedAttributes)) {
       appliedFilters.push({
-        key: `attr_${normalizeText(optName)}`,
+        key: `attr_${normalizeSearchText(optName)}`,
         label: optName,
         value: vals.join(", "),
       });
