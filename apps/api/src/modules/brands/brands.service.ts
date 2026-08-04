@@ -5,6 +5,8 @@ import { AppError } from "../../shared/errors/app-error";
 import { logAudit } from "../../shared/utils/audit";
 import { normalizeSlug } from "../categories/categories.service";
 import { BrandQuery, CreateBrandBody, UpdateBrandBody } from "./brands.schemas";
+import { ProductSearchIndexService } from "../catalog/product-search-index.service";
+
 
 export class BrandsService {
   async listBrands(query: BrandQuery) {
@@ -170,8 +172,12 @@ export class BrandsService {
       req,
     });
 
+    // Sync Search Documents for all products of this brand (name may have changed)
+    await ProductSearchIndexService.refreshByBrand(id).catch(() => {});
+
     return updatedBrand;
   }
+
 
   async deleteBrand(id: string, actorId?: string, req?: FastifyRequest) {
     const brand = await prisma.brand.findFirst({

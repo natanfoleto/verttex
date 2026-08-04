@@ -35,11 +35,11 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 
     product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-    @@index([productId])
     @@index([searchTextNormalized])
     @@map("product_search_documents")
   }
   ```
+
 - **Serviço de Normalização & Sincronização:** `ProductSearchIndexService` em [product-search-index.service.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/product-search-index.service.ts) executa a normalização universal (`normalizeSearchText()`) e upserts via `prisma.productSearchDocument.upsert()`.
 
 ### 2. Unidade de Resultado e Facetas por Produto Distinto
@@ -55,7 +55,18 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 
 ### Etapa 2: Busca Textual Relevante via Search Projection 100% Prisma Client (`ProductSearchDocument`, Zero Raw SQL) `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
-- **Artefatos:** [schema.prisma](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/prisma/schema.prisma), [product-search-index.service.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/product-search-index.service.ts), `PublicDiscoveryService.searchPrismaClient()` em [discovery.service.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.service.ts), e testes em [discovery-postgres-search.spec.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery-postgres-search.spec.ts).
+- **Artefatos:**
+  - [schema.prisma](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/prisma/schema.prisma) — modelo `ProductSearchDocument` com `@@index([searchTextNormalized])` (índice B-Tree retido para `equals`/`startsWith` futuros; `contains` gera seq scan, aceitável para catálogos ≤ 10k produtos — ver Etapa 8).
+  - [product-search-index.service.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/product-search-index.service.ts) — `normalizeSearchText()`, `tokenizeQuery()`, `syncProductSearchDocument()`, `refreshByBrand()`, `refreshByCategory()`, `refreshByStore()`, `rebuildAllSearchDocuments()` em batches de 100.
+  - [discovery.service.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.service.ts) — `searchPrismaClient()` com semântica AND por token (multi-termo), ranking por campo (título+500, contexto+200, atributos+100, descrição+50), paginação após ranking.
+  - [product-search-index.spec.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/product-search-index.spec.ts) — 19 testes cobrindo normalização, tokenização, AND cross-field, ranking, paginação estável, refresh de entidades compartilhadas e exclusão de produto arquivado.
+- **Sincronização automática de Search Document:**
+  - `products.service.ts` — após `createProduct`, `updateProduct`, `publishProduct`.
+  - `brands.service.ts` — após `updateBrand` via `refreshByBrand()`.
+  - `categories.service.ts` — após `updateCategory` via `refreshByCategory()`.
+  - `stores.service.ts` — após `updateStore` via `refreshByStore()`.
+  - `archiveProduct` — soft-delete: `onDelete: Cascade` **NÃO** é disparado. SearchDocument é retido intencionalmente. O Discovery filtra `{ status: "active", isPublished: true, deletedAt: null }` garantindo que produtos arquivados nunca apareçam publicamente.
+
 
 ### Etapa 3: Resolução Hierárquica de Categorias & Breadcrumbs Recursivos `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`

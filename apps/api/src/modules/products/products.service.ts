@@ -685,8 +685,15 @@ export class ProductsService {
       req,
     });
 
+    // Note: archiveProduct is a soft-delete (sets deletedAt/status/isPublished).
+    // onDelete: Cascade on ProductSearchDocument only fires on physical deletion.
+    // The orphan Search Document is intentionally retained — PublicDiscoveryService
+    // always filters by { status: "active", isPublished: true, deletedAt: null },
+    // so the archived product will never surface in any public Discovery result.
+
     return { message: "Produto arquivado com sucesso" };
   }
+
 
   /**
    * Resolve effective fiscal parameters (variation values override parent product defaults)

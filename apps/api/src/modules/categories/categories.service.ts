@@ -9,6 +9,8 @@ import {
   UpdateCategoryBody,
   ReorderCategoriesBody,
 } from "./categories.schemas";
+import { ProductSearchIndexService } from "../catalog/product-search-index.service";
+
 
 export function normalizeSlug(text: string): string {
   return text
@@ -253,6 +255,9 @@ export class CategoriesService {
       newValues: updatedCategory,
       req,
     });
+
+    // Sync Search Documents for all products of this category (name may have changed)
+    await ProductSearchIndexService.refreshByCategory(id).catch(() => {});
 
     return updatedCategory;
   }

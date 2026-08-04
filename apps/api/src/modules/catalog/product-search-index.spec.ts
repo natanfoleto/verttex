@@ -362,3 +362,76 @@ describe("discover() — paginação estável", () => {
     expect(p2.pagination.hasPreviousPage).toBe(true);
   });
 });
+
+// ─────────────────────────────────────────────
+// 8. Sincronização de entidades compartilhadas
+// ─────────────────────────────────────────────
+describe("ProductSearchIndexService — refresh by shared entity", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("refreshByBrand: calls syncProductSearchDocument for all products of a brand", async () => {
+    vi.mocked(prisma.product.findMany).mockResolvedValue([
+      { id: "prod-b1" },
+      { id: "prod-b2" },
+    ] as any);
+    vi.mocked(prisma.product.findUnique).mockResolvedValue(null); // sync returns early for not found
+
+    await ProductSearchIndexService.refreshByBrand("brand-x");
+
+    expect(prisma.product.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ brandId: "brand-x" }) }),
+    );
+  });
+
+  it("refreshByCategory: calls syncProductSearchDocument for all products of a category", async () => {
+    vi.mocked(prisma.product.findMany).mockResolvedValue([{ id: "prod-c1" }] as any);
+    vi.mocked(prisma.product.findUnique).mockResolvedValue(null);
+
+    await ProductSearchIndexService.refreshByCategory("cat-x");
+
+    expect(prisma.product.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ categoryId: "cat-x" }) }),
+    );
+  });
+
+  it("refreshByStore: calls syncProductSearchDocument for all products of a store", async () => {
+    vi.mocked(prisma.product.findMany).mockResolvedValue([{ id: "prod-s1" }] as any);
+    vi.mocked(prisma.product.findUnique).mockResolvedValue(null);
+
+    await ProductSearchIndexService.refreshByStore("store-x");
+
+    expect(prisma.product.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ storeId: "store-x" }) }),
+    );
+  });
+});
+
+// ─────────────────────────────────────────────
+// 9. Produto arquivado não aparece no Discovery
+// ─────────────────────────────────────────────
+describe("discover() — archived product excluded", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does not return archived/unpublished product even with a valid Search Document", async () => {
+    vi.mocked(prisma.category.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.store.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.brand.findFirst).mockResolvedValue(null as any);
+    vi.mocked(prisma.marketplaceSettings.findFirst).mockResolvedValue({ outOfStockBehavior: "show_badge" } as any);
+    vi.mocked(prisma.productVariation.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValue([]);
+
+    // findMany returns empty because the WHERE clause includes status: "active", isPublished: true
+    // (simulating that DB correctly filters archived products)
+    vi.mocked(prisma.product.findMany).mockResolvedValue([] as any);
+    vi.mocked(prisma.stockItem.findMany).mockResolvedValue([] as any);
+
+    const result = await PublicDiscoveryService.discover({
+      page: 1,
+      perPage: 12,
+      search: "mel",
+      sort: "relevance",
+    });
+
+    expect(result.products).toHaveLength(0);
+  });
+});

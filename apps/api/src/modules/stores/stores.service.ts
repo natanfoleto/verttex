@@ -12,6 +12,8 @@ import {
   UpdateStoreBody,
   AddStoreMemberBody,
 } from "./stores.schemas";
+import { ProductSearchIndexService } from "../catalog/product-search-index.service";
+
 
 export class StoresService {
   async createStore(
@@ -281,6 +283,9 @@ export class StoresService {
       },
       req,
     });
+
+    // Sync Search Documents for all products of this store (name may have changed)
+    await ProductSearchIndexService.refreshByStore(storeId).catch(() => {});
 
     return updatedStore;
   }

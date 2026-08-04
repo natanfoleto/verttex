@@ -172,10 +172,17 @@ export class PublicDiscoveryService {
 
     if (tokens.length === 0) return rankMap;
 
-    // The first token is used to narrow the candidate set via the index.
-    // Subsequent tokens are AND-filtered in JavaScript over the small result set.
-    // This is safe because the DB returns only docs matching the first (anchor) token,
-    // typically a small fraction of the catalog.
+    // The first token is used to narrow the candidate set.
+    // IMPORTANT — index note: `@@index([searchTextNormalized])` in schema is a B-Tree index.
+    // PostgreSQL B-Tree indexes do NOT accelerate `LIKE '%token%'` (contains) queries.
+    // The index is therefore effectively unused for this `contains` clause on the DB side.
+    // In practice this means:
+    //   - For small/medium catalogs (≤ 10k rows) the sequential scan on product_search_documents
+    //     is acceptable and typically returns in < 10ms.
+    //   - For larger catalogs, pg_trgm (GIN trigram index) would allow index-assisted LIKE queries.
+    //   - pg_trgm evaluation is deferred to Etapa 8 benchmark. Do NOT install it now.
+    // The @@index([searchTextNormalized]) is retained for potential future `startsWith`/`equals`
+    // usage and for documentation purposes; it does not harm performance.
     const anchorToken = tokens[0]!;
 
     const productFilter: any = {
