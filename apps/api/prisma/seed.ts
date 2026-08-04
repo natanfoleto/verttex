@@ -1,83 +1,36 @@
 import { prisma } from "../src/infrastructure/database/prisma.js";
 import { hashPassword } from "../src/shared/utils/crypto.js";
+import { ProductSearchIndexService } from "../src/modules/catalog/product-search-index.service.js";
 
 const permissionsData = [
   // Users module
-  {
-    key: "users.read",
-    module: "users",
-    description: "Visualizar lista e detalhes de usuários",
-  },
-  {
-    key: "users.create",
-    module: "users",
-    description: "Cadastrar novos usuários gestores",
-  },
-  {
-    key: "users.update",
-    module: "users",
-    description: "Editar dados de usuários",
-  },
+  { key: "users.read", module: "users", description: "Visualizar lista e detalhes de usuários" },
+  { key: "users.create", module: "users", description: "Cadastrar novos usuários gestores" },
+  { key: "users.update", module: "users", description: "Editar dados de usuários" },
   { key: "users.delete", module: "users", description: "Desativar usuários" },
 
   // Roles module
   { key: "roles.read", module: "roles", description: "Visualizar cargos" },
   { key: "roles.create", module: "roles", description: "Criar novos cargos" },
   { key: "roles.update", module: "roles", description: "Editar cargos" },
-  {
-    key: "roles.delete",
-    module: "roles",
-    description: "Excluir cargos não-sistema",
-  },
+  { key: "roles.delete", module: "roles", description: "Excluir cargos não-sistema" },
 
   // Permissions module
-  {
-    key: "permissions.read",
-    module: "permissions",
-    description: "Visualizar permissões",
-  },
-  {
-    key: "permissions.manage",
-    module: "permissions",
-    description: "Gerenciar permissões de cargos e usuários",
-  },
+  { key: "permissions.read", module: "permissions", description: "Visualizar permissões" },
+  { key: "permissions.manage", module: "permissions", description: "Gerenciar permissões de cargos e usuários" },
 
   // Stores module
   { key: "stores.read", module: "stores", description: "Visualizar lojas" },
   { key: "stores.create", module: "stores", description: "Criar novas lojas" },
-  {
-    key: "stores.update",
-    module: "stores",
-    description: "Editar dados da loja",
-  },
+  { key: "stores.update", module: "stores", description: "Editar dados da loja" },
   { key: "stores.delete", module: "stores", description: "Desativar loja" },
-  {
-    key: "stores.manage-members",
-    module: "stores",
-    description: "Vincular e desvincular usuários da loja",
-  },
+  { key: "stores.manage-members", module: "stores", description: "Vincular e desvincular usuários da loja" },
 
   // Categories module
-  {
-    key: "categories.read",
-    module: "categories",
-    description: "Visualizar categorias",
-  },
-  {
-    key: "categories.create",
-    module: "categories",
-    description: "Criar categorias",
-  },
-  {
-    key: "categories.update",
-    module: "categories",
-    description: "Editar categorias",
-  },
-  {
-    key: "categories.delete",
-    module: "categories",
-    description: "Arquivar categorias",
-  },
+  { key: "categories.read", module: "categories", description: "Visualizar categorias" },
+  { key: "categories.create", module: "categories", description: "Criar categorias" },
+  { key: "categories.update", module: "categories", description: "Editar categorias" },
+  { key: "categories.delete", module: "categories", description: "Arquivar categorias" },
 
   // Brands module
   { key: "brands.read", module: "brands", description: "Visualizar marcas" },
@@ -86,26 +39,10 @@ const permissionsData = [
   { key: "brands.delete", module: "brands", description: "Arquivar marcas" },
 
   // Products module
-  {
-    key: "products.read",
-    module: "products",
-    description: "Visualizar produtos",
-  },
-  {
-    key: "products.create",
-    module: "products",
-    description: "Cadastrar produtos",
-  },
-  {
-    key: "products.update",
-    module: "products",
-    description: "Editar produtos",
-  },
-  {
-    key: "products.delete",
-    module: "products",
-    description: "Desativar produtos",
-  },
+  { key: "products.read", module: "products", description: "Visualizar produtos" },
+  { key: "products.create", module: "products", description: "Cadastrar produtos" },
+  { key: "products.update", module: "products", description: "Editar produtos" },
+  { key: "products.delete", module: "products", description: "Desativar produtos" },
 
   // Files module
   { key: "files.read", module: "files", description: "Visualizar arquivos" },
@@ -150,7 +87,7 @@ const permissionsData = [
 ];
 
 async function main() {
-  console.log("🌱 Iniciando seed minimalista...");
+  console.log("🌱 Iniciando seed rica e determinística para Product Discovery (Etapa 9)...");
 
   // 1. Permissões
   for (const p of permissionsData) {
@@ -162,7 +99,7 @@ async function main() {
   }
   console.log(`✅ ${permissionsData.length} permissões cadastradas.`);
 
-  // 2. Cargos do Sistema
+  // 2. Cargos
   const adminRole = await prisma.role.upsert({
     where: { key: "admin" },
     update: {},
@@ -218,79 +155,39 @@ async function main() {
     },
   });
 
-  console.log("✅ Cargos cadastrados.");
-
-  // 3. Vincular Permissões
+  // 3. Vincular Permissões aos Cargos
   const allPermissions = await prisma.permission.findMany();
   for (const perm of allPermissions) {
     await prisma.rolePermission.upsert({
       where: {
-        roleId_permissionId: {
-          roleId: adminRole.id,
-          permissionId: perm.id,
-        },
+        roleId_permissionId: { roleId: adminRole.id, permissionId: perm.id },
       },
       update: {},
-      create: {
-        roleId: adminRole.id,
-        permissionId: perm.id,
-      },
+      create: { roleId: adminRole.id, permissionId: perm.id },
     });
   }
 
   const employeePermKeys = [
-    "users.read",
-    "stores.read",
-    "categories.read",
-    "brands.read",
-    "products.read",
-    "products.create",
-    "products.update",
-    "files.read",
-    "files.create",
-    "lots.read",
-    "lots.create",
-    "lots.update",
-    "stock.read",
-    "stock.receive",
-    "stock.adjust",
+    "users.read", "stores.read", "categories.read", "brands.read",
+    "products.read", "products.create", "products.update", "files.read",
+    "files.create", "lots.read", "lots.create", "lots.update",
+    "stock.read", "stock.receive", "stock.adjust",
   ];
-  for (const perm of allPermissions.filter((p) =>
-    employeePermKeys.includes(p.key),
-  )) {
+  for (const perm of allPermissions.filter((p) => employeePermKeys.includes(p.key))) {
     await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: employeeRole.id,
-          permissionId: perm.id,
-        },
-      },
+      where: { roleId_permissionId: { roleId: employeeRole.id, permissionId: perm.id } },
       update: {},
-      create: {
-        roleId: employeeRole.id,
-        permissionId: perm.id,
-      },
+      create: { roleId: employeeRole.id, permissionId: perm.id },
     });
-
     await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: supplierRole.id,
-          permissionId: perm.id,
-        },
-      },
+      where: { roleId_permissionId: { roleId: supplierRole.id, permissionId: perm.id } },
       update: {},
-      create: {
-        roleId: supplierRole.id,
-        permissionId: perm.id,
-      },
+      create: { roleId: supplierRole.id, permissionId: perm.id },
     });
   }
-  console.log("✅ Permissões dos cargos cadastradas.");
 
-  // 4. Usuários (Senha padrão: admin123)
+  // 4. Usuários de Teste (Senha padrão: admin123)
   const defaultPasswordHash = await hashPassword("admin123");
-
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@verttexloja.com.br" },
     update: { passwordHash: defaultPasswordHash },
@@ -304,235 +201,968 @@ async function main() {
     },
   });
 
-  await prisma.user.upsert({
-    where: { email: "operador@verttexloja.com.br" },
-    update: { passwordHash: defaultPasswordHash },
-    create: {
-      name: "Operador de Estoque",
-      email: "operador@verttexloja.com.br",
-      passwordHash: defaultPasswordHash,
-      roleId: employeeRole.id,
-      status: "active",
-      emailVerifiedAt: new Date(),
-    },
-  });
-
-  console.log("✅ Usuários cadastrados (Senha padrão: admin123).");
-
-  // 5. Lojas (sem fotos)
+  // 5. Lojas / Produtores (Ativas e Inativa para Testes de Guard)
   const storeAlvorada = await prisma.store.upsert({
     where: { slug: "queijaria-alvorada" },
-    update: { logoUrl: null, coverUrl: null },
+    update: { status: "active" },
     create: {
       name: "Queijaria Alvorada Canastra",
       slug: "queijaria-alvorada",
       description: "Produtor tradicional de queijos artesanais da Canastra",
-      logoUrl: null,
-      coverUrl: null,
       status: "active",
     },
   });
 
   const storeMel = await prisma.store.upsert({
     where: { slug: "apiario-serra-verde" },
-    update: { logoUrl: null, coverUrl: null },
+    update: { status: "active" },
     create: {
       name: "Apiário Serra Verde",
       slug: "apiario-serra-verde",
       description: "Mel silvestre orgânico e derivados das montanhas de Minas",
-      logoUrl: null,
-      coverUrl: null,
       status: "active",
     },
   });
 
-  await prisma.storeUser.upsert({
-    where: {
-      storeId_userId: {
-        storeId: storeAlvorada.id,
-        userId: adminUser.id,
-      },
-    },
-    update: {},
+  const storeEngenho = await prisma.store.upsert({
+    where: { slug: "engenho-boa-esperanca" },
+    update: { status: "active" },
     create: {
-      storeId: storeAlvorada.id,
-      userId: adminUser.id,
-      isOwner: true,
-      isActive: true,
+      name: "Engenho Boa Esperança",
+      slug: "engenho-boa-esperanca",
+      description: "Cachaças artesanais envelhecidas em maderias nobres",
+      status: "active",
     },
   });
 
-  await prisma.storeUser.upsert({
-    where: {
-      storeId_userId: {
-        storeId: storeMel.id,
-        userId: adminUser.id,
-      },
-    },
-    update: {},
+  const storeDoces = await prisma.store.upsert({
+    where: { slug: "doces-da-vovo" },
+    update: { status: "active" },
     create: {
-      storeId: storeMel.id,
-      userId: adminUser.id,
-      isOwner: true,
-      isActive: true,
+      name: "Doces da Vovó Artesanais",
+      slug: "doces-da-vovo",
+      description: "Doces de leite, goiabadas e compotas caseiras tradicionais",
+      status: "active",
     },
   });
 
-  console.log("✅ Lojas cadastradas (sem fotos).");
+  const storeInativa = await prisma.store.upsert({
+    where: { slug: "fazenda-inativa" },
+    update: { status: "suspended" },
+    create: {
+      name: "Fazenda Inativa Demonstrativa",
+      slug: "fazenda-inativa",
+      description: "Loja desativada para testes de filtros de visibilidade pública",
+      status: "suspended",
+    },
+  });
 
-  // 6. Categorias & Marcas (sem fotos)
-  const catQueijos = await prisma.category.upsert({
-    where: { slug: "queijo-canastra" },
+  const activeStores = [storeAlvorada, storeMel, storeEngenho, storeDoces, storeInativa];
+  for (const s of activeStores) {
+    await prisma.storeUser.upsert({
+      where: { storeId_userId: { storeId: s.id, userId: adminUser.id } },
+      update: {},
+      create: { storeId: s.id, userId: adminUser.id, isOwner: true, isActive: true },
+    });
+  }
+
+  // Depósitos Padrão (InventoryLocation) por Loja
+  const storeLocations: Record<string, string> = {};
+  for (const s of activeStores) {
+    const loc = await prisma.inventoryLocation.upsert({
+      where: { storeId_code: { storeId: s.id, code: "DEP-01" } },
+      update: {},
+      create: {
+        storeId: s.id,
+        name: `Depósito Principal - ${s.name}`,
+        code: "DEP-01",
+        isDefault: true,
+        status: "active",
+      },
+    });
+    storeLocations[s.id] = loc.id;
+  }
+
+  console.log("✅ Lojas e Depósitos cadastrados.");
+
+  // 6. Categorias Hierárquicas (Pais e Subcategorias)
+  const catAlimentos = await prisma.category.upsert({
+    where: { slug: "alimentos" },
     update: {},
     create: {
-      name: "Queijos Artesanais",
-      slug: "queijo-canastra",
-      description: "Queijos maturados com denominação de origem",
+      name: "Alimentos",
+      slug: "alimentos",
+      description: "Produtos alimentícios artesanais e locais",
+      status: "active",
+      isVisible: true,
+    },
+  });
+
+  const catBebidas = await prisma.category.upsert({
+    where: { slug: "bebidas" },
+    update: {},
+    create: {
+      name: "Bebidas",
+      slug: "bebidas",
+      description: "Bebidas destiladas e fermentadas artesanais",
       status: "active",
       isVisible: true,
     },
   });
 
   const catMel = await prisma.category.upsert({
-    where: { slug: "mel-e-doces" },
-    update: {},
+    where: { slug: "mel-e-derivados" },
+    update: { parentId: catAlimentos.id },
     create: {
-      name: "Mel & Doces Artesanais",
-      slug: "mel-e-doces",
-      description: "Mel puro de florada silvestre e compotas tradicionais",
+      name: "Mel e Derivados",
+      slug: "mel-e-derivados",
+      description: "Mel puro, própolis e favos in natura",
+      parentId: catAlimentos.id,
       status: "active",
       isVisible: true,
     },
   });
 
+  const catDoces = await prisma.category.upsert({
+    where: { slug: "doces-artesanais" },
+    update: { parentId: catAlimentos.id },
+    create: {
+      name: "Doces Artesanais",
+      slug: "doces-artesanais",
+      description: "Doces de leite, goiabada cascão e paçocas",
+      parentId: catAlimentos.id,
+      status: "active",
+      isVisible: true,
+    },
+  });
+
+  const catQueijos = await prisma.category.upsert({
+    where: { slug: "conservas-e-queijos" },
+    update: { parentId: catAlimentos.id },
+    create: {
+      name: "Conservas e Queijos",
+      slug: "conservas-e-queijos",
+      description: "Queijos maturados e derivados de leite",
+      parentId: catAlimentos.id,
+      status: "active",
+      isVisible: true,
+    },
+  });
+
+  const catCachacas = await prisma.category.upsert({
+    where: { slug: "cachacas-artesanais" },
+    update: { parentId: catBebidas.id },
+    create: {
+      name: "Cachaças Artesanais",
+      slug: "cachacas-artesanais",
+      description: "Cachaças de alambique envelhecidas em madeira",
+      parentId: catBebidas.id,
+      status: "active",
+      isVisible: true,
+    },
+  });
+
+  const catLicores = await prisma.category.upsert({
+    where: { slug: "licores-regionais" },
+    update: { parentId: catBebidas.id },
+    create: {
+      name: "Licores Regionais",
+      slug: "licores-regionais",
+      description: "Licores artesanais de frutas nativas",
+      parentId: catBebidas.id,
+      status: "active",
+      isVisible: true,
+    },
+  });
+
+  // 7. Marcas
   const brandCanastra = await prisma.brand.upsert({
-    where: { slug: "queijaria-serra-da-canastra" },
+    where: { slug: "serra-da-canastra" },
     update: {},
     create: {
-      name: "Queijaria Serra da Canastra",
-      slug: "queijaria-serra-da-canastra",
-      description: "Produtor tradicional da Serra da Canastra",
+      name: "Serra da Canastra",
+      slug: "serra-da-canastra",
+      description: "Tradição em queijos maturados da Canastra",
       status: "active",
       isVisible: true,
     },
   });
 
   const brandApiario = await prisma.brand.upsert({
-    where: { slug: "serra-verde-artesanal" },
+    where: { slug: "apiario-serra-verde" },
     update: {},
     create: {
-      name: "Serra Verde Artesanal",
-      slug: "serra-verde-artesanal",
-      description: "Produtos apícolas certificados",
+      name: "Apiário Serra Verde",
+      slug: "apiario-serra-verde",
+      description: "Produtos apícolas certificados e floradas puras",
       status: "active",
       isVisible: true,
     },
   });
 
-  console.log("✅ Categorias e Marcas cadastradas.");
-
-  // 7. Produtos (sem fotos)
-  const prodQueijo = await prisma.product.upsert({
-    where: {
-      storeId_slug: {
-        storeId: storeAlvorada.id,
-        slug: "queijo-canastra-meia-cura-500g",
-      },
-    },
+  const brandBoaEsperanca = await prisma.brand.upsert({
+    where: { slug: "engenho-boa-esperanca" },
     update: {},
     create: {
-      storeId: storeAlvorada.id,
-      categoryId: catQueijos.id,
-      brandId: brandCanastra.id,
-      name: "Queijo Canastra Meia Cura 500g",
-      slug: "queijo-canastra-meia-cura-500g",
-      shortDescription: "Queijo artesanal da Canastra maturado por 14 dias",
-      fullDescription:
-        "Produzido com leite cru de vaca na região da Serra da Canastra.",
-      type: "simple",
+      name: "Engenho Boa Esperança",
+      slug: "engenho-boa-esperanca",
+      description: "Alambique artesanal de cachaça de minas",
       status: "active",
-      isPublished: true,
-      isFeatured: true,
-      weight: 500,
-      hasBatchControl: true,
-      hasExpirationControl: true,
-      isExpirationRequired: true,
+      isVisible: true,
     },
   });
 
-  await prisma.productVariation.upsert({
-    where: {
-      storeId_sku: {
-        storeId: storeAlvorada.id,
+  const brandDocesVovo = await prisma.brand.upsert({
+    where: { slug: "doces-da-vovo" },
+    update: {},
+    create: {
+      name: "Doces da Vovó",
+      slug: "doces-da-vovo",
+      description: "Receitas caseiras tradicionais mineiras",
+      status: "active",
+      isVisible: true,
+    },
+  });
+
+  console.log("✅ Categorias hierárquicas e Marcas cadastradas.");
+
+  // Helper para datas relativas determinísticas de lotes
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const dateInDays = (days: number) => new Date(now + days * DAY_MS);
+
+  // Helper para criar Produto + Variações + Atributos + Lotes/Estoque
+  async function seedProduct(opts: {
+    store: { id: string; name: string };
+    category: { id: string; name: string };
+    brand?: { id: string; name: string };
+    name: string;
+    slug: string;
+    shortDescription: string;
+    fullDescription: string;
+    type?: "simple" | "variable";
+    isFeatured?: boolean;
+    isPublished?: boolean;
+    status?: "active" | "draft" | "archived" | "inactive";
+    deletedAt?: Date | null;
+    hasBatchControl?: boolean;
+    hasExpirationControl?: boolean;
+    variations: Array<{
+      sku: string;
+      barcode?: string;
+      price: number;
+      promotionalPrice?: number;
+      isDefault?: boolean;
+      status?: "active" | "inactive";
+      attributes?: Record<string, string>; // Ex: { "Florada": "Silvestre", "Peso": "500g" }
+      stockQuantity?: number;
+      lots?: Array<{
+        lotNumber: string;
+        expirationDays: number;
+        status?: "available" | "quarantine" | "blocked";
+        quantity: number;
+      }>;
+    }>;
+  }) {
+    const locationId = storeLocations[opts.store.id];
+
+    const product = await prisma.product.upsert({
+      where: { storeId_slug: { storeId: opts.store.id, slug: opts.slug } },
+      update: {
+        name: opts.name,
+        shortDescription: opts.shortDescription,
+        fullDescription: opts.fullDescription,
+        status: opts.status || "active",
+        isPublished: opts.isPublished ?? true,
+        isFeatured: opts.isFeatured ?? false,
+        deletedAt: opts.deletedAt || null,
+        hasBatchControl: opts.hasBatchControl ?? false,
+        hasExpirationControl: opts.hasExpirationControl ?? false,
+      },
+      create: {
+        storeId: opts.store.id,
+        categoryId: opts.category.id,
+        brandId: opts.brand?.id || null,
+        name: opts.name,
+        slug: opts.slug,
+        shortDescription: opts.shortDescription,
+        fullDescription: opts.fullDescription,
+        type: opts.type || "simple",
+        status: opts.status || "active",
+        isPublished: opts.isPublished ?? true,
+        isFeatured: opts.isFeatured ?? false,
+        deletedAt: opts.deletedAt || null,
+        hasBatchControl: opts.hasBatchControl ?? false,
+        hasExpirationControl: opts.hasExpirationControl ?? false,
+      },
+    });
+
+    for (const varData of opts.variations) {
+      const variation = await prisma.productVariation.upsert({
+        where: { storeId_sku: { storeId: opts.store.id, sku: varData.sku } },
+        update: {
+          price: varData.price,
+          promotionalPrice: varData.promotionalPrice || null,
+          isDefault: varData.isDefault ?? false,
+          status: varData.status || "active",
+          barcode: varData.barcode || null,
+        },
+        create: {
+          storeId: opts.store.id,
+          productId: product.id,
+          sku: varData.sku,
+          barcode: varData.barcode || null,
+          price: varData.price,
+          promotionalPrice: varData.promotionalPrice || null,
+          isDefault: varData.isDefault ?? false,
+          status: varData.status || "active",
+        },
+      });
+
+      // Atributos de variação (ProductOption + ProductOptionValue)
+      if (varData.attributes) {
+        for (const [optName, valName] of Object.entries(varData.attributes)) {
+          let option = await prisma.productOption.findFirst({
+            where: { productId: product.id, name: optName },
+          });
+          if (!option) {
+            option = await prisma.productOption.create({
+              data: { productId: product.id, name: optName },
+            });
+          }
+
+          let optValue = await prisma.productOptionValue.findFirst({
+            where: { optionId: option.id, value: valName },
+          });
+          if (!optValue) {
+            optValue = await prisma.productOptionValue.create({
+              data: { optionId: option.id, value: valName },
+            });
+          }
+
+          await prisma.productVariationValue.upsert({
+            where: {
+              variationId_optionValueId: {
+                variationId: variation.id,
+                optionValueId: optValue.id,
+              },
+            },
+            update: {},
+            create: {
+              variationId: variation.id,
+              optionValueId: optValue.id,
+            },
+          });
+        }
+      }
+
+      // Lotes e Estoque FEFO
+      if (varData.lots && varData.lots.length > 0 && locationId) {
+        for (const lotInfo of varData.lots) {
+          const expDate = dateInDays(lotInfo.expirationDays);
+          const mfgDate = dateInDays(lotInfo.expirationDays - 180);
+
+          const lot = await prisma.productLot.upsert({
+            where: {
+              storeId_productId_variationId_lotNumber: {
+                storeId: opts.store.id,
+                productId: product.id,
+                variationId: variation.id,
+                lotNumber: lotInfo.lotNumber,
+              },
+            },
+            update: {
+              expirationDate: expDate,
+              status: lotInfo.status || "available",
+            },
+            create: {
+              storeId: opts.store.id,
+              productId: product.id,
+              variationId: variation.id,
+              lotNumber: lotInfo.lotNumber,
+              manufacturingDate: mfgDate,
+              expirationDate: expDate,
+              status: lotInfo.status || "available",
+            },
+          });
+
+          await prisma.stockItem.upsert({
+            where: {
+              storeId_variationId_lotId_locationId: {
+                storeId: opts.store.id,
+                variationId: variation.id,
+                lotId: lot.id,
+                locationId: locationId,
+              },
+            },
+            update: { physicalQuantity: lotInfo.quantity },
+            create: {
+              storeId: opts.store.id,
+              variationId: variation.id,
+              lotId: lot.id,
+              locationId: locationId,
+              physicalQuantity: lotInfo.quantity,
+              reservedQuantity: 0,
+            },
+          });
+        }
+      } else if (locationId && varData.stockQuantity !== undefined) {
+        // Estoque simples sem lote
+        const existingItem = await prisma.stockItem.findFirst({
+          where: {
+            storeId: opts.store.id,
+            variationId: variation.id,
+            locationId: locationId,
+            lotId: null,
+          },
+        });
+
+        if (existingItem) {
+          await prisma.stockItem.update({
+            where: { id: existingItem.id },
+            data: { physicalQuantity: varData.stockQuantity },
+          });
+        } else {
+          await prisma.stockItem.create({
+            data: {
+              storeId: opts.store.id,
+              variationId: variation.id,
+              lotId: null,
+              locationId: locationId,
+              physicalQuantity: varData.stockQuantity,
+              reservedQuantity: 0,
+            },
+          });
+        }
+      }
+
+    }
+  }
+
+  // 8. Inserção do Catálogo Risco e Diversificado (21 Produtos Ativos + 3 Inativos/Guards)
+
+  // --- MEL E DERIVADOS ---
+  await seedProduct({
+    store: storeMel,
+    category: catMel,
+    brand: brandApiario,
+    name: "Mel Silvestre Orgânico 500g",
+    slug: "mel-silvestre-organico-500g",
+    shortDescription: "Mel 100% puro de florada silvestre nativa das montanhas",
+    fullDescription: "Extraído a frio preservando todas as propriedades nutricionais e enzimas naturais.",
+    isFeatured: true,
+    hasBatchControl: true,
+    hasExpirationControl: true,
+    variations: [
+      {
+        sku: "MEL-SILV-500G",
+        barcode: "789123456701",
+        price: 38.0,
+        promotionalPrice: 32.9,
+        isDefault: true,
+        attributes: { "Florada": "Silvestre", "Peso": "500g" },
+        lots: [
+          { lotNumber: "LOTE-MEL-01-PROXIMO", expirationDays: 15, status: "available", quantity: 20 },
+          { lotNumber: "LOTE-MEL-02-LONGO", expirationDays: 90, status: "available", quantity: 50 },
+          { lotNumber: "LOTE-MEL-03-VENCIDO", expirationDays: -10, status: "available", quantity: 10 },
+          { lotNumber: "LOTE-MEL-04-QUARENTENA", expirationDays: 45, status: "quarantine", quantity: 15 },
+        ],
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeMel,
+    category: catMel,
+    brand: brandApiario,
+    name: "Mel Silvestre Premium Pote",
+    slug: "mel-silvestre-premium-pote",
+    shortDescription: "Mel de florada silvestre selecionada em pote hermético",
+    fullDescription: "Embalagem especial em vidro com vedação hermética para alta conservação.",
+    type: "variable",
+    variations: [
+      {
+        sku: "MEL-SILV-VAR-500G",
+        price: 42.0,
+        isDefault: true,
+        attributes: { "Florada": "Silvestre", "Peso": "500g" },
+        stockQuantity: 40,
+      },
+      {
+        sku: "MEL-SILV-VAR-1KG",
+        price: 75.0,
+        promotionalPrice: 68.0,
+        attributes: { "Florada": "Silvestre", "Peso": "1kg" },
+        stockQuantity: 25,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeMel,
+    category: catMel,
+    brand: brandApiario,
+    name: "Mel de Eucalipto Puro 500g",
+    slug: "mel-de-eucalipto-puro-500g",
+    shortDescription: "Mel encorpado de florada de eucalipto com sabor intenso",
+    fullDescription: "Ideal para adoçar bebidas quentes e combater resfriados de forma natural.",
+    variations: [
+      {
+        sku: "MEL-EUCA-500G",
+        barcode: "789123456703",
+        price: 34.0,
+        isDefault: true,
+        attributes: { "Florada": "Eucalipto", "Peso": "500g" },
+        stockQuantity: 30,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeMel,
+    category: catMel,
+    brand: brandApiario,
+    name: "Extrato de Própolis Vermelha 30ml",
+    slug: "extrato-de-propolis-vermelha-30ml",
+    shortDescription: "Extrato concentrado de própolis vermelha com alta ação antioxidante",
+    fullDescription: "Produção sustentável com certificado de análise de flavonoides.",
+    variations: [
+      {
+        sku: "PROP-VERM-30ML",
+        price: 55.0,
+        promotionalPrice: 48.0,
+        isDefault: true,
+        attributes: { "Tipo": "Extrato" },
+        stockQuantity: 15,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeMel,
+    category: catMel,
+    brand: brandApiario,
+    name: "Favos de Mel In Natura 300g",
+    slug: "favos-de-mel-in-natura-300g",
+    shortDescription: "Favo de mel 100% natural cortado direto da colmeia",
+    fullDescription: "Sinta a textura e o sabor original do favo de mel puro.",
+    variations: [
+      {
+        sku: "FAVO-MEL-300G",
+        price: 45.0,
+        isDefault: true,
+        attributes: { "Tipo": "Favo" },
+        stockQuantity: 10,
+      },
+    ],
+  });
+
+  // --- CACHAÇAS E LICORES ---
+  await seedProduct({
+    store: storeEngenho,
+    category: catCachacas,
+    brand: brandBoaEsperanca,
+    name: "Cachaça Artesanal Amburana 750ml",
+    slug: "cachaca-artesanal-amburana-750ml",
+    shortDescription: "Cachaça de alambique envelhecida em barris de Amburana",
+    fullDescription: "Aroma adocicado com notas de baunilha e baixa acidez.",
+    isFeatured: true,
+    variations: [
+      {
+        sku: "CACH-AMB-750",
+        barcode: "789123456706",
+        price: 68.0,
+        promotionalPrice: 59.9,
+        isDefault: true,
+        attributes: { "Madeira": "Amburana", "Volume": "750ml" },
+        stockQuantity: 50,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeEngenho,
+    category: catCachacas,
+    brand: brandBoaEsperanca,
+    name: "Cachaça Reserva Boa Esperança",
+    slug: "cachaca-reserva-boa-esperanca",
+    shortDescription: "Cachaça premium envelhecida especial do Engenho Boa Esperança",
+    fullDescription: "Destilação artesanal em alambique de cobre com descanso de 3 anos.",
+    type: "variable",
+    variations: [
+      {
+        sku: "CACH-RES-750",
+        price: 85.0,
+        isDefault: true,
+        attributes: { "Madeira": "Amburana", "Volume": "750ml" },
+        stockQuantity: 20,
+      },
+      {
+        sku: "CACH-RES-1L",
+        price: 110.0,
+        promotionalPrice: 99.0,
+        attributes: { "Madeira": "Amburana", "Volume": "1L" },
+        stockQuantity: 15,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeEngenho,
+    category: catCachacas,
+    brand: brandBoaEsperanca,
+    name: "Cachaça Envelhecida Carvalho 750ml",
+    slug: "cachaca-envelhecida-carvalho-750ml",
+    shortDescription: "Cachaça envelhecida em barris de carvalho francês por 2 anos",
+    fullDescription: "Sabor amadeirado marcante e cor dourada intensa.",
+    variations: [
+      {
+        sku: "CACH-CARV-750",
+        barcode: "789123456708",
+        price: 72.0,
+        isDefault: true,
+        attributes: { "Madeira": "Carvalho", "Volume": "750ml" },
+        stockQuantity: 35,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeEngenho,
+    category: catCachacas,
+    brand: brandBoaEsperanca,
+    name: "Cachaça Prata Tradicional 670ml",
+    slug: "cachaca-prata-tradicional-670ml",
+    shortDescription: "Cachaça cristalina descansada em dornas de inox",
+    fullDescription: "Sabor puro de cana-de-açúcar fresco, ideal para caipirinhas.",
+    variations: [
+      {
+        sku: "CACH-PRAT-670",
+        price: 35.0,
+        isDefault: true,
+        attributes: { "Madeira": "Inox", "Volume": "670ml" },
+        stockQuantity: 60,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeEngenho,
+    category: catLicores,
+    brand: brandBoaEsperanca,
+    name: "Licor Artesanal de Jabuticaba 500ml",
+    slug: "licor-artesanal-de-jabuticaba-500ml",
+    shortDescription: "Licor macertado com jabuticabas frescas colhidas na fazenda",
+    fullDescription: "Bebida suave, aveludada e doce na medida certa.",
+    variations: [
+      {
+        sku: "LICOR-JABU-500",
+        price: 45.0,
+        promotionalPrice: 39.9,
+        isDefault: true,
+        attributes: { "Sabor": "Jabuticaba", "Volume": "500ml" },
+        stockQuantity: 25,
+      },
+    ],
+  });
+
+  // --- QUEIJOS E CONSERVAS ---
+  await seedProduct({
+    store: storeAlvorada,
+    category: catQueijos,
+    brand: brandCanastra,
+    name: "Queijo Canastra Meia Cura 500g",
+    slug: "queijo-canastra-meia-cura-500g",
+    shortDescription: "Queijo artesanal da Canastra maturado por 14 dias",
+    fullDescription: "Produzido com leite cru de vaca na região da Serra da Canastra com casca amarelada.",
+    isFeatured: true,
+    hasBatchControl: true,
+    hasExpirationControl: true,
+    variations: [
+      {
         sku: "CANASTRA-MC-500G",
+        barcode: "789123456711",
+        price: 49.9,
+        promotionalPrice: 44.9,
+        isDefault: true,
+        attributes: { "Maturação": "14 Dias", "Peso": "500g" },
+        lots: [
+          { lotNumber: "LOTE-QUEIJO-MC-01", expirationDays: 30, status: "available", quantity: 30 },
+          { lotNumber: "LOTE-QUEIJO-MC-02", expirationDays: 60, status: "available", quantity: 40 },
+        ],
       },
-    },
-    update: {},
-    create: {
-      storeId: storeAlvorada.id,
-      productId: prodQueijo.id,
-      sku: "CANASTRA-MC-500G",
-      price: 49.9,
-      promotionalPrice: 44.9,
-      costPrice: 28.0,
-      isDefault: true,
-      status: "active",
-      weight: 500,
-    },
+    ],
   });
 
-  const prodMel = await prisma.product.upsert({
-    where: {
-      storeId_slug: {
-        storeId: storeMel.id,
-        slug: "mel-silvestre-organico-500g",
+  await seedProduct({
+    store: storeAlvorada,
+    category: catQueijos,
+    brand: brandCanastra,
+    name: "Queijo Canastra Real Curado 1kg",
+    slug: "queijo-canastra-real-curado-1kg",
+    shortDescription: "Queijo maturado por 30 dias com mofo branco natural",
+    fullDescription: "Sabor picante e textura firme, medalha de ouro em concurso regional.",
+    hasBatchControl: true,
+    hasExpirationControl: true,
+    variations: [
+      {
+        sku: "CANASTRA-CUR-1KG",
+        price: 95.0,
+        isDefault: true,
+        attributes: { "Maturação": "30 Dias", "Peso": "1kg" },
+        lots: [
+          { lotNumber: "LOTE-QUEIJO-CUR-01", expirationDays: 45, status: "available", quantity: 15 },
+        ],
       },
-    },
-    update: {},
-    create: {
-      storeId: storeMel.id,
-      categoryId: catMel.id,
-      brandId: brandApiario.id,
-      name: "Mel Silvestre Orgânico 500g",
-      slug: "mel-silvestre-organico-500g",
-      shortDescription: "Mel 100% puro de florada nativa das serras de Minas",
-      fullDescription:
-        "Extratado a frio preservando todos os minerais e enzimas naturais.",
-      type: "simple",
-      status: "active",
-      isPublished: true,
-      isFeatured: true,
-      weight: 500,
-      hasBatchControl: true,
-      hasExpirationControl: true,
-      isExpirationRequired: true,
-    },
+    ],
   });
 
-  await prisma.productVariation.upsert({
-    where: {
-      storeId_sku: {
-        storeId: storeMel.id,
-        sku: "MEL-SILVESTRE-500G",
+  await seedProduct({
+    store: storeAlvorada,
+    category: catQueijos,
+    brand: brandCanastra,
+    name: "Requeijão de Corte Caipira 400g",
+    slug: "requeijao-de-corte-caipira-400g",
+    shortDescription: "Requeijão de raspa macio grelhado na chapa",
+    fullDescription: "Receita antiga com raspa de tacho que derrete na boca.",
+    variations: [
+      {
+        sku: "REQ-CORTE-400G",
+        price: 32.0,
+        isDefault: true,
+        attributes: { "Tipo": "Corte", "Peso": "400g" },
+        stockQuantity: 20,
       },
-    },
-    update: {},
-    create: {
-      storeId: storeMel.id,
-      productId: prodMel.id,
-      sku: "MEL-SILVESTRE-500G",
-      price: 38.0,
-      promotionalPrice: 34.9,
-      costPrice: 18.5,
-      isDefault: true,
-      status: "active",
-      weight: 500,
-    },
+    ],
   });
 
-  console.log("✅ Produtos e Variações cadastrados (sem fotos).");
+  await seedProduct({
+    store: storeAlvorada,
+    category: catQueijos,
+    brand: brandCanastra,
+    name: "Manteiga de Garrafa Artesanal 500ml",
+    slug: "manteiga-de-garrafa-artesanal-500ml",
+    shortDescription: "Manteiga de garrafa clarificada com aroma caipira",
+    fullDescription: "Essencial para finalizar pratos caipiras e grelhados.",
+    variations: [
+      {
+        sku: "MANT-GARR-500",
+        price: 29.9,
+        isDefault: true,
+        attributes: { "Volume": "500ml" },
+        stockQuantity: 5, // Estoque Baixo
+      },
+    ],
+  });
 
-  // 8. Configurações Iniciais do Marketplace (sem fotos)
+  // --- DOCES ARTESANAIS ---
+  await seedProduct({
+    store: storeDoces,
+    category: catDoces,
+    brand: brandDocesVovo,
+    name: "Doce de Leite Viçosa Tradicional",
+    slug: "doce-de-leite-vicosa-tradicional",
+    shortDescription: "O mais premiado doce de leite de Minas Gerais em pote de vidro",
+    fullDescription: "Cremoso, sem adição de conservantes artificiais.",
+    type: "variable",
+    isFeatured: true,
+    variations: [
+      {
+        sku: "DOCE-LEITE-400G",
+        price: 28.0,
+        promotionalPrice: 24.9,
+        isDefault: true,
+        attributes: { "Sabor": "Tradicional", "Peso": "400g" },
+        stockQuantity: 50,
+      },
+      {
+        sku: "DOCE-LEITE-800G",
+        price: 48.0,
+        attributes: { "Sabor": "Tradicional", "Peso": "800g" },
+        stockQuantity: 30,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeDoces,
+    category: catDoces,
+    brand: brandDocesVovo,
+    name: "Doce de Leite com Coco 400g",
+    slug: "doce-de-leite-com-coco-400g",
+    shortDescription: "Doce de leite cremoso misturado com coco ralado fresco",
+    fullDescription: "Combinação perfeita entre o doce tradicional e o crocante do coco.",
+    variations: [
+      {
+        sku: "DOCE-COCO-400G",
+        price: 29.9,
+        promotionalPrice: 25.9,
+        isDefault: true,
+        attributes: { "Sabor": "Coco", "Peso": "400g" },
+        stockQuantity: 25,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeDoces,
+    category: catDoces,
+    brand: brandDocesVovo,
+    name: "Goiabada Cascão Artesanal 500g",
+    slug: "goiabada-cascao-artesanal-500g",
+    shortDescription: "Goiabada cascão de tacho de cobre com pedaços de fruta",
+    fullDescription: "Feita com goiabas maduras selecionadas e pouco açúcar.",
+    variations: [
+      {
+        sku: "GOIAB-CASC-500G",
+        price: 24.0,
+        isDefault: true,
+        attributes: { "Tipo": "Cascão", "Peso": "500g" },
+        stockQuantity: 40,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeDoces,
+    category: catDoces,
+    brand: brandDocesVovo,
+    name: "Paçoca Caseira de Amendoim 300g",
+    slug: "pacoca-caseira-de-amendoim-300g",
+    shortDescription: "Paçoca rolha crocante de amendoim torrado moído na hora",
+    fullDescription: "Sabor de infância sem glúten e sem conservantes.",
+    variations: [
+      {
+        sku: "PACOCA-AMEND-300",
+        price: 18.0,
+        isDefault: true,
+        attributes: { "Tipo": "Rolha", "Peso": "300g" },
+        stockQuantity: 60,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeDoces,
+    category: catDoces,
+    brand: brandDocesVovo,
+    name: "Pé de Moleque Crocante 250g",
+    slug: "pe-de-moleque-crocante-250g",
+    shortDescription: "Pé de moleque tradicional com rapadura e amendoim inteiro",
+    fullDescription: "Crocante e saboroso, embalado individualmente.",
+    variations: [
+      {
+        sku: "PE-MOLEQUE-250G",
+        price: 16.5,
+        isDefault: true,
+        attributes: { "Tipo": "Tradicional", "Peso": "250g" },
+        stockQuantity: 0, // Teste de Sem Estoque
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeDoces,
+    category: catDoces,
+    brand: brandDocesVovo,
+    name: "Açúcar Mascavo Puro 1kg",
+    slug: "acucar-mascavo-puro-1kg",
+    shortDescription: "Açúcar mascavo não refinado de cana orgânica",
+    fullDescription: "Rico em ferro e minerais naturais.",
+    variations: [
+      {
+        sku: "ACUCAR-MASC-1KG",
+        price: 15.0,
+        isDefault: true,
+        attributes: { "Tipo": "Orgânico", "Peso": "1kg" },
+        stockQuantity: 30,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeDoces,
+    category: catDoces,
+    brand: brandDocesVovo,
+    name: "Compota de Figo Ramy 400g",
+    slug: "compota-de-figo-ramy-400g",
+    shortDescription: "Figos ramy inteiros em calda leve artesanal",
+    fullDescription: "Perfeito para acompanhar queijos maturados da Canastra.",
+    variations: [
+      {
+        sku: "FIGO-RAMY-400G",
+        price: 36.0,
+        isDefault: true,
+        attributes: { "Peso": "400g" },
+        stockQuantity: 18,
+      },
+    ],
+  });
+
+  // --- PRODUTOS PARA TESTE DE GUARDS E VISIBILIDADE ---
+  await seedProduct({
+    store: storeMel,
+    category: catMel,
+    brand: brandApiario,
+    name: "Produto Rascunho Não Publicado",
+    slug: "produto-rascunho-nao-publicado",
+    shortDescription: "Este produto está como rascunho e não publicado",
+    fullDescription: "Guarda para testar filtro isPublished: false no Discovery público.",
+    isPublished: false,
+    status: "draft",
+    variations: [
+      {
+        sku: "RASCUNHO-01",
+        price: 99.0,
+        isDefault: true,
+        stockQuantity: 10,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeAlvorada,
+    category: catQueijos,
+    brand: brandCanastra,
+    name: "Queijo Canastra Arquivado Antigo",
+    slug: "queijo-canastra-arquivado-antigo",
+    shortDescription: "Produto arquivado soft-deleted",
+    fullDescription: "Guarda para testar filtro status: archived e deletedAt.",
+    status: "archived",
+    deletedAt: new Date(),
+    variations: [
+      {
+        sku: "ARQUIVADO-01",
+        price: 50.0,
+        isDefault: true,
+        stockQuantity: 0,
+      },
+    ],
+  });
+
+  await seedProduct({
+    store: storeInativa,
+    category: catQueijos,
+    brand: brandCanastra,
+    name: "Queijo de Fazenda Inativa Suspensa",
+    slug: "queijo-de-fazenda-inativa-suspensa",
+    shortDescription: "Produto de loja suspensa inativa",
+    fullDescription: "Guarda para testar filtro store.status: active no Discovery público.",
+    isPublished: true,
+    status: "active",
+    variations: [
+      {
+        sku: "LOJA-INATIVA-01",
+        price: 40.0,
+        isDefault: true,
+        stockQuantity: 50,
+      },
+    ],
+  });
+
+  console.log("✅ 24 Produtos e variações cadastrados com atributos, preços, ofertas e lotes.");
+
+  // 9. Configurações Iniciais do Marketplace
   await prisma.marketplaceSettings.deleteMany();
   await prisma.marketplaceSettings.create({
     data: {
@@ -549,10 +1179,21 @@ async function main() {
       ogImageFileId: null,
     },
   });
+  console.log("✅ Configurações padrão do Marketplace cadastradas.");
 
-  console.log("✅ Configurações padrão do Marketplace cadastradas (sem fotos).");
+  // 10. Reconstruir Projeção de Busca (ProductSearchDocument)
+  console.log("🔍 Sincronizando ProductSearchDocuments...");
+  const syncedCount = await ProductSearchIndexService.rebuildAllSearchDocuments();
+  console.log(`✅ ${syncedCount} documentos de busca sintetizados na Search Projection.`);
 
-  console.log("🎉 Seed minimalista concluída com sucesso!");
+  const report = await ProductSearchIndexService.getDiscrepancyReport();
+  console.log(`📊 Relatório de Discrepância de Busca:`, JSON.stringify(report, null, 2));
+
+  if (report.missingDocumentProductIds.length > 0 || report.orphanDocumentProductIds.length > 0) {
+    console.warn("⚠️ Discrepâncias detectadas na projeção de busca!");
+  } else {
+    console.log("🎉 Seed da Etapa 9 concluída com SUCESSO e 0 discrepâncias!");
+  }
 }
 
 main()

@@ -105,5 +105,9 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 
 
 
-### Etapa 9: Seed Diversificada de Desenvolvimento
-- **Dados:** Atualização do `seed.ts` com dados realistas (Queijos, Mel, Cachaças, Doces, floradas, marcas e lotes).
+### Etapa 9: Seed Diversificada de Desenvolvimento `[CONCLUÍDA & VALIDADA]`
+- **Status:** `completed`
+- **Artefatos:**
+  - `apps/api/prisma/seed.ts` — seed determinística e reexecutável com 24 produtos diversificados, hierarquia de categorias (Alimentos/Bebidas e subcategorias), 4 marcas, 5 produtores (incluindo produtor inativo para testes de guard), atributos variados (florada, madeira, peso, sabor), promoções, controle de lotes FEFO com datas relativas e sincronização da projeção de busca via `ProductSearchIndexService`.
+- **Suíte Total do Módulo de Catálogo:** 60/60 testes passando, 0 erros TypeScript, 0 discrepâncias na projeção.
+
