@@ -10,14 +10,34 @@ import { CustomerAuthProvider } from '../providers/customer-auth-provider'
 import { QueryProvider } from '../providers/query-provider'
 import { ThemeProvider } from '../providers/theme-provider'
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
 export const metadata: Metadata = {
-  title: 'Verttex — Mercado Regional & Produtos Artesanais',
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: 'Verttex — Mercado Regional & Produtos Artesanais',
+    template: '%s | VERTTEX Marketplace',
+  },
   description:
     'Conectamos você aos melhores produtores artesanais da nossa região.',
   icons: {
     icon: '/icon.svg',
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: 'Verttex — Mercado Regional & Produtos Artesanais',
+    description:
+      'Conectamos você aos melhores produtores artesanais da nossa região.',
+    url: baseUrl,
+    siteName: 'VERTTEX Marketplace',
+    locale: 'pt_BR',
+    type: 'website',
+  },
 }
+
 
 export default function RootLayout({
   children,

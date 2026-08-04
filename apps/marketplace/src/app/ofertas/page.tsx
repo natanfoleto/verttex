@@ -1,12 +1,25 @@
-import { ProductDiscoveryView } from '@/components/discovery/product-discovery-view'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Ofertas e Promoções | VERTTEX Marketplace',
-  description: 'Descubra produtos artesanais em oferta especial no VERTTEX Marketplace',
-  robots: {
-    index: true,
-    follow: true,
-  },
+import { ProductDiscoveryView } from '@/components/discovery/product-discovery-view'
+import { buildMetadata, hasActiveFilters } from '@/lib/seo'
+
+export interface OffersPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata({
+  searchParams,
+}: OffersPageProps): Promise<Metadata> {
+  const resolvedSearchParams = await searchParams
+  const filtersApplied = hasActiveFilters(resolvedSearchParams)
+
+  return buildMetadata({
+    title: 'Ofertas & Promoções',
+    description:
+      'Confira as melhores ofertas e produtos promocionais direto dos produtores no VERTTEX Marketplace.',
+    canonicalPath: '/ofertas',
+    hasFilters: filtersApplied,
+  })
 }
 
 export default function OffersPage() {

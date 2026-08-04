@@ -80,8 +80,19 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 ### Etapa 6: Rotas Públicas Orientadas por Intenção no Marketplace `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
 
-### Etapa 7: Otimização de SEO, URLs Canônicas & Metadados
-- **Metadados:** Tags `title`, `description`, `canonicalUrl` e `noindex, follow` para buscas e filtros aplicados.
+### Etapa 7: Otimização de SEO, URLs Canônicas & Metadados `[CONCLUÍDA & VALIDADA]`
+- **Status:** `completed`
+- **Artefatos:**
+  - `apps/marketplace/src/lib/seo.ts` — utilitário `buildMetadata()`, `hasActiveFilters()`, `sanitizeMetaText()` e fetchers server-side.
+  - `apps/marketplace/src/app/layout.tsx` — `metadataBase`, template de título, Open Graph global e política de robots default.
+  - `apps/marketplace/src/app/busca/page.tsx` — metadados dinâmicos para `q`, `noindex, follow` obrigatório e canonical `/busca`.
+  - `apps/marketplace/src/app/categoria/[...slugs]/page.tsx` — metadados dinâmicos da categoria, canonical da cadeia inteira, `index, follow` para URLs limpas e `noindex, follow` para URLs com filtros.
+  - `apps/marketplace/src/app/produtor/[slug]/page.tsx` e `marca/[slug]/page.tsx` — metadados dinâmicos de lojas e marcas com Open Graph e canonicals limpas.
+  - `apps/marketplace/src/app/ofertas/page.tsx` e `produtos/page.tsx` — metadados dinâmicos de ofertas e catálogo secundário.
+  - `apps/marketplace/src/app/produtos/[slug]/page.tsx` — Server Component PDP com `generateMetadata` dinâmico, canonical limpa e dados estruturados JSON-LD (`Product` e `BreadcrumbList`).
+  - `apps/marketplace/src/app/robots.ts` e `sitemap.ts` — geração nativa App Router de robots.txt e sitemap.xml dinâmico.
+  - `apps/api/src/modules/catalog/seo-discovery.spec.ts` — 5 testes de contrato cobrindo busca, categoria, produtor, marca e ofertas.
+
 
 ### Etapa 8: Auditoria Final de Testes, Integração, Observabilidade & Benchmark
 - **Qualidade:** Testes integrados regressivos, observabilidade (logs de tempo de discovery), benchmark de performance (fixtures 1k+ produtos) e hardening.
