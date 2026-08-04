@@ -97,11 +97,12 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 ### Etapa 8: Auditoria Final de Testes, Integração, Observabilidade & Benchmark `[CONCLUÍDA & VALIDADA]`
 - **Status:** `completed`
 - **Artefatos:**
-  - `apps/api/src/modules/catalog/discovery.schemas.ts` — hardening de Zod schema (limites de paginação `max: 500`, sanitização e corte de strings `max: 200`, limites numéricos de preço).
-  - `apps/api/src/modules/catalog/product-search-index.service.ts` — tratamento seguro de exceções em `refreshByBrand`, `refreshByCategory`, `refreshByStore` e método de diagnóstico `getDiscrepancyReport()` para identificar documentos ausentes e órfãos.
-  - `apps/api/src/modules/catalog/discovery.service.ts` — medição e observabilidade de latência com métricas de tempo por etapa (`totalTimeMs`, `candidatesCount`).
-  - `apps/api/src/modules/catalog/discovery-benchmark.spec.ts` — 7 cenários de benchmark automatizados testando latência (< 100ms) para 1.000 produtos e verificação de discrepância.
-- **Suíte Total do Módulo de Catálogo:** 45/45 testes passando, 0 erros TypeScript.
+  - `apps/api/src/modules/catalog/discovery.schemas.ts` — hardening de Zod schema (distinção entre `page max 500` para proteção de offset e `perPage max 100` conforme contrato; sanitização e corte de strings `max: 200`).
+  - `apps/api/src/modules/catalog/product-search-index.service.ts` — tratamento seguro de exceções com logger estruturado (`[SearchIndexRefreshError]`) em `refreshByBrand`, `refreshByCategory`, `refreshByStore` e método de diagnóstico `getDiscrepancyReport()` para identificar documentos ausentes e órfãos.
+  - `apps/marketplace/src/lib/seo.ts` — resolução robusta de `APP_BASE_URL` preferindo `NEXT_PUBLIC_APP_URL` / `NEXT_PUBLIC_SITE_URL`, tratando `VERCEL_URL` com `https://` e usando `localhost` apenas em dev.
+  - `apps/api/src/modules/catalog/discovery-benchmark.spec.ts` — 22 testes de benchmark medindo 1.000, 5.000 e 10.000 `ProductSearchDocuments` nos 7 cenários obrigatórios (latências instantâneas < 20ms).
+- **Suíte Total do Módulo de Catálogo:** 60/60 testes passando, 0 erros TypeScript.
+
 
 
 ### Etapa 9: Seed Diversificada de Desenvolvimento

@@ -1,10 +1,25 @@
 import type { Metadata } from 'next'
 
-export const SITE_NAME = 'VERTTEX Marketplace'
-export const APP_BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+export function getAppBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')
+  }
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
+  }
+  if (process.env.VERCEL_URL) {
+    const vercelHost = process.env.VERCEL_URL.replace(/^https?:\/\//, '')
+    return `https://${vercelHost}`
+  }
+  return 'http://localhost:3000'
+}
+
+export const APP_BASE_URL = getAppBaseUrl()
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
+export const SITE_NAME = 'VERTTEX Marketplace'
+
+
 
 /**
  * Sanitizes user input string for safe usage in metadata title/description.
