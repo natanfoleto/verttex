@@ -18,7 +18,8 @@ export function sanitizeMetaText(text: string): string {
 }
 
 /**
- * Checks if searchParams contains active filtering/search/pagination params.
+ * Checks if searchParams contains active filtering/search/sorting parameters.
+ * Note: Pagination (`page`) alone is NOT a filter; it represents a page in a sequence.
  */
 export function hasActiveFilters(
   searchParams?: Record<string, string | string[] | undefined>,
@@ -38,17 +39,30 @@ export function hasActiveFilters(
     'priceMax',
     'attributes',
     'sort',
-    'page',
-    'perPage',
     'search',
     'q',
   ]
-  return keys.some(
-    (k) =>
-      filterKeys.includes(k) &&
-      searchParams[k] !== undefined &&
-      searchParams[k] !== '',
-  )
+
+  return keys.some((k) => {
+    if (k.startsWith('attr_')) return true
+    if (!filterKeys.includes(k)) return false
+    const val = searchParams[k]
+    return val !== undefined && val !== ''
+  })
+}
+
+/**
+ * Extract page number if page > 1 for sequence canonicals.
+ */
+export function getPageNumber(
+  searchParams?: Record<string, string | string[] | undefined>,
+): number | undefined {
+  if (!searchParams?.page) return undefined
+  const rawPage = Array.isArray(searchParams.page)
+    ? searchParams.page[0]
+    : searchParams.page
+  const parsed = parseInt(rawPage || '', 10)
+  return !isNaN(parsed) && parsed > 1 ? parsed : undefined
 }
 
 export interface BuildMetadataOptions {
@@ -56,7 +70,8 @@ export interface BuildMetadataOptions {
   description: string
   canonicalPath: string // e.g. "/categoria/alimentos/mel"
   noIndex?: boolean
-  hasFilters?: boolean
+  hasFilters?: boolean // true if sort, search, brand, price, attributes filters are present
+  page?: number // page number (> 1) if pagination is active without filters
   ogImage?: string | null
   type?: 'website' | 'article'
 }
@@ -67,6 +82,7 @@ export function buildMetadata({
   canonicalPath,
   noIndex = false,
   hasFilters = false,
+  page,
   ogImage,
   type = 'website',
 }: BuildMetadataOptions): Metadata {
@@ -75,10 +91,18 @@ export function buildMetadata({
 
   // Clean canonical path without query params
   const cleanCanonicalPath = canonicalPath.split('?')[0] || '/'
-  const canonicalUrl = `${APP_BASE_URL}${cleanCanonicalPath}`
 
-  // Indexing policy: noindex if explicitly requested OR if filters/pagination applied
+  // Indexing policy: noindex if explicitly requested OR if filters/sort applied
   const shouldIndex = !noIndex && !hasFilters
+
+  // Canonical URL logic:
+  // - If clean page 1: /categoria/alimentos/mel
+  // - If clean page > 1 (no filters): /categoria/alimentos/mel?page=2 (self-referential sequence)
+  // - If filters applied (noindex): /categoria/alimentos/mel
+  let canonicalUrl = `${APP_BASE_URL}${cleanCanonicalPath}`
+  if (shouldIndex && page && page > 1) {
+    canonicalUrl = `${APP_BASE_URL}${cleanCanonicalPath}?page=${page}`
+  }
 
   const images = ogImage ? [{ url: ogImage }] : undefined
 

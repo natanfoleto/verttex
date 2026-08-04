@@ -449,35 +449,76 @@ export function ProductDiscoveryView({
             {/* Pagination Controls */}
             {pagination && pagination.totalPages > 1 && (
               <div className="bg-white rounded-xl border border-stone-200 p-4 flex items-center justify-between shadow-xs">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={!pagination.hasPreviousPage}
-                  onClick={() => updateUrl({ page: String(page - 1) })}
-                  className="text-xs gap-1 cursor-pointer disabled:opacity-50"
-                >
-                  <RiArrowLeftSLine className="h-4 w-4" />
-                  <span>Anterior</span>
-                </Button>
+                {pagination.hasPreviousPage ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="text-xs gap-1 cursor-pointer"
+                  >
+                    <Link
+                      href={(() => {
+                        const current = new URLSearchParams(Array.from(searchParams.entries()))
+                        if (page - 1 <= 1) current.delete('page')
+                        else current.set('page', String(page - 1))
+                        const str = current.toString()
+                        return str ? `?${str}` : '?'
+                      })()}
+                    >
+                      <RiArrowLeftSLine className="h-4 w-4" />
+                      <span>Anterior</span>
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled
+                    className="text-xs gap-1 opacity-50"
+                  >
+                    <RiArrowLeftSLine className="h-4 w-4" />
+                    <span>Anterior</span>
+                  </Button>
+                )}
 
                 <div className="text-xs font-semibold text-stone-700">
                   Página {pagination.page} de {pagination.totalPages}
                 </div>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={!pagination.hasNextPage}
-                  onClick={() => updateUrl({ page: String(page + 1) })}
-                  className="text-xs gap-1 cursor-pointer disabled:opacity-50"
-                >
-                  <span>Próxima</span>
-                  <RiArrowRightSLine className="h-4 w-4" />
-                </Button>
+                {pagination.hasNextPage ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="text-xs gap-1 cursor-pointer"
+                  >
+                    <Link
+                      href={(() => {
+                        const current = new URLSearchParams(Array.from(searchParams.entries()))
+                        current.set('page', String(page + 1))
+                        return `?${current.toString()}`
+                      })()}
+                    >
+                      <span>Próxima</span>
+                      <RiArrowRightSLine className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled
+                    className="text-xs gap-1 opacity-50"
+                  >
+                    <span>Próxima</span>
+                    <RiArrowRightSLine className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             )}
+
           </main>
         </div>
       </div>

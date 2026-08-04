@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 
 import { ProductDiscoveryView } from '@/components/discovery/product-discovery-view'
-import { buildMetadata, fetchDiscoveryContext, hasActiveFilters } from '@/lib/seo'
+import {
+  buildMetadata,
+  fetchDiscoveryContext,
+  getPageNumber,
+  hasActiveFilters,
+} from '@/lib/seo'
 
 export interface BrandPageProps {
   params: Promise<{
@@ -39,12 +44,14 @@ export async function generateMetadata({
     `Encontre produtos artesanais da marca ${brandName} no VERTTEX Marketplace.`
 
   const filtersApplied = hasActiveFilters(resolvedSearchParams)
+  const pageNum = getPageNumber(resolvedSearchParams)
 
   return buildMetadata({
     title,
     description,
     canonicalPath: cleanCanonicalPath,
     hasFilters: filtersApplied,
+    page: pageNum,
   })
 }
 

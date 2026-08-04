@@ -105,6 +105,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         dynamicRoutes = [...dynamicRoutes, ...storeUrls]
       }
     }
+
+    // Fetch public brands
+    const brandsRes = await fetch(
+      `${API_BASE_URL}/public/catalog/brands`,
+      {
+        next: { revalidate: 3600 },
+      },
+    ).catch(() => null)
+
+    if (brandsRes?.ok) {
+      const json = await brandsRes.json().catch(() => null)
+      const brands = json?.data || json || []
+      if (Array.isArray(brands)) {
+        const brandUrls: MetadataRoute.Sitemap = brands.map((b: any) => ({
+          url: `${BASE_URL}/marca/${b.slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        }))
+        dynamicRoutes = [...dynamicRoutes, ...brandUrls]
+      }
+    }
   } catch {
     // Fallback gracefully if API is offline
   }
