@@ -35,7 +35,15 @@ Applications `apps/manager` and `apps/marketplace` are Next.js App Router projec
 - **Sintaxe de Classes Numéricas Diretas (Sem Colchetes `[...]` para Pixels)**: É proibido utilizar a sintaxe de colchetes arbitrários para valores em pixels (ex: `min-h-[420px]`, `w-[760px]`, `h-[400px]`, `p-[16px]`). Divida o valor em pixels por 4 e utilize a classe numérica nativa direta do Tailwind (ex: `min-h-105` para 420px, `min-w-190` para 760px, `h-100` para 400px, `h-185` para 740px, `max-w-160` para 640px). O Tailwind v4 resolve nativamente qualquer número em escala sem necessidade de escapar com `[]`.
 - **Aesthetic Theme**: Standardized zinc color palette and New York design details.
 - **Icons**: Resolved using `react-icons` package for UI consistency.
-- **Global Elements**: Shared visuals must be imported from the workspace package `@verttex/ui` (which encapsulates standard shadcn configurations).
+- **Global Elements**: Shared visuals must be imported from standard shadcn configurations in `@/components/ui/...`.
+
+### 3.1 Regra Mandatória de Componentes Shadcn UI vs. Elementos Nativos
+
+- **Prioridade Absoluta dos Componentes Shadcn UI:** Em todas as novas telas e implementações no frontend (`apps/manager` e `apps/marketplace`), é **estritamente obrigatório utilizar primeiramente os componentes do Shadcn UI** (`Button`, `Input`, `Textarea`, `Checkbox`, `RadioGroup`) em vez de elementos HTML nativos (`<button>`, `<input>`, `<textarea>`).
+- **Fluxo de Trabalho de Implementação e Teste:** Toda nova interface **DEVE ser obrigatoriamente criada e testada utilizando o componente `Button` do Shadcn UI**. Caso, durante o teste visual no browser, seja identificado que o componente `Button` do Shadcn causa desalinhamentos de layout/padding/ícone inviáveis que prejudicam a UX, a exceção pode ser concedida e mantida como elemento nativo após essa validação inicial.
+- **Exceções Aprovadas no Projeto:**
+  1. **Triggers do componente `HoverDropdown`** ([hover-dropdown.tsx](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/ui/hover-dropdown.tsx), [marketplace-header.tsx](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/layout/marketplace-header.tsx)): Mantêm `<button>` nativo (ou elemento trigger customizado) para servir como trigger limpo sem herdar estilos adicionais de botões ou paddings indesejados.
+  2. **Botões de menu no Drawer Mobile** ([mobile-menu-drawer.tsx](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/layout/mobile-menu-drawer.tsx#L255)): Mantêm `<button>` nativo para garantir alinhamento pixel a pixel de paddings (`px-5 py-3`), tamanho de ícones (`h-5 w-5`) e espaçamento idêntico aos elementos `<Link>` da lista de navegação do menu mobile.
 
 ---
 

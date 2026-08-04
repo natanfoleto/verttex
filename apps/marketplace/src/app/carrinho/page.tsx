@@ -186,8 +186,10 @@ export default function CartPage() {
                       {/* Quantity Controls & Item Total */}
                       <div className="flex items-center justify-between sm:justify-end space-x-6">
                         <div className="flex items-center space-x-1 border border-stone-200 rounded-lg p-0.5 bg-stone-50">
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon"
                             onClick={() => {
                               if (item.quantity > 1) {
                                 updateQuantityMutation.mutate({
@@ -198,25 +200,27 @@ export default function CartPage() {
                                 removeItemMutation.mutate(item.id)
                               }
                             }}
-                            className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
+                            className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
                           >
                             <RiSubtractLine className="h-3.5 w-3.5" />
-                          </button>
+                          </Button>
                           <span className="w-8 text-center font-bold text-xs">
                             {item.quantity}
                           </span>
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon"
                             onClick={() => {
                               updateQuantityMutation.mutate({
                                 itemId: item.id,
                                 quantity: item.quantity + 1,
                               })
                             }}
-                            className="p-1 text-stone-600 hover:text-stone-900 cursor-pointer"
+                            className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
                           >
                             <RiAddLine className="h-3.5 w-3.5" />
-                          </button>
+                          </Button>
                         </div>
 
                         <div className="text-right min-w-20">
@@ -225,14 +229,16 @@ export default function CartPage() {
                           </span>
                         </div>
 
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => removeItemMutation.mutate(item.id)}
-                          className="text-stone-400 hover:text-rose-600 p-1 cursor-pointer"
+                          className="h-7 w-7 p-0 text-stone-400 hover:text-rose-600 cursor-pointer"
                           title="Remover Item"
                         >
                           <RiDeleteBin6Line className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -295,13 +301,15 @@ export default function CartPage() {
                             (-R$ {c.discountAmount.toFixed(2)})
                           </span>
                         </div>
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => removeCouponMutation.mutate()}
-                          className="text-emerald-700 hover:text-rose-600 cursor-pointer"
+                          className="h-5 w-5 p-0 text-emerald-700 hover:text-rose-600 cursor-pointer"
                         >
                           <RiDeleteBin6Line className="h-3.5 w-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     ))}
                   </div>

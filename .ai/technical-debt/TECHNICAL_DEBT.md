@@ -18,6 +18,7 @@ Este documento funciona como a fonte única da verdade para o backlog de **Débi
 | **DEBT-004** | Uso de Tags `<img>` Nativas em vez de `next/image` | Frontend / Infraestrutura | Marketplace | `LOW` | `LOW` | `ACCEPTED` (Mantido por custo/recursos Vercel) |
 | **DEBT-005** | Regras de Formatação Prettier e Ordenação de Imports Desalinhadas no ESLint | Tooling / DX | Workspace | `MEDIUM` | `LOW` | `RESOLVED` |
 | **DEBT-006** | Vulnerabilidades de Autenticação e Rate Limiting (`VULN-001`, `VULN-002`, `VULN-003`) | Segurança | API Fastify | `CRITICAL` | `HIGH` | `RESOLVED` |
+| **DEBT-007** | Mensagens Brutas de Validação de Erros nos Formulários (`body/variations/0/price...`) | UX / Frontend | Manager / API Client | `MEDIUM` | `LOW` | `OPEN` |
 
 ---
 
@@ -140,3 +141,24 @@ Este documento funciona como a fonte única da verdade para o backlog de **Débi
 - **Recomendação:** Atualizar a documentação de segurança oficial para marcar todas as vulnerabilidades corrigidas como `RESOLVED`.
 - **Possibilidade de Correção:** Concluída.
 - **Status:** `RESOLVED` (Documentação atualizada em 2026-08-03).
+
+---
+
+### DEBT-007 — Mensagens Brutas de Validação de Erros nos Formulários (`body/variations/0/price...`)
+
+- **ID:** `DEBT-007`
+- **Título:** Mensagens Brutas de Validação de Erros nos Formulários de Cadastro / Edição
+- **Categoria:** UX / Tratamento de Erros no Frontend
+- **Descrição:** Ao tentar submeter formulários contendo erros de validação em campos aninhados ou coleções (ex: cadastrar um produto variável sem preencher o preço das variações), o sistema exibe mensagens brutas contendo o caminho interno do payload Fastify/Zod, como `body/variations/0/price Preço deve ser maior que zero, body/variations/1/price...`.
+- **Motivo:** O utilitário `apiClient` e os tratadores `onError` das mutations concatenam e repassam a string de erro enviada pela API sem higienização visual ou mapeamento para campos do formulário no frontend.
+- **Impacto Atual:** Experiência de usuário (UX) poluída e técnica no painel administrativo.
+- **Risco Futuro:** Dificuldade para usuários leigos identificarem exatamente qual item de uma lista contém o erro de validação.
+- **Área Afetada:** `apps/manager/src/lib/api-client.ts`, `apps/manager/src/app/(dashboard)/produtos/components/product-form-dialog.tsx`, `apps/marketplace/src/lib/api-client.ts`
+- **Prioridade:** `MEDIUM`
+- **Severidade:** `LOW`
+- **Esforço Estimado:** S (1-2 horas)
+- **Dependências:** Utilitário de tratamento/higienização de erros da API Fastify/Zod para exibição em Toasts ou erros de campo.
+- **Recomendação:** Implementar um formatador de erros de validação no `apiClient` para converter caminhos como `body/variations/0/price` em mensagens amigáveis (ex: *"Variação #1: Preço deve ser maior que zero"*).
+- **Possibilidade de Correção:** Alta.
+- **Status:** `OPEN` (Registrado em 2026-08-03).
+

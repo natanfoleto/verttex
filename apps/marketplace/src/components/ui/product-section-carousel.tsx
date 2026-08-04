@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri'
 
 import { ProductCard } from './product-card'
+import { Button } from './button'
 
 export interface CarouselProductItem {
   id: string
@@ -130,11 +131,11 @@ export function ProductSectionCarousel({
         {totalPages > 1 && (
           <div className="flex items-center space-x-1.5">
             {Array.from({ length: totalPages }).map((_, index) => (
-              <button
+              <Button
                 key={index}
                 type="button"
                 onClick={() => setCurrentPage(index)}
-                className={`h-1.5 w-1.5 rounded-full cursor-pointer transition-colors ${
+                className={`h-1.5 w-1.5 p-0 rounded-full cursor-pointer transition-colors ${
                   index === currentPage
                     ? 'bg-emerald-700'
                     : 'bg-stone-200 hover:bg-stone-300'
@@ -150,25 +151,25 @@ export function ProductSectionCarousel({
       <div className="relative">
         {/* Setas Flutuantes Laterais — Exibidas EXCLUSIVAMENTE em telas >= 1408px */}
         {totalPages > 1 && currentPage > 0 && (
-          <button
+          <Button
             type="button"
             onClick={handlePrev}
             className="hidden min-[1408px]:flex absolute -left-14 top-27.5 sm:top-31.25 lg:top-33.75 -translate-y-1/2 z-30 h-10 w-10 items-center justify-center rounded-full shadow-md hover:bg-stone-50 cursor-pointer transition-colors"
             aria-label="Anterior"
           >
             <RiArrowLeftSLine className="size-5 text-emerald-700" />
-          </button>
+          </Button>
         )}
 
         {totalPages > 1 && currentPage < totalPages - 1 && (
-          <button
+          <Button
             type="button"
             onClick={handleNext}
             className="hidden min-[1408px]:flex absolute -right-14 top-27.5 sm:top-31.25 lg:top-33.75 -translate-y-1/2 z-30 h-10 w-10 items-center justify-center rounded-full shadow-md hover:bg-stone-50 cursor-pointer transition-colors"
             aria-label="Próximo"
           >
             <RiArrowRightSLine className="size-5 text-emerald-700" />
-          </button>
+          </Button>
         )}
 
         {/* Track Deslizante — Efeito Puxar / Slide idêntico ao carrossel principal */}
@@ -201,7 +202,7 @@ export function ProductSectionCarousel({
       {/* Botões Centralizados na Parte Inferior para telas < 1408px */}
       {totalPages > 1 && (
         <div className="flex min-[1408px]:hidden items-center justify-center space-x-4">
-          <button
+          <Button
             type="button"
             onClick={handlePrev}
             disabled={currentPage === 0}
@@ -209,9 +210,9 @@ export function ProductSectionCarousel({
             aria-label="Anterior"
           >
             <RiArrowLeftSLine className="size-5 text-emerald-700" />
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             onClick={handleNext}
             disabled={currentPage >= totalPages - 1}
@@ -219,7 +220,7 @@ export function ProductSectionCarousel({
             aria-label="Próximo"
           >
             <RiArrowRightSLine className="size-5 text-emerald-700" />
-          </button>
+          </Button>
         </div>
       )}
     </section>

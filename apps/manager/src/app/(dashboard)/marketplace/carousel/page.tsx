@@ -611,11 +611,10 @@ export default function CarouselPage() {
                               isActive: !banner.isActive,
                             })
                           }
-                          className={`cursor-pointer h-8 w-8 border-zinc-700 ${
-                            banner.isActive
-                              ? 'text-emerald-400 hover:bg-emerald-950/40'
-                              : 'text-zinc-500 hover:bg-zinc-800'
-                          }`}
+                          className={`cursor-pointer h-8 w-8 border-zinc-700 ${banner.isActive
+                            ? 'text-emerald-400 hover:bg-emerald-950/40'
+                            : 'text-zinc-500 hover:bg-zinc-800'
+                            }`}
                         >
                           {banner.isActive ? (
                             <RiEyeLine className="h-4 w-4" />
@@ -821,11 +820,11 @@ export default function CarouselPage() {
               {/* Área da Imagem com Card Clean e Espaçoso */}
               <div className="space-y-2 overflow-hidden">
                 <label className="text-xs font-semibold text-zinc-300">
-                  Imagem do Banner (Cloudflare R2)
+                  Imagem do Banner
                 </label>
 
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 space-y-2 overflow-hidden">
-                  <input
+                  <Input
                     ref={fileInputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"

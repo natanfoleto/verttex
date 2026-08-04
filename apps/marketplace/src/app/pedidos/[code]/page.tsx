@@ -14,6 +14,8 @@ import {
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 import { apiClient } from '../../../lib/api-client'
 
@@ -233,10 +235,10 @@ export default function OrderDetailPage({
               </p>
             </div>
             <div className="flex items-center justify-center space-x-2">
-              <input
+              <Input
                 readOnly
                 value="00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-42661417400052040000"
-                className="w-full max-w-md rounded-xl border border-emerald-300 bg-white p-2.5 text-[11px] font-mono text-stone-700 select-all"
+                className="w-full max-w-md bg-white text-[11px] font-mono text-stone-700 select-all"
               />
               <Button
                 type="button"
@@ -383,12 +385,12 @@ export default function OrderDetailPage({
               <label className="text-xs font-semibold text-stone-700 block">
                 Motivo do Cancelamento
               </label>
-              <textarea
+              <Textarea
                 rows={2}
                 placeholder="Ex: Mudei de ideia, endereço incorreto..."
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                className="w-full rounded-xl border border-stone-200 p-2.5 text-xs focus:border-emerald-800 focus:outline-none"
+                className="w-full text-xs"
               />
             </div>
             <div className="flex justify-end space-x-2 pt-2">
@@ -430,12 +432,12 @@ export default function OrderDetailPage({
               <label className="text-xs font-semibold text-stone-700 block">
                 Motivo da Devolução
               </label>
-              <textarea
+              <Textarea
                 rows={3}
                 placeholder="Ex: Embalagem danificada no transporte, produto com defeito ou divergência..."
                 value={returnReason}
                 onChange={(e) => setReturnReason(e.target.value)}
-                className="w-full rounded-xl border border-stone-200 p-2.5 text-xs focus:border-emerald-800 focus:outline-none"
+                className="w-full text-xs"
               />
             </div>
             <div className="flex justify-end space-x-2 pt-2">

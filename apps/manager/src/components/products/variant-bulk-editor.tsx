@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { PriceInput } from '@/components/ui/price-input'
+import { RadioGroupItem } from '@/components/ui/radio-group'
 
 import { VariationDraft } from './variant-matrix-generator'
 
@@ -208,14 +209,11 @@ export function VariantBulkEditor({
                     onCheckedChange={() => toggleSelectIndex(idx)}
                   />
                 </td>
-                <td className="p-3 text-center">
-                  {/* eslint-disable-next-line react/forbid-elements */}
-                  <input
-                    type="radio"
-                    name="default-variation-radio"
+                <td className="p-3 text-center flex justify-center items-center">
+                  <RadioGroupItem
+                    value={String(idx)}
                     checked={item.isDefault}
-                    onChange={() => handleSetDefault(idx)}
-                    className="cursor-pointer accent-emerald-700"
+                    onClick={() => handleSetDefault(idx)}
                     title="Definir como variação padrão inicial"
                   />
                 </td>

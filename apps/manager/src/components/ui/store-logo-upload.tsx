@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { apiClient, ApiError } from '@/lib/api-client'
+import { Input } from './input'
 
 interface StoreLogoUploadProps {
   storeId?: string
@@ -47,11 +48,11 @@ export function StoreLogoUpload({
   const displayUrl = previewUrl || logoUrl
   const initials = storeName
     ? storeName
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .substring(0, 2)
-        .toUpperCase()
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase()
     : 'VT'
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +143,7 @@ export function StoreLogoUpload({
   return (
     <div className="space-y-1.5">
       {/* Hidden File Input */}
-      <input
+      <Input
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"

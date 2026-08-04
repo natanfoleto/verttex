@@ -206,7 +206,7 @@ export default function MarketplaceSettingsPage() {
     } catch (err: any) {
       toast.error(
         `Falha no upload do arquivo (${purpose}): ` +
-          (err?.message || 'Tente novamente'),
+        (err?.message || 'Tente novamente'),
       )
       return null
     } finally {
@@ -389,7 +389,7 @@ export default function MarketplaceSettingsPage() {
                   <label className="text-xs font-semibold text-zinc-300">
                     Favicon
                   </label>
-                  <input
+                  <Input
                     ref={faviconInputRef}
                     type="file"
                     accept="image/*"
@@ -441,7 +441,7 @@ export default function MarketplaceSettingsPage() {
                   <label className="text-xs font-semibold text-zinc-300">
                     Logo da Marca
                   </label>
-                  <input
+                  <Input
                     ref={logoInputRef}
                     type="file"
                     accept="image/*"
@@ -838,7 +838,7 @@ export default function MarketplaceSettingsPage() {
                         />
                       </div>
                     )}
-                    <input
+                    <Input
                       ref={ogImageInputRef}
                       type="file"
                       accept="image/*"

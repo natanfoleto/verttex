@@ -58,7 +58,7 @@ export function HoverDropdown({
           'invisible absolute opacity-0 transition-all duration-150 z-50 font-sans',
           currentGroup.hover,
           position === 'right'
-            ? 'left-full top-1/2 -translate-y-1/2 pl-1'
+            ? 'left-full top-1/2 -translate-y-1/2 pl-0.5'
             : cn('top-full', align === 'right' ? 'right-0' : 'left-0'),
         )}
       >

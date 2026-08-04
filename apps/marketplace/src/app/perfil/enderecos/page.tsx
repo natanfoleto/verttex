@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -528,12 +529,10 @@ export default function CustomerAddressesPage() {
             </div>
 
             <div className="flex items-center space-x-2 pt-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 id="isDefaultCheckbox"
                 checked={isDefault}
-                onChange={(e) => setIsDefault(e.target.checked)}
-                className="h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-600 cursor-pointer"
+                onCheckedChange={(checked) => setIsDefault(Boolean(checked))}
               />
               <label
                 htmlFor="isDefaultCheckbox"

@@ -19,6 +19,8 @@ import {
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 import { apiClient } from '../../lib/api-client'
 
@@ -410,12 +412,12 @@ export default function CheckoutPage() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-900">
               Observações do Pedido (Opcional)
             </h3>
-            <textarea
+            <Textarea
               rows={2}
               placeholder="Ex: Entregar após as 14h ou deixar na portaria do prédio..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-xl border border-stone-200 p-3 text-xs focus:border-emerald-800 focus:outline-none"
+              className="w-full text-xs"
             />
           </div>
         </div>
@@ -529,12 +531,12 @@ export default function CheckoutPage() {
                 <label className="font-semibold text-stone-700 block mb-1">
                   Nome do Destinatário *
                 </label>
-                <input
+                <Input
                   required
                   placeholder="Ex: Maria da Silva"
                   value={newRecipient}
                   onChange={(e) => setNewRecipient(e.target.value)}
-                  className="w-full rounded-xl border border-stone-200 p-2.5 focus:border-emerald-800 focus:outline-none"
+                  className="w-full text-xs"
                 />
               </div>
 
@@ -543,23 +545,23 @@ export default function CheckoutPage() {
                   <label className="font-semibold text-stone-700 block mb-1">
                     CEP *
                   </label>
-                  <input
+                  <Input
                     required
                     placeholder="37925-000"
                     value={newZipCode}
                     onChange={(e) => setNewZipCode(e.target.value)}
-                    className="w-full rounded-xl border border-stone-200 p-2.5 focus:border-emerald-800 focus:outline-none"
+                    className="w-full text-xs"
                   />
                 </div>
                 <div>
                   <label className="font-semibold text-stone-700 block mb-1">
                     Identificador
                   </label>
-                  <input
+                  <Input
                     placeholder="Ex: Casa, Trabalho"
                     value={newLabel}
                     onChange={(e) => setNewLabel(e.target.value)}
-                    className="w-full rounded-xl border border-stone-200 p-2.5 focus:border-emerald-800 focus:outline-none"
+                    className="w-full text-xs"
                   />
                 </div>
               </div>
@@ -569,24 +571,24 @@ export default function CheckoutPage() {
                   <label className="font-semibold text-stone-700 block mb-1">
                     Rua / Logradouro *
                   </label>
-                  <input
+                  <Input
                     required
                     placeholder="Rua da Canastra"
                     value={newStreet}
                     onChange={(e) => setNewStreet(e.target.value)}
-                    className="w-full rounded-xl border border-stone-200 p-2.5 focus:border-emerald-800 focus:outline-none"
+                    className="w-full text-xs"
                   />
                 </div>
                 <div>
                   <label className="font-semibold text-stone-700 block mb-1">
                     Número *
                   </label>
-                  <input
+                  <Input
                     required
                     placeholder="100"
                     value={newNumber}
                     onChange={(e) => setNewNumber(e.target.value)}
-                    className="w-full rounded-xl border border-stone-200 p-2.5 focus:border-emerald-800 focus:outline-none"
+                    className="w-full text-xs"
                   />
                 </div>
               </div>
@@ -596,37 +598,37 @@ export default function CheckoutPage() {
                   <label className="font-semibold text-stone-700 block mb-1">
                     Bairro *
                   </label>
-                  <input
+                  <Input
                     required
                     placeholder="Centro"
                     value={newNeighborhood}
                     onChange={(e) => setNewNeighborhood(e.target.value)}
-                    className="w-full rounded-xl border border-stone-200 p-2.5 focus:border-emerald-800 focus:outline-none"
+                    className="w-full text-xs"
                   />
                 </div>
                 <div>
                   <label className="font-semibold text-stone-700 block mb-1">
                     Cidade *
                   </label>
-                  <input
+                  <Input
                     required
                     placeholder="São Roque"
                     value={newCity}
                     onChange={(e) => setNewCity(e.target.value)}
-                    className="w-full rounded-xl border border-stone-200 p-2.5 focus:border-emerald-800 focus:outline-none"
+                    className="w-full text-xs"
                   />
                 </div>
                 <div>
                   <label className="font-semibold text-stone-700 block mb-1">
                     UF *
                   </label>
-                  <input
+                  <Input
                     required
                     maxLength={2}
                     placeholder="MG"
                     value={newState}
                     onChange={(e) => setNewState(e.target.value)}
-                    className="w-full rounded-xl border border-stone-200 p-2.5 uppercase focus:border-emerald-800 focus:outline-none"
+                    className="w-full text-xs uppercase"
                   />
                 </div>
               </div>
