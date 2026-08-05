@@ -209,7 +209,7 @@ export default function MarketplaceSettingsPage() {
     } catch (err: any) {
       toast.error(
         `Falha no upload do arquivo (${purpose}): ` +
-          (err?.message || 'Tente novamente'),
+        (err?.message || 'Tente novamente'),
       )
       return null
     } finally {
@@ -387,112 +387,119 @@ export default function MarketplaceSettingsPage() {
 
               {/* Linha 2: Favicon (esquerda) + Logo (direita) */}
               <div className="flex flex-wrap gap-6 items-start">
-                {/* Favicon — quadrado, h-24 w-24 */}
-                <div className="w-24">
+                {/* Favicon — quadrado */}
+                <div className="w-fit">
                   <label className="text-xs font-semibold text-zinc-300">
                     Favicon
                   </label>
-                  <Input
-                    ref={faviconInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFaviconSelect}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => faviconInputRef.current?.click()}
-                    className="mt-1 w-24 h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0"
-                  >
-                    {faviconPreview || settings.faviconUrl ? (
-                      <img
-                        src={faviconPreview || settings.faviconUrl!}
-                        alt="Favicon"
-                        className="max-h-full max-w-full object-contain p-2"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-1 text-zinc-500 group-hover:text-zinc-400 transition-colors">
-                        <RiImageAddLine className="h-5 w-5" />
-                        <span className="text-[10px] font-medium">Favicon</span>
-                      </div>
-                    )}
-                  </Button>
-                  {(settings.faviconFileId || settings.faviconUrl) && (
+
+                  <div className="flex gap-3 items-center w-fit mt-1">
+                    <Input
+                      ref={faviconInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFaviconSelect}
+                      className="hidden"
+                    />
                     <Button
                       type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setFaviconPreview(null)
-                        setSettings({
-                          ...settings,
-                          faviconFileId: null,
-                          faviconUrl: null,
-                        })
-                      }}
-                      className="cursor-pointer border-red-800/70 text-red-400 hover:bg-red-950/40 gap-1.5 w-full mt-2"
+                      variant="ghost"
+                      onClick={() => faviconInputRef.current?.click()}
+                      className="w-24 h-24 shrink-0 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0"
                     >
-                      <RiDeleteBinLine className="h-4 w-4 shrink-0" />
-                      <span>Remover</span>
+                      {faviconPreview || settings.faviconUrl ? (
+                        <img
+                          src={faviconPreview || settings.faviconUrl!}
+                          alt="Favicon"
+                          className="max-h-full max-w-full object-contain p-2"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 text-zinc-500 group-hover:text-zinc-400 transition-colors">
+                          <RiImageAddLine className="h-5 w-5" />
+                          <span className="text-[10px] font-medium">Favicon</span>
+                        </div>
+                      )}
                     </Button>
-                  )}
+
+                    {(settings.faviconFileId || settings.faviconUrl) && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setFaviconPreview(null)
+                          setSettings({
+                            ...settings,
+                            faviconFileId: null,
+                            faviconUrl: null,
+                          })
+                        }}
+                        className="cursor-pointer border-red-800/70 text-red-400 hover:bg-red-950/40"
+                      >
+                        <RiDeleteBinLine className="h-4 w-4 shrink-0" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Logo — landscape */}
-                <div className="w-64">
+                <div className="w-fit">
                   <label className="text-xs font-semibold text-zinc-300">
                     Logo da Marca
                   </label>
-                  <Input
-                    ref={logoInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoSelect}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => logoInputRef.current?.click()}
-                    className="mt-1 w-full h-24 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0"
-                  >
-                    {logoPreview || settings.logoUrl ? (
-                      <img
-                        src={logoPreview || settings.logoUrl!}
-                        alt="Logo"
-                        className="max-h-full max-w-full object-contain px-4 py-2"
-                      />
-                    ) : (
-                      <div className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-400 transition-colors">
-                        <RiImageAddLine className="h-5 w-5 shrink-0" />
-                        <span className="text-[11px] font-medium">
-                          Escolher logo
-                        </span>
-                      </div>
-                    )}
-                  </Button>
-                  {(settings.logoFileId || settings.logoUrl) && (
+
+                  <div className="flex gap-3 items-center w-fit mt-1">
+                    <Input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoSelect}
+                      className="hidden"
+                    />
                     <Button
                       type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setLogoPreview(null)
-                        setSettings({
-                          ...settings,
-                          logoFileId: null,
-                          logoUrl: null,
-                        })
-                      }}
-                      className="cursor-pointer border-red-800/70 text-red-400 hover:bg-red-950/40 gap-1.5 w-full mt-2"
+                      variant="ghost"
+                      onClick={() => logoInputRef.current?.click()}
+                      className="h-24 px-6 shrink-0 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0 min-w-44"
                     >
-                      <RiDeleteBinLine className="h-4 w-4 shrink-0" />
-                      <span>Remover</span>
+                      {logoPreview || settings.logoUrl ? (
+                        <img
+                          src={logoPreview || settings.logoUrl!}
+                          alt="Logo"
+                          className="max-h-full max-w-full object-contain px-4 py-2"
+                        />
+                      ) : (
+                        <div className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-400 transition-colors px-4">
+                          <RiImageAddLine className="h-5 w-5 shrink-0" />
+                          <span className="text-[11px] font-medium">
+                            Escolher logo
+                          </span>
+                        </div>
+                      )}
                     </Button>
-                  )}
+
+                    {(settings.logoFileId || settings.logoUrl) && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setLogoPreview(null)
+                          setSettings({
+                            ...settings,
+                            logoFileId: null,
+                            logoUrl: null,
+                          })
+                        }}
+                        className="cursor-pointer border-red-800/70 text-red-400 hover:bg-red-950/40"
+                      >
+                        <RiDeleteBinLine className="h-4 w-4 shrink-0" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
+
             </div>
           </TabsContent>
 
