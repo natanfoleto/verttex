@@ -267,10 +267,11 @@ export function ProductDetailView({ slug }: { slug: string }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsWishlisted(!isWishlisted)}
-                    className={`absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white/90 shadow-xs backdrop-blur-xs transition-colors cursor-pointer ${isWishlisted
+                    className={`absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white/90 shadow-xs backdrop-blur-xs transition-colors cursor-pointer ${
+                      isWishlisted
                         ? 'text-rose-600 bg-rose-50 border-rose-200'
                         : 'text-stone-500 hover:text-rose-600'
-                      }`}
+                    }`}
                     title="Salvar nos Favoritos"
                   >
                     <RiHeartLine className="h-5 w-5" />
@@ -286,10 +287,11 @@ export function ProductDetailView({ slug }: { slug: string }) {
                         type="button"
                         variant="ghost"
                         onClick={() => setSelectedImageIndex(idx)}
-                        className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 p-0 transition-all cursor-pointer ${selectedImageIndex === idx
+                        className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 p-0 transition-all cursor-pointer ${
+                          selectedImageIndex === idx
                             ? 'border-emerald-800 ring-2 ring-emerald-800/20'
                             : 'border-stone-200 opacity-70 hover:opacity-100'
-                          }`}
+                        }`}
                       >
                         <img
                           src={img.url}
@@ -389,12 +391,13 @@ export function ProductDetailView({ slug }: { slug: string }) {
                             type="button"
                             onClick={() => handleSelectVariation(v.id)}
                             disabled={!v.isAvailable}
-                            className={`rounded-xl border px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${isSelected
+                            className={`rounded-xl border px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
+                              isSelected
                                 ? 'border-emerald-800 bg-emerald-800 text-white shadow-xs'
                                 : v.isAvailable
                                   ? 'border-stone-200 bg-white text-stone-700 hover:border-stone-400'
                                   : 'border-stone-100 bg-stone-100 text-stone-400 line-through opacity-60 cursor-not-allowed'
-                              }`}
+                            }`}
                           >
                             {labelText} {!v.isAvailable && '(Esgotado)'}
                           </button>

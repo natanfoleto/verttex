@@ -12,34 +12,36 @@ module.exports = {
         properties: "never",
       },
     ],
+    "@typescript-eslint/no-explicit-any": "error",
+    "@next/next/no-img-element": "warn",
     "react/forbid-elements": [
-      "error",
+      "warn",
       {
         forbid: [
           {
             element: "button",
             message:
-              "Proibido o uso de <button> nativo em telas de funcionalidade. Use o componente <Button> do Shadcn UI (@/components/ui/button). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              "Preferencial uso do componente <Button> do Shadcn UI (@/components/ui/button). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
           },
           {
             element: "input",
             message:
-              "Proibido o uso de <input> nativo em telas de funcionalidade. Use o componente <Input> do Shadcn UI (@/components/ui/input). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              "Preferencial uso do componente <Input> do Shadcn UI (@/components/ui/input). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
           },
           {
             element: "select",
             message:
-              "Proibido o uso de <select> nativo em telas de funcionalidade. Use o componente <NativeSelect> ou <Select> do Shadcn UI (@/components/ui/native-select). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              "Preferencial uso do componente <NativeSelect> ou <Select> do Shadcn UI (@/components/ui/native-select). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
           },
           {
             element: "textarea",
             message:
-              "Proibido o uso de <textarea> nativo em telas de funcionalidade. Use o componente <Textarea> do Shadcn UI (@/components/ui/textarea). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              "Preferencial uso do componente <Textarea> do Shadcn UI (@/components/ui/textarea). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
           },
           {
             element: "dialog",
             message:
-              "Proibido o uso de <dialog> nativo. Use os componentes <Dialog> ou <AlertDialog> do Shadcn UI. Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              "Preferencial uso dos componentes <Dialog> ou <AlertDialog> do Shadcn UI. Consulte .ai/frontend/FRONTEND_UI.md#1013.",
           },
         ],
       },

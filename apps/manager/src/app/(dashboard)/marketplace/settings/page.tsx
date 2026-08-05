@@ -209,7 +209,7 @@ export default function MarketplaceSettingsPage() {
     } catch (err: any) {
       toast.error(
         `Falha no upload do arquivo (${purpose}): ` +
-        (err?.message || 'Tente novamente'),
+          (err?.message || 'Tente novamente'),
       )
       return null
     } finally {
@@ -416,7 +416,9 @@ export default function MarketplaceSettingsPage() {
                       ) : (
                         <div className="flex flex-col items-center gap-1 text-zinc-500 group-hover:text-zinc-400 transition-colors">
                           <RiImageAddLine className="h-5 w-5" />
-                          <span className="text-[10px] font-medium">Favicon</span>
+                          <span className="text-[10px] font-medium">
+                            Favicon
+                          </span>
                         </div>
                       )}
                     </Button>
@@ -499,7 +501,6 @@ export default function MarketplaceSettingsPage() {
                   </div>
                 </div>
               </div>
-
             </div>
           </TabsContent>
 
@@ -562,7 +563,11 @@ export default function MarketplaceSettingsPage() {
                     Exibição dos Títulos & Subtítulos nos Banners
                   </label>
                   <NativeSelect
-                    value={settings.carouselTitlePosition === 'NONE' ? 'NONE' : 'SHOW'}
+                    value={
+                      settings.carouselTitlePosition === 'NONE'
+                        ? 'NONE'
+                        : 'SHOW'
+                    }
                     onChange={(e) => {
                       const isNone = e.target.value === 'NONE'
                       setSettings({
@@ -580,7 +585,8 @@ export default function MarketplaceSettingsPage() {
                     </option>
                   </NativeSelect>
                   <p className="text-xs text-zinc-500 mt-1.5">
-                    Define se os textos de título e subtítulo serão renderizados sobre as imagens dos banners.
+                    Define se os textos de título e subtítulo serão renderizados
+                    sobre as imagens dos banners.
                   </p>
                 </div>
 
@@ -605,7 +611,8 @@ export default function MarketplaceSettingsPage() {
                         <option value="BOTTOM">Embaixo</option>
                       </NativeSelect>
                       <p className="text-xs text-zinc-500 mt-1.5">
-                        Define em qual altura os textos dos banners serão posicionados verticalmente.
+                        Define em qual altura os textos dos banners serão
+                        posicionados verticalmente.
                       </p>
                     </div>
 
@@ -623,12 +630,15 @@ export default function MarketplaceSettingsPage() {
                         }
                         wrapperClassName="mt-1"
                       >
-                        <option value="LEFT">Alinhar à esquerda (Padrão)</option>
+                        <option value="LEFT">
+                          Alinhar à esquerda (Padrão)
+                        </option>
                         <option value="CENTER">Centralizar</option>
                         <option value="RIGHT">Alinhar à direita</option>
                       </NativeSelect>
                       <p className="text-xs text-zinc-500 mt-1.5">
-                        Define o alinhamento horizontal dos títulos dentro dos slides do carrossel.
+                        Define o alinhamento horizontal dos títulos dentro dos
+                        slides do carrossel.
                       </p>
                     </div>
                   </>
@@ -636,7 +646,6 @@ export default function MarketplaceSettingsPage() {
               </div>
             </div>
           </TabsContent>
-
 
           {/* Aba 3: Barra de Comunicado */}
           <TabsContent value="announcement" className="space-y-6 mt-0">

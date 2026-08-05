@@ -36,7 +36,7 @@ export function formatApiErrorMessage(message: string): string {
 
     // 2. Trata caminhos de variações: "variations/0/price" ou "variations.0.price" -> "Variação #1 (Preço)"
     clean = clean.replace(
-      /(?:body\/)?variations[\/\.](\d+)[\/\.](\w+)/gi,
+      /(?:body\/)?variations[./](\d+)[./](\w+)/gi,
       (_, index, field) => {
         const itemNumber = Number(index) + 1
         const label = FIELD_LABELS[field] || field
@@ -45,7 +45,7 @@ export function formatApiErrorMessage(message: string): string {
     )
 
     // 3. Trata campos simples no início: "name: ..." -> "Nome: ..."
-    clean = clean.replace(/^([\w\.]+):\s*/i, (match, field) => {
+    clean = clean.replace(/^([\w.]+):\s*/i, (match, field) => {
       if (field.startsWith('Variação')) return match
       const label = FIELD_LABELS[field] || field
       return `${label}: `

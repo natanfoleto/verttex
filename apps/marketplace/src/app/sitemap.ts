@@ -52,12 +52,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const json = await productsRes.json().catch(() => null)
       const products = json?.data || json || []
       if (Array.isArray(products)) {
-        const productUrls: MetadataRoute.Sitemap = products.map((p: any) => ({
-          url: `${BASE_URL}/produtos/${p.slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'daily',
-          priority: 0.9,
-        }))
+        const productUrls: MetadataRoute.Sitemap = products.map(
+          (p: { slug: string }) => ({
+            url: `${BASE_URL}/produtos/${p.slug}`,
+            lastModified: new Date(),
+            changeFrequency: 'daily',
+            priority: 0.9,
+          }),
+        )
         dynamicRoutes = [...dynamicRoutes, ...productUrls]
       }
     }
@@ -75,7 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const categories = json?.data || json || []
       if (Array.isArray(categories)) {
         const categoryUrls: MetadataRoute.Sitemap = categories.map(
-          (c: any) => ({
+          (c: { slug: string }) => ({
             url: `${BASE_URL}/categoria/${c.slug}`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
@@ -98,12 +100,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const json = await storesRes.json().catch(() => null)
       const stores = json?.data || json || []
       if (Array.isArray(stores)) {
-        const storeUrls: MetadataRoute.Sitemap = stores.map((s: any) => ({
-          url: `${BASE_URL}/produtor/${s.slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.7,
-        }))
+        const storeUrls: MetadataRoute.Sitemap = stores.map(
+          (s: { slug: string }) => ({
+            url: `${BASE_URL}/produtor/${s.slug}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.7,
+          }),
+        )
         dynamicRoutes = [...dynamicRoutes, ...storeUrls]
       }
     }
@@ -117,12 +121,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const json = await brandsRes.json().catch(() => null)
       const brands = json?.data || json || []
       if (Array.isArray(brands)) {
-        const brandUrls: MetadataRoute.Sitemap = brands.map((b: any) => ({
-          url: `${BASE_URL}/marca/${b.slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.7,
-        }))
+        const brandUrls: MetadataRoute.Sitemap = brands.map(
+          (b: { slug: string }) => ({
+            url: `${BASE_URL}/marca/${b.slug}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.7,
+          }),
+        )
         dynamicRoutes = [...dynamicRoutes, ...brandUrls]
       }
     }

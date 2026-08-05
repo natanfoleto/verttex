@@ -24,7 +24,9 @@ export function CategoriesOverviewView() {
       const res = await apiClient<PublicCategory[]>(
         '/public/catalog/categories',
       )
-      return Array.isArray(res) ? res : ((res as any)?.data ?? [])
+      return Array.isArray(res)
+        ? res
+        : ((res as { data?: PublicCategory[] })?.data ?? [])
     },
   })
 

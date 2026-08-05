@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-import { apiClient } from '../../../lib/api-client'
+import { apiClient, ApiError } from '../../../lib/api-client'
 
 interface OrderDetailResponse {
   id: string
@@ -103,7 +103,7 @@ export default function OrderDetailPage({
       })
       setShowCancelModal(false)
     },
-    onError: (err: any) => {
+    onError: (err: ApiError | Error) => {
       toast.error(err.message || 'Erro ao cancelar pedido')
     },
   })
@@ -125,7 +125,7 @@ export default function OrderDetailPage({
       })
       setShowReturnModal(false)
     },
-    onError: (err: any) => {
+    onError: (err: ApiError | Error) => {
       toast.error(err.message || 'Erro ao solicitar devolução')
     },
   })

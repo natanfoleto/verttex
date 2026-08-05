@@ -55,10 +55,10 @@ async function refreshTokenSilent(): Promise<boolean> {
 }
 
 export interface ApiClientOptions extends Omit<RequestInit, 'body'> {
-  body?: any
+  body?: BodyInit | null
 }
 
-export async function apiClient<T = any>(
+export async function apiClient<T = unknown>(
   endpoint: string,
   options: ApiClientOptions = {},
 ): Promise<T> {

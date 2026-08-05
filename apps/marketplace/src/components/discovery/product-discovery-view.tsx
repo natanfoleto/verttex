@@ -192,9 +192,10 @@ export function ProductDiscoveryView({
     },
   })
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const products: DiscoveryProduct[] =
-    discoveryData?.products || (discoveryData as any)?.items || []
+    discoveryData?.products ||
+    (discoveryData as unknown as { items?: DiscoveryProduct[] })?.items ||
+    []
 
   const pagination = discoveryData?.pagination
   const availableFilters = discoveryData?.availableFilters ?? []

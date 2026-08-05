@@ -17,7 +17,7 @@ export function StoresListingView() {
   const perPage = 12
 
   const { data: storesRes, isLoading } = useQuery<{
-    data: any[]
+    data: StoreCardProps[]
     meta: {
       page: number
       perPage: number
@@ -33,7 +33,15 @@ export function StoresListingView() {
       params.append('perPage', String(perPage))
       if (searchQuery) params.append('search', searchQuery)
 
-      const res = await apiClient(`/public/catalog/stores?${params.toString()}`)
+      const res = await apiClient<{
+        data: StoreCardProps[]
+        meta: {
+          page: number
+          perPage: number
+          total: number
+          totalPages: number
+        }
+      }>(`/public/catalog/stores?${params.toString()}`)
       return res
     },
   })

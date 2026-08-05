@@ -30,7 +30,18 @@ export default function MarketplaceHomePage() {
   }>({
     queryKey: ['public-featured-products'],
     queryFn: async () => {
-      const res = await apiClient('/public/catalog/products?perPage=24')
+      const res = await apiClient<{
+        data: Array<{
+          id: string
+          name: string
+          slug: string
+          price: number
+          promotionalPrice?: number
+          mainImageUrl?: string
+          store?: { name: string; slug: string }
+          isFeatured?: boolean
+        }>
+      }>('/public/catalog/products?perPage=24')
       return res
     },
   })
@@ -49,7 +60,17 @@ export default function MarketplaceHomePage() {
   }>({
     queryKey: ['public-stores'],
     queryFn: async () => {
-      const res = await apiClient('/public/catalog/stores?perPage=6')
+      const res = await apiClient<{
+        data: Array<{
+          id: string
+          name: string
+          slug: string
+          description?: string
+          logoUrl?: string
+          coverUrl?: string
+          productsCount: number
+        }>
+      }>('/public/catalog/stores?perPage=6')
       return res
     },
   })

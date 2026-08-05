@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-import { apiClient } from '../../lib/api-client'
+import { apiClient, ApiError } from '../../lib/api-client'
 
 interface CustomerAddress {
   id: string
@@ -136,7 +136,7 @@ export default function CheckoutPage() {
       setSelectedAddressId(newAddr.id)
       setShowAddAddressModal(false)
     },
-    onError: (err: any) => {
+    onError: (err: ApiError | Error) => {
       toast.error(err.message || 'Falha ao cadastrar endereço')
     },
   })
@@ -161,7 +161,7 @@ export default function CheckoutPage() {
       queryClient.invalidateQueries({ queryKey: ['cart-summary'] })
       router.push(`/pedidos/${order.code}`)
     },
-    onError: (err: any) => {
+    onError: (err: ApiError | Error) => {
       toast.error(err.message || 'Ocorreu um erro ao processar o checkout')
     },
   })

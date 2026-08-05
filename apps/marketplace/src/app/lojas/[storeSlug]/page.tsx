@@ -26,10 +26,32 @@ export default function StoreDetailPage({
   const resolvedParams = use(params)
   const storeSlug = resolvedParams.storeSlug
 
-  const { data: storeDetails, isLoading } = useQuery<any>({
+  interface StoreDetailResponse {
+    id?: string
+    name?: string
+    slug?: string
+    description?: string
+    logoUrl?: string
+    coverUrl?: string
+    bannerUrl?: string
+    products?: Array<{
+      id: string
+      name: string
+      slug: string
+      price: number
+      promotionalPrice?: number
+      mainImageUrl?: string
+      store?: { name: string; slug: string }
+      isFeatured?: boolean
+    }>
+  }
+
+  const { data: storeDetails, isLoading } = useQuery<StoreDetailResponse>({
     queryKey: ['public-store-details', storeSlug],
     queryFn: async () => {
-      const res = await apiClient(`/public/catalog/stores/${storeSlug}`)
+      const res = await apiClient<StoreDetailResponse>(
+        `/public/catalog/stores/${storeSlug}`,
+      )
       return res
     },
   })
@@ -43,7 +65,7 @@ export default function StoreDetailPage({
 
   const products = storeDetails?.products || []
 
-  const mappedProducts: ProductCardProps[] = products.map((p: any) => ({
+  const mappedProducts: ProductCardProps[] = products.map((p) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,

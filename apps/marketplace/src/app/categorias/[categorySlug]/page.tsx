@@ -21,13 +21,32 @@ export default function CategoryDetailPage({
   const resolvedParams = use(params)
   const categorySlug = resolvedParams.categorySlug
 
+  interface CategoryProductItem {
+    id: string
+    name: string
+    slug: string
+    price: number
+    promotionalPrice?: number
+    mainImageUrl?: string
+    store?: { name: string; slug: string }
+    isFeatured?: boolean
+  }
+
   const { data: catalogRes, isLoading } = useQuery<{
-    data: any[]
-    meta: any
+    data: CategoryProductItem[]
+    meta: { page: number; perPage: number; total: number; totalPages: number }
   }>({
     queryKey: ['public-category-products', categorySlug],
     queryFn: async () => {
-      const res = await apiClient(
+      const res = await apiClient<{
+        data: CategoryProductItem[]
+        meta: {
+          page: number
+          perPage: number
+          total: number
+          totalPages: number
+        }
+      }>(
         `/public/catalog/products?categorySlug=${categorySlug}&page=1&perPage=50`,
       )
       return res
@@ -41,7 +60,7 @@ export default function CategoryDetailPage({
 
   const productsList = catalogRes?.data || []
 
-  const mappedProducts: ProductCardProps[] = productsList.map((p: any) => ({
+  const mappedProducts: ProductCardProps[] = productsList.map((p) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
