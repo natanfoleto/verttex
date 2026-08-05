@@ -53,7 +53,7 @@ interface MarketplaceSettingsData {
 }
 
 const DEFAULT_SETTINGS: MarketplaceSettingsData = {
-  publicName: 'VERTTEX Marketplace',
+  publicName: 'VERTTEX',
   supportEmail: '',
   supportPhone: '',
   supportWhatsapp: '',
@@ -68,7 +68,7 @@ const DEFAULT_SETTINGS: MarketplaceSettingsData = {
   outOfStockBehavior: 'show_badge',
   carouselAutoplay: true,
   carouselIntervalSeconds: 5,
-  carouselTitlePosition: 'CENTER',
+  carouselTitlePosition: 'NONE',
   carouselTitleHAlign: 'LEFT',
 }
 
@@ -552,57 +552,84 @@ export default function MarketplaceSettingsPage() {
 
                 <div>
                   <label className="text-xs font-semibold text-zinc-300">
-                    Posição dos Títulos & Subtítulos nos Banners
+                    Exibição dos Títulos & Subtítulos nos Banners
                   </label>
                   <NativeSelect
-                    value={settings.carouselTitlePosition || 'CENTER'}
-                    onChange={(e) =>
+                    value={settings.carouselTitlePosition === 'NONE' ? 'NONE' : 'SHOW'}
+                    onChange={(e) => {
+                      const isNone = e.target.value === 'NONE'
                       setSettings({
                         ...settings,
-                        carouselTitlePosition: e.target.value as any,
+                        carouselTitlePosition: isNone ? 'NONE' : 'CENTER',
                       })
-                    }
+                    }}
                     wrapperClassName="mt-1"
                   >
-                    <option value="TOP">Exibir no topo</option>
-                    <option value="CENTER">Exibir no centro (Padrão)</option>
-                    <option value="BOTTOM">Exibir embaixo</option>
                     <option value="NONE">
-                      Não exibir (Ocultar títulos e subtítulos)
+                      Não exibir (Ocultar títulos e subtítulos sobre os banners)
+                    </option>
+                    <option value="SHOW">
+                      Exibir títulos e subtítulos sobre os banners
                     </option>
                   </NativeSelect>
                   <p className="text-xs text-zinc-500 mt-1.5">
-                    Define em qual posição os textos dos banners serão alinhados
-                    verticalmente dentro dos slides.
+                    Define se os textos de título e subtítulo serão renderizados sobre as imagens dos banners.
                   </p>
                 </div>
 
-                <div>
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Alinhamento Horizontal dos Títulos & Subtítulos
-                  </label>
-                  <NativeSelect
-                    value={settings.carouselTitleHAlign || 'LEFT'}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        carouselTitleHAlign: e.target.value as any,
-                      })
-                    }
-                    wrapperClassName="mt-1"
-                  >
-                    <option value="LEFT">Alinhar à esquerda (Padrão)</option>
-                    <option value="CENTER">Centralizar</option>
-                    <option value="RIGHT">Alinhar à direita</option>
-                  </NativeSelect>
-                  <p className="text-xs text-zinc-500 mt-1.5">
-                    Define o alinhamento horizontal dos títulos dentro dos
-                    slides do carrossel.
-                  </p>
-                </div>
+                {settings.carouselTitlePosition !== 'NONE' && (
+                  <>
+                    <div>
+                      <label className="text-xs font-semibold text-zinc-300">
+                        Posição Vertical dos Títulos & Subtítulos
+                      </label>
+                      <NativeSelect
+                        value={settings.carouselTitlePosition}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            carouselTitlePosition: e.target.value as any,
+                          })
+                        }
+                        wrapperClassName="mt-1"
+                      >
+                        <option value="TOP">Topo</option>
+                        <option value="CENTER">Centro (Padrão)</option>
+                        <option value="BOTTOM">Embaixo</option>
+                      </NativeSelect>
+                      <p className="text-xs text-zinc-500 mt-1.5">
+                        Define em qual altura os textos dos banners serão posicionados verticalmente.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-zinc-300">
+                        Alinhamento Horizontal dos Títulos & Subtítulos
+                      </label>
+                      <NativeSelect
+                        value={settings.carouselTitleHAlign || 'LEFT'}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            carouselTitleHAlign: e.target.value as any,
+                          })
+                        }
+                        wrapperClassName="mt-1"
+                      >
+                        <option value="LEFT">Alinhar à esquerda (Padrão)</option>
+                        <option value="CENTER">Centralizar</option>
+                        <option value="RIGHT">Alinhar à direita</option>
+                      </NativeSelect>
+                      <p className="text-xs text-zinc-500 mt-1.5">
+                        Define o alinhamento horizontal dos títulos dentro dos slides do carrossel.
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </TabsContent>
+
 
           {/* Aba 3: Barra de Comunicado */}
           <TabsContent value="announcement" className="space-y-6 mt-0">

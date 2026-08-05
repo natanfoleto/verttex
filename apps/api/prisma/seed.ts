@@ -1171,18 +1171,20 @@ async function main() {
   await prisma.marketplaceSettings.create({
     data: {
       id: "default-settings",
-      publicName: "VERTTEX Marketplace",
-      announcementActive: true,
+      publicName: "VERTTEX",
+      announcementActive: false,
       announcementText: "🚚 Frete Grátis para compras acima de R$ 300,00 em todo o município!",
       supportEmail: "atendimento@verttex.com.br",
       supportPhone: "(11) 4003-8899",
       supportWhatsapp: "(11) 99887-7665",
       outOfStockBehavior: "show_badge",
+      carouselTitlePosition: "NONE",
       logoFileId: null,
       faviconFileId: null,
       ogImageFileId: null,
     },
   });
+
   console.log("✅ Configurações padrão do Marketplace cadastradas.");
 
   // 10. Reconstruir Projeção de Busca (ProductSearchDocument)

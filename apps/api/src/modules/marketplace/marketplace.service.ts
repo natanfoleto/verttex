@@ -10,12 +10,14 @@ export class MarketplaceService {
     if (!settings) {
       settings = await prisma.marketplaceSettings.create({
         data: {
-          publicName: "VERTTEX Marketplace",
+          publicName: "VERTTEX",
           announcementActive: false,
           outOfStockBehavior: "show_badge",
           carouselAutoplay: true,
           carouselIntervalSeconds: 5,
+          carouselTitlePosition: "NONE",
         },
+
       });
     }
 

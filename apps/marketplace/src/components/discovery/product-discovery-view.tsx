@@ -317,8 +317,8 @@ export function ProductDiscoveryView({
                           type="button"
                           onClick={() => updateUrl({ [paramKey]: isActive ? null : opt.value })}
                           className={`block w-full text-left truncate py-0.5 cursor-pointer transition-colors ${isActive
-                              ? 'font-bold text-emerald-700'
-                              : 'text-stone-600 hover:text-stone-900'
+                            ? 'font-bold text-emerald-700'
+                            : 'text-stone-600 hover:text-stone-900'
                             }`}
                         >
                           {opt.label} <span className="text-stone-400 text-[11px]">({opt.count})</span>
@@ -355,14 +355,12 @@ export function ProductDiscoveryView({
 
             {/* Grid de Cards de Produtos (4 Colunas em Telas Grandes) */}
             {products.length === 0 ? (
-              <div className="bg-white rounded-md border border-stone-200 p-12 text-center shadow-2xs">
-                <EmptyState
-                  title={query ? `Nenhum produto encontrado para "${query}"` : 'Nenhum produto disponível'}
-                  description="Tente ajustar seus termos de busca ou remover alguns filtros aplicados para expandir o catálogo."
-                  actionLabel={hasActiveFilters ? 'Limpar Todos os Filtros' : undefined}
-                  onActionClick={hasActiveFilters ? clearAllFilters : undefined}
-                />
-              </div>
+              <EmptyState
+                title={query ? `Nenhum produto encontrado para "${query}"` : 'Nenhum produto disponível'}
+                description="Tente ajustar seus termos de busca ou remover alguns filtros aplicados para expandir o catálogo."
+                actionLabel={hasActiveFilters ? 'Limpar Todos os Filtros' : undefined}
+                onActionClick={hasActiveFilters ? clearAllFilters : undefined}
+              />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {products.map((prod) => (
