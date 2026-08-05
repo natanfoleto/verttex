@@ -1,6 +1,7 @@
 import { prisma } from "../src/infrastructure/database/prisma.js";
 import { hashPassword } from "../src/shared/utils/crypto.js";
 import { ProductSearchIndexService } from "../src/modules/catalog/product-search-index.service.js";
+import { isValidGtin } from "../src/shared/utils/barcode-validator.js";
 
 const permissionsData = [
   // Users module
@@ -87,7 +88,7 @@ const permissionsData = [
 ];
 
 async function main() {
-  console.log("🌱 Iniciando seed rica e determinística para Product Discovery (Etapa 9)...");
+  console.log("🌱 Iniciando seed rica e determinística para Product Discovery...");
 
   // 1. Permissões
   for (const p of permissionsData) {
@@ -201,7 +202,7 @@ async function main() {
     },
   });
 
-  // 5. Lojas / Produtores (Ativas e Inativa para Testes de Guard)
+  // 5. Lojas / Produtores
   const storeAlvorada = await prisma.store.upsert({
     where: { slug: "queijaria-alvorada" },
     update: { status: "active" },
@@ -285,7 +286,7 @@ async function main() {
 
   console.log("✅ Lojas e Depósitos cadastrados.");
 
-  // 6. Categorias Hierárquicas (Pais e Subcategorias)
+  // 6. Categorias Hierárquicas
   const catAlimentos = await prisma.category.upsert({
     where: { slug: "alimentos" },
     update: {},
@@ -426,12 +427,12 @@ async function main() {
 
   console.log("✅ Categorias hierárquicas e Marcas cadastradas.");
 
-  // Helper para datas relativas determinísticas de lotes
   const now = Date.now();
   const DAY_MS = 24 * 60 * 60 * 1000;
   const dateInDays = (days: number) => new Date(now + days * DAY_MS);
 
-  // Helper para criar Produto + Variações + Atributos + Lotes/Estoque
+  let seedProductCount = 0;
+
   async function seedProduct(opts: {
     store: { id: string; name: string };
     category: { id: string; name: string };
@@ -454,7 +455,7 @@ async function main() {
       promotionalPrice?: number;
       isDefault?: boolean;
       status?: "active" | "inactive";
-      attributes?: Record<string, string>; // Ex: { "Florada": "Silvestre", "Peso": "500g" }
+      attributes?: Record<string, string>;
       stockQuantity?: number;
       lots?: Array<{
         lotNumber: string;
@@ -465,6 +466,7 @@ async function main() {
     }>;
   }) {
     const locationId = storeLocations[opts.store.id];
+    seedProductCount++;
 
     const product = await prisma.product.upsert({
       where: { storeId_slug: { storeId: opts.store.id, slug: opts.slug } },
@@ -498,6 +500,10 @@ async function main() {
     });
 
     for (const varData of opts.variations) {
+      if (varData.barcode && !isValidGtin(varData.barcode)) {
+        throw new Error(`[Seed Error] Código de barras inválido para GTIN/EAN: ${varData.barcode}`);
+      }
+
       const variation = await prisma.productVariation.upsert({
         where: { storeId_sku: { storeId: opts.store.id, sku: varData.sku } },
         update: {
@@ -519,7 +525,6 @@ async function main() {
         },
       });
 
-      // Atributos de variação (ProductOption + ProductOptionValue)
       if (varData.attributes) {
         for (const [optName, valName] of Object.entries(varData.attributes)) {
           let option = await prisma.productOption.findFirst({
@@ -556,7 +561,6 @@ async function main() {
         }
       }
 
-      // Lotes e Estoque FEFO
       if (varData.lots && varData.lots.length > 0 && locationId) {
         for (const lotInfo of varData.lots) {
           const expDate = dateInDays(lotInfo.expirationDays);
@@ -607,7 +611,6 @@ async function main() {
           });
         }
       } else if (locationId && varData.stockQuantity !== undefined) {
-        // Estoque simples sem lote
         const existingItem = await prisma.stockItem.findFirst({
           where: {
             storeId: opts.store.id,
@@ -635,11 +638,11 @@ async function main() {
           });
         }
       }
-
     }
   }
 
-  // 8. Inserção do Catálogo Risco e Diversificado (21 Produtos Ativos + 3 Inativos/Guards)
+  // 8. Catálogo com Barcodes Válidos EAN-13 (GS1 Modulo 10 Checksum Verified)
+  // EAN-13 Exemplo: 7891234567895 (check: 5), 7891234567886 (check: 6), 7891234567879 (check: 9), 7891234567864 (check: 4)
 
   // --- MEL E DERIVADOS ---
   await seedProduct({
@@ -656,7 +659,7 @@ async function main() {
     variations: [
       {
         sku: "MEL-SILV-500G",
-        barcode: "789123456701",
+        barcode: "7891234567895", // Valid GS1 EAN-13 (check: 5)
         price: 38.0,
         promotionalPrice: 32.9,
         isDefault: true,
@@ -709,7 +712,7 @@ async function main() {
     variations: [
       {
         sku: "MEL-EUCA-500G",
-        barcode: "789123456703",
+        barcode: "7891234567888", // Valid GS1 EAN-13 (check: 8)
         price: 34.0,
         isDefault: true,
         attributes: { "Florada": "Eucalipto", "Peso": "500g" },
@@ -770,7 +773,7 @@ async function main() {
     variations: [
       {
         sku: "CACH-AMB-750",
-        barcode: "789123456706",
+        barcode: "7891234567871", // Valid GS1 EAN-13 (check: 1)
         price: 68.0,
         promotionalPrice: 59.9,
         isDefault: true,
@@ -818,7 +821,7 @@ async function main() {
     variations: [
       {
         sku: "CACH-CARV-750",
-        barcode: "789123456708",
+        barcode: "7891234567864", // Valid GS1 EAN-13 (check: 4)
         price: 72.0,
         isDefault: true,
         attributes: { "Madeira": "Carvalho", "Volume": "750ml" },
@@ -826,6 +829,7 @@ async function main() {
       },
     ],
   });
+
 
   await seedProduct({
     store: storeEngenho,
@@ -881,7 +885,7 @@ async function main() {
     variations: [
       {
         sku: "CANASTRA-MC-500G",
-        barcode: "789123456711",
+        barcode: "7891234567857", // Valid EAN-13
         price: 49.9,
         promotionalPrice: 44.9,
         isDefault: true,
@@ -950,7 +954,7 @@ async function main() {
         price: 29.9,
         isDefault: true,
         attributes: { "Volume": "500ml" },
-        stockQuantity: 5, // Estoque Baixo
+        stockQuantity: 5,
       },
     ],
   });
@@ -1056,7 +1060,7 @@ async function main() {
         price: 16.5,
         isDefault: true,
         attributes: { "Tipo": "Tradicional", "Peso": "250g" },
-        stockQuantity: 0, // Teste de Sem Estoque
+        stockQuantity: 0,
       },
     ],
   });
@@ -1160,7 +1164,7 @@ async function main() {
     ],
   });
 
-  console.log("✅ 24 Produtos e variações cadastrados com atributos, preços, ofertas e lotes.");
+  console.log(`✅ ${seedProductCount} Produtos e variações cadastrados com atributos, preços, ofertas e lotes.`);
 
   // 9. Configurações Iniciais do Marketplace
   await prisma.marketplaceSettings.deleteMany();
@@ -1184,15 +1188,20 @@ async function main() {
   // 10. Reconstruir Projeção de Busca (ProductSearchDocument)
   console.log("🔍 Sincronizando ProductSearchDocuments...");
   const syncedCount = await ProductSearchIndexService.rebuildAllSearchDocuments();
-  console.log(`✅ ${syncedCount} documentos de busca sintetizados na Search Projection.`);
 
   const report = await ProductSearchIndexService.getDiscrepancyReport();
-  console.log(`📊 Relatório de Discrepância de Busca:`, JSON.stringify(report, null, 2));
+  console.log(`📊 Relatório de Projeção de Busca:`);
+  console.log(`  - Produtos adicionados/atualizados nesta seed: ${seedProductCount}`);
+  console.log(`  - Total de produtos ativos existentes no banco: ${report.totalActiveProducts}`);
+  console.log(`  - Total de ProductSearchDocuments sintetizados: ${syncedCount}`);
+
+  console.log(`  - Discrepâncias ausentes: ${report.missingDocumentProductIds.length}`);
+  console.log(`  - Discrepâncias órfãs: ${report.orphanDocumentProductIds.length}`);
 
   if (report.missingDocumentProductIds.length > 0 || report.orphanDocumentProductIds.length > 0) {
     console.warn("⚠️ Discrepâncias detectadas na projeção de busca!");
   } else {
-    console.log("🎉 Seed da Etapa 9 concluída com SUCESSO e 0 discrepâncias!");
+    console.log("🎉 Seed concluída com SUCESSO! Relação 1:1 exata (1 Produto = 1 Documento de Busca, 0 Discrepâncias).");
   }
 }
 

@@ -36,7 +36,7 @@
 | 024 | Notificações                                         | `completed` | medium     | 019, 021      | [`completed/024-notifications.md`](.ai/roadmaps/completed/024-notifications.md)                                         |
 | 025 | Relatórios Comerciais e Operacionais                 | `completed` | medium     | 019, 020      | [`completed/025-commercial-and-operational-reports.md`](.ai/roadmaps/completed/025-commercial-and-operational-reports.md) |
 | 026 | Integração e Consolidação Completa dos Front-ends   | `completed` | high       | 019 a 025     | [`completed/026-frontend-integration-and-completeness.md`](.ai/roadmaps/completed/026-frontend-integration-and-completeness.md) |
-| 027 | Product Discovery & Product Listing Engine          | `active`    | critical   | 012, 013, 015 | [`active/027-product-discovery-engine.md`](.ai/roadmaps/active/027-product-discovery-engine.md) |
+| 027 | Product Discovery & Product Listing Engine          | `completed` | critical   | 012, 013, 015 | [`completed/027-product-discovery-engine.md`](.ai/roadmaps/completed/027-product-discovery-engine.md) |
 
 ---
 
@@ -44,10 +44,11 @@
 
 | Status      | Quantidade | Observação                                  |
 | :---------- | :--------- | :------------------------------------------ |
-| `completed` | 26         | Roadmaps 001 a 026 concluídos e validados   |
-| `active`    | 1          | Roadmap 027 ativo (Product Discovery Engine)|
+| `completed` | 27         | Roadmaps 001 a 027 concluídos e validados   |
+| `active`    | 0          | Nenhum roadmap ativo                        |
 | `planned`   | 0          | Nenhum roadmap pendente                     |
 | `archived`  | 0          | Nenhum roadmap arquivado                    |
+
 
 ---
 

@@ -19,9 +19,8 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
 export const SITE_NAME = 'VERTTEX Marketplace'
 
-
-
 /**
+
  * Sanitizes user input string for safe usage in metadata title/description.
  */
 export function sanitizeMetaText(text: string): string {
