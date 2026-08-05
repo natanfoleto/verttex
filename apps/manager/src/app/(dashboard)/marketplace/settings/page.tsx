@@ -103,38 +103,44 @@ export default function MarketplaceSettingsPage() {
   })
 
   useEffect(() => {
-    const res = (data as any)?.data || data
+    const res =
+      (data as unknown as { data?: Record<string, unknown> })?.data ||
+      (data as Record<string, unknown>)
     if (res && typeof res === 'object') {
       const loaded: MarketplaceSettingsData = {
-        publicName: res.publicName || 'VERTTEX Marketplace',
-        logoFileId: res.logoFileId || null,
-        faviconFileId: res.faviconFileId || null,
-        logoUrl: res.logoUrl || null,
-        faviconUrl: res.faviconUrl || null,
-        supportEmail: res.supportEmail || '',
-        supportPhone: res.supportPhone || '',
-        supportWhatsapp: res.supportWhatsapp || '',
-        address: res.address || '',
-        businessHours: res.businessHours || '',
-        metaTitle: res.metaTitle || '',
-        metaDescription: res.metaDescription || '',
-        ogImageFileId: res.ogImageFileId || null,
-        ogImageUrl: res.ogImageUrl || null,
+        publicName: String(res.publicName || 'VERTTEX Marketplace'),
+        logoFileId: (res.logoFileId as string) || null,
+        faviconFileId: (res.faviconFileId as string) || null,
+        logoUrl: (res.logoUrl as string) || null,
+        faviconUrl: (res.faviconUrl as string) || null,
+        supportEmail: String(res.supportEmail || ''),
+        supportPhone: String(res.supportPhone || ''),
+        supportWhatsapp: String(res.supportWhatsapp || ''),
+        address: String(res.address || ''),
+        businessHours: String(res.businessHours || ''),
+        metaTitle: String(res.metaTitle || ''),
+        metaDescription: String(res.metaDescription || ''),
+        ogImageFileId: (res.ogImageFileId as string) || null,
+        ogImageUrl: (res.ogImageUrl as string) || null,
         announcementActive: Boolean(res.announcementActive),
-        announcementText: res.announcementText || '',
-        announcementLink: res.announcementLink || '',
-        announcementDismissible: res.announcementDismissible ?? true,
+        announcementText: String(res.announcementText || ''),
+        announcementLink: String(res.announcementLink || ''),
+        announcementDismissible: Boolean(res.announcementDismissible ?? true),
         outOfStockBehavior: [
           'show_badge',
           'hide_product',
           'move_to_end',
-        ].includes(res.outOfStockBehavior)
-          ? res.outOfStockBehavior
+        ].includes(res.outOfStockBehavior as string)
+          ? (res.outOfStockBehavior as
+              'show_badge' | 'hide_product' | 'move_to_end')
           : 'show_badge',
-        carouselAutoplay: res.carouselAutoplay ?? true,
+        carouselAutoplay: Boolean(res.carouselAutoplay ?? true),
         carouselIntervalSeconds: Number(res.carouselIntervalSeconds) || 5,
-        carouselTitlePosition: res.carouselTitlePosition || 'CENTER',
-        carouselTitleHAlign: res.carouselTitleHAlign || 'LEFT',
+        carouselTitlePosition:
+          (res.carouselTitlePosition as 'TOP' | 'CENTER' | 'BOTTOM' | 'NONE') ||
+          'CENTER',
+        carouselTitleHAlign:
+          (res.carouselTitleHAlign as 'LEFT' | 'CENTER' | 'RIGHT') || 'LEFT',
       }
       setSettings(loaded)
       setSavedSettings(loaded)
@@ -157,12 +163,12 @@ export default function MarketplaceSettingsPage() {
           data: { uploadUrl: string; publicUrl: string; fileId: string }
         }>('/files/presigned-url', {
           method: 'POST',
-          body: {
+          body: JSON.stringify({
             fileName: file.name,
             mimeType: file.type,
             size: file.size,
             purpose,
-          },
+          }),
         })
 
         const presigned = presignedRes.data || presignedRes
@@ -184,33 +190,30 @@ export default function MarketplaceSettingsPage() {
           }
         }
       } catch {
-        // Fallback para multipart upload
+        // Fallback para upload multipart
       }
 
-      // 2. Fallback: Upload Multipart direto via API (/files/upload)
       if (!fileId) {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('purpose', purpose)
 
         const uploadRes = await apiClient<{
-          success: boolean
-          data: { id: string; publicUrl: string }
-        }>('/files/upload', {
+          id?: string
+          data?: { id: string }
+        }>('/storage/upload', {
           method: 'POST',
           body: formData,
         })
 
         const uploadedFile = uploadRes.data || uploadRes
-        fileId = uploadedFile.id
+        fileId = uploadedFile.id || null
       }
 
       return fileId
-    } catch (err: any) {
-      toast.error(
-        `Falha no upload do arquivo (${purpose}): ` +
-          (err?.message || 'Tente novamente'),
-      )
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Tente novamente'
+      toast.error(`Falha no upload do arquivo (${purpose}): ${msg}`)
       return null
     } finally {
       setIsUploading(false)
@@ -256,10 +259,14 @@ export default function MarketplaceSettingsPage() {
     e.preventDefault()
     setIsSubmitting(true)
     try {
-      const { logoUrl, faviconUrl, ogImageUrl, ...payload } = settings
+      const payload = { ...settings }
+      delete (payload as Record<string, unknown>).logoUrl
+      delete (payload as Record<string, unknown>).faviconUrl
+      delete (payload as Record<string, unknown>).ogImageUrl
+
       await apiClient('/marketplace/settings', {
         method: 'PUT',
-        body: payload,
+        body: JSON.stringify(payload),
       })
       setSavedSettings(settings)
       toast.success('Configurações do Marketplace salvas com sucesso!')
@@ -601,7 +608,8 @@ export default function MarketplaceSettingsPage() {
                         onChange={(e) =>
                           setSettings({
                             ...settings,
-                            carouselTitlePosition: e.target.value as any,
+                            carouselTitlePosition: e.target.value as
+                              'TOP' | 'CENTER' | 'BOTTOM',
                           })
                         }
                         wrapperClassName="mt-1"
@@ -625,7 +633,8 @@ export default function MarketplaceSettingsPage() {
                         onChange={(e) =>
                           setSettings({
                             ...settings,
-                            carouselTitleHAlign: e.target.value as any,
+                            carouselTitleHAlign: e.target.value as
+                              'LEFT' | 'CENTER' | 'RIGHT',
                           })
                         }
                         wrapperClassName="mt-1"
@@ -950,13 +959,14 @@ export default function MarketplaceSettingsPage() {
                   onChange={(e) =>
                     setSettings({
                       ...settings,
-                      outOfStockBehavior: e.target.value as any,
+                      outOfStockBehavior: e.target.value as
+                        'show_badge' | 'hide_product' | 'move_to_end',
                     })
                   }
                   wrapperClassName="mt-1"
                 >
                   <option value="show_badge">
-                    Manter no catálogo e exibir badge "Esgotado"
+                    Manter no catálogo e exibir badge &quot;Esgotado&quot;
                   </option>
                   <option value="hide_product">
                     Ocultar produto da listagem pública

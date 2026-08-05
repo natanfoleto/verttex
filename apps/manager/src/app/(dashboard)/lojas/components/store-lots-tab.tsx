@@ -72,7 +72,9 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
     queryKey: ['stores-dropdown'],
     queryFn: async () => {
       const res = await apiClient('/stores')
-      return Array.isArray(res) ? res : ((res as any)?.data ?? [])
+      return Array.isArray(res)
+        ? res
+        : ((res as { data?: Array<{ id: string; name: string }> })?.data ?? [])
     },
   })
 
@@ -110,7 +112,17 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
         params.append('expirationCondition', expirationFilter)
       if (search) params.append('search', search)
 
-      const res = await apiClient<any>(`/lots?${params.toString()}`)
+      const res = await apiClient<{
+        data: ExtendedLotItem[]
+        meta: {
+          page: number
+          limit: number
+          total: number
+          totalPages: number
+          hasNextPage: boolean
+          hasPreviousPage: boolean
+        }
+      }>(`/lots?${params.toString()}`)
       return res
     },
   })

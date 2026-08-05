@@ -595,9 +595,13 @@ export function ProductFormDialog({
       }
 
       toast.success('Imagem(ns) enviada(s) com sucesso!')
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(
-        err instanceof ApiError ? err.message : 'Erro ao enviar imagem',
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Erro ao enviar imagem',
       )
     } finally {
       setIsUploadingMedia(false)

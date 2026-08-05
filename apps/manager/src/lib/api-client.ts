@@ -55,7 +55,7 @@ async function refreshTokenSilent(): Promise<boolean> {
 }
 
 export interface ApiClientOptions extends Omit<RequestInit, 'body'> {
-  body?: any
+  body?: BodyInit | null
   responseType?: 'json' | 'text' | 'blob'
 }
 

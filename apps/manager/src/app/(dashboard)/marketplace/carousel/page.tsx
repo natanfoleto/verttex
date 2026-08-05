@@ -133,7 +133,9 @@ export default function CarouselPage() {
       const res = await apiClient<
         CarouselBanner[] | { data: CarouselBanner[] }
       >('/carousel')
-      const list = Array.isArray(res) ? res : ((res as any)?.data ?? [])
+      const list = Array.isArray(res)
+        ? res
+        : ((res as { data?: CarouselBanner[] })?.data ?? [])
       return { success: true, data: list }
     },
   })
@@ -156,7 +158,10 @@ export default function CarouselPage() {
       startDate?: string | null
       endDate?: string | null
     }) =>
-      apiClient<CarouselBanner>('/carousel', { method: 'POST', body: payload }),
+      apiClient<CarouselBanner>('/carousel', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
     onSuccess: (newBanner) => {
       queryClient.invalidateQueries({ queryKey: ['carousel-banners'] })
       toast.success(
@@ -180,7 +185,11 @@ export default function CarouselPage() {
     }: {
       id: string
       payload: Partial<EditBannerState>
-    }) => apiClient(`/carousel/${id}`, { method: 'PATCH', body: payload }),
+    }) =>
+      apiClient(`/carousel/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carousel-banners'] })
       toast.success('Banner atualizado com sucesso!')
@@ -223,7 +232,10 @@ export default function CarouselPage() {
 
   const reorderMutation = useMutation({
     mutationFn: (items: { id: string; position: number }[]) =>
-      apiClient('/carousel/reorder', { method: 'POST', body: { items } }),
+      apiClient('/carousel/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ items }),
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['carousel-banners'] }),
     onError: (err: unknown) => {
@@ -233,7 +245,10 @@ export default function CarouselPage() {
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
-      apiClient(`/carousel/${id}`, { method: 'PATCH', body: { isActive } }),
+      apiClient(`/carousel/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive }),
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['carousel-banners'] }),
     onError: (err: unknown) => {
@@ -308,12 +323,12 @@ export default function CarouselPage() {
           data: { uploadUrl: string; publicUrl: string; fileId: string }
         }>('/files/presigned-url', {
           method: 'POST',
-          body: {
+          body: JSON.stringify({
             fileName: selectedFile.name,
             mimeType: selectedFile.type,
             size: selectedFile.size,
             purpose: 'marketplace_banner',
-          },
+          }),
         })
 
         const presigned = presignedRes.data || presignedRes
@@ -363,9 +378,13 @@ export default function CarouselPage() {
       }
 
       return { fileId, publicUrl }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro no upload do banner:', err)
-      toast.error(err?.message || 'Falha ao enviar a imagem. Tente novamente.')
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Falha ao enviar a imagem. Tente novamente.'
+      toast.error(msg)
       return null
     } finally {
       setIsUploading(false)
@@ -501,7 +520,7 @@ export default function CarouselPage() {
             Nenhum banner cadastrado
           </p>
           <p className="text-xs text-zinc-400">
-            Clique em "Novo Banner" para cadastrar o primeiro.
+            Clique em &quot;Novo Banner&quot; para cadastrar o primeiro.
           </p>
         </div>
       ) : (

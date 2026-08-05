@@ -47,7 +47,15 @@ export function StoreMovementsTab({ storeId }: { storeId: string }) {
       if (search) url += `&search=${encodeURIComponent(search)}`
       if (typeFilter !== 'ALL') url += `&type=${encodeURIComponent(typeFilter)}`
 
-      const response = await apiClient<any>(url)
+      const response = await apiClient<{
+        data: StockMovementItem[]
+        meta: {
+          page: number
+          perPage: number
+          total: number
+          totalPages: number
+        }
+      }>(url)
       return {
         data: response?.data || [],
         meta: response?.meta || {

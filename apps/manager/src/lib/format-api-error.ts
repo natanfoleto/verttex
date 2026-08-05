@@ -36,7 +36,7 @@ export function formatApiErrorMessage(message: string): string {
 
     // 2. Trata caminhos de variações: "variations/0/price" ou "variations.0.price" -> "Variação #1 (Preço)"
     clean = clean.replace(
-      /(?:body\/)?variations[/\.](\d+)[/\.](\w+)/gi,
+      /(?:body\/)?variations[/.](\d+)[/.](\w+)/gi,
       (_, index, field) => {
         const itemNumber = Number(index) + 1
         const label = FIELD_LABELS[field] || field

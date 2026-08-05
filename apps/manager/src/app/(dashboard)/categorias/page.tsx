@@ -129,7 +129,7 @@ export default function CategoriesPage() {
   const { showError } = useErrorDialog()
 
   const createMutation = useMutation({
-    mutationFn: (body: any) =>
+    mutationFn: (body: Partial<Category>) =>
       apiClient('/categories', {
         method: 'POST',
         body: JSON.stringify(body),
@@ -145,7 +145,7 @@ export default function CategoriesPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, body }: { id: string; body: any }) =>
+    mutationFn: ({ id, body }: { id: string; body: Partial<Category> }) =>
       apiClient(`/categories/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(body),
@@ -281,7 +281,9 @@ export default function CategoriesPage() {
         <div className="w-full sm:w-48">
           <NativeSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')
+            }
           >
             <option value="all">Status: Todos</option>
             <option value="active">Ativas</option>
@@ -512,7 +514,9 @@ export default function CategoriesPage() {
                   </label>
                   <NativeSelect
                     value={status}
-                    onChange={(e) => setStatus(e.target.value as any)}
+                    onChange={(e) =>
+                      setStatus(e.target.value as 'active' | 'inactive')
+                    }
                   >
                     <option value="active">Ativa</option>
                     <option value="inactive">Inativa</option>
@@ -601,7 +605,7 @@ function TreeNode({
   node: Category
   onEdit: (cat: Category) => void
   onAddSub: (cat: Category) => void
-  ability: any
+  ability: ReturnType<typeof useAuth>['ability']
 }) {
   return (
     <div className="space-y-1 pl-3 border-l border-zinc-800/80">

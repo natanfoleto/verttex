@@ -86,7 +86,14 @@ export function QuarantineInspectionDialog({
               </label>
               <NativeSelect
                 value={outcome}
-                onChange={(e) => setOutcome(e.target.value as any)}
+                onChange={(e) =>
+                  setOutcome(
+                    e.target.value as
+                      | 'QUARANTINE_RELEASE'
+                      | 'DAMAGE_DISCARD'
+                      | 'EXPIRATION_DISCARD',
+                  )
+                }
                 className="bg-zinc-900 border-zinc-800 text-xs cursor-pointer"
               >
                 <option value="QUARANTINE_RELEASE">

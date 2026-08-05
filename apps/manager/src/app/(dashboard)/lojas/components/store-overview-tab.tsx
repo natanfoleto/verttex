@@ -50,7 +50,10 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
       const res = await apiClient<{ data: StoreSummaryData }>(
         `/stores/${storeId}/summary`,
       )
-      return (res as any)?.data || res
+      return (
+        (res as unknown as { data?: StoreSummaryData })?.data ||
+        (res as unknown as StoreSummaryData)
+      )
     },
   })
 

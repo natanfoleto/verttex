@@ -39,9 +39,15 @@ export default function ReturnsManagementPage() {
     queryKey: ['manager-returns', page, perPage],
     queryFn: async () => {
       try {
-        const res = await apiClient<any>(
-          `/returns?page=${page}&limit=${perPage}`,
-        )
+        const res = await apiClient<{
+          data: ReturnItem[]
+          meta: {
+            page: number
+            perPage: number
+            total: number
+            totalPages: number
+          }
+        }>(`/returns?page=${page}&limit=${perPage}`)
         if (res && res.meta) {
           return {
             data: res.data || [],

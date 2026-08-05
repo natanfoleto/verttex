@@ -22,7 +22,9 @@ interface OrderItem {
   id: string
   orderId: string
   orderCode: string
+  code?: string
   customerName: string
+  customer?: { name?: string }
   totalAmount: number
   subtotal: number
   status: 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
@@ -62,7 +64,15 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
       if (statusFilter && statusFilter !== 'ALL')
         url += `&status=${statusFilter}`
 
-      const res = await apiClient<any>(url)
+      const res = await apiClient<{
+        data: OrderItem[]
+        meta: {
+          page: number
+          perPage: number
+          total: number
+          totalPages: number
+        }
+      }>(url)
       if (res && res.meta) {
         return {
           data: res.data || [],
@@ -196,10 +206,10 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
             {ordersList.map((o) => (
               <tr key={o.id} className="hover:bg-zinc-800/30 transition-colors">
                 <td className="px-5 py-4 font-mono font-bold text-emerald-400">
-                  {o.orderCode || (o as any).code}
+                  {o.orderCode || o.code}
                 </td>
                 <td className="px-5 py-4 font-medium text-zinc-200">
-                  {o.customerName || (o as any).customer?.name || 'Cliente'}
+                  {o.customerName || o.customer?.name || 'Cliente'}
                 </td>
                 <td className="px-5 py-4 font-bold text-zinc-100 font-mono text-right">
                   R$ {Number(o.subtotal || o.totalAmount || 0).toFixed(2)}
@@ -222,7 +232,7 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
                       size="sm"
                       onClick={() => {
                         setDispatchOrderId(o.id)
-                        setDispatchOrderCode(o.orderCode || (o as any).code)
+                        setDispatchOrderCode(o.orderCode || o.code || '')
                       }}
                       className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
                     >

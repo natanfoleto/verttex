@@ -107,7 +107,15 @@ export default function BrandsPage() {
       if (search) params.append('search', search)
       if (statusFilter !== 'all') params.append('status', statusFilter)
       const res = await apiClient(`/brands?${params.toString()}`)
-      return res as any
+      return res as {
+        data: Brand[]
+        meta?: {
+          page: number
+          perPage: number
+          total: number
+          totalPages: number
+        }
+      }
     },
   })
 
@@ -119,7 +127,7 @@ export default function BrandsPage() {
   const { showError } = useErrorDialog()
 
   const createMutation = useMutation({
-    mutationFn: (body: any) =>
+    mutationFn: (body: Partial<Brand>) =>
       apiClient('/brands', {
         method: 'POST',
         body: JSON.stringify(body),
@@ -135,7 +143,7 @@ export default function BrandsPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, body }: { id: string; body: any }) =>
+    mutationFn: ({ id, body }: { id: string; body: Partial<Brand> }) =>
       apiClient(`/brands/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(body),
@@ -242,7 +250,7 @@ export default function BrandsPage() {
           <NativeSelect
             value={statusFilter}
             onChange={(e) => {
-              setStatusFilter(e.target.value as any)
+              setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')
               setPage(1)
             }}
             className="w-44 bg-zinc-900 border-zinc-800 text-xs cursor-pointer"
@@ -396,7 +404,9 @@ export default function BrandsPage() {
                   </label>
                   <NativeSelect
                     value={status}
-                    onChange={(e) => setStatus(e.target.value as any)}
+                    onChange={(e) =>
+                      setStatus(e.target.value as 'active' | 'inactive')
+                    }
                   >
                     <option value="active">Ativa</option>
                     <option value="inactive">Inativa</option>

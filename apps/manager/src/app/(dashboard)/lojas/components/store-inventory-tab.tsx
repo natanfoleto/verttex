@@ -30,7 +30,9 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
     queryKey: ['stores-dropdown'],
     queryFn: async () => {
       const res = await apiClient('/stores')
-      return Array.isArray(res) ? res : ((res as any)?.data ?? [])
+      return Array.isArray(res)
+        ? res
+        : ((res as { data?: Array<{ id: string; name: string }> })?.data ?? [])
     },
   })
 
@@ -39,10 +41,12 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
   >({
     queryKey: ['store-inventory', storeId, search],
     queryFn: async () => {
-      const res = await apiClient<any>(
+      const res = await apiClient<
+        StockAvailabilityItem[] | { data: StockAvailabilityItem[] }
+      >(
         `/stock/availability?storeId=${storeId}&search=${encodeURIComponent(search)}`,
       )
-      return res?.data || res || []
+      return Array.isArray(res) ? res : res?.data || []
     },
   })
 

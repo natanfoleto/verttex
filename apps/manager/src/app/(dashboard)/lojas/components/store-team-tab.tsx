@@ -34,7 +34,9 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
   } = useQuery<StoreMemberItem[]>({
     queryKey: ['store-members-tab', storeId],
     queryFn: async () => {
-      const res = await apiClient<any>(`/stores/${storeId}/users`)
+      const res = await apiClient<
+        StoreMemberItem[] | { data: StoreMemberItem[] }
+      >(`/stores/${storeId}/users`)
       return Array.isArray(res) ? res : res?.data || []
     },
   })

@@ -323,13 +323,24 @@ export function StoreAuditTab({ storeId }: { storeId: string }) {
       if (actionFilter !== 'ALL')
         url += `&action=${encodeURIComponent(actionFilter)}`
 
-      const response = await apiClient<any>(url)
+      const response = await apiClient<{
+        data?: { logs?: AuditLogEntry[] } | AuditLogEntry[]
+        meta?: {
+          page: number
+          perPage: number
+          total: number
+          totalPages: number
+        }
+      }>(url)
+      const logs = Array.isArray(response?.data)
+        ? response.data
+        : response?.data?.logs || []
       return {
-        data: response?.data?.logs || response?.data || [],
+        data: logs,
         meta: response?.meta || {
           page,
           perPage: limit,
-          total: response?.data?.logs?.length || 0,
+          total: logs.length,
           totalPages: 1,
         },
       }
