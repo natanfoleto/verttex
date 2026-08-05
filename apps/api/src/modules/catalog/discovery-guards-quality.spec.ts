@@ -118,6 +118,16 @@ function setupGuardsMocks(outOfStockBehavior: "show_badge" | "hide_product" | "m
       return varIds.map((vId) => {
         const parentProd = fullProducts.find((p) => p.variations.some((v) => v.id === vId));
         const hasExpired = parentProd?.id === "prod-golden-expired-stock";
+        const isQuarantine = parentProd?.id === "prod-golden-quarantine-stock";
+        const isShortShelfLife = parentProd?.id === "prod-golden-shelflife-stock";
+
+        let expirationDate = new Date("2028-01-01");
+        if (hasExpired) {
+          expirationDate = new Date("2020-01-01");
+        } else if (isShortShelfLife) {
+          expirationDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000); // 5 dias (< 15 minDeliveryDays)
+        }
+
         return {
           id: `stock-${vId}`,
           variationId: vId,
@@ -126,8 +136,8 @@ function setupGuardsMocks(outOfStockBehavior: "show_badge" | "hide_product" | "m
           storeId: parentProd?.storeId || "store-apiario-serra",
           location: { status: "active" },
           lot: {
-            status: "available",
-            expirationDate: hasExpired ? new Date("2020-01-01") : new Date("2028-01-01"),
+            status: isQuarantine ? "QUARANTINE" : "AVAILABLE",
+            expirationDate,
           },
         };
       }) as unknown as Awaited<ReturnType<typeof prisma.stockItem.findMany>>;
@@ -295,12 +305,55 @@ describe("Discovery Quality — Guards de Negócio, Preço, Ofertas & Estoque", 
     expect(ids).not.toContain("prod-golden-inactive-store");
   });
 
+  it("37. GUARD: Produto com apenas lote em quarentena deve ser tratado como indisponível", async () => {
+    const res = await PublicDiscoveryService.discover({ search: "Quarentena", page: 1, perPage: 50 });
+    const prod = res.products.find((p) => p.id === "prod-golden-quarantine-stock");
+
+    expect(prod).toBeDefined();
+    expect(prod?.isAvailable).toBe(false);
+  });
+
+  it("38. GUARD: Produto com apenas lote abaixo da shelf-life mínima (< 15 dias) deve ser tratado como indisponível", async () => {
+    const res = await PublicDiscoveryService.discover({ search: "Shelf Life", page: 1, perPage: 50 });
+    const prod = res.products.find((p) => p.id === "prod-golden-shelflife-stock");
+
+    expect(prod).toBeDefined();
+    expect(prod?.isAvailable).toBe(false);
+  });
+
   it("39. GUARD: Produto com apenas lote vencido deve ser tratado como indisponível", async () => {
     const res = await PublicDiscoveryService.discover({ search: "Lote Vencido", page: 1, perPage: 50 });
     const prod = res.products.find((p) => p.id === "prod-golden-expired-stock");
 
-    if (prod) {
-      expect(prod.isAvailable).toBe(false);
+    expect(prod).toBeDefined();
+    expect(prod?.isAvailable).toBe(false);
+  });
+
+  it("40. outOfStockBehavior = show_badge mantém produto sem estoque na lista mas com isAvailable: false", async () => {
+    setupGuardsMocks("show_badge");
+    const res = await PublicDiscoveryService.discover({ search: "Doce de Leite Tradicional Esgotado", page: 1, perPage: 50 });
+    const prod = res.products.find((p) => p.id === "prod-golden-out-of-stock");
+
+    expect(prod).toBeDefined();
+    expect(prod?.isAvailable).toBe(false);
+  });
+
+  it("41. outOfStockBehavior = move_to_end reordena produtos indisponíveis para o final do resultado", async () => {
+    setupGuardsMocks("move_to_end");
+    const res = await PublicDiscoveryService.discover({ page: 1, perPage: 50 });
+    const products = res.products;
+
+    const availableIndices = products
+      .map((p, idx) => (p.isAvailable ? idx : -1))
+      .filter((idx) => idx !== -1);
+    const unavailableIndices = products
+      .map((p, idx) => (!p.isAvailable ? idx : -1))
+      .filter((idx) => idx !== -1);
+
+    if (availableIndices.length > 0 && unavailableIndices.length > 0) {
+      const maxAvailableIdx = Math.max(...availableIndices);
+      const minUnavailableIdx = Math.min(...unavailableIndices);
+      expect(minUnavailableIdx).toBeGreaterThan(maxAvailableIdx);
     }
   });
 
@@ -312,3 +365,4 @@ describe("Discovery Quality — Guards de Negócio, Preço, Ofertas & Estoque", 
     expect(ids).not.toContain("prod-golden-out-of-stock");
   });
 });
+

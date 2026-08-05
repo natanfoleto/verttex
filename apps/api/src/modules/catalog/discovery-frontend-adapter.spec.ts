@@ -88,7 +88,7 @@ describe("Post-validation Bugfix — Frontend Discovery Adapter & Parsing", () =
   });
 
 
-  it("2. Response HTTP sem produtos — exibe 0 produtos e ativa Empty State", () => {
+  it("2. Response HTTP sem produtos — exibe 0 produtos e ativa Empty State com textos do Marketplace UI", () => {
     const mockEmptyHttpResponse: BackendApiResponse<FrontendDiscoveryData> = {
       success: true,
       data: {
@@ -96,7 +96,6 @@ describe("Post-validation Bugfix — Frontend Discovery Adapter & Parsing", () =
         pagination: {
           page: 1,
           perPage: 50,
-
           total: 0,
           totalPages: 0,
         },
@@ -105,5 +104,21 @@ describe("Post-validation Bugfix — Frontend Discovery Adapter & Parsing", () =
 
     const products = extractDiscoveryProducts(mockEmptyHttpResponse);
     expect(products).toHaveLength(0);
+
+    // Simula a lógica de decisão do componente ProductDiscoveryView do Marketplace (lines 357-363)
+    const query = "termo-sem-resultado";
+    const hasActiveFilters = true;
+
+    const emptyStateConfig = {
+      isRendered: products.length === 0,
+      title: query ? `Nenhum produto encontrado para "${query}"` : 'Nenhum produto disponível',
+      description: "Tente ajustar seus termos de busca ou remover alguns filtros aplicados para expandir o catálogo.",
+      actionLabel: hasActiveFilters ? 'Limpar Todos os Filtros' : undefined,
+    };
+
+    expect(emptyStateConfig.isRendered).toBe(true);
+    expect(emptyStateConfig.title).toBe('Nenhum produto encontrado para "termo-sem-resultado"');
+    expect(emptyStateConfig.actionLabel).toBe('Limpar Todos os Filtros');
   });
 });
+

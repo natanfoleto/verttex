@@ -949,7 +949,7 @@ export class PublicDiscoveryService {
         : resolvedBrand
           ? `/marca/${resolvedBrand.slug}`
           : searchTerm
-            ? `/busca?q=${encodeURIComponent(searchTerm)}`
+            ? "/busca"
             : isOffer
               ? "/ofertas"
               : "/produtos";

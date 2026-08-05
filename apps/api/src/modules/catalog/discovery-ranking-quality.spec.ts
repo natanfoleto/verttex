@@ -334,4 +334,99 @@ Recebido: ${receivedOrder.join(" -> ")}
     const res = await PublicDiscoveryService.discover({ search: "MEL-SILV-500G", page: 1, perPage: 50 });
     expect(res.products[0]?.id).toBe("prod-sku-match");
   });
+
+  it("15. Barcode/GTIN exato deve ser o 1º colocado no ranking de relevância", async () => {
+    const mockSearchDocs = [
+      {
+        productId: "prod-regular-barcode",
+        barcode: "7890000000000",
+        titleNormalized: "cachaca artesanal",
+        contextNormalized: "",
+        attributesNormalized: "",
+        descriptionNormalized: "",
+        searchTextNormalized: "cachaca artesanal",
+        price: 50,
+        inStock: true,
+      },
+      {
+        productId: "prod-barcode-match",
+        barcode: "7891234560035",
+        titleNormalized: "outro produto",
+        contextNormalized: "",
+        attributesNormalized: "",
+        descriptionNormalized: "",
+        searchTextNormalized: "outro produto",
+        price: 50,
+        inStock: true,
+      },
+    ];
+
+    const mockFullProducts = mockSearchDocs.map((d) => ({
+      id: d.productId,
+      name: d.titleNormalized,
+      slug: d.productId,
+      price: d.price,
+      barcode: d.barcode,
+      isPublished: true,
+      status: "active",
+      deletedAt: null,
+      storeId: "st-1",
+      category: { id: "c1", name: "Cat", slug: "cat" },
+      store: { id: "s1", name: "St", slug: "st", isPublished: true, status: "active", deletedAt: null },
+      images: [],
+      medias: [{ isMain: true, file: { objectKey: "img.jpg" } }],
+      variations: [{ id: `v-${d.productId}`, barcode: d.barcode, price: d.price, values: [], stockItems: [{ quantity: 10 }] }],
+    }));
+
+    mockPrisma(prisma.productSearchDocument.findMany).mockImplementation(
+      async (args?: Parameters<typeof prisma.productSearchDocument.findMany>[0]) => {
+        let result = [...mockSearchDocs];
+        const searchWhere = args?.where?.searchTextNormalized as { contains?: string } | undefined;
+        if (searchWhere?.contains) {
+          const token = searchWhere.contains;
+          result = result.filter((d) => d.searchTextNormalized.includes(token));
+        }
+        return result as unknown as Awaited<ReturnType<typeof prisma.productSearchDocument.findMany>>;
+      }
+    );
+
+    mockPrisma(prisma.productVariation.findMany).mockImplementation(
+      async (args?: Parameters<typeof prisma.productVariation.findMany>[0]) => {
+        if (args?.where?.OR && Array.isArray(args.where.OR)) {
+          const secondOr = args.where.OR[1] as { barcode?: { equals?: string } } | undefined;
+          const barcodeTerm = secondOr?.barcode?.equals;
+          if (barcodeTerm === "7891234560035") {
+            return [{ productId: "prod-barcode-match" }] as unknown as Awaited<ReturnType<typeof prisma.productVariation.findMany>>;
+          }
+        }
+        return [] as unknown as Awaited<ReturnType<typeof prisma.productVariation.findMany>>;
+      }
+    );
+
+    mockPrisma(prisma.product.findMany).mockImplementation(
+      async (args?: Parameters<typeof prisma.product.findMany>[0]) => {
+        const w = args?.where as any;
+        if (w?.OR && Array.isArray(w.OR)) {
+          const firstOr = w.OR[0] as { sku?: { equals?: string } } | undefined;
+          const secondOr = w.OR[1] as { barcode?: { equals?: string } } | undefined;
+          const skuTerm = firstOr?.sku?.equals;
+          const barcodeTerm = secondOr?.barcode?.equals;
+
+          if (barcodeTerm === "7891234560035" || skuTerm === "7891234560035") {
+            return mockFullProducts.filter((p) => p.id === "prod-barcode-match") as unknown as Awaited<ReturnType<typeof prisma.product.findMany>>;
+          }
+        }
+        const idIn = (args?.where as { id?: { in?: string[] } } | undefined)?.id?.in;
+        if (idIn) {
+          return mockFullProducts.filter((p) => idIn.includes(p.id)) as unknown as Awaited<ReturnType<typeof prisma.product.findMany>>;
+        }
+        return mockFullProducts as unknown as Awaited<ReturnType<typeof prisma.product.findMany>>;
+      }
+    );
+
+    const res = await PublicDiscoveryService.discover({ search: "7891234560035", page: 1, perPage: 50 });
+    expect(res.products.length).toBeGreaterThan(0);
+    expect(res.products[0]?.id).toBe("prod-barcode-match");
+  });
 });
+

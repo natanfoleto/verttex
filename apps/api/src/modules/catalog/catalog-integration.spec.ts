@@ -12,7 +12,7 @@ describe("Public Catalog Service Integration Tests", () => {
     }
   });
 
-  it("should filter out unpublished or draft products from public listing", async () => {
+  it("should list public products with availability status and commercial stock calculation", async () => {
     const result = await PublicCatalogService.listPublicProducts({
       page: 1,
       perPage: 20,

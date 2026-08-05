@@ -44,7 +44,16 @@ function mockPrisma<T extends (...args: never[]) => unknown>(fn: T) {
 }
 
 function setupMatrixMocks() {
-  const activeProducts = GOLDEN_DATASET_PRODUCTS.filter((p) => p.isPublished && !p.deletedAt && p.storeIsPublished);
+  const activeProducts = GOLDEN_DATASET_PRODUCTS.filter(
+    (p) =>
+      p.isPublished &&
+      !p.deletedAt &&
+      p.storeIsPublished &&
+      p.stockTotal > 0 &&
+      !p.hasExpiredStockOnly &&
+      !p.hasQuarantineStockOnly &&
+      !p.hasBelowShelfLifeStockOnly
+  );
 
   const searchDocs = activeProducts.map((p) => {
     const titleNormalized = normalizeSearchText(p.name);
@@ -66,7 +75,7 @@ function setupMatrixMocks() {
       promotionalPrice: p.promotionalPrice || null,
       isOffer: Boolean(p.promotionalPrice && p.promotionalPrice < p.price),
       isFeatured: p.isFeatured,
-      inStock: p.stockTotal > 0 && !p.hasExpiredStockOnly,
+      inStock: p.stockTotal > 0,
       categoryId: p.categoryId,
       categorySlug: p.categorySlug,
       brandId: p.brandId || null,
@@ -371,6 +380,11 @@ Recebidos totais: [${receivedIds.join(", ")}]
 
       expect(missing).toEqual([]);
       expect(forbiddenPresent).toEqual([]);
+      if (tc.forbiddenIds && tc.forbiddenIds.length > 0) {
+        // Valida conjunto exato se o teste definir conjunto fechado
+        const extraProducts = receivedIds.filter((id) => !tc.expectedIds.includes(id) && !tc.forbiddenIds?.includes(id));
+        expect(extraProducts).toEqual([]);
+      }
     });
   });
 });

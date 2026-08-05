@@ -412,4 +412,15 @@ describe("Discovery Quality — Busca Simples & Termos", () => {
     const multiVarProducts = res.products.filter((p) => p.id === "prod-golden-multi-var");
     expect(multiVarProducts.length).toBe(1);
   });
+
+  it("25. Query vazia ou com apenas espaços no fluxo público (/busca, /busca?q=, search: '   ')", async () => {
+    const resEmpty = await PublicDiscoveryService.discover({ search: "", page: 1, perPage: 50 });
+    const resSpaces = await PublicDiscoveryService.discover({ search: "   ", page: 1, perPage: 50 });
+    const resUndefined = await PublicDiscoveryService.discover({ page: 1, perPage: 50 });
+
+    expect(resEmpty.products.length).toBeGreaterThan(0);
+    expect(resSpaces.products.map((p) => p.id)).toEqual(resEmpty.products.map((p) => p.id));
+    expect(resUndefined.products.map((p) => p.id)).toEqual(resEmpty.products.map((p) => p.id));
+  });
 });
+

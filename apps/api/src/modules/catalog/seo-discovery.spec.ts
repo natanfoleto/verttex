@@ -106,16 +106,17 @@ describe("Discovery SEO Metadata & Indexing Policy", () => {
     });
 
     expect(result.context.type).toBe("search");
-    expect(result.seo.canonicalUrl).toBe("/busca?q=mel");
+    expect(result.seo.canonicalUrl).toBe("/busca");
 
     const meta = buildMetadataHelper({
-      canonicalPath: "/busca",
+      canonicalPath: result.seo.canonicalUrl,
       noIndex: true,
       hasFilters: true,
     });
 
     expect(meta.robots.index).toBe(false);
     expect(meta.robots.follow).toBe(true);
+    expect(meta.canonicalUrl).toBe("http://localhost:3000/busca");
   });
 
   it("2. Categoria limpa (/categoria/mel) — index, follow + self canonical", async () => {

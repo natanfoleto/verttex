@@ -283,22 +283,23 @@ O produto NÃO deveria ter sido retornado.
     const res = await PublicDiscoveryService.discover({ search: "mel", page: 1, perPage: 50 });
     const floradaFacet = res.availableFilters.find((f) => f.key === "Florada" || f.key === "attr_florada");
 
-    if (floradaFacet) {
-      const silvestreOpt = floradaFacet.options.find((o) => o.value === "Silvestre");
-      const eucaliptoOpt = floradaFacet.options.find((o) => o.value === "Eucalipto");
+    expect(floradaFacet).toBeDefined();
+    const silvestreOpt = floradaFacet?.options.find((o) => o.value === "Silvestre");
+    const eucaliptoOpt = floradaFacet?.options.find((o) => o.value === "Eucalipto");
 
-      expect(silvestreOpt?.count).toBeGreaterThan(0);
-      expect(eucaliptoOpt?.count).toBeGreaterThan(0);
-    }
+    // Validação exata: Na fixture de "mel", existe exatamente 1 produto Silvestre (prod-golden-1) e 1 Eucalipto (prod-golden-2)
+    expect(silvestreOpt?.count).toBe(1);
+    expect(eucaliptoOpt?.count).toBe(1);
   });
 
   it("29. COUNT DISTINCT Product: Produto com múltiplas variantes que atendem a faceta conta 1 produto", async () => {
     const res = await PublicDiscoveryService.discover({ categorySlug: "cachacas-artesanais", page: 1, perPage: 50 });
     const madeiraFacet = res.availableFilters.find((f) => f.key === "Madeira" || f.key === "attr_madeira");
 
-    if (madeiraFacet) {
-      const amburanaOpt = madeiraFacet.options.find((o) => o.value === "Amburana");
-      expect(amburanaOpt?.count).toBeLessThanOrEqual(res.products.length);
-    }
+    expect(madeiraFacet).toBeDefined();
+    const amburanaOpt = madeiraFacet?.options.find((o) => o.value === "Amburana");
+
+    // Validação exata: Na categoria cachaças, exatamente 2 produtos únicos (prod-golden-3 e prod-golden-multi-var) possuem a faceta Amburana
+    expect(amburanaOpt?.count).toBe(2);
   });
 });
