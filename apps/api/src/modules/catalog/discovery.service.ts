@@ -83,43 +83,37 @@ function calculateProductRelevance(prod: any, normalizedSearch: string): number 
   const normStore = normalizeSearchText(prod.store?.name || "");
 
   // 1. SKU / Barcode Exact Match (Highest Priority)
-  const hasExactSkuOrBarcode = prod.variations?.some((v: any) => {
-    const skuNorm = normalizeSearchText(v.sku || "");
-    const barcodeNorm = normalizeSearchText(v.barcode || "");
-    return skuNorm === normalizedSearch || barcodeNorm === normalizedSearch;
-  });
+  const hasExactSkuOrBarcode =
+    (prod.sku && normalizeSearchText(prod.sku) === normalizedSearch) ||
+    (prod.barcode && normalizeSearchText(prod.barcode) === normalizedSearch) ||
+    prod.variations?.some((v: any) => {
+      const skuNorm = normalizeSearchText(v.sku || "");
+      const barcodeNorm = normalizeSearchText(v.barcode || "");
+      return skuNorm === normalizedSearch || barcodeNorm === normalizedSearch;
+    });
 
   if (hasExactSkuOrBarcode) {
     score += 1000;
   }
 
-  // 2. Name Match
-  if (normName === normalizedSearch) {
-    score += 500;
-  } else if (normName.startsWith(normalizedSearch)) {
-    score += 300;
-  } else if (normName.includes(normalizedSearch)) {
-    score += 200;
-  }
+  const queryTokens = tokenizeQuery(normalizedSearch);
+  const nameTokens = tokenizeQuery(normName);
+  const catTokens = tokenizeQuery(normCat);
+  const brandTokens = tokenizeQuery(normBrand);
+  const storeTokens = tokenizeQuery(normStore);
+  const shortTokens = tokenizeQuery(normShort);
+  const fullTokens = tokenizeQuery(normFull);
 
-  // 3. Category / Brand / Store Match
-  if (
-    normCat === normalizedSearch ||
-    normBrand === normalizedSearch ||
-    normStore === normalizedSearch
-  ) {
-    score += 150;
-  } else if (
-    normCat.includes(normalizedSearch) ||
-    normBrand.includes(normalizedSearch) ||
-    normStore.includes(normalizedSearch)
-  ) {
-    score += 100;
-  }
+  const attrTokens = (prod.variations || []).flatMap((v: any) =>
+    (v.values || []).flatMap((vv: any) => tokenizeQuery(vv.optionValue?.value || ""))
+  );
 
-  // 4. Description Match
-  if (normShort.includes(normalizedSearch)) score += 50;
-  if (normFull.includes(normalizedSearch)) score += 20;
+  for (const token of queryTokens) {
+    if (nameTokens.includes(token)) score += 500;
+    if (catTokens.includes(token) || brandTokens.includes(token) || storeTokens.includes(token)) score += 200;
+    if (attrTokens.includes(token)) score += 100;
+    if (shortTokens.includes(token) || fullTokens.includes(token)) score += 50;
+  }
 
   if (prod.isFeatured) score += 10;
 
@@ -172,17 +166,6 @@ export class PublicDiscoveryService {
 
     if (tokens.length === 0) return rankMap;
 
-    // The first token is used to narrow the candidate set.
-    // IMPORTANT — index note: `@@index([searchTextNormalized])` in schema is a B-Tree index.
-    // PostgreSQL B-Tree indexes do NOT accelerate `LIKE '%token%'` (contains) queries.
-    // The index is therefore effectively unused for this `contains` clause on the DB side.
-    // In practice this means:
-    //   - For small/medium catalogs (≤ 10k rows) the sequential scan on product_search_documents
-    //     is acceptable and typically returns in < 10ms.
-    //   - For larger catalogs, pg_trgm (GIN trigram index) would allow index-assisted LIKE queries.
-    //   - pg_trgm evaluation is deferred to Etapa 8 benchmark. Do NOT install it now.
-    // The @@index([searchTextNormalized]) is retained for potential future `startsWith`/`equals`
-    // usage and for documentation purposes; it does not harm performance.
     const anchorToken = tokens[0]!;
 
     const productFilter: any = {
@@ -196,20 +179,48 @@ export class PublicDiscoveryService {
     };
 
     // 1. Exact SKU / Barcode lookup via Prisma Client (single-token original query)
-    const exactMatchingVariants = await prisma.productVariation.findMany({
+    const exactMatchingVariants = (await prisma.productVariation.findMany({
       where: {
         status: "active",
         deletedAt: null,
+        product: {
+          status: "active",
+          isPublished: true,
+          deletedAt: null,
+          store: { status: "active", deletedAt: null },
+        },
         OR: [
           { sku: { equals: searchTerm, mode: "insensitive" } },
           { barcode: { equals: searchTerm, mode: "insensitive" } },
         ],
       },
       select: { productId: true },
-    });
+    })) || [];
 
-    for (const v of exactMatchingVariants) {
-      rankMap.set(v.productId, 1000);
+    if (Array.isArray(exactMatchingVariants)) {
+      for (const v of exactMatchingVariants) {
+        rankMap.set(v.productId, 1000);
+      }
+    }
+
+    const exactMatchingProducts = (await prisma.product.findMany({
+      where: {
+        status: "active",
+        isPublished: true,
+        deletedAt: null,
+        store: { status: "active", deletedAt: null },
+        OR: [
+          { sku: { equals: searchTerm, mode: "insensitive" } },
+          { barcode: { equals: searchTerm, mode: "insensitive" } },
+        ],
+      } as any,
+      select: { id: true },
+    })) || [];
+
+    if (Array.isArray(exactMatchingProducts)) {
+      for (const p of exactMatchingProducts) {
+        rankMap.set(p.id, 1000);
+      }
     }
 
     // 2. Candidate selection using anchor token (hits the searchTextNormalized index)
@@ -228,30 +239,32 @@ export class PublicDiscoveryService {
       },
     });
 
-    // 3. AND-filter remaining tokens in JavaScript (fast: operates on already-small candidate set)
-    const remainingTokens = tokens.slice(1);
-
+    // 3. AND-filter remaining tokens in JavaScript
     for (const doc of candidates) {
       if (rankMap.has(doc.productId)) continue; // Keep SKU top score 1000
 
-      // AND semantics: all tokens must appear somewhere across all fields combined
-      const allTokensPresent = remainingTokens.every((token) =>
-        doc.searchTextNormalized.includes(token),
-      );
+      const docTokens = tokenizeQuery(doc.searchTextNormalized);
+      const allTokensPresent = tokens.every((token) => docTokens.includes(token));
 
       if (!allTokensPresent) continue;
 
-      // Per-field ranking: tokens found in higher-priority fields score more
-      let score = 10; // Base match score
+      const titleTokens = tokenizeQuery(doc.titleNormalized);
+      const contextTokens = tokenizeQuery(doc.contextNormalized);
+      const attrTokens = tokenizeQuery(doc.attributesNormalized);
+      const descTokens = tokenizeQuery(doc.descriptionNormalized);
+
+      let fieldMatchScore = 0;
 
       for (const token of tokens) {
-        if (doc.titleNormalized.includes(token)) score += 500;
-        if (doc.contextNormalized.includes(token)) score += 200;
-        if (doc.attributesNormalized.includes(token)) score += 100;
-        if (doc.descriptionNormalized.includes(token)) score += 50;
+        if (titleTokens.includes(token)) fieldMatchScore += 500;
+        if (contextTokens.includes(token)) fieldMatchScore += 200;
+        if (attrTokens.includes(token)) fieldMatchScore += 100;
+        if (descTokens.includes(token)) fieldMatchScore += 50;
       }
 
-      rankMap.set(doc.productId, score);
+      if (fieldMatchScore > 0) {
+        rankMap.set(doc.productId, fieldMatchScore + 10);
+      }
     }
 
     return rankMap;
@@ -415,7 +428,7 @@ export class PublicDiscoveryService {
   /**
    * Main entry point for the Product Discovery Engine
    */
-  static async discover(query: DiscoveryQuery): Promise<DiscoveryResponse> {
+  static async discover(query: Partial<DiscoveryQuery>): Promise<DiscoveryResponse> {
     const {
       page,
       perPage,
@@ -438,14 +451,20 @@ export class PublicDiscoveryService {
     const searchTerm = (queryInput || searchInput || "").trim();
     const normalizedSearch = normalizeSearchText(searchTerm);
 
-    // Normalize attribute filters
+    // Normalize attribute filters (split comma-separated values in URL query params)
     const parsedAttributes: Record<string, string[]> = {};
     if (rawAttributes) {
       for (const [key, val] of Object.entries(rawAttributes)) {
         if (Array.isArray(val)) {
-          parsedAttributes[key] = val.filter(Boolean);
+          parsedAttributes[key] = val
+            .flatMap((v) => (typeof v === "string" ? v.split(",") : [v]))
+            .map((v) => String(v).trim())
+            .filter(Boolean);
         } else if (typeof val === "string" && val.trim()) {
-          parsedAttributes[key] = [val.trim()];
+          parsedAttributes[key] = val
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean);
         }
       }
     }
@@ -582,24 +601,8 @@ export class PublicDiscoveryService {
     };
 
     if (searchTerm) {
-      where.OR = [
-        { name: { contains: searchTerm, mode: "insensitive" } },
-        { shortDescription: { contains: searchTerm, mode: "insensitive" } },
-        { fullDescription: { contains: searchTerm, mode: "insensitive" } },
-        { category: { name: { contains: searchTerm, mode: "insensitive" } } },
-        { brand: { name: { contains: searchTerm, mode: "insensitive" } } },
-        { store: { name: { contains: searchTerm, mode: "insensitive" } } },
-        {
-          variations: {
-            some: {
-              OR: [
-                { sku: { contains: searchTerm, mode: "insensitive" } },
-                { barcode: { contains: searchTerm, mode: "insensitive" } },
-              ],
-            },
-          },
-        },
-      ];
+      const searchRankProductIds = Array.from(prismaRankMap.keys());
+      where.id = { in: searchRankProductIds };
     }
 
     if (categoryIdsToFilter.length > 0) {
@@ -722,6 +725,9 @@ export class PublicDiscoveryService {
     let processedProducts = rawProducts
       .map((p) => evaluateProductEligibility(p, parsedAttributes))
       .filter((prod) => {
+        if (searchTerm && (!prod.relevanceScore || prod.relevanceScore <= 0)) {
+          return false;
+        }
         if (Object.keys(parsedAttributes).length > 0 && !prod.hasAttributeMatch) {
           return false;
         }
@@ -883,10 +889,12 @@ export class PublicDiscoveryService {
     }
 
     // 6. Paginate Results
+    const pageNum = Number(page) || 1;
+    const perPageNum = Math.min(100, Math.max(1, Number(perPage) || 50));
     const total = processedProducts.length;
-    const totalPages = Math.ceil(total / perPage) || 1;
-    const skip = (page - 1) * perPage;
-    const paginatedProducts = processedProducts.slice(skip, skip + perPage);
+    const totalPages = Math.ceil(total / perPageNum) || 1;
+    const skip = (pageNum - 1) * perPageNum;
+    const paginatedProducts = processedProducts.slice(skip, skip + perPageNum);
 
     // Applied Filters Summary
     const appliedFilters: Array<{ key: string; label: string; value: string }> = [];
@@ -962,12 +970,12 @@ export class PublicDiscoveryService {
       },
       products: paginatedProducts,
       pagination: {
-        page,
-        perPage,
+        page: Number(page) || 1,
+        perPage: Math.min(100, Math.max(1, Number(perPage) || 50)),
         total,
         totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
+        hasNextPage: (Number(page) || 1) < totalPages,
+        hasPreviousPage: (Number(page) || 1) > 1,
       },
       breadcrumbs,
       appliedFilters,
