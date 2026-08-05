@@ -5,21 +5,21 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import {
-  RiArrowRightSLine,
+  RiArrowDownSLine,
   RiArrowLeftSLine,
+  RiArrowRightSLine,
   RiCloseLine,
   RiFilter3Line,
-  RiSearchLine,
 } from 'react-icons/ri'
+
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
+import { apiClient } from '../../lib/api-client'
 import { EmptyState } from '../ui/empty-state'
 import { MarketplacePageLoader } from '../ui/marketplace-page-loader'
 import { ProductCard } from '../ui/product-card'
-import { apiClient } from '../../lib/api-client'
 
 export interface DiscoveryProduct {
   id: string
@@ -57,37 +57,34 @@ export interface DiscoveryBreadcrumb {
   url: string
 }
 
-export interface DiscoveryApiResponse {
-  success: boolean
-  data: {
-    context: {
-      type: 'search' | 'category' | 'store' | 'brand' | 'catalog'
-      title: string
-      description?: string | null
-      query?: string
-      category?: { id: string; name: string; slug: string } | null
-      store?: { id: string; name: string; slug: string; logoUrl?: string | null } | null
-      brand?: { id: string; name: string; slug: string } | null
-      priceRange?: { min: number; max: number }
-    }
-    products: DiscoveryProduct[]
-    pagination: {
-      page: number
-      perPage: number
-      total: number
-      totalPages: number
-      hasNextPage: boolean
-      hasPreviousPage: boolean
-    }
-    breadcrumbs: DiscoveryBreadcrumb[]
-    appliedFilters: Array<{ key: string; label: string; value: string }>
-    availableFilters: DiscoveryFacet[]
-    sortOptions: Array<{ key: string; label: string }>
-    seo: {
-      title: string
-      description: string
-      canonicalUrl: string
-    }
+export interface DiscoveryData {
+  context: {
+    type: 'search' | 'category' | 'store' | 'brand' | 'catalog'
+    title: string
+    description?: string | null
+    query?: string
+    category?: { id: string; name: string; slug: string } | null
+    store?: { id: string; name: string; slug: string; logoUrl?: string | null } | null
+    brand?: { id: string; name: string; slug: string } | null
+    priceRange?: { min: number; max: number }
+  }
+  products: DiscoveryProduct[]
+  pagination: {
+    page: number
+    perPage: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+  breadcrumbs: DiscoveryBreadcrumb[]
+  appliedFilters: Array<{ key: string; label: string; value: string }>
+  availableFilters: DiscoveryFacet[]
+  sortOptions: Array<{ key: string; label: string }>
+  seo: {
+    title: string
+    description: string
+    canonicalUrl: string
   }
 }
 
@@ -106,7 +103,6 @@ export function ProductDiscoveryView({
   initialBrandSlug,
   initialQuery,
   overrideTitle,
-  overrideDescription,
 }: ProductDiscoveryViewProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -121,14 +117,14 @@ export function ProductDiscoveryView({
   const maxPrice = searchParams.get('maxPrice') || ''
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
-  const [searchInput, setSearchInput] = useState(query)
 
   // Construct URL parameters dynamically
   const buildApiParams = () => {
     const params = new URLSearchParams()
     params.append('page', String(page))
-    params.append('perPage', '12')
+    params.append('perPage', '50')
     params.append('sort', sort)
+
 
     if (query) params.append('q', query)
     if (categorySlug) params.append('categorySlug', categorySlug)
@@ -171,31 +167,25 @@ export function ProductDiscoveryView({
     router.push(`${pathname}${queryStr}`)
   }
 
-  // Handle Search Form Submit
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    updateUrl({ q: searchInput.trim() || null })
-  }
-
   // Query Product Discovery Engine API
-  const { data: discoveryRes, isLoading } = useQuery<DiscoveryApiResponse>({
+  const { data: discoveryData, isLoading } = useQuery<DiscoveryData>({
     queryKey: ['product-discovery', buildApiParams()],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const res = await apiClient<DiscoveryApiResponse>(`/public/catalog/discover?${buildApiParams()}`)
+      const res = await apiClient<DiscoveryData>(`/public/catalog/discover?${buildApiParams()}`)
       return res
     },
   })
 
-  const discoveryData = discoveryRes?.data
-  const products = discoveryData?.products ?? []
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const products: DiscoveryProduct[] = discoveryData?.products || (discoveryData as any)?.items || []
+
   const pagination = discoveryData?.pagination
   const availableFilters = discoveryData?.availableFilters ?? []
   const breadcrumbs = discoveryData?.breadcrumbs ?? []
   const context = discoveryData?.context
 
-  const title = overrideTitle || context?.title || 'Catálogo de Produtos'
-  const description = overrideDescription || context?.description || 'Explore nosso catálogo de produtos artesanais'
+  const title = overrideTitle || context?.title || query || 'Catálogo de Produtos'
 
   const hasActiveFilters = Boolean(
     query || categorySlug || storeSlug || brandSlug || minPrice || maxPrice ||
@@ -203,7 +193,6 @@ export function ProductDiscoveryView({
   )
 
   const clearAllFilters = () => {
-    setSearchInput('')
     router.push(typeof window !== 'undefined' ? window.location.pathname : '/busca')
   }
 
@@ -212,142 +201,112 @@ export function ProductDiscoveryView({
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900 font-sans pb-16">
-      {/* ─── Breadcrumbs ─── */}
-      <div className="bg-white border-b border-stone-200 py-2.5 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <nav className="flex items-center space-x-1.5 text-xs text-stone-500 overflow-x-auto">
-            {breadcrumbs.map((crumb, idx) => (
-              <div key={crumb.url + idx} className="flex items-center space-x-1.5 shrink-0">
-                {idx > 0 && <RiArrowRightSLine className="h-3.5 w-3.5 text-stone-400" />}
-                {idx === breadcrumbs.length - 1 ? (
-                  <span className="font-semibold text-emerald-800">{crumb.name}</span>
-                ) : (
-                  <Link href={crumb.url} className="hover:text-stone-900 transition-colors">
-                    {crumb.name}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </nav>
-        </div>
-      </div>
+    <div className="min-h-screen text-stone-900 font-sans pb-16 pt-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-      {/* ─── Page Header & Search Bar ─── */}
-      <div className="bg-white border-b border-stone-200 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+
+        {/* Mobile Filter Drawer Button */}
+        <div className="lg:hidden flex items-center justify-between pb-4 border-b border-stone-200 mb-4">
+          <div className="text-xs text-stone-600 font-medium">
+            {pagination?.total || products.length} resultados
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
+            className="text-xs gap-1.5 border-stone-300 bg-white cursor-pointer"
+          >
+            <RiFilter3Line className="h-4 w-4 text-emerald-700" />
+            <span>Filtros</span>
+          </Button>
+        </div>
+
+        {/* Layout de Duas Colunas: Sidebar Esquerda + Grid de Produtos Direita */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+
+          {/* ─── SIDEBAR ESQUERDA (Breadcrumb, Título, Resultados, Filtros) ─── */}
+          <aside
+            className={`w-full lg:w-60 shrink-0 space-y-5 ${mobileFilterOpen ? 'block bg-white p-4 rounded-lg shadow-md' : 'hidden lg:block'
+              }`}
+          >
+            {/* 1. Breadcrumbs Empilhados no Topo da Sidebar */}
+            {breadcrumbs.length > 0 && (
+              <nav className="flex flex-wrap items-center gap-1 text-[12px] text-stone-500 font-normal leading-tight">
+                {breadcrumbs.map((crumb, idx) => (
+                  <span key={crumb.url + idx} className="inline-flex items-center gap-1">
+                    {idx > 0 && <span className="text-stone-400 font-light">&gt;</span>}
+                    {idx === breadcrumbs.length - 1 ? (
+                      <span className="text-stone-700 font-normal">{crumb.name}</span>
+                    ) : (
+                      <Link href={crumb.url} className="hover:text-stone-900 hover:underline transition-colors">
+                        {crumb.name}
+                      </Link>
+                    )}
+                  </span>
+                ))}
+              </nav>
+            )}
+
+            {/* 2. Título Principal da Busca / Categoria & Contagem de Resultados */}
+            <div className="space-y-1 pt-1">
+              <h1 className="text-2xl sm:text-[26px] font-bold text-stone-900 tracking-tight leading-tight capitalize">
                 {title}
               </h1>
-              {description && (
-                <p className="text-sm text-stone-600 mt-1 max-w-2xl">
-                  {description}
-                </p>
-              )}
+              <p className="text-xs text-stone-500 font-normal">
+                {pagination?.total ?? products.length} {(pagination?.total ?? products.length) === 1 ? 'resultado' : 'resultados'}
+              </p>
             </div>
 
-            {/* In-Page Search Box */}
-            <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full md:w-80 shrink-0">
-              <div className="relative flex-1">
-                <Input
-                  type="text"
-                  placeholder="Buscar produtos..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className="pl-9 bg-stone-50 border-stone-300 text-xs focus:bg-white"
-                />
-                <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-              </div>
-              <Button type="submit" size="sm" className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold cursor-pointer">
-                Buscar
-              </Button>
-            </form>
-          </div>
-
-          {/* Active Filters Chips */}
-          {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100">
-              <span className="text-xs font-semibold text-stone-500 mr-1">
-                Filtros ativos:
-              </span>
-              {query && (
-                <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 text-xs py-1 px-2.5 gap-1.5 font-medium">
-                  <span>Busca: "{query}"</span>
-                  <button type="button" onClick={() => updateUrl({ q: null })} className="hover:text-emerald-950 cursor-pointer">
-                    <RiCloseLine className="h-3.5 w-3.5" />
-                  </button>
-                </Badge>
-              )}
-              {categorySlug && (
-                <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 text-xs py-1 px-2.5 gap-1.5 font-medium">
-                  <span>Categoria: {context?.category?.name || categorySlug}</span>
-                  <button type="button" onClick={() => updateUrl({ categorySlug: null })} className="hover:text-emerald-950 cursor-pointer">
-                    <RiCloseLine className="h-3.5 w-3.5" />
-                  </button>
-                </Badge>
-              )}
-              {brandSlug && (
-                <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 text-xs py-1 px-2.5 gap-1.5 font-medium">
-                  <span>Marca: {context?.brand?.name || brandSlug}</span>
-                  <button type="button" onClick={() => updateUrl({ brandSlug: null })} className="hover:text-emerald-950 cursor-pointer">
-                    <RiCloseLine className="h-3.5 w-3.5" />
-                  </button>
-                </Badge>
-              )}
-              {storeSlug && (
-                <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 text-xs py-1 px-2.5 gap-1.5 font-medium">
-                  <span>Produtor: {context?.store?.name || storeSlug}</span>
-                  <button type="button" onClick={() => updateUrl({ storeSlug: null })} className="hover:text-emerald-950 cursor-pointer">
-                    <RiCloseLine className="h-3.5 w-3.5" />
-                  </button>
-                </Badge>
-              )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={clearAllFilters}
-                className="text-xs text-stone-500 hover:text-stone-900 h-7 px-2 cursor-pointer font-medium"
-              >
-                Limpar todos
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ─── Main Content Grid ─── */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Desktop Filter Sidebar */}
-          <aside className="hidden lg:block w-64 shrink-0 space-y-6">
-            <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-6 shadow-xs">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                  <RiFilter3Line className="h-4 w-4 text-emerald-700" />
-                  <span>Filtros do Catálogo</span>
-                </h3>
-                {hasActiveFilters && (
-                  <button
-                    type="button"
-                    onClick={clearAllFilters}
-                    className="text-xs text-emerald-700 hover:underline font-semibold cursor-pointer"
-                  >
-                    Limpar
-                  </button>
+            {/* 3. Chips de Filtros Ativos com Botão 'X' */}
+            {hasActiveFilters && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                {query && (
+                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                    <span>{query}</span>
+                    <button type="button" onClick={() => updateUrl({ q: null })} className="hover:text-stone-950 cursor-pointer">
+                      <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
+                    </button>
+                  </Badge>
+                )}
+                {categorySlug && (
+                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                    <span>{context?.category?.name || categorySlug}</span>
+                    <button type="button" onClick={() => updateUrl({ categorySlug: null })} className="hover:text-stone-950 cursor-pointer">
+                      <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
+                    </button>
+                  </Badge>
+                )}
+                {brandSlug && (
+                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                    <span>{context?.brand?.name || brandSlug}</span>
+                    <button type="button" onClick={() => updateUrl({ brandSlug: null })} className="hover:text-stone-950 cursor-pointer">
+                      <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
+                    </button>
+                  </Badge>
+                )}
+                {storeSlug && (
+                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                    <span>{context?.store?.name || storeSlug}</span>
+                    <button type="button" onClick={() => updateUrl({ storeSlug: null })} className="hover:text-stone-950 cursor-pointer">
+                      <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
+                    </button>
+                  </Badge>
                 )}
               </div>
+            )}
 
-              {/* Dynamic Facets */}
+            {/* 4. Facetas e Grupos de Filtro (Categorias, Marcas, Lojas, etc) */}
+            <div className="space-y-5 pt-1">
+
               {availableFilters.map((facet) => (
-                <div key={facet.key} className="space-y-2.5 border-b border-stone-100 pb-4 last:border-0 last:pb-0">
-                  <h4 className="text-xs font-bold text-stone-800 tracking-wide uppercase">
+                <div key={facet.key} className="space-y-2">
+                  <h3 className="text-xs font-semibold text-stone-900">
                     {facet.label}
-                  </h4>
-                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  </h3>
+                  <div className="space-y-1 text-xs">
                     {facet.options.map((opt) => {
+                      const paramKey = facet.key === 'brand' ? 'brandSlug' : facet.key === 'store' ? 'storeSlug' : facet.key
                       const isActive =
                         searchParams.get(facet.key) === opt.value ||
                         searchParams.get(`${facet.key}Slug`) === opt.value
@@ -356,20 +315,13 @@ export function ProductDiscoveryView({
                         <button
                           key={opt.value}
                           type="button"
-                          onClick={() => {
-                            const paramKey = facet.key === 'brand' ? 'brandSlug' : facet.key === 'store' ? 'storeSlug' : facet.key
-                            updateUrl({ [paramKey]: isActive ? null : opt.value })
-                          }}
-                          className={`w-full flex items-center justify-between text-xs py-1 px-2 rounded-md transition-colors text-left cursor-pointer ${
-                            isActive
-                              ? 'bg-emerald-50 font-bold text-emerald-800'
-                              : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
-                          }`}
+                          onClick={() => updateUrl({ [paramKey]: isActive ? null : opt.value })}
+                          className={`block w-full text-left truncate py-0.5 cursor-pointer transition-colors ${isActive
+                              ? 'font-bold text-emerald-700'
+                              : 'text-stone-600 hover:text-stone-900'
+                            }`}
                         >
-                          <span className="truncate">{opt.label}</span>
-                          <span className="text-[10px] text-stone-400 bg-stone-100 px-1.5 py-0.5 rounded-full shrink-0 font-medium ml-2">
-                            {opt.count}
-                          </span>
+                          {opt.label} <span className="text-stone-400 text-[11px]">({opt.count})</span>
                         </button>
                       )
                     })}
@@ -379,48 +331,31 @@ export function ProductDiscoveryView({
             </div>
           </aside>
 
-          {/* Main Results Listing Column */}
-          <main className="flex-1 space-y-6">
-            {/* Control Bar: Total Count & Sorting */}
-            <div className="bg-white rounded-xl border border-stone-200 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
-              <div className="text-xs text-stone-600 font-medium">
-                Exibindo <span className="font-bold text-stone-900">{products.length}</span> de{' '}
-                <span className="font-bold text-stone-900">{pagination?.total || 0}</span> produtos
-              </div>
+          {/* ─── SEÇÃO DE PRODUTOS DIREITA ─── */}
+          <main className="flex-1 w-full space-y-4">
 
-              <div className="flex items-center gap-3 justify-between sm:justify-end">
-                {/* Mobile Filter Toggle Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-                  className="lg:hidden text-xs gap-1.5 border-stone-300 cursor-pointer"
+            {/* 5. Ordenação Alinhada à Direita no Topo dos Produtos */}
+            <div className="flex items-center justify-end gap-1.5 text-xs text-stone-600 font-normal pb-1">
+              <span className="text-stone-500">Ordenar por</span>
+              <div className="relative inline-flex items-center">
+                <select
+                  value={sort}
+                  onChange={(e) => updateUrl({ sort: e.target.value })}
+                  className="appearance-none bg-transparent text-stone-900 font-semibold focus:outline-none cursor-pointer pr-4 text-xs py-0.5"
                 >
-                  <RiFilter3Line className="h-4 w-4 text-emerald-700" />
-                  <span>Filtros</span>
-                </Button>
-
-                {/* Sort Select Controls */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-stone-500 font-medium shrink-0">Ordenar:</span>
-                  <select
-                    value={sort}
-                    onChange={(e) => updateUrl({ sort: e.target.value })}
-                    className="h-8 text-xs bg-white border border-stone-300 rounded-md px-2 font-medium text-stone-700 focus:outline-none focus:ring-1 focus:ring-emerald-700 cursor-pointer"
-                  >
-                    <option value="relevance">Mais Relevantes</option>
-                    <option value="price_asc">Menor Preço</option>
-                    <option value="price_desc">Maior Preço</option>
-                    <option value="newest">Lançamentos</option>
-                  </select>
-                </div>
+                  <option value="relevance">Mais relevantes</option>
+                  <option value="price_asc">Menor preço</option>
+                  <option value="price_desc">Maior preço</option>
+                  <option value="newest">Lançamentos</option>
+                </select>
+                <RiArrowDownSLine className="absolute right-0 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-600 pointer-events-none" />
               </div>
             </div>
 
-            {/* Results Grid / Empty State */}
+
+            {/* Grid de Cards de Produtos (4 Colunas em Telas Grandes) */}
             {products.length === 0 ? (
-              <div className="bg-white rounded-xl border border-stone-200 p-8 shadow-xs">
+              <div className="bg-white rounded-md border border-stone-200 p-12 text-center shadow-2xs">
                 <EmptyState
                   title={query ? `Nenhum produto encontrado para "${query}"` : 'Nenhum produto disponível'}
                   description="Tente ajustar seus termos de busca ou remover alguns filtros aplicados para expandir o catálogo."
@@ -429,7 +364,7 @@ export function ProductDiscoveryView({
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {products.map((prod) => (
                   <ProductCard
                     key={prod.id}
@@ -446,15 +381,15 @@ export function ProductDiscoveryView({
               </div>
             )}
 
-            {/* Pagination Controls */}
+            {/* Controle de Paginação */}
             {pagination && pagination.totalPages > 1 && (
-              <div className="bg-white rounded-xl border border-stone-200 p-4 flex items-center justify-between shadow-xs">
+              <div className="bg-white rounded-md border border-stone-200 p-4 flex items-center justify-between shadow-2xs mt-6">
                 {pagination.hasPreviousPage ? (
                   <Button
                     asChild
                     variant="outline"
                     size="sm"
-                    className="text-xs gap-1 cursor-pointer"
+                    className="text-xs gap-1 cursor-pointer bg-white"
                   >
                     <Link
                       href={(() => {
@@ -475,7 +410,7 @@ export function ProductDiscoveryView({
                     variant="outline"
                     size="sm"
                     disabled
-                    className="text-xs gap-1 opacity-50"
+                    className="text-xs gap-1 opacity-50 bg-white"
                   >
                     <RiArrowLeftSLine className="h-4 w-4" />
                     <span>Anterior</span>
@@ -491,7 +426,7 @@ export function ProductDiscoveryView({
                     asChild
                     variant="outline"
                     size="sm"
-                    className="text-xs gap-1 cursor-pointer"
+                    className="text-xs gap-1 cursor-pointer bg-white"
                   >
                     <Link
                       href={(() => {
@@ -510,7 +445,7 @@ export function ProductDiscoveryView({
                     variant="outline"
                     size="sm"
                     disabled
-                    className="text-xs gap-1 opacity-50"
+                    className="text-xs gap-1 opacity-50 bg-white"
                   >
                     <span>Próxima</span>
                     <RiArrowRightSLine className="h-4 w-4" />

@@ -83,9 +83,10 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 - **Status:** `completed`
 - **Artefatos:** Benchmark com datasets de 1k, 5k e 10k produtos (< 20ms), hardening Zod (`page max 500`, `perPage max 100`), observabilidade de exceção com logger estruturado (`[SearchIndexRefreshError]`), `getDiscrepancyReport()`.
 
-### Etapa 9: Seed Diversificada de Desenvolvimento `[CONCLUÍDA & VALIDADA]`
+### Post-validation Bugfix — Frontend Response Rendering `[CONCLUÍDO & VALIDADO]`
 - **Status:** `completed`
-- **Artefatos:** `prisma/seed.ts` determinística e idempotente com 24 produtos, hierarquia de categorias, marcas, produtores, promoções, lotes FEFO com datas relativas e validação de barcodes GTIN-13/EAN-13 GS1.
+- **Artefatos:** `product-discovery-view.tsx` & `discovery-frontend-adapter.spec.ts`.
+- **Causa Raiz & Solução:** O utilitário `apiClient` no Marketplace já realiza o unwrap automático de respostas HTTP retornando o objeto interno `data.data`. O componente `ProductDiscoveryView` efetuava uma segunda desestruturação (`discoveryRes?.data`), resultando em `undefined` para `products`, o que forçava um array vazio e exibia a tela de `EmptyState` ("Nenhum produto encontrado"). Ajustado a tipagem e consumo para `discoveryData?.products`, restabelecendo a renderização dos cards.
 
 ---
 
@@ -96,3 +97,5 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 3. **Validação EAN/GTIN:** Todos os códigos de barras da seed e do catálogo cumprem o algoritmo GS1 Modulo 10 de checksum.
 4. **Performance Comprovada:** O benchmark mediu o motor atual com 10.000 produtos obtendo latência inferior a 20ms. `pg_trgm` ou `FTS` não são necessários no momento.
 5. **SEO & Next.js Production Build:** Produção compilada com 0 erros de rotas, metadados App Router e sitemap/robots nativos.
+6. **Frontend Rendering Fix:** Correção da desestruturação do contrato no `ProductDiscoveryView`, garantindo exibição de cards em todas as rotas públicas de listagem.
+

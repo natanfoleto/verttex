@@ -3,7 +3,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { Menu, ShoppingBag, X } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
 import {
   RiArrowDownSLine,
   RiArrowRightSLine,
@@ -55,10 +57,15 @@ interface CartSummaryData {
 
 export function MarketplaceHeader() {
   const { customer, logout, openAuthModal } = useCustomer()
+  const searchParams = useSearchParams()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [announcementDismissed, setAnnouncementDismissed] = useState(false)
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '')
+  }, [searchParams])
 
   // Fetch marketplace settings
   const { data: settings } = useQuery<MarketplaceHeaderSettings>({

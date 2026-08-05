@@ -12,7 +12,8 @@ export const discoveryQuerySchema = z.object({
     .min(1, "perPage deve ser no mínimo 1")
     .max(100, "perPage deve ser no máximo 100")
     .optional()
-    .default(12),
+    .default(50),
+
   search: z
     .string()
     .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
