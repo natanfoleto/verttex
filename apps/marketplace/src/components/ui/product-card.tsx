@@ -21,6 +21,7 @@ export interface ProductCardProps {
   installments?: string
   benefitBadge?: string | null
   freeShipping?: boolean
+  isAvailable?: boolean
 }
 
 export function ProductCard({
@@ -33,15 +34,16 @@ export function ProductCard({
   installments,
   benefitBadge,
   freeShipping = true,
+  isAvailable = true,
 }: ProductCardProps) {
   const integerPrice = Math.floor(price)
   const decimalCents = (price % 1).toFixed(2).substring(2).padStart(2, '0')
 
   const formattedOriginalPrice = originalPrice
     ? new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(originalPrice)
+        style: 'currency',
+        currency: 'BRL',
+      }).format(originalPrice)
     : null
 
   const calcDiscount =
@@ -52,12 +54,19 @@ export function ProductCard({
   const productUrl = slug ? `/produtos/${slug}` : '/produtos'
 
   return (
-    <div className="group flex flex-col cursor-pointer">
+    <div
+      className={`group flex flex-col cursor-pointer ${!isAvailable ? 'opacity-80' : ''}`}
+    >
       {/* Foto do Produto */}
       <Link
         href={productUrl}
         className="relative aspect-square w-full overflow-hidden bg-stone-100 rounded-sm block cursor-pointer"
       >
+        {!isAvailable && (
+          <div className="absolute top-2 left-2 z-10 bg-stone-900/85 text-stone-100 text-[10px] font-bold uppercase px-2 py-0.5 rounded-xs tracking-wider">
+            Esgotado
+          </div>
+        )}
         {imageUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img

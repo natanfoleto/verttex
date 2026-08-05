@@ -9,7 +9,7 @@ export interface CategoryPageProps {
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const resolvedParams = await params
   const slugs = resolvedParams.slugs || []
-  const targetCategorySlug = slugs[slugs.length - 1] || ''
+  const targetCategorySlug = slugs.join('/')
 
   return <ProductDiscoveryView initialCategorySlug={targetCategorySlug} />
 }

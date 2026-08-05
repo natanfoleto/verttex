@@ -69,6 +69,6 @@ export const discoveryQuerySchema = z.object({
     })
     .default("relevance"),
   attributes: z.record(z.union([z.string(), z.array(z.string())])).optional(),
-});
+}).passthrough();
 
 export type DiscoveryQuery = z.infer<typeof discoveryQuerySchema>;

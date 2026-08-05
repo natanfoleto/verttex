@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable react/forbid-elements */
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
@@ -11,7 +12,6 @@ import {
   RiCloseLine,
   RiFilter3Line,
 } from 'react-icons/ri'
-
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -64,7 +64,12 @@ export interface DiscoveryData {
     description?: string | null
     query?: string
     category?: { id: string; name: string; slug: string } | null
-    store?: { id: string; name: string; slug: string; logoUrl?: string | null } | null
+    store?: {
+      id: string
+      name: string
+      slug: string
+      logoUrl?: string | null
+    } | null
     brand?: { id: string; name: string; slug: string } | null
     priceRange?: { min: number; max: number }
   }
@@ -93,6 +98,7 @@ export interface ProductDiscoveryViewProps {
   initialStoreSlug?: string
   initialBrandSlug?: string
   initialQuery?: string
+  initialIsOffer?: boolean
   overrideTitle?: string
   overrideDescription?: string
 }
@@ -102,6 +108,7 @@ export function ProductDiscoveryView({
   initialStoreSlug,
   initialBrandSlug,
   initialQuery,
+  initialIsOffer,
   overrideTitle,
 }: ProductDiscoveryViewProps) {
   const router = useRouter()
@@ -109,14 +116,19 @@ export function ProductDiscoveryView({
 
   const page = Number(searchParams.get('page')) || 1
   const query = searchParams.get('q') || initialQuery || ''
-  const categorySlug = searchParams.get('categorySlug') || initialCategorySlug || ''
+  const categorySlug =
+    searchParams.get('categorySlug') || initialCategorySlug || ''
   const storeSlug = searchParams.get('storeSlug') || initialStoreSlug || ''
   const brandSlug = searchParams.get('brandSlug') || initialBrandSlug || ''
   const sort = searchParams.get('sort') || 'relevance'
   const minPrice = searchParams.get('minPrice') || ''
   const maxPrice = searchParams.get('maxPrice') || ''
+  const isOffer =
+    searchParams.get('isOffer') === 'true' || initialIsOffer || false
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
+  const [inputMinPrice, setInputMinPrice] = useState(minPrice)
+  const [inputMaxPrice, setInputMaxPrice] = useState(maxPrice)
 
   // Construct URL parameters dynamically
   const buildApiParams = () => {
@@ -125,17 +137,17 @@ export function ProductDiscoveryView({
     params.append('perPage', '50')
     params.append('sort', sort)
 
-
     if (query) params.append('q', query)
     if (categorySlug) params.append('categorySlug', categorySlug)
     if (storeSlug) params.append('storeSlug', storeSlug)
     if (brandSlug) params.append('brandSlug', brandSlug)
     if (minPrice) params.append('minPrice', minPrice)
     if (maxPrice) params.append('maxPrice', maxPrice)
+    if (isOffer) params.append('isOffer', 'true')
 
     // Forward attribute params
     searchParams.forEach((val, key) => {
-      if (key.startsWith('attr_')) {
+      if (key.startsWith('attr_') || key.startsWith('attributes[')) {
         params.append(key, val)
       }
     })
@@ -162,7 +174,8 @@ export function ProductDiscoveryView({
 
     const search = current.toString()
     const queryStr = search ? `?${search}` : ''
-    const pathname = typeof window !== 'undefined' ? window.location.pathname : '/busca'
+    const pathname =
+      typeof window !== 'undefined' ? window.location.pathname : '/busca'
 
     router.push(`${pathname}${queryStr}`)
   }
@@ -172,28 +185,44 @@ export function ProductDiscoveryView({
     queryKey: ['product-discovery', buildApiParams()],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const res = await apiClient<DiscoveryData>(`/public/catalog/discover?${buildApiParams()}`)
+      const res = await apiClient<DiscoveryData>(
+        `/public/catalog/discover?${buildApiParams()}`,
+      )
       return res
     },
   })
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  const products: DiscoveryProduct[] = discoveryData?.products || (discoveryData as any)?.items || []
+  const products: DiscoveryProduct[] =
+    discoveryData?.products || (discoveryData as any)?.items || []
 
   const pagination = discoveryData?.pagination
   const availableFilters = discoveryData?.availableFilters ?? []
   const breadcrumbs = discoveryData?.breadcrumbs ?? []
   const context = discoveryData?.context
 
-  const title = overrideTitle || context?.title || query || 'Catálogo de Produtos'
+  const title =
+    overrideTitle || context?.title || query || 'Catálogo de Produtos'
 
   const hasActiveFilters = Boolean(
-    query || categorySlug || storeSlug || brandSlug || minPrice || maxPrice ||
-    Array.from(searchParams.keys()).some((k) => k.startsWith('attr_'))
+    query ||
+    categorySlug ||
+    storeSlug ||
+    brandSlug ||
+    minPrice ||
+    maxPrice ||
+    isOffer ||
+    Array.from(searchParams.keys()).some(
+      (k) => k.startsWith('attr_') || k.startsWith('attributes['),
+    ),
   )
 
   const clearAllFilters = () => {
-    router.push(typeof window !== 'undefined' ? window.location.pathname : '/busca')
+    setInputMinPrice('')
+    setInputMaxPrice('')
+    router.push(
+      typeof window !== 'undefined' ? window.location.pathname : '/busca',
+    )
   }
 
   if (isLoading && !discoveryData) {
@@ -203,8 +232,6 @@ export function ProductDiscoveryView({
   return (
     <div className="min-h-screen text-stone-900 font-sans pb-16 pt-4">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-
         {/* Mobile Filter Drawer Button */}
         <div className="lg:hidden flex items-center justify-between pb-4 border-b border-stone-200 mb-4">
           <div className="text-xs text-stone-600 font-medium">
@@ -224,22 +251,34 @@ export function ProductDiscoveryView({
 
         {/* Layout de Duas Colunas: Sidebar Esquerda + Grid de Produtos Direita */}
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
-
           {/* ─── SIDEBAR ESQUERDA (Breadcrumb, Título, Resultados, Filtros) ─── */}
           <aside
-            className={`w-full lg:w-60 shrink-0 space-y-5 ${mobileFilterOpen ? 'block bg-white p-4 rounded-lg shadow-md' : 'hidden lg:block'
-              }`}
+            className={`w-full lg:w-60 shrink-0 space-y-5 ${
+              mobileFilterOpen
+                ? 'block bg-white p-4 rounded-lg shadow-md'
+                : 'hidden lg:block'
+            }`}
           >
             {/* 1. Breadcrumbs Empilhados no Topo da Sidebar */}
             {breadcrumbs.length > 0 && (
               <nav className="flex flex-wrap items-center gap-1 text-[12px] text-stone-500 font-normal leading-tight">
                 {breadcrumbs.map((crumb, idx) => (
-                  <span key={crumb.url + idx} className="inline-flex items-center gap-1">
-                    {idx > 0 && <span className="text-stone-400 font-light">&gt;</span>}
+                  <span
+                    key={crumb.url + idx}
+                    className="inline-flex items-center gap-1"
+                  >
+                    {idx > 0 && (
+                      <span className="text-stone-400 font-light">&gt;</span>
+                    )}
                     {idx === breadcrumbs.length - 1 ? (
-                      <span className="text-stone-700 font-normal">{crumb.name}</span>
+                      <span className="text-stone-700 font-normal">
+                        {crumb.name}
+                      </span>
                     ) : (
-                      <Link href={crumb.url} className="hover:text-stone-900 hover:underline transition-colors">
+                      <Link
+                        href={crumb.url}
+                        className="hover:text-stone-900 hover:underline transition-colors"
+                      >
                         {crumb.name}
                       </Link>
                     )}
@@ -254,7 +293,10 @@ export function ProductDiscoveryView({
                 {title}
               </h1>
               <p className="text-xs text-stone-500 font-normal">
-                {pagination?.total ?? products.length} {(pagination?.total ?? products.length) === 1 ? 'resultado' : 'resultados'}
+                {pagination?.total ?? products.length}{' '}
+                {(pagination?.total ?? products.length) === 1
+                  ? 'resultado'
+                  : 'resultados'}
               </p>
             </div>
 
@@ -262,33 +304,61 @@ export function ProductDiscoveryView({
             {hasActiveFilters && (
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
                 {query && (
-                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                  >
                     <span>{query}</span>
-                    <button type="button" onClick={() => updateUrl({ q: null })} className="hover:text-stone-950 cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ q: null })}
+                      className="hover:text-stone-950 cursor-pointer"
+                    >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
                   </Badge>
                 )}
                 {categorySlug && (
-                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                  >
                     <span>{context?.category?.name || categorySlug}</span>
-                    <button type="button" onClick={() => updateUrl({ categorySlug: null })} className="hover:text-stone-950 cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ categorySlug: null })}
+                      className="hover:text-stone-950 cursor-pointer"
+                    >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
                   </Badge>
                 )}
                 {brandSlug && (
-                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                  >
                     <span>{context?.brand?.name || brandSlug}</span>
-                    <button type="button" onClick={() => updateUrl({ brandSlug: null })} className="hover:text-stone-950 cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ brandSlug: null })}
+                      className="hover:text-stone-950 cursor-pointer"
+                    >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
                   </Badge>
                 )}
                 {storeSlug && (
-                  <Badge variant="outline" className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                  >
                     <span>{context?.store?.name || storeSlug}</span>
-                    <button type="button" onClick={() => updateUrl({ storeSlug: null })} className="hover:text-stone-950 cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ storeSlug: null })}
+                      className="hover:text-stone-950 cursor-pointer"
+                    >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
                   </Badge>
@@ -296,44 +366,127 @@ export function ProductDiscoveryView({
               </div>
             )}
 
-            {/* 4. Facetas e Grupos de Filtro (Categorias, Marcas, Lojas, etc) */}
+            {/* 4. Facetas e Grupos de Filtro (Categorias, Marcas, Lojas, Preço) */}
             <div className="space-y-5 pt-1">
-
-              {availableFilters.map((facet) => (
-                <div key={facet.key} className="space-y-2">
-                  <h3 className="text-xs font-semibold text-stone-900">
-                    {facet.label}
-                  </h3>
-                  <div className="space-y-1 text-xs">
-                    {facet.options.map((opt) => {
-                      const paramKey = facet.key === 'brand' ? 'brandSlug' : facet.key === 'store' ? 'storeSlug' : facet.key
-                      const isActive =
-                        searchParams.get(facet.key) === opt.value ||
-                        searchParams.get(`${facet.key}Slug`) === opt.value
-
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => updateUrl({ [paramKey]: isActive ? null : opt.value })}
-                          className={`block w-full text-left truncate py-0.5 cursor-pointer transition-colors ${isActive
-                            ? 'font-bold text-emerald-700'
-                            : 'text-stone-600 hover:text-stone-900'
-                            }`}
-                        >
-                          {opt.label} <span className="text-stone-400 text-[11px]">({opt.count})</span>
-                        </button>
-                      )
-                    })}
-                  </div>
+              {/* Filtro de Preço (Min / Max) */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-stone-900">Preço</h3>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    placeholder="Mín"
+                    value={inputMinPrice}
+                    onChange={(e) => setInputMinPrice(e.target.value)}
+                    className="w-1/2 px-2 py-1 text-xs border border-stone-300 rounded-sm bg-white focus:outline-none"
+                  />
+                  <span className="text-stone-400 text-xs">-</span>
+                  <input
+                    type="number"
+                    placeholder="Máx"
+                    value={inputMaxPrice}
+                    onChange={(e) => setInputMaxPrice(e.target.value)}
+                    className="w-1/2 px-2 py-1 text-xs border border-stone-300 rounded-sm bg-white focus:outline-none"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      updateUrl({
+                        minPrice: inputMinPrice || null,
+                        maxPrice: inputMaxPrice || null,
+                      })
+                    }
+                    className="text-xs px-2 py-1 cursor-pointer border-stone-300 bg-white"
+                  >
+                    OK
+                  </Button>
                 </div>
-              ))}
+                {context?.priceRange &&
+                  (context.priceRange.min > 0 ||
+                    context.priceRange.max > 0) && (
+                    <p className="text-[11px] text-stone-400">
+                      Faixa: R$ {context.priceRange.min} - R${' '}
+                      {context.priceRange.max}
+                    </p>
+                  )}
+              </div>
+
+              {availableFilters.map((facet) => {
+                const paramKey =
+                  facet.key === 'category'
+                    ? 'categorySlug'
+                    : facet.key === 'brand'
+                      ? 'brandSlug'
+                      : facet.key === 'store'
+                        ? 'storeSlug'
+                        : facet.key
+
+                const isAttrFacet =
+                  facet.key.startsWith('attr_') ||
+                  !['category', 'brand', 'store'].includes(facet.key)
+
+                return (
+                  <div key={facet.key} className="space-y-2">
+                    <h3 className="text-xs font-semibold text-stone-900">
+                      {facet.label}
+                    </h3>
+                    <div className="space-y-1 text-xs">
+                      {facet.options.map((opt) => {
+                        const currentRaw =
+                          searchParams.get(paramKey) ||
+                          searchParams.get(facet.key) ||
+                          ''
+                        const currentValues = currentRaw
+                          ? currentRaw.split(',')
+                          : []
+                        const isActive = currentValues.includes(opt.value)
+
+                        const handleFacetClick = () => {
+                          if (isAttrFacet) {
+                            const newValues = isActive
+                              ? currentValues.filter((v) => v !== opt.value)
+                              : [...currentValues, opt.value]
+                            updateUrl({
+                              [paramKey]:
+                                newValues.length > 0
+                                  ? newValues.join(',')
+                                  : null,
+                            })
+                          } else {
+                            updateUrl({
+                              [paramKey]: isActive ? null : opt.value,
+                            })
+                          }
+                        }
+
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={handleFacetClick}
+                            className={`block w-full text-left truncate py-0.5 cursor-pointer transition-colors ${
+                              isActive
+                                ? 'font-bold text-emerald-700'
+                                : 'text-stone-600 hover:text-stone-900'
+                            }`}
+                          >
+                            {opt.label}{' '}
+                            <span className="text-stone-400 text-[11px]">
+                              ({opt.count})
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </aside>
 
           {/* ─── SEÇÃO DE PRODUTOS DIREITA ─── */}
           <main className="flex-1 w-full space-y-4">
-
             {/* 5. Ordenação Alinhada à Direita no Topo dos Produtos */}
             <div className="flex items-center justify-end gap-1.5 text-xs text-stone-600 font-normal pb-1">
               <span className="text-stone-500">Ordenar por</span>
@@ -352,13 +505,18 @@ export function ProductDiscoveryView({
               </div>
             </div>
 
-
             {/* Grid de Cards de Produtos (4 Colunas em Telas Grandes) */}
             {products.length === 0 ? (
               <EmptyState
-                title={query ? `Nenhum produto encontrado para "${query}"` : 'Nenhum produto disponível'}
+                title={
+                  query
+                    ? `Nenhum produto encontrado para "${query}"`
+                    : 'Nenhum produto disponível'
+                }
                 description="Tente ajustar seus termos de busca ou remover alguns filtros aplicados para expandir o catálogo."
-                actionLabel={hasActiveFilters ? 'Limpar Todos os Filtros' : undefined}
+                actionLabel={
+                  hasActiveFilters ? 'Limpar Todos os Filtros' : undefined
+                }
                 onActionClick={hasActiveFilters ? clearAllFilters : undefined}
               />
             ) : (
@@ -370,10 +528,13 @@ export function ProductDiscoveryView({
                     name={prod.name}
                     slug={prod.slug}
                     price={prod.promotionalPrice || prod.price}
-                    originalPrice={prod.promotionalPrice ? prod.price : undefined}
+                    originalPrice={
+                      prod.promotionalPrice ? prod.price : undefined
+                    }
                     imageUrl={prod.mainImageUrl || undefined}
                     storeName={prod.store?.name}
                     storeSlug={prod.store?.slug}
+                    isAvailable={prod.isAvailable}
                   />
                 ))}
               </div>
@@ -391,7 +552,9 @@ export function ProductDiscoveryView({
                   >
                     <Link
                       href={(() => {
-                        const current = new URLSearchParams(Array.from(searchParams.entries()))
+                        const current = new URLSearchParams(
+                          Array.from(searchParams.entries()),
+                        )
                         if (page - 1 <= 1) current.delete('page')
                         else current.set('page', String(page - 1))
                         const str = current.toString()
@@ -428,7 +591,9 @@ export function ProductDiscoveryView({
                   >
                     <Link
                       href={(() => {
-                        const current = new URLSearchParams(Array.from(searchParams.entries()))
+                        const current = new URLSearchParams(
+                          Array.from(searchParams.entries()),
+                        )
                         current.set('page', String(page + 1))
                         return `?${current.toString()}`
                       })()}
@@ -451,7 +616,6 @@ export function ProductDiscoveryView({
                 )}
               </div>
             )}
-
           </main>
         </div>
       </div>

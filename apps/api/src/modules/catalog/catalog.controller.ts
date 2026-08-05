@@ -20,7 +20,25 @@ export async function discoverPublicProductsController(
   req: FastifyRequest<{ Querystring: DiscoveryQuery }>,
   reply: FastifyReply,
 ) {
-  const result = await PublicDiscoveryService.discover(req.query);
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const rawQuery = req.query as Record<string, any>;
+  const attributes: Record<string, any> = {
+    ...(rawQuery.attributes || {}),
+  };
+
+  for (const [key, val] of Object.entries(rawQuery)) {
+    if (key.startsWith("attr_") && val !== undefined) {
+      const cleanKey = key.replace(/^attr_/, "");
+      attributes[cleanKey] = val;
+    }
+  }
+
+  const queryPayload: DiscoveryQuery = {
+    ...req.query,
+    attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
+  };
+
+  const result = await PublicDiscoveryService.discover(queryPayload);
   return reply.status(200).send({
     success: true,
     data: result,

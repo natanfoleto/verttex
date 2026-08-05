@@ -27,6 +27,7 @@ export async function generateMetadata({
 export default function OffersPage() {
   return (
     <ProductDiscoveryView
+      initialIsOffer={true}
       overrideTitle="Ofertas & Promoções"
       overrideDescription="Confira as melhores ofertas e produtos promocionais direto dos produtores"
     />
