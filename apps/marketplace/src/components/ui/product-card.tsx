@@ -39,9 +39,9 @@ export function ProductCard({
 
   const formattedOriginalPrice = originalPrice
     ? new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      }).format(originalPrice)
+      style: 'currency',
+      currency: 'BRL',
+    }).format(originalPrice)
     : null
 
   const calcDiscount =

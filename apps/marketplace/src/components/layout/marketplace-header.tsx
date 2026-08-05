@@ -5,7 +5,6 @@ import { Menu, ShoppingBag, X } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-
 import {
   RiArrowDownSLine,
   RiArrowRightSLine,
@@ -118,13 +117,13 @@ export function MarketplaceHeader() {
   const rootCategories = (categories || []).filter((c) => !c.parentId)
   const subcategoriesMap = new Map<string, PublicCategory[]>()
 
-  ;(categories || []).forEach((cat) => {
-    if (cat.parentId) {
-      const existing = subcategoriesMap.get(cat.parentId) || []
-      existing.push(cat)
-      subcategoriesMap.set(cat.parentId, existing)
-    }
-  })
+    ; (categories || []).forEach((cat) => {
+      if (cat.parentId) {
+        const existing = subcategoriesMap.get(cat.parentId) || []
+        existing.push(cat)
+        subcategoriesMap.set(cat.parentId, existing)
+      }
+    })
 
   const displayCategories =
     rootCategories.length > 0 ? rootCategories : categories || []

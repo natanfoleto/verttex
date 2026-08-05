@@ -24,8 +24,8 @@ export function formatApiErrorMessage(message: string): string {
   const delimiter = message.includes(' | ')
     ? ' | '
     : message.includes(', ')
-    ? ', '
-    : null
+      ? ', '
+      : null
   const parts = delimiter ? message.split(delimiter) : [message]
 
   const formattedParts = parts.map((part) => {

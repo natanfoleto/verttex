@@ -74,12 +74,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const json = await categoriesRes.json().catch(() => null)
       const categories = json?.data || json || []
       if (Array.isArray(categories)) {
-        const categoryUrls: MetadataRoute.Sitemap = categories.map((c: any) => ({
-          url: `${BASE_URL}/categoria/${c.slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.8,
-        }))
+        const categoryUrls: MetadataRoute.Sitemap = categories.map(
+          (c: any) => ({
+            url: `${BASE_URL}/categoria/${c.slug}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+          }),
+        )
         dynamicRoutes = [...dynamicRoutes, ...categoryUrls]
       }
     }
@@ -107,12 +109,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     // Fetch public brands
-    const brandsRes = await fetch(
-      `${API_BASE_URL}/public/catalog/brands`,
-      {
-        next: { revalidate: 3600 },
-      },
-    ).catch(() => null)
+    const brandsRes = await fetch(`${API_BASE_URL}/public/catalog/brands`, {
+      next: { revalidate: 3600 },
+    }).catch(() => null)
 
     if (brandsRes?.ok) {
       const json = await brandsRes.json().catch(() => null)

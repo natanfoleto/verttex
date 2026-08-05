@@ -3,8 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { RiArrowLeftSLine, RiArrowRightSLine } from 'react-icons/ri'
 
-import { ProductCard } from './product-card'
 import { Button } from './button'
+import { ProductCard } from './product-card'
 
 export interface CarouselProductItem {
   id: string

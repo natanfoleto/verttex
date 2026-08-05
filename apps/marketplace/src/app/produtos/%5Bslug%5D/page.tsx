@@ -32,7 +32,9 @@ export async function generateMetadata({
       ? product.fullDescription.slice(0, 160)
       : `Compre ${product.name} diretamente de ${product.store?.name || 'produtor local'} no VERTTEX Marketplace.`)
 
-  const ogImage = product.images?.[0]?.url || product.images?.find((img: any) => img.isMain)?.url
+  const ogImage =
+    product.images?.[0]?.url ||
+    product.images?.find((img: any) => img.isMain)?.url
 
   return buildMetadata({
     title,
@@ -68,7 +70,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           '@type': 'Offer',
           url: `${APP_BASE_URL}/produtos/${slug}`,
           priceCurrency: 'BRL',
-          price: product.variations?.[0]?.promotionalPrice || product.variations?.[0]?.price || 0,
+          price:
+            product.variations?.[0]?.promotionalPrice ||
+            product.variations?.[0]?.price ||
+            0,
           availability: product.variations?.[0]?.isAvailable
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
