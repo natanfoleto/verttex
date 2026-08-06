@@ -18,19 +18,26 @@ export default function DashboardPage() {
 
   const { data: usersData } = useQuery({
     queryKey: ['dashboard-users-count'],
-    queryFn: () => apiClient('/users?perPage=1'),
+    queryFn: () =>
+      apiClient<{ data: unknown[]; meta: { total: number } }>(
+        '/users?perPage=1',
+      ),
     enabled: ability.can('read', 'User'),
   })
 
   const { data: rolesData } = useQuery({
     queryKey: ['dashboard-roles-count'],
-    queryFn: () => apiClient('/roles'),
+    queryFn: () =>
+      apiClient<{ data?: unknown[]; meta?: { total: number } }>('/roles'),
     enabled: ability.can('read', 'Role'),
   })
 
   const { data: storesData } = useQuery({
     queryKey: ['dashboard-stores-count'],
-    queryFn: () => apiClient('/stores?perPage=1'),
+    queryFn: () =>
+      apiClient<{ data: unknown[]; meta: { total: number } }>(
+        '/stores?perPage=1',
+      ),
     enabled: ability.can('read', 'Store'),
   })
 

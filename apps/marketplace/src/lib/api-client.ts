@@ -57,10 +57,10 @@ export interface ApiClientOptions extends Omit<RequestInit, 'body'> {
   body?: BodyInit | null
 }
 
-export async function apiClient<T = unknown>(
+export async function apiClient<TResponse = unknown>(
   endpoint: string,
   options: ApiClientOptions = {},
-): Promise<T> {
+): Promise<TResponse> {
   const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`
 
   const isFormData =

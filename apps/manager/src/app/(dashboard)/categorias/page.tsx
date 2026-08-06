@@ -106,7 +106,9 @@ export default function CategoriesPage() {
   const { data: treeData, isLoading: isLoadingTree } = useQuery({
     queryKey: categoryQueryKeys.tree(),
     queryFn: async () => {
-      const res = await apiClient('/categories/tree')
+      const res = await apiClient<Category[] | { data: Category[] }>(
+        '/categories/tree',
+      )
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
   })
@@ -117,13 +119,16 @@ export default function CategoriesPage() {
       const params = new URLSearchParams()
       if (search) params.append('search', search)
       if (statusFilter !== 'all') params.append('status', statusFilter)
-      const res = await apiClient(`/categories?${params.toString()}`)
+      const res = await apiClient<Category[] | { data: Category[] }>(
+        `/categories?${params.toString()}`,
+      )
       return res
     },
   })
 
-  const listData: Category[] =
-    listRes?.data ?? (Array.isArray(listRes) ? listRes : [])
+  const listData: Category[] = Array.isArray(listRes)
+    ? listRes
+    : (listRes?.data ?? [])
 
   // Mutations
   const { showError } = useErrorDialog()

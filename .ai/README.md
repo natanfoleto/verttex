@@ -5,6 +5,8 @@
 
 Bem-vindo à central oficial de documentação do projeto VERTTEX NF. Toda a documentação técnica, regras de negócio, arquitetura, políticas de segurança e roadmaps de execução estão organizados nesta pasta.
 
+> **Quality Gate Obligatório:** Todo código desenvolvido deve passar no comando `pnpm verify` (`lint` → `typecheck` → `test` → `build`). Veja a regra em [`.ai/AGENT.md#23`](./AGENT.md#23-regra-mandatória-de-quality-gate-canônico-pnpm-verify).
+
 ---
 
 ## 1. Hierarquia Oficial de Documentos

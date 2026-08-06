@@ -33,7 +33,7 @@ graph TD
     - `packages/auth`: CASL definitions, abilities, roles, subjects, and shared authorization helpers for both backend and frontend.
     - `packages/env`: Type-safe validation engine for environment variables.
     - `packages/types`: Shared contract types, schemas, and API response schemas.
-    - *(Nota Arquitetural sobre UI: Os componentes visuais reutilizáveis com Shadcn UI/Tailwind v4 são mantidos em `src/components/ui/` em cada aplicação. Veja `DEBT-001` em `.ai/technical-debt/TECHNICAL_DEBT.md`)*.
+    - _(Nota Arquitetural sobre UI: Os componentes visuais reutilizáveis com Shadcn UI/Tailwind v4 são mantidos em `src/components/ui/` em cada aplicação. Veja `DEBT-001` em `.ai/technical-debt/TECHNICAL_DEBT.md`)_.
 3.  **Configs**:
     - `config/eslint`: Shared rules for ESLint code quality.
     - `config/prettier`: Central styling rules.

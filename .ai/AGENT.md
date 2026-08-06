@@ -50,9 +50,37 @@ Antes de iniciar a análise ou alteração de qualquer código, você **DEVE** l
 
 Toda nova implementação, endpoint, serviço, funcionalidade, correção de bug ou roadmap **DEVE obrigatoriamente incluir a criação e execução de testes automatizados (Vitest)**. Nenhuma tarefa é considerada finalizada ou marcada como concluída sem a presença, execução e aprovação dos testes automatizados correspondentes cobrindo os cenários de sucesso e exceção.
 
-### 2.2 Regra Mandatória de Skeleton Loading no Frontend
+### 2.3 Regra Mandatória de Quality Gate Canônico (`pnpm verify`)
 
-Toda e qualquer página, modal, listagem ou tela com carregamento assíncrono de dados **DEVE obrigatoriamente utilizar componentes de Skeleton Loading (`animate-pulse`)** que espelhem com precisão o layout final da tela, eliminando telas em branco e spinners genéricos soltos.
+Nenhuma implementação, refatoração, ajuste visual, correção de bug ou entrega por inteligência artificial ou desenvolvedor pode ser declarada concluída sem executar a sequência canônica do Quality Gate do monorepo, obrigatoriamente nesta ordem estrita:
+
+1. **`lint`** (`pnpm lint`) — Qualidade e conformidade de código
+2. **`typecheck`** (`pnpm typecheck`) — Integridade estática de tipos TypeScript
+3. **`test`** (`pnpm test`) — Validação do comportamento funcional e testes de regressão
+4. **`build`** (`pnpm build`) — Compilação e empacotamento de produção
+
+A execução deve ser realizada preferencialmente pelo comando canônico unificado do root:
+
+```bash
+pnpm verify
+```
+
+#### Regras de Execução do Quality Gate:
+
+- **Fail-Fast Automático:** Se qualquer fase falhar (`LINT`, `TYPECHECK`, `TEST` ou `BUILD`), a execução é interrompida e a tarefa **NÃO está concluída**.
+- **Não-Equivalência das Fases:**
+  - `lint PASS` NÃO substitui `typecheck`.
+  - `typecheck PASS` NÃO substitui `testes`.
+  - `testes PASS` NÃO substituem `build`.
+  - `build PASS` NÃO substitui `lint`.
+- **Proibição Absoluta de Enfraquecimento:** É estritamente proibido silenciar erros para forçar o gate a passar (ex: `eslint-disable` indiscriminado, `ts-ignore`, `ignoreBuildErrors`, ignorar testes falhos, `--force`, `|| true`, `continue-on-error`).
+- **Relatório Factual Obrigatório para Agentes:** Ao concluir qualquer tarefa, a IA/agente deve obrigatoriamente executar o Quality Gate e apresentar o relatório factual discriminado por fase:
+  - `Lint: PASS / FAIL`
+  - `Typecheck: PASS / FAIL`
+  - `Tests: X/X PASS / FAIL`
+  - `Build: PASS / FAIL`
+  - `QUALITY GATE: PASS / FAIL`
+    (Caso alguma fase não se aplique a um workspace específico, deve-se informar `N/A + motivo técnico`, nunca simplesmente omiti-la).
 
 ---
 

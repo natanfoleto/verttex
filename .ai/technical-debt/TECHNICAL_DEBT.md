@@ -10,9 +10,9 @@ Este documento funciona como a fonte única da verdade para o backlog de **Débi
 
 ## Tabela Consolidada de Débitos Técnicos
 
-| ID | Título | Categoria | Área | Prioridade | Severidade | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **DEBT-001** | Uso de Tags `<img>` Nativas em vez de `next/image` | Frontend / Infraestrutura | Marketplace | `LOW` | `LOW` | `ACCEPTED` (Mantido por custo/recursos Vercel) |
+| ID           | Título                                             | Categoria                 | Área        | Prioridade | Severidade | Status                                         |
+| :----------- | :------------------------------------------------- | :------------------------ | :---------- | :--------- | :--------- | :--------------------------------------------- |
+| **DEBT-001** | Uso de Tags `<img>` Nativas em vez de `next/image` | Frontend / Infraestrutura | Marketplace | `LOW`      | `LOW`      | `ACCEPTED` (Mantido por custo/recursos Vercel) |
 
 ---
 

@@ -3,13 +3,13 @@
 > **Status:** `completed`  
 > **Prioridade:** `high`  
 > **Dependências:** `013 — Catálogo de Produtos, Variações, Mídias e Uploads R2`  
-> **Caminho:** `.ai/roadmaps/completed/014-inventory-and-stock-movements.md`  
+> **Caminho:** `.ai/roadmaps/completed/014-inventory-and-stock-movements.md`
 
 ---
 
 ## 1. Objetivo Geral
 
-Estruturar e gerenciar a quantidade de estoque físico por produto, variação, lote e localização (`StockItem`), controlando datas de fabricação/validade, política sanitária **FEFO** (*First Expired, First Out*), quarentena, bloqueios operacionais, descarte formal de vencidos e rastreabilidade total (recall).
+Estruturar e gerenciar a quantidade de estoque físico por produto, variação, lote e localização (`StockItem`), controlando datas de fabricação/validade, política sanitária **FEFO** (_First Expired, First Out_), quarentena, bloqueios operacionais, descarte formal de vencidos e rastreabilidade total (recall).
 
 ---
 

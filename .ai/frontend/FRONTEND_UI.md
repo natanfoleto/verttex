@@ -67,10 +67,10 @@ Applications `apps/manager` and `apps/marketplace` are Next.js App Router projec
   1. A aplicação é envolvida pelo `<ErrorDialogProvider>` no `layout.tsx` raiz.
   2. Qualquer componente ou formulário invoca `showError(error, title?, description?)`.
 - **Motivação e UX:**
-  1. **Persistência Sem Auto-Dismiss:** O `<ErrorDialog />` fica aberto na tela até que o usuário leia a mensagem e clique explicitamente no botão *"Entendi"*.
+  1. **Persistência Sem Auto-Dismiss:** O `<ErrorDialog />` fica aberto na tela até que o usuário leia a mensagem e clique explicitamente no botão _"Entendi"_.
   2. **Formatação de Erros de Campo:** Transforma chaves técnicas de API (ex: `variations.0.price`) em marcadores legíveis ao usuário final (ex: `Variação #1 (Preço): Preço deve ser maior que zero`).
   3. **Adaptação Dinâmica ao Tema:** O modal responde automaticamente aos temas Claro (Light) e Escuro (Dark) configurados no sistema através dos design tokens do Tailwind CSS (`bg-zinc-900`, `border-zinc-800`, `text-zinc-100`, `text-rose-500`).
-  4. Botão de confirmação com texto *"Entendi"* e classe Tailwind `cursor-pointer`.
+  4. Botão de confirmação com texto _"Entendi"_ e classe Tailwind `cursor-pointer`.
 
 ---
 
@@ -252,7 +252,7 @@ Every feature screen must implement:
 > **MANDATORY POLICY & VISUAL STANDARD**:
 >
 > 1. **Uso Obrigatório de Skeleton Loading**: Toda e qualquer página, aba, modal ou componente que realize carregamento assíncrono de dados (ex: Perfil do Cliente, Listagem do Catálogo, Cartões de Endereço, Tabelas de Gestão do Manager, etc.) **DEVE obrigatoriamente implementar componentes visuais de Skeleton Loading (`animate-pulse`)**.
-> 2. **Fidelidade Visual do Skeleton**: O Skeleton Loading deve espelhar com precisão o layout, o tamanho de largura (`max-w-7xl`), os cartões, cabeçalhos, formulários e abas da interface final carregada, evitando sobressaltos ou saltos de layout (*Layout Shift / CLS*).
+> 2. **Fidelidade Visual do Skeleton**: O Skeleton Loading deve espelhar com precisão o layout, o tamanho de largura (`max-w-7xl`), os cartões, cabeçalhos, formulários e abas da interface final carregada, evitando sobressaltos ou saltos de layout (_Layout Shift / CLS_).
 > 3. **Prevenção de Erros de Hidratação (SSR)**: Em componentes Client com Guards de Rota (ex: `CustomerAuthGuard`), é obrigatório utilizar o padrão de controle `mounted` exibindo o Skeleton Loading como fallback de carregamento inicial, garantindo 100% de paridade entre o HTML gerado pelo servidor (SSR) e a hidratação no cliente.
 
 - **Form Display Standard**: All creation and editing forms for entities (`Cargos`, `Usuários`, `Lojas`, `Categorias`, `Marcas`) must be displayed inside `Dialog` modals directly on their listing pages, instead of using separate page routes (`/novo`, `/[id]/editar`). All legacy `/novo` and `/editar` subfolder routes must be completely removed.
@@ -354,16 +354,17 @@ Every feature screen must implement:
 4. **Proibição de Invalidação Parcial**: É **estritamente proibido** invalidar apenas a query de listagem local sem cobrir os dropdowns dependentes (ex: só invalidar `brands-list` sem invalidar `brands-dropdown`).
 
 **Exemplo correto:**
+
 ```ts
 // ✅ CORRETO — Cobre lista, tree e dropdown em um só helper
 onSuccess: async () => {
   await invalidateCategories(queryClient);
-}
+};
 
 // ❌ ERRADO — Não cobre o dropdown usado no formulário de produto
 onSuccess: () => {
   queryClient.invalidateQueries({ queryKey: ["categories-list"] });
-}
+};
 ```
 
 ### 10.6.2 Regra Mandatória de Input de Preço — `<PriceInput>`
@@ -371,23 +372,25 @@ onSuccess: () => {
 > **MANDATORY POLICY**: Nunca use `<Input type="number">` para campos monetários. Use **sempre** o `<PriceInput>`.
 
 **Arquivos:**
+
 - `src/lib/price.ts` — Funções utilitárias puras
 - `src/components/ui/price-input.tsx` — Componente de UI
 
 **Comportamento da máscara:**
 
-| Usuário digita | Exibido | Valor numérico retornado |
-|---|---|---|
-| `1` | `R$ 0,01` | `0.01` |
-| `105` | `R$ 1,05` | `1.05` |
-| `10500` | `R$ 105,00` | `105.00` |
-| `1050099` | `R$ 10.500,99` | `10500.99` |
+| Usuário digita | Exibido        | Valor numérico retornado |
+| -------------- | -------------- | ------------------------ |
+| `1`            | `R$ 0,01`      | `0.01`                   |
+| `105`          | `R$ 1,05`      | `1.05`                   |
+| `10500`        | `R$ 105,00`    | `105.00`                 |
+| `1050099`      | `R$ 10.500,99` | `10500.99`               |
 
 **API do componente:**
+
 ```tsx
 <PriceInput
-  value={price}              // number — valor numérico atual
-  onValueChange={setPrice}   // (value: number) => void
+  value={price} // number — valor numérico atual
+  onValueChange={setPrice} // (value: number) => void
   placeholder="R$ 0,00"
   disabled={false}
   className="text-zinc-100"
@@ -395,12 +398,14 @@ onSuccess: () => {
 ```
 
 **Regras de implementação:**
+
 1. Estado do formulário deve ser `number` (não `string`): `const [price, setPrice] = useState<number>(0)`
 2. Ao inicializar a partir de dados do servidor: `setPrice(Number(data.price))`
 3. No payload de envio, o valor já é `number` — não é necessário fazer `Number(price)` novamente
 4. Para campos opcionais (preço promocional, custo): `payload.promotionalPrice = promotionalPrice || null`
 
 **Utilitários disponíveis em `src/lib/price.ts`:**
+
 - `formatPriceBRL(value: number)` — formata para exibição em tabelas/listas
 - `parsePriceMask(formatted: string)` — extrai número de string formatada
 - `maskPriceFromDigits(digits: string)` — aplica máscara a dígitos brutos
@@ -637,4 +642,3 @@ The Verttex Marketplace connects regional consumers with artisan producers, farm
   - Pré-visualização instantânea local via `FileReader` / `URL.createObjectURL`.
   - Botão de upload/troca com ícone `RiCameraLine` / `RiImageAddLine` e confirmação de remoção com `AlertDialog` do shadcn.
   - Exibe fallback com as iniciais da loja quando não houver imagem definida.
-

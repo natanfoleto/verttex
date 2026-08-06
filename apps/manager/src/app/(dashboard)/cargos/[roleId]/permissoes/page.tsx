@@ -48,14 +48,36 @@ export default function RolePermissionsPage({
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [userSearch, setUserSearch] = useState('')
 
+  interface RolePermissionDetail {
+    id: string
+    name: string
+    key: string
+    description?: string | null
+    isSystem?: boolean
+    rolePermissions?: Array<{ permissionId: string }>
+  }
+
+  interface PermissionItem {
+    id: string
+    key: string
+    name?: string
+    module?: string
+    description?: string | null
+  }
+
   const { data: role, isLoading: isLoadingRole } = useQuery({
     queryKey: ['role-detail', roleId],
-    queryFn: () => apiClient(`/roles/${roleId}`),
+    queryFn: () => apiClient<RolePermissionDetail>(`/roles/${roleId}`),
   })
 
   const { data: allPermissions, isLoading: isLoadingPerms } = useQuery({
     queryKey: ['all-permissions'],
-    queryFn: () => apiClient('/permissions'),
+    queryFn: async () => {
+      const res = await apiClient<
+        PermissionItem[] | { data: PermissionItem[] }
+      >('/permissions')
+      return Array.isArray(res) ? res : (res?.data ?? [])
+    },
   })
 
   const { data: usersData } = useQuery({
@@ -160,24 +182,14 @@ export default function RolePermissionsPage({
   }
 
   // Group permissions by module
-  const permissionsByModule = new Map<
-    string,
-    Array<{ id: string; key: string; module: string; description: string }>
-  >()
-  allPermissions?.forEach(
-    (perm: {
-      id: string
-      key: string
-      module: string
-      description: string
-    }) => {
-      const mod = perm.module || 'Outros'
-      if (!permissionsByModule.has(mod)) {
-        permissionsByModule.set(mod, [])
-      }
-      permissionsByModule.get(mod)!.push(perm)
-    },
-  )
+  const permissionsByModule = new Map<string, PermissionItem[]>()
+  allPermissions?.forEach((perm: PermissionItem) => {
+    const mod = perm.module || 'Outros'
+    if (!permissionsByModule.has(mod)) {
+      permissionsByModule.set(mod, [])
+    }
+    permissionsByModule.get(mod)!.push(perm)
+  })
 
   const filteredUsers = roleUsers.filter(
     (u) =>

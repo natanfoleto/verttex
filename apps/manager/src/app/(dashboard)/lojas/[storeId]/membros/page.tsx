@@ -11,6 +11,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 
 import { apiClient, ApiError } from '../../../../../lib/api-client'
 import { invalidateStores } from '../../../../../lib/query-keys'
+import { StoreItem } from '../../components/store-form-dialog'
 
 export default function StoreMembersPage({
   params,
@@ -27,12 +28,15 @@ export default function StoreMembersPage({
 
   const { data: store, isLoading: isLoadingStore } = useQuery({
     queryKey: ['store-detail', storeId],
-    queryFn: () => apiClient(`/stores/${storeId}`),
+    queryFn: () => apiClient<StoreItem>(`/stores/${storeId}`),
   })
 
   const { data: usersData } = useQuery({
     queryKey: ['all-users-select'],
-    queryFn: () => apiClient('/users?perPage=100'),
+    queryFn: () =>
+      apiClient<{ data: Array<{ id: string; name: string; email: string }> }>(
+        '/users?perPage=100',
+      ),
   })
 
   const addMemberMutation = useMutation({

@@ -305,8 +305,14 @@ describe('Discovery Quality — Paginação & Contextos de Rota', () => {
   })
 
   it('44. Paginação Integridade — Sem duplicação, sem perda de itens entre páginas', async () => {
-    const page1 = await PublicDiscoveryService.discover({ page: 1, perPage: 4 })
-    const page2 = await PublicDiscoveryService.discover({ page: 2, perPage: 4 })
+    const page1 = await PublicDiscoveryService.discover({
+      page: 1,
+      perPage: 4,
+    })
+    const page2 = await PublicDiscoveryService.discover({
+      page: 2,
+      perPage: 4,
+    })
 
     const ids1 = page1.products.map((p) => p.id)
     const ids2 = page2.products.map((p) => p.id)

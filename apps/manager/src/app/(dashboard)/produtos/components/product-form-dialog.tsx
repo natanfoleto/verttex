@@ -44,17 +44,17 @@ import {
 } from '../../../../lib/query-keys'
 import { sanitizeSlug } from '../../../../lib/slug'
 
-interface Store {
+export interface Store {
   id: string
   name: string
 }
 
-interface Category {
+export interface Category {
   id: string
   name: string
 }
 
-interface Brand {
+export interface Brand {
   id: string
   name: string
 }
@@ -217,7 +217,7 @@ export function ProductFormDialog({
   const { data: storesRes } = useQuery({
     queryKey: storeQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient('/stores')
+      const res = await apiClient<{ data?: Store[] } | Store[]>('/stores')
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
@@ -227,7 +227,9 @@ export function ProductFormDialog({
   const { data: categoriesRes } = useQuery({
     queryKey: categoryQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient('/categories')
+      const res = await apiClient<{ data?: Category[] } | Category[]>(
+        '/categories',
+      )
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
@@ -237,7 +239,7 @@ export function ProductFormDialog({
   const { data: brandsRes } = useQuery({
     queryKey: brandQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient('/brands')
+      const res = await apiClient<{ data?: Brand[] } | Brand[]>('/brands')
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
@@ -469,32 +471,32 @@ export function ProductFormDialog({
 
   const isFormDirty = isEditing
     ? JSON.stringify({
-        name,
-        slug,
-        shortDescription,
-        fullDescription,
-        type,
-        status,
-        isPublished,
-        isFeatured,
-        storeId,
-        categoryId,
-        brandId,
-        price,
-        promotionalPrice,
-        costPrice,
-        sku,
-        barcode,
-        mediaItems,
-        weight,
-        width,
-        height,
-        length,
-        metaTitle,
-        metaDescription,
-        hasBatchControl,
-        hasExpirationControl,
-      }) !== initialSnapshot
+      name,
+      slug,
+      shortDescription,
+      fullDescription,
+      type,
+      status,
+      isPublished,
+      isFeatured,
+      storeId,
+      categoryId,
+      brandId,
+      price,
+      promotionalPrice,
+      costPrice,
+      sku,
+      barcode,
+      mediaItems,
+      weight,
+      width,
+      height,
+      length,
+      metaTitle,
+      metaDescription,
+      hasBatchControl,
+      hasExpirationControl,
+    }) !== initialSnapshot
     : name.trim().length > 0
 
   // Handle Name Input Change (Auto Slug)
@@ -533,10 +535,15 @@ export function ProductFormDialog({
 
         // Try direct Presigned PUT upload first
         try {
-          const presignedRes = await apiClient('/files/presigned-url', {
+          const presignedRes = await apiClient<{
+            uploadUrl: string
+            fileId: string
+            publicUrl: string
+            data?: { uploadUrl: string; fileId: string; publicUrl: string }
+          }>('/files/presigned-url', {
             method: 'POST',
             body: JSON.stringify({
-              fileName: file.name,
+              filename: file.name,
               mimeType: file.type,
               size: file.size,
               purpose: 'product_image',
@@ -552,10 +559,11 @@ export function ProductFormDialog({
           })
 
           if (putRes.ok) {
-            const finalizedRes = await apiClient(
-              `/files/${presigned.fileId}/finalize`,
-              { method: 'POST' },
-            )
+            const finalizedRes = await apiClient<{
+              id: string
+              publicUrl: string
+              data?: { id: string; publicUrl: string }
+            }>(`/files/${presigned.fileId}/finalize`, { method: 'POST' })
             const finalized = finalizedRes.data || finalizedRes
             fileId = finalized.id || presigned.fileId
             publicUrl = finalized.publicUrl || presigned.publicUrl
@@ -571,7 +579,11 @@ export function ProductFormDialog({
           formData.append('purpose', 'product_image')
           formData.append('storeId', selectedStoreId)
 
-          const uploadRes = await apiClient('/files/upload', {
+          const uploadRes = await apiClient<{
+            id: string
+            publicUrl: string
+            data?: { id: string; publicUrl: string }
+          }>('/files/upload', {
             method: 'POST',
             body: formData,
           })
@@ -1078,7 +1090,7 @@ export function ProductFormDialog({
                       onChange={(e) =>
                         setStatus(
                           e.target.value as
-                            'draft' | 'active' | 'inactive' | 'archived',
+                          'draft' | 'active' | 'inactive' | 'archived',
                         )
                       }
                     >
@@ -1656,11 +1668,10 @@ export function ProductFormDialog({
                       {mediaItems.map((item) => (
                         <div
                           key={item.fileId}
-                          className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-zinc-900 p-2 transition-all ${
-                            item.isMain
+                          className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-zinc-900 p-2 transition-all ${item.isMain
                               ? 'border-amber-500/80 ring-1 ring-amber-500/30'
                               : 'border-zinc-800'
-                          }`}
+                            }`}
                         >
                           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-950">
                             {/* eslint-disable-next-line @next/next/no-img-element */}

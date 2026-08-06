@@ -83,14 +83,43 @@ export default function UserPermissionsPage({
   >('all')
   const [moduleFilter, setModuleFilter] = useState<string>('all')
 
+  interface PermissionItem {
+    id: string
+    key: string
+    name?: string
+    module?: string
+    description?: string | null
+  }
+
+  interface UserPermissionDetail {
+    id: string
+    name: string
+    email: string
+    role?: {
+      id: string
+      name: string
+      key?: string
+      permissions?: Array<{
+        permissionId?: string
+        permission?: { id?: string; key?: string }
+      }>
+    } | null
+    permissions?: Array<{ permissionId: string; effect: 'allow' | 'deny' }>
+  }
+
   const { data: user, isLoading: isLoadingUser } = useQuery({
     queryKey: ['user-detail', userId],
-    queryFn: () => apiClient(`/users/${userId}`),
+    queryFn: () => apiClient<UserPermissionDetail>(`/users/${userId}`),
   })
 
   const { data: allPermissions, isLoading: isLoadingPerms } = useQuery({
     queryKey: ['all-permissions'],
-    queryFn: () => apiClient('/permissions'),
+    queryFn: async () => {
+      const res = await apiClient<
+        PermissionItem[] | { data: PermissionItem[] }
+      >('/permissions')
+      return Array.isArray(res) ? res : (res?.data ?? [])
+    },
   })
 
   const { showError } = useErrorDialog()
@@ -148,7 +177,12 @@ export default function UserPermissionsPage({
   )
 
   // Helper function to resolve effective status and visual indicators
-  const getEffectiveInfo = (perm: { id: string; key: string }) => {
+  const getEffectiveInfo = (perm: {
+    id: string
+    key: string
+    module?: string
+    description?: string | null
+  }) => {
     const override = currentOverridesMap.get(perm.id)
     const isRoleGranted =
       isSystemAdmin ||
@@ -201,13 +235,6 @@ export default function UserPermissionsPage({
   const overrideCount = currentOverridesMap.size
 
   const availableModulesSet = new Set<string>()
-
-  interface PermissionItem {
-    id: string
-    key: string
-    module?: string
-    description?: string
-  }
 
   allPermissions?.forEach((perm: PermissionItem) => {
     if (perm.module) availableModulesSet.add(perm.module)
@@ -285,10 +312,7 @@ export default function UserPermissionsPage({
   })
 
   // Group by Module
-  const permissionsByModule = new Map<
-    string,
-    Array<{ id: string; key: string; module?: string; description?: string }>
-  >()
+  const permissionsByModule = new Map<string, PermissionItem[]>()
 
   filteredPermissions?.forEach((perm: PermissionItem) => {
     const mod = perm.module || 'Outros'

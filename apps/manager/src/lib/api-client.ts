@@ -58,10 +58,10 @@ export interface ApiClientOptions extends Omit<RequestInit, 'body'> {
   responseType?: 'json' | 'text' | 'blob'
 }
 
-export async function apiClient<T = unknown>(
+export async function apiClient<TResponse = unknown>(
   endpoint: string,
   options: ApiClientOptions = {},
-): Promise<T> {
+): Promise<TResponse> {
   const { responseType = 'json', ...fetchOptions } = options
   const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`
   const isFormData =
@@ -123,7 +123,7 @@ export async function apiClient<T = unknown>(
       )
     }
     const text = await response.text()
-    return text as unknown as T
+    return text as unknown as TResponse
   }
 
   if (responseType === 'blob') {
@@ -135,7 +135,7 @@ export async function apiClient<T = unknown>(
       )
     }
     const blob = await response.blob()
-    return blob as unknown as T
+    return blob as unknown as TResponse
   }
 
   const data = await response.json().catch(() => null)

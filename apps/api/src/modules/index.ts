@@ -59,7 +59,9 @@ export async function registerModules(app: FastifyInstance) {
   await app.register(notificationsRoutes, { prefix: '/notifications' })
   await app.register(reportsRoutes, { prefix: '/reports' })
   await app.register(marketplaceRoutes, { prefix: '/marketplace' })
-  await app.register(marketplacePublicRoutes, { prefix: '/public/marketplace' })
+  await app.register(marketplacePublicRoutes, {
+    prefix: '/public/marketplace',
+  })
   await app.register(carouselRoutes, { prefix: '/carousel' })
   await app.register(carouselPublicRoutes, { prefix: '/public/carousel' })
 }

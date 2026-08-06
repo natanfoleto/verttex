@@ -28,7 +28,7 @@ import { apiClient } from '../../../../lib/api-client'
 import { invalidateStores, storeQueryKeys } from '../../../../lib/query-keys'
 import { ProductsTable } from '../../produtos/components/products-table'
 import { StoreAuditTab } from '../components/store-audit-tab'
-import { StoreFormDialog } from '../components/store-form-dialog'
+import { StoreFormDialog, StoreItem } from '../components/store-form-dialog'
 import { StoreInventoryTab } from '../components/store-inventory-tab'
 import { StoreLotsTab } from '../components/store-lots-tab'
 import { StoreMovementsTab } from '../components/store-movements-tab'
@@ -63,7 +63,7 @@ export default function StoreDetailPage({
     refetch,
   } = useQuery({
     queryKey: storeQueryKeys.detail(storeId),
-    queryFn: () => apiClient(`/stores/${storeId}`),
+    queryFn: () => apiClient<StoreItem>(`/stores/${storeId}`),
   })
 
   if (isLoading) {
@@ -111,15 +111,14 @@ export default function StoreDetailPage({
                   {store.name}
                 </h1>
                 <span
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase ${
-                    store.status === 'active'
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase ${store.status === 'active'
                       ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                       : store.status === 'draft'
                         ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                         : store.status === 'suspended'
                           ? 'border-rose-800 bg-rose-950 text-rose-400'
                           : 'border-amber-800 bg-amber-950 text-amber-400'
-                  }`}
+                    }`}
                 >
                   {store.status === 'active'
                     ? 'Ativa'
@@ -267,15 +266,14 @@ export default function StoreDetailPage({
                     Status Atual
                   </span>
                   <span
-                    className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                      store.status === 'active'
+                    className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${store.status === 'active'
                         ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                         : store.status === 'draft'
                           ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                           : store.status === 'suspended'
                             ? 'border-rose-800 bg-rose-950 text-rose-400'
                             : 'border-amber-800 bg-amber-950 text-amber-400'
-                    }`}
+                      }`}
                   >
                     {store.status === 'active'
                       ? 'Ativa'

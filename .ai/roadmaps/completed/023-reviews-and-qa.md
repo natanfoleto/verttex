@@ -20,7 +20,7 @@ Permitir que clientes que efetuaram a compra avaliem os produtos (nota de 1 a 5 
 ## 2. Principais Responsabilidades Entregues
 
 - **Módulo de Avaliações & Q&A na API (`apps/api/src/modules/reviews`)**:
-  - `POST /reviews`: Avaliação de produto **restrita a compras verificadas (*Verified Purchase*)**, exigindo ao menos um pedido entregue (`DELIVERED`) contendo o produto.
+  - `POST /reviews`: Avaliação de produto **restrita a compras verificadas (_Verified Purchase_)**, exigindo ao menos um pedido entregue (`DELIVERED`) contendo o produto.
   - `GET /reviews/product/:productId`: Cálculo de média de estrelas e listagem pública de avaliações.
   - `POST /reviews/questions`: Submissão de perguntas por visitantes e compradores.
   - `POST /reviews/questions/:questionId/answer`: Resposta oficial dos lojistas no Manager.

@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import type { PaginationMeta } from '@verttex/types'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { RiAddLine, RiEditLine, RiShieldUserLine } from 'react-icons/ri'
@@ -26,7 +27,7 @@ export default function UsersListPage() {
     queryFn: () => {
       let url = `/users?page=${page}&perPage=${perPage}`
       if (search) url += `&search=${encodeURIComponent(search)}`
-      return apiClient(url)
+      return apiClient<{ data: UserItem[]; meta: PaginationMeta }>(url)
     },
   })
 

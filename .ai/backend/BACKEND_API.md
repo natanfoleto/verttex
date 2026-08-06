@@ -206,10 +206,10 @@ Authorization is always **double-validated**: frontend for UX, backend for secur
 
 ### 5.10 Foto de Perfil das Lojas (Store Logo R2 Upload)
 
-| Method | Path                    | Auth                         | Description                                                                 |
-| ------ | ----------------------- | ---------------------------- | --------------------------------------------------------------------------- |
-| POST   | `/stores/:storeId/logo` | Bearer (stores.update)       | Upload/substituição multipart da foto de perfil da loja no Cloudflare R2   |
-| DELETE | `/stores/:storeId/logo` | Bearer (stores.update)       | Remoção da foto de perfil da loja e desvinculo relacional no PostgreSQL     |
+| Method | Path                    | Auth                   | Description                                                              |
+| ------ | ----------------------- | ---------------------- | ------------------------------------------------------------------------ |
+| POST   | `/stores/:storeId/logo` | Bearer (stores.update) | Upload/substituição multipart da foto de perfil da loja no Cloudflare R2 |
+| DELETE | `/stores/:storeId/logo` | Bearer (stores.update) | Remoção da foto de perfil da loja e desvinculo relacional no PostgreSQL  |
 
 - **Modelagem**: Relação relacional `Store.logoFileId` apontando para a entidade centralizada `File`.
 - **Limpeza Compensatória**: A substituição de foto exclui a foto antiga no Cloudflare R2 sem deixar registros órfãos.

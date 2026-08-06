@@ -83,7 +83,10 @@ export default function StockAndLotsPage() {
   const { data: stores = [] } = useQuery<Store[]>({
     queryKey: ['stores-dropdown'],
     queryFn: async () => {
-      const res = await apiClient('/stores')
+      const res = await apiClient<
+        | { data?: Array<{ id: string; name: string }> }
+        | Array<{ id: string; name: string }>
+      >('/stores')
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
   })
@@ -118,7 +121,17 @@ export default function StockAndLotsPage() {
         params.append('expirationCondition', expirationFilter)
       if (search) params.append('search', search)
 
-      const res = await apiClient(`/lots?${params.toString()}`)
+      const res = await apiClient<{
+        data: ExtendedLotItem[]
+        meta: {
+          page: number
+          limit: number
+          total: number
+          totalPages: number
+          hasNextPage: boolean
+          hasPreviousPage: boolean
+        }
+      }>(`/lots?${params.toString()}`)
       return res
     },
   })

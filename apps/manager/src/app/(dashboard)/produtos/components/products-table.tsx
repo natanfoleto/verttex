@@ -41,7 +41,13 @@ import {
   storeQueryKeys,
 } from '../../../../lib/query-keys'
 import { useAuth } from '../../../../providers/auth-provider'
-import { ProductFormDialog, ProductToEdit } from './product-form-dialog'
+import {
+  Brand,
+  Category,
+  ProductFormDialog,
+  ProductToEdit,
+  Store,
+} from './product-form-dialog'
 
 interface ProductsTableProps {
   fixedStoreId?: string
@@ -52,18 +58,15 @@ export function ProductsTable({
   fixedStoreId,
   hideTitle = false,
 }: ProductsTableProps) {
-  const { ability } = useAuth()
   const queryClient = useQueryClient()
-
-  // Filters State
+  const { ability } = useAuth()
+  const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [storeFilter, setStoreFilter] = useState<string>(fixedStoreId || '')
+  const [storeFilter, setStoreFilter] = useState<string>('')
   const [categoryFilter, setCategoryFilter] = useState<string>('')
   const [brandFilter, setBrandFilter] = useState<string>('')
-  const [page, setPage] = useState(1)
 
-  // Dialog State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<ProductToEdit | null>(
     null,
@@ -76,7 +79,7 @@ export function ProductsTable({
   const { data: storesRes } = useQuery({
     queryKey: storeQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient('/stores')
+      const res = await apiClient<{ data?: Store[] } | Store[]>('/stores')
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: !fixedStoreId,
@@ -86,7 +89,9 @@ export function ProductsTable({
   const { data: categoriesRes } = useQuery({
     queryKey: categoryQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient('/categories')
+      const res = await apiClient<{ data?: Category[] } | Category[]>(
+        '/categories',
+      )
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
     staleTime: 0, // Always fetch fresh so newly created categories appear immediately
@@ -95,7 +100,7 @@ export function ProductsTable({
   const { data: brandsRes } = useQuery({
     queryKey: brandQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient('/brands')
+      const res = await apiClient<{ data?: Brand[] } | Brand[]>('/brands')
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
     staleTime: 0, // Always fetch fresh so newly created brands appear immediately
@@ -123,7 +128,15 @@ export function ProductsTable({
       if (categoryFilter) params.append('categoryId', categoryFilter)
       if (brandFilter) params.append('brandId', brandFilter)
 
-      const res = await apiClient(`/products?${params.toString()}`)
+      const res = await apiClient<{
+        data: ProductToEdit[]
+        meta: {
+          page: number
+          limit: number
+          total: number
+          totalPages: number
+        }
+      }>(`/products?${params.toString()}`)
       return res
     },
   })
@@ -131,8 +144,7 @@ export function ProductsTable({
   const storesList = storesRes ?? []
   const categoriesList = categoriesRes ?? []
   const brandsList = brandsRes ?? []
-  const productsList: ProductToEdit[] =
-    productsRes?.data ?? (Array.isArray(productsRes) ? productsRes : [])
+  const productsList: ProductToEdit[] = productsRes?.data ?? []
   const meta = productsRes?.meta ?? {
     page: 1,
     limit: 10,

@@ -65,8 +65,10 @@ export function ReceivingFormDialog({
     queryKey: ['products-dropdown', recStoreId],
     queryFn: async () => {
       if (!recStoreId) return []
-      const res = await apiClient(`/products?storeId=${recStoreId}&limit=100`)
-      return res?.data ?? []
+      const res = await apiClient<{ data?: ProductItem[] } | ProductItem[]>(
+        `/products?storeId=${recStoreId}&limit=100`,
+      )
+      return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: Boolean(recStoreId),
   })

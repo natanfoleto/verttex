@@ -5,33 +5,81 @@ import { isValidGtin } from "../src/shared/utils/barcode-validator.js";
 
 const permissionsData = [
   // Users module
-  { key: "users.read", module: "users", description: "Visualizar lista e detalhes de usuários" },
-  { key: "users.create", module: "users", description: "Cadastrar novos usuários gestores" },
-  { key: "users.update", module: "users", description: "Editar dados de usuários" },
+  {
+    key: "users.read",
+    module: "users",
+    description: "Visualizar lista e detalhes de usuários",
+  },
+  {
+    key: "users.create",
+    module: "users",
+    description: "Cadastrar novos usuários gestores",
+  },
+  {
+    key: "users.update",
+    module: "users",
+    description: "Editar dados de usuários",
+  },
   { key: "users.delete", module: "users", description: "Desativar usuários" },
 
   // Roles module
   { key: "roles.read", module: "roles", description: "Visualizar cargos" },
   { key: "roles.create", module: "roles", description: "Criar novos cargos" },
   { key: "roles.update", module: "roles", description: "Editar cargos" },
-  { key: "roles.delete", module: "roles", description: "Excluir cargos não-sistema" },
+  {
+    key: "roles.delete",
+    module: "roles",
+    description: "Excluir cargos não-sistema",
+  },
 
   // Permissions module
-  { key: "permissions.read", module: "permissions", description: "Visualizar permissões" },
-  { key: "permissions.manage", module: "permissions", description: "Gerenciar permissões de cargos e usuários" },
+  {
+    key: "permissions.read",
+    module: "permissions",
+    description: "Visualizar permissões",
+  },
+  {
+    key: "permissions.manage",
+    module: "permissions",
+    description: "Gerenciar permissões de cargos e usuários",
+  },
 
   // Stores module
   { key: "stores.read", module: "stores", description: "Visualizar lojas" },
   { key: "stores.create", module: "stores", description: "Criar novas lojas" },
-  { key: "stores.update", module: "stores", description: "Editar dados da loja" },
+  {
+    key: "stores.update",
+    module: "stores",
+    description: "Editar dados da loja",
+  },
   { key: "stores.delete", module: "stores", description: "Desativar loja" },
-  { key: "stores.manage-members", module: "stores", description: "Vincular e desvincular usuários da loja" },
+  {
+    key: "stores.manage-members",
+    module: "stores",
+    description: "Vincular e desvincular usuários da loja",
+  },
 
   // Categories module
-  { key: "categories.read", module: "categories", description: "Visualizar categorias" },
-  { key: "categories.create", module: "categories", description: "Criar categorias" },
-  { key: "categories.update", module: "categories", description: "Editar categorias" },
-  { key: "categories.delete", module: "categories", description: "Arquivar categorias" },
+  {
+    key: "categories.read",
+    module: "categories",
+    description: "Visualizar categorias",
+  },
+  {
+    key: "categories.create",
+    module: "categories",
+    description: "Criar categorias",
+  },
+  {
+    key: "categories.update",
+    module: "categories",
+    description: "Editar categorias",
+  },
+  {
+    key: "categories.delete",
+    module: "categories",
+    description: "Arquivar categorias",
+  },
 
   // Brands module
   { key: "brands.read", module: "brands", description: "Visualizar marcas" },
@@ -40,55 +88,149 @@ const permissionsData = [
   { key: "brands.delete", module: "brands", description: "Arquivar marcas" },
 
   // Products module
-  { key: "products.read", module: "products", description: "Visualizar produtos" },
-  { key: "products.create", module: "products", description: "Cadastrar produtos" },
-  { key: "products.update", module: "products", description: "Editar produtos" },
-  { key: "products.delete", module: "products", description: "Desativar produtos" },
+  {
+    key: "products.read",
+    module: "products",
+    description: "Visualizar produtos",
+  },
+  {
+    key: "products.create",
+    module: "products",
+    description: "Cadastrar produtos",
+  },
+  {
+    key: "products.update",
+    module: "products",
+    description: "Editar produtos",
+  },
+  {
+    key: "products.delete",
+    module: "products",
+    description: "Desativar produtos",
+  },
 
   // Files module
   { key: "files.read", module: "files", description: "Visualizar arquivos" },
-  { key: "files.create", module: "files", description: "Fazer upload de arquivos" },
+  {
+    key: "files.create",
+    module: "files",
+    description: "Fazer upload de arquivos",
+  },
   { key: "files.delete", module: "files", description: "Remover arquivos" },
 
   // Lots module
-  { key: "lots.read", module: "lots", description: "Visualizar lotes de produtos" },
+  {
+    key: "lots.read",
+    module: "lots",
+    description: "Visualizar lotes de produtos",
+  },
   { key: "lots.create", module: "lots", description: "Cadastrar novos lotes" },
   { key: "lots.update", module: "lots", description: "Editar dados de lotes" },
-  { key: "lots.quarantine", module: "lots", description: "Colocar ou remover lotes de quarentena" },
+  {
+    key: "lots.quarantine",
+    module: "lots",
+    description: "Colocar ou remover lotes de quarentena",
+  },
 
   // Stock module
-  { key: "stock.read", module: "stock", description: "Visualizar estoque e posições" },
-  { key: "stock.receive", module: "stock", description: "Dar entrada física de mercadorias" },
-  { key: "stock.adjust", module: "stock", description: "Realizar ajustes de inventário" },
-  { key: "stock.transfer", module: "stock", description: "Transferir estoque entre depósitos" },
+  {
+    key: "stock.read",
+    module: "stock",
+    description: "Visualizar estoque e posições",
+  },
+  {
+    key: "stock.receive",
+    module: "stock",
+    description: "Dar entrada física de mercadorias",
+  },
+  {
+    key: "stock.adjust",
+    module: "stock",
+    description: "Realizar ajustes de inventário",
+  },
+  {
+    key: "stock.transfer",
+    module: "stock",
+    description: "Transferir estoque entre depósitos",
+  },
 
   // Inventory Locations module
-  { key: "locations.read", module: "locations", description: "Visualizar depósitos" },
-  { key: "locations.create", module: "locations", description: "Cadastrar depósitos" },
-  { key: "locations.update", module: "locations", description: "Editar depósitos" },
+  {
+    key: "locations.read",
+    module: "locations",
+    description: "Visualizar depósitos",
+  },
+  {
+    key: "locations.create",
+    module: "locations",
+    description: "Cadastrar depósitos",
+  },
+  {
+    key: "locations.update",
+    module: "locations",
+    description: "Editar depósitos",
+  },
 
   // Orders module
   { key: "orders.read", module: "orders", description: "Visualizar pedidos" },
-  { key: "orders.update-status", module: "orders", description: "Atualizar status de pedidos" },
+  {
+    key: "orders.update-status",
+    module: "orders",
+    description: "Atualizar status de pedidos",
+  },
   { key: "orders.cancel", module: "orders", description: "Cancelar pedidos" },
 
   // Reports module
-  { key: "reports.read", module: "reports", description: "Visualizar relatórios" },
-  { key: "reports.export", module: "reports", description: "Exportar relatórios em CSV" },
+  {
+    key: "reports.read",
+    module: "reports",
+    description: "Visualizar relatórios",
+  },
+  {
+    key: "reports.export",
+    module: "reports",
+    description: "Exportar relatórios em CSV",
+  },
 
   // Audit module
-  { key: "audit.read", module: "audit", description: "Visualizar histórico de auditoria" },
-  { key: "audit.export", module: "audit", description: "Exportar relatórios de auditoria" },
+  {
+    key: "audit.read",
+    module: "audit",
+    description: "Visualizar histórico de auditoria",
+  },
+  {
+    key: "audit.export",
+    module: "audit",
+    description: "Exportar relatórios de auditoria",
+  },
 
   // Marketplace module
-  { key: "marketplace.read", module: "marketplace", description: "Visualizar carrossel e configurações do marketplace" },
-  { key: "marketplace.create", module: "marketplace", description: "Criar banners do carrossel" },
-  { key: "marketplace.update", module: "marketplace", description: "Editar banners e configurações do marketplace" },
-  { key: "marketplace.delete", module: "marketplace", description: "Excluir banners do carrossel" },
+  {
+    key: "marketplace.read",
+    module: "marketplace",
+    description: "Visualizar carrossel e configurações do marketplace",
+  },
+  {
+    key: "marketplace.create",
+    module: "marketplace",
+    description: "Criar banners do carrossel",
+  },
+  {
+    key: "marketplace.update",
+    module: "marketplace",
+    description: "Editar banners e configurações do marketplace",
+  },
+  {
+    key: "marketplace.delete",
+    module: "marketplace",
+    description: "Excluir banners do carrossel",
+  },
 ];
 
 async function main() {
-  console.log("🌱 Iniciando seed rica e determinística para Product Discovery...");
+  console.log(
+    "🌱 Iniciando seed rica e determinística para Product Discovery...",
+  );
 
   // 1. Permissões
   for (const p of permissionsData) {
@@ -169,19 +311,36 @@ async function main() {
   }
 
   const employeePermKeys = [
-    "users.read", "stores.read", "categories.read", "brands.read",
-    "products.read", "products.create", "products.update", "files.read",
-    "files.create", "lots.read", "lots.create", "lots.update",
-    "stock.read", "stock.receive", "stock.adjust",
+    "users.read",
+    "stores.read",
+    "categories.read",
+    "brands.read",
+    "products.read",
+    "products.create",
+    "products.update",
+    "files.read",
+    "files.create",
+    "lots.read",
+    "lots.create",
+    "lots.update",
+    "stock.read",
+    "stock.receive",
+    "stock.adjust",
   ];
-  for (const perm of allPermissions.filter((p) => employeePermKeys.includes(p.key))) {
+  for (const perm of allPermissions.filter((p) =>
+    employeePermKeys.includes(p.key),
+  )) {
     await prisma.rolePermission.upsert({
-      where: { roleId_permissionId: { roleId: employeeRole.id, permissionId: perm.id } },
+      where: {
+        roleId_permissionId: { roleId: employeeRole.id, permissionId: perm.id },
+      },
       update: {},
       create: { roleId: employeeRole.id, permissionId: perm.id },
     });
     await prisma.rolePermission.upsert({
-      where: { roleId_permissionId: { roleId: supplierRole.id, permissionId: perm.id } },
+      where: {
+        roleId_permissionId: { roleId: supplierRole.id, permissionId: perm.id },
+      },
       update: {},
       create: { roleId: supplierRole.id, permissionId: perm.id },
     });
@@ -253,17 +412,29 @@ async function main() {
     create: {
       name: "Fazenda Inativa Demonstrativa",
       slug: "fazenda-inativa",
-      description: "Loja desativada para testes de filtros de visibilidade pública",
+      description:
+        "Loja desativada para testes de filtros de visibilidade pública",
       status: "suspended",
     },
   });
 
-  const activeStores = [storeAlvorada, storeMel, storeEngenho, storeDoces, storeInativa];
+  const activeStores = [
+    storeAlvorada,
+    storeMel,
+    storeEngenho,
+    storeDoces,
+    storeInativa,
+  ];
   for (const s of activeStores) {
     await prisma.storeUser.upsert({
       where: { storeId_userId: { storeId: s.id, userId: adminUser.id } },
       update: {},
-      create: { storeId: s.id, userId: adminUser.id, isOwner: true, isActive: true },
+      create: {
+        storeId: s.id,
+        userId: adminUser.id,
+        isOwner: true,
+        isActive: true,
+      },
     });
   }
 
@@ -501,7 +672,9 @@ async function main() {
 
     for (const varData of opts.variations) {
       if (varData.barcode && !isValidGtin(varData.barcode)) {
-        throw new Error(`[Seed Error] Código de barras inválido para GTIN/EAN: ${varData.barcode}`);
+        throw new Error(
+          `[Seed Error] Código de barras inválido para GTIN/EAN: ${varData.barcode}`,
+        );
       }
 
       const variation = await prisma.productVariation.upsert({
@@ -652,7 +825,8 @@ async function main() {
     name: "Mel Silvestre Orgânico 500g",
     slug: "mel-silvestre-organico-500g",
     shortDescription: "Mel 100% puro de florada silvestre nativa das montanhas",
-    fullDescription: "Extraído a frio preservando todas as propriedades nutricionais e enzimas naturais.",
+    fullDescription:
+      "Extraído a frio preservando todas as propriedades nutricionais e enzimas naturais.",
     isFeatured: true,
     hasBatchControl: true,
     hasExpirationControl: true,
@@ -663,12 +837,32 @@ async function main() {
         price: 38.0,
         promotionalPrice: 32.9,
         isDefault: true,
-        attributes: { "Florada": "Silvestre", "Peso": "500g" },
+        attributes: { Florada: "Silvestre", Peso: "500g" },
         lots: [
-          { lotNumber: "LOTE-MEL-01-PROXIMO", expirationDays: 15, status: "available", quantity: 20 },
-          { lotNumber: "LOTE-MEL-02-LONGO", expirationDays: 90, status: "available", quantity: 50 },
-          { lotNumber: "LOTE-MEL-03-VENCIDO", expirationDays: -10, status: "available", quantity: 10 },
-          { lotNumber: "LOTE-MEL-04-QUARENTENA", expirationDays: 45, status: "quarantine", quantity: 15 },
+          {
+            lotNumber: "LOTE-MEL-01-PROXIMO",
+            expirationDays: 15,
+            status: "available",
+            quantity: 20,
+          },
+          {
+            lotNumber: "LOTE-MEL-02-LONGO",
+            expirationDays: 90,
+            status: "available",
+            quantity: 50,
+          },
+          {
+            lotNumber: "LOTE-MEL-03-VENCIDO",
+            expirationDays: -10,
+            status: "available",
+            quantity: 10,
+          },
+          {
+            lotNumber: "LOTE-MEL-04-QUARENTENA",
+            expirationDays: 45,
+            status: "quarantine",
+            quantity: 15,
+          },
         ],
       },
     ],
@@ -681,21 +875,22 @@ async function main() {
     name: "Mel Silvestre Premium Pote",
     slug: "mel-silvestre-premium-pote",
     shortDescription: "Mel de florada silvestre selecionada em pote hermético",
-    fullDescription: "Embalagem especial em vidro com vedação hermética para alta conservação.",
+    fullDescription:
+      "Embalagem especial em vidro com vedação hermética para alta conservação.",
     type: "variable",
     variations: [
       {
         sku: "MEL-SILV-VAR-500G",
         price: 42.0,
         isDefault: true,
-        attributes: { "Florada": "Silvestre", "Peso": "500g" },
+        attributes: { Florada: "Silvestre", Peso: "500g" },
         stockQuantity: 40,
       },
       {
         sku: "MEL-SILV-VAR-1KG",
         price: 75.0,
         promotionalPrice: 68.0,
-        attributes: { "Florada": "Silvestre", "Peso": "1kg" },
+        attributes: { Florada: "Silvestre", Peso: "1kg" },
         stockQuantity: 25,
       },
     ],
@@ -708,14 +903,15 @@ async function main() {
     name: "Mel de Eucalipto Puro 500g",
     slug: "mel-de-eucalipto-puro-500g",
     shortDescription: "Mel encorpado de florada de eucalipto com sabor intenso",
-    fullDescription: "Ideal para adoçar bebidas quentes e combater resfriados de forma natural.",
+    fullDescription:
+      "Ideal para adoçar bebidas quentes e combater resfriados de forma natural.",
     variations: [
       {
         sku: "MEL-EUCA-500G",
         barcode: "7891234567888", // Valid GS1 EAN-13 (check: 8)
         price: 34.0,
         isDefault: true,
-        attributes: { "Florada": "Eucalipto", "Peso": "500g" },
+        attributes: { Florada: "Eucalipto", Peso: "500g" },
         stockQuantity: 30,
       },
     ],
@@ -727,15 +923,17 @@ async function main() {
     brand: brandApiario,
     name: "Extrato de Própolis Vermelha 30ml",
     slug: "extrato-de-propolis-vermelha-30ml",
-    shortDescription: "Extrato concentrado de própolis vermelha com alta ação antioxidante",
-    fullDescription: "Produção sustentável com certificado de análise de flavonoides.",
+    shortDescription:
+      "Extrato concentrado de própolis vermelha com alta ação antioxidante",
+    fullDescription:
+      "Produção sustentável com certificado de análise de flavonoides.",
     variations: [
       {
         sku: "PROP-VERM-30ML",
         price: 55.0,
         promotionalPrice: 48.0,
         isDefault: true,
-        attributes: { "Tipo": "Extrato" },
+        attributes: { Tipo: "Extrato" },
         stockQuantity: 15,
       },
     ],
@@ -754,7 +952,7 @@ async function main() {
         sku: "FAVO-MEL-300G",
         price: 45.0,
         isDefault: true,
-        attributes: { "Tipo": "Favo" },
+        attributes: { Tipo: "Favo" },
         stockQuantity: 10,
       },
     ],
@@ -777,7 +975,7 @@ async function main() {
         price: 68.0,
         promotionalPrice: 59.9,
         isDefault: true,
-        attributes: { "Madeira": "Amburana", "Volume": "750ml" },
+        attributes: { Madeira: "Amburana", Volume: "750ml" },
         stockQuantity: 50,
       },
     ],
@@ -789,22 +987,24 @@ async function main() {
     brand: brandBoaEsperanca,
     name: "Cachaça Reserva Boa Esperança",
     slug: "cachaca-reserva-boa-esperanca",
-    shortDescription: "Cachaça premium envelhecida especial do Engenho Boa Esperança",
-    fullDescription: "Destilação artesanal em alambique de cobre com descanso de 3 anos.",
+    shortDescription:
+      "Cachaça premium envelhecida especial do Engenho Boa Esperança",
+    fullDescription:
+      "Destilação artesanal em alambique de cobre com descanso de 3 anos.",
     type: "variable",
     variations: [
       {
         sku: "CACH-RES-750",
         price: 85.0,
         isDefault: true,
-        attributes: { "Madeira": "Amburana", "Volume": "750ml" },
+        attributes: { Madeira: "Amburana", Volume: "750ml" },
         stockQuantity: 20,
       },
       {
         sku: "CACH-RES-1L",
         price: 110.0,
         promotionalPrice: 99.0,
-        attributes: { "Madeira": "Amburana", "Volume": "1L" },
+        attributes: { Madeira: "Amburana", Volume: "1L" },
         stockQuantity: 15,
       },
     ],
@@ -816,7 +1016,8 @@ async function main() {
     brand: brandBoaEsperanca,
     name: "Cachaça Envelhecida Carvalho 750ml",
     slug: "cachaca-envelhecida-carvalho-750ml",
-    shortDescription: "Cachaça envelhecida em barris de carvalho francês por 2 anos",
+    shortDescription:
+      "Cachaça envelhecida em barris de carvalho francês por 2 anos",
     fullDescription: "Sabor amadeirado marcante e cor dourada intensa.",
     variations: [
       {
@@ -824,12 +1025,11 @@ async function main() {
         barcode: "7891234567864", // Valid GS1 EAN-13 (check: 4)
         price: 72.0,
         isDefault: true,
-        attributes: { "Madeira": "Carvalho", "Volume": "750ml" },
+        attributes: { Madeira: "Carvalho", Volume: "750ml" },
         stockQuantity: 35,
       },
     ],
   });
-
 
   await seedProduct({
     store: storeEngenho,
@@ -838,13 +1038,14 @@ async function main() {
     name: "Cachaça Prata Tradicional 670ml",
     slug: "cachaca-prata-tradicional-670ml",
     shortDescription: "Cachaça cristalina descansada em dornas de inox",
-    fullDescription: "Sabor puro de cana-de-açúcar fresco, ideal para caipirinhas.",
+    fullDescription:
+      "Sabor puro de cana-de-açúcar fresco, ideal para caipirinhas.",
     variations: [
       {
         sku: "CACH-PRAT-670",
         price: 35.0,
         isDefault: true,
-        attributes: { "Madeira": "Inox", "Volume": "670ml" },
+        attributes: { Madeira: "Inox", Volume: "670ml" },
         stockQuantity: 60,
       },
     ],
@@ -856,7 +1057,8 @@ async function main() {
     brand: brandBoaEsperanca,
     name: "Licor Artesanal de Jabuticaba 500ml",
     slug: "licor-artesanal-de-jabuticaba-500ml",
-    shortDescription: "Licor macertado com jabuticabas frescas colhidas na fazenda",
+    shortDescription:
+      "Licor macertado com jabuticabas frescas colhidas na fazenda",
     fullDescription: "Bebida suave, aveludada e doce na medida certa.",
     variations: [
       {
@@ -864,7 +1066,7 @@ async function main() {
         price: 45.0,
         promotionalPrice: 39.9,
         isDefault: true,
-        attributes: { "Sabor": "Jabuticaba", "Volume": "500ml" },
+        attributes: { Sabor: "Jabuticaba", Volume: "500ml" },
         stockQuantity: 25,
       },
     ],
@@ -878,7 +1080,8 @@ async function main() {
     name: "Queijo Canastra Meia Cura 500g",
     slug: "queijo-canastra-meia-cura-500g",
     shortDescription: "Queijo artesanal da Canastra maturado por 14 dias",
-    fullDescription: "Produzido com leite cru de vaca na região da Serra da Canastra com casca amarelada.",
+    fullDescription:
+      "Produzido com leite cru de vaca na região da Serra da Canastra com casca amarelada.",
     isFeatured: true,
     hasBatchControl: true,
     hasExpirationControl: true,
@@ -889,10 +1092,20 @@ async function main() {
         price: 49.9,
         promotionalPrice: 44.9,
         isDefault: true,
-        attributes: { "Maturação": "14 Dias", "Peso": "500g" },
+        attributes: { Maturação: "14 Dias", Peso: "500g" },
         lots: [
-          { lotNumber: "LOTE-QUEIJO-MC-01", expirationDays: 30, status: "available", quantity: 30 },
-          { lotNumber: "LOTE-QUEIJO-MC-02", expirationDays: 60, status: "available", quantity: 40 },
+          {
+            lotNumber: "LOTE-QUEIJO-MC-01",
+            expirationDays: 30,
+            status: "available",
+            quantity: 30,
+          },
+          {
+            lotNumber: "LOTE-QUEIJO-MC-02",
+            expirationDays: 60,
+            status: "available",
+            quantity: 40,
+          },
         ],
       },
     ],
@@ -905,7 +1118,8 @@ async function main() {
     name: "Queijo Canastra Real Curado 1kg",
     slug: "queijo-canastra-real-curado-1kg",
     shortDescription: "Queijo maturado por 30 dias com mofo branco natural",
-    fullDescription: "Sabor picante e textura firme, medalha de ouro em concurso regional.",
+    fullDescription:
+      "Sabor picante e textura firme, medalha de ouro em concurso regional.",
     hasBatchControl: true,
     hasExpirationControl: true,
     variations: [
@@ -913,9 +1127,14 @@ async function main() {
         sku: "CANASTRA-CUR-1KG",
         price: 95.0,
         isDefault: true,
-        attributes: { "Maturação": "30 Dias", "Peso": "1kg" },
+        attributes: { Maturação: "30 Dias", Peso: "1kg" },
         lots: [
-          { lotNumber: "LOTE-QUEIJO-CUR-01", expirationDays: 45, status: "available", quantity: 15 },
+          {
+            lotNumber: "LOTE-QUEIJO-CUR-01",
+            expirationDays: 45,
+            status: "available",
+            quantity: 15,
+          },
         ],
       },
     ],
@@ -934,7 +1153,7 @@ async function main() {
         sku: "REQ-CORTE-400G",
         price: 32.0,
         isDefault: true,
-        attributes: { "Tipo": "Corte", "Peso": "400g" },
+        attributes: { Tipo: "Corte", Peso: "400g" },
         stockQuantity: 20,
       },
     ],
@@ -953,7 +1172,7 @@ async function main() {
         sku: "MANT-GARR-500",
         price: 29.9,
         isDefault: true,
-        attributes: { "Volume": "500ml" },
+        attributes: { Volume: "500ml" },
         stockQuantity: 5,
       },
     ],
@@ -966,7 +1185,8 @@ async function main() {
     brand: brandDocesVovo,
     name: "Doce de Leite Viçosa Tradicional",
     slug: "doce-de-leite-vicosa-tradicional",
-    shortDescription: "O mais premiado doce de leite de Minas Gerais em pote de vidro",
+    shortDescription:
+      "O mais premiado doce de leite de Minas Gerais em pote de vidro",
     fullDescription: "Cremoso, sem adição de conservantes artificiais.",
     type: "variable",
     isFeatured: true,
@@ -976,13 +1196,13 @@ async function main() {
         price: 28.0,
         promotionalPrice: 24.9,
         isDefault: true,
-        attributes: { "Sabor": "Tradicional", "Peso": "400g" },
+        attributes: { Sabor: "Tradicional", Peso: "400g" },
         stockQuantity: 50,
       },
       {
         sku: "DOCE-LEITE-800G",
         price: 48.0,
-        attributes: { "Sabor": "Tradicional", "Peso": "800g" },
+        attributes: { Sabor: "Tradicional", Peso: "800g" },
         stockQuantity: 30,
       },
     ],
@@ -995,14 +1215,15 @@ async function main() {
     name: "Doce de Leite com Coco 400g",
     slug: "doce-de-leite-com-coco-400g",
     shortDescription: "Doce de leite cremoso misturado com coco ralado fresco",
-    fullDescription: "Combinação perfeita entre o doce tradicional e o crocante do coco.",
+    fullDescription:
+      "Combinação perfeita entre o doce tradicional e o crocante do coco.",
     variations: [
       {
         sku: "DOCE-COCO-400G",
         price: 29.9,
         promotionalPrice: 25.9,
         isDefault: true,
-        attributes: { "Sabor": "Coco", "Peso": "400g" },
+        attributes: { Sabor: "Coco", Peso: "400g" },
         stockQuantity: 25,
       },
     ],
@@ -1021,7 +1242,7 @@ async function main() {
         sku: "GOIAB-CASC-500G",
         price: 24.0,
         isDefault: true,
-        attributes: { "Tipo": "Cascão", "Peso": "500g" },
+        attributes: { Tipo: "Cascão", Peso: "500g" },
         stockQuantity: 40,
       },
     ],
@@ -1040,7 +1261,7 @@ async function main() {
         sku: "PACOCA-AMEND-300",
         price: 18.0,
         isDefault: true,
-        attributes: { "Tipo": "Rolha", "Peso": "300g" },
+        attributes: { Tipo: "Rolha", Peso: "300g" },
         stockQuantity: 60,
       },
     ],
@@ -1052,14 +1273,15 @@ async function main() {
     brand: brandDocesVovo,
     name: "Pé de Moleque Crocante 250g",
     slug: "pe-de-moleque-crocante-250g",
-    shortDescription: "Pé de moleque tradicional com rapadura e amendoim inteiro",
+    shortDescription:
+      "Pé de moleque tradicional com rapadura e amendoim inteiro",
     fullDescription: "Crocante e saboroso, embalado individualmente.",
     variations: [
       {
         sku: "PE-MOLEQUE-250G",
         price: 16.5,
         isDefault: true,
-        attributes: { "Tipo": "Tradicional", "Peso": "250g" },
+        attributes: { Tipo: "Tradicional", Peso: "250g" },
         stockQuantity: 0,
       },
     ],
@@ -1078,7 +1300,7 @@ async function main() {
         sku: "ACUCAR-MASC-1KG",
         price: 15.0,
         isDefault: true,
-        attributes: { "Tipo": "Orgânico", "Peso": "1kg" },
+        attributes: { Tipo: "Orgânico", Peso: "1kg" },
         stockQuantity: 30,
       },
     ],
@@ -1097,7 +1319,7 @@ async function main() {
         sku: "FIGO-RAMY-400G",
         price: 36.0,
         isDefault: true,
-        attributes: { "Peso": "400g" },
+        attributes: { Peso: "400g" },
         stockQuantity: 18,
       },
     ],
@@ -1111,7 +1333,8 @@ async function main() {
     name: "Produto Rascunho Não Publicado",
     slug: "produto-rascunho-nao-publicado",
     shortDescription: "Este produto está como rascunho e não publicado",
-    fullDescription: "Guarda para testar filtro isPublished: false no Discovery público.",
+    fullDescription:
+      "Guarda para testar filtro isPublished: false no Discovery público.",
     isPublished: false,
     status: "draft",
     variations: [
@@ -1151,7 +1374,8 @@ async function main() {
     name: "Queijo de Fazenda Inativa Suspensa",
     slug: "queijo-de-fazenda-inativa-suspensa",
     shortDescription: "Produto de loja suspensa inativa",
-    fullDescription: "Guarda para testar filtro store.status: active no Discovery público.",
+    fullDescription:
+      "Guarda para testar filtro store.status: active no Discovery público.",
     isPublished: true,
     status: "active",
     variations: [
@@ -1164,7 +1388,9 @@ async function main() {
     ],
   });
 
-  console.log(`✅ ${seedProductCount} Produtos e variações cadastrados com atributos, preços, ofertas e lotes.`);
+  console.log(
+    `✅ ${seedProductCount} Produtos e variações cadastrados com atributos, preços, ofertas e lotes.`,
+  );
 
   // 9. Configurações Iniciais do Marketplace
   await prisma.marketplaceSettings.deleteMany();
@@ -1173,7 +1399,8 @@ async function main() {
       id: "default-settings",
       publicName: "VERTTEX",
       announcementActive: false,
-      announcementText: "🚚 Frete Grátis para compras acima de R$ 300,00 em todo o município!",
+      announcementText:
+        "🚚 Frete Grátis para compras acima de R$ 300,00 em todo o município!",
       supportEmail: "atendimento@verttex.com.br",
       supportPhone: "(11) 4003-8899",
       supportWhatsapp: "(11) 99887-7665",
@@ -1189,21 +1416,37 @@ async function main() {
 
   // 10. Reconstruir Projeção de Busca (ProductSearchDocument)
   console.log("🔍 Sincronizando ProductSearchDocuments...");
-  const syncedCount = await ProductSearchIndexService.rebuildAllSearchDocuments();
+  const syncedCount =
+    await ProductSearchIndexService.rebuildAllSearchDocuments();
 
   const report = await ProductSearchIndexService.getDiscrepancyReport();
   console.log(`📊 Relatório de Projeção de Busca:`);
-  console.log(`  - Produtos adicionados/atualizados nesta seed: ${seedProductCount}`);
-  console.log(`  - Total de produtos ativos existentes no banco: ${report.totalActiveProducts}`);
-  console.log(`  - Total de ProductSearchDocuments sintetizados: ${syncedCount}`);
+  console.log(
+    `  - Produtos adicionados/atualizados nesta seed: ${seedProductCount}`,
+  );
+  console.log(
+    `  - Total de produtos ativos existentes no banco: ${report.totalActiveProducts}`,
+  );
+  console.log(
+    `  - Total de ProductSearchDocuments sintetizados: ${syncedCount}`,
+  );
 
-  console.log(`  - Discrepâncias ausentes: ${report.missingDocumentProductIds.length}`);
-  console.log(`  - Discrepâncias órfãs: ${report.orphanDocumentProductIds.length}`);
+  console.log(
+    `  - Discrepâncias ausentes: ${report.missingDocumentProductIds.length}`,
+  );
+  console.log(
+    `  - Discrepâncias órfãs: ${report.orphanDocumentProductIds.length}`,
+  );
 
-  if (report.missingDocumentProductIds.length > 0 || report.orphanDocumentProductIds.length > 0) {
+  if (
+    report.missingDocumentProductIds.length > 0 ||
+    report.orphanDocumentProductIds.length > 0
+  ) {
     console.warn("⚠️ Discrepâncias detectadas na projeção de busca!");
   } else {
-    console.log("🎉 Seed concluída com SUCESSO! Relação 1:1 exata (1 Produto = 1 Documento de Busca, 0 Discrepâncias).");
+    console.log(
+      "🎉 Seed concluída com SUCESSO! Relação 1:1 exata (1 Produto = 1 Documento de Busca, 0 Discrepâncias).",
+    );
   }
 }
 

@@ -17,7 +17,9 @@ async function main() {
     });
     count++;
   }
-  console.log(`✅ Populated storeId and publicId for ${count} product variations successfully.`);
+  console.log(
+    `✅ Populated storeId and publicId for ${count} product variations successfully.`,
+  );
 }
 
 main()

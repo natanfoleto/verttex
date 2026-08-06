@@ -8,6 +8,23 @@ import { RiArrowLeftLine, RiEditLine, RiShieldLine } from 'react-icons/ri'
 import { apiClient } from '../../../../lib/api-client'
 import { roleQueryKeys } from '../../../../lib/query-keys'
 
+interface RoleDetail {
+  id: string
+  name: string
+  key: string
+  description?: string | null
+  isSystem?: boolean
+  rolePermissions?: Array<{
+    permissionId?: string
+    permission?: {
+      id: string
+      key: string
+      description?: string
+      module?: string
+    }
+  }>
+}
+
 export default function RoleDetailPage({
   params,
 }: {
@@ -22,7 +39,7 @@ export default function RoleDetailPage({
     isError,
   } = useQuery({
     queryKey: roleQueryKeys.detail(roleId),
-    queryFn: () => apiClient(`/roles/${roleId}`),
+    queryFn: () => apiClient<RoleDetail>(`/roles/${roleId}`),
   })
 
   if (isLoading) {
@@ -96,27 +113,27 @@ export default function RoleDetailPage({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             {role.rolePermissions.map(
               (rp: {
-                permission: {
-                  id: string
-                  key: string
-                  description: string
-                  module: string
+                permission?: {
+                  id?: string
+                  key?: string
+                  description?: string | null
+                  module?: string | null
                 }
               }) => (
                 <div
-                  key={rp.permission.id}
+                  key={rp.permission?.id || Math.random().toString()}
                   className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-3"
                 >
                   <div className="flex flex-col">
                     <span className="font-mono text-xs font-semibold text-emerald-400">
-                      {rp.permission.key}
+                      {rp.permission?.key}
                     </span>
                     <span className="text-xs text-zinc-400">
-                      {rp.permission.description}
+                      {rp.permission?.description}
                     </span>
                   </div>
                   <span className="rounded bg-zinc-900 px-2 py-0.5 text-[10px] font-semibold text-zinc-500 uppercase">
-                    {rp.permission.module}
+                    {rp.permission?.module}
                   </span>
                 </div>
               ),

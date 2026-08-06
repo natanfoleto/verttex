@@ -25,11 +25,15 @@ export interface UserItem {
   name: string
   email: string
   status: string
+  phone?: string | null
+  createdAt?: string
   role?: {
     id: string
     name: string
+    key?: string
   } | null
   roleId: string
+  stores?: Array<{ store: { id: string; name: string; slug?: string | null } }>
 }
 
 interface UserFormDialogProps {
@@ -56,7 +60,10 @@ export function UserFormDialog({
   const { data: roles } = useQuery({
     queryKey: roleQueryKeys.dropdown(),
     queryFn: async () => {
-      const res = await apiClient('/roles')
+      const res = await apiClient<
+        | { data?: Array<{ id: string; name: string }> }
+        | Array<{ id: string; name: string }>
+      >('/roles')
       return Array.isArray(res) ? res : (res?.data ?? [])
     },
     enabled: open,
@@ -74,7 +81,7 @@ export function UserFormDialog({
       setName('')
       setEmail('')
       setPassword('')
-      setRoleId(roles && roles.length > 0 ? roles[0].id : '')
+      setRoleId(roles && roles.length > 0 ? roles[0]?.id || '' : '')
       setStatus('active')
     }
     setErrorMessage(null)

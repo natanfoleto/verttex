@@ -12,6 +12,7 @@
   "scripts": {
     "build": "echo 'No build is required for this package'",
     "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

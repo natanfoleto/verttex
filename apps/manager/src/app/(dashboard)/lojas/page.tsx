@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import type { PaginationMeta } from '@verttex/types'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { RiAddLine, RiEditLine, RiUserSharedLine } from 'react-icons/ri'
@@ -34,7 +35,7 @@ export default function StoresListPage() {
       let url = `/stores?page=${page}&perPage=${perPage}`
       if (search) url += `&search=${encodeURIComponent(search)}`
       if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`
-      return apiClient(url)
+      return apiClient<{ data: StoreItem[]; meta: PaginationMeta }>(url)
     },
   })
 
@@ -156,15 +157,14 @@ export default function StoresListPage() {
                 </td>
                 <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                      store.status === 'active'
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${store.status === 'active'
                         ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                         : store.status === 'draft'
                           ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                           : store.status === 'suspended'
                             ? 'border-rose-800 bg-rose-950 text-rose-400'
                             : 'border-amber-800 bg-amber-950 text-amber-400'
-                    }`}
+                      }`}
                   >
                     {store.status === 'active'
                       ? 'Ativa'

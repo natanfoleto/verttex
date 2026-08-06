@@ -28,8 +28,13 @@ export interface StoreItem {
   slug: string
   description?: string | null
   logoUrl?: string | null
+  customDomain?: string | null
   status: string
   _count?: { users: number }
+  users?: Array<{
+    isOwner: boolean
+    user: { id: string; name: string; email: string }
+  }>
 }
 
 interface StoreFormDialogProps {

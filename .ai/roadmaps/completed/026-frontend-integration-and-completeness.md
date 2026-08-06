@@ -20,6 +20,7 @@ Construir e integrar todas as telas, componentes e páginas de interface nos fro
 ## 2. Principais Responsabilidades Entregues
 
 ### Manager (`apps/manager`)
+
 - **Página `/pedidos` (Gestão de Pedidos & Expedição)**:
   - Tabela com filtros de status (`PENDING`, `PAID`, `SHIPPED`, `DELIVERED`, `CANCELLED`).
   - Modal `OrderDispatchDialog` com formulário de código de rastreio, transportadora e revalidação sanitária de lotes FEFO.
@@ -41,6 +42,7 @@ Construir e integrar todas as telas, componentes e páginas de interface nos fro
   - Inclusão dos links e ícones para Gestão de Pedidos, Devoluções & Quarentena, Notificações e Relatórios & BI.
 
 ### Marketplace (`apps/marketplace`)
+
 - **Página de Detalhes do Produto (`/produtos/[slug]`)**:
   - Seção de Avaliações e Média de Estrelas com destaque para opiniões de compras verificadas.
   - Aba e estrutura de Perguntas & Respostas sobre o produto.

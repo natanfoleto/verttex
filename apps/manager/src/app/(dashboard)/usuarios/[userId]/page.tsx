@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 
 import { apiClient } from '../../../../lib/api-client'
 import { userQueryKeys } from '../../../../lib/query-keys'
-import { UserFormDialog } from '../components/user-form-dialog'
+import { UserFormDialog, UserItem } from '../components/user-form-dialog'
 
 export default function UserDetailPage({
   params,
@@ -32,7 +32,7 @@ export default function UserDetailPage({
     isError,
   } = useQuery({
     queryKey: userQueryKeys.detail(userId),
-    queryFn: () => apiClient(`/users/${userId}`),
+    queryFn: () => apiClient<UserItem>(`/users/${userId}`),
   })
 
   if (isLoading) {
@@ -123,7 +123,9 @@ export default function UserDetailPage({
             <div>
               <span className="block text-xs text-zinc-500">Cadastrado em</span>
               <span className="text-zinc-400">
-                {new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                {user.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString('pt-BR')
+                  : '--'}
               </span>
             </div>
           </div>
@@ -141,7 +143,9 @@ export default function UserDetailPage({
           {user.stores && user.stores.length > 0 ? (
             <div className="space-y-2">
               {user.stores.map(
-                (su: { store: { id: string; name: string; slug: string } }) => (
+                (su: {
+                  store: { id: string; name: string; slug?: string | null }
+                }) => (
                   <div
                     key={su.store.id}
                     className="flex items-center justify-between rounded-xl border border-zinc-800/80 bg-zinc-950 p-3"

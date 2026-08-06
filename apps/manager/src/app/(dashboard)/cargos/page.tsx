@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import type { PaginationMeta } from '@verttex/types'
 import { useState } from 'react'
 import { RiAddLine, RiEditLine, RiShieldLine } from 'react-icons/ri'
 
@@ -24,7 +25,7 @@ export default function RolesListPage() {
     queryFn: () => {
       let url = `/roles?page=${page}&perPage=${perPage}`
       if (search) url += `&search=${encodeURIComponent(search)}`
-      return apiClient(url)
+      return apiClient<{ data: RoleItem[]; meta: PaginationMeta }>(url)
     },
   })
 
