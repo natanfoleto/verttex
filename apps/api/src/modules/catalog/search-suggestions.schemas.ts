@@ -14,7 +14,7 @@ export const searchSuggestionsQuerySchema = z.object({
     .default(8),
 })
 
-export type SearchSuggestionsQuery = z.infer<
+export type SearchSuggestionsQuery = z.input<
   typeof searchSuggestionsQuerySchema
 >
 

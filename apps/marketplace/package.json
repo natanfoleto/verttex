@@ -6,10 +6,10 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "next lint && node -e \"const fs=require('fs');const p='./tsconfig.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.compilerOptions.jsx='react-jsx';fs.writeFileSync(p,JSON.stringify(c,null,2));\"",
+    "lint:fix": "next lint --fix && node -e \"const fs=require('fs');const p='./tsconfig.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.compilerOptions.jsx='react-jsx';fs.writeFileSync(p,JSON.stringify(c,null,2));\"",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "node -e \"const fs=require('fs');const p='./tsconfig.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));if(c.compilerOptions.jsx!=='react-jsx'){c.compilerOptions.jsx='react-jsx';fs.writeFileSync(p,JSON.stringify(c,null,2));}\" && vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -49,7 +49,7 @@
     "jsdom": "^26.0.0",
     "postcss": "^8.5.21",
     "typescript": "5.8.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.10"
   },
   "eslintConfig": {
     "extends": [

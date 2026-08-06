@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { RiAlertLine } from 'react-icons/ri'
 
 import { Button } from '@/components/ui/button'

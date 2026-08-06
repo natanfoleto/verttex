@@ -21,7 +21,7 @@ vi.mock('../../lib/api-client', () => ({
   apiClient: (...args: unknown[]) => mockApiClient(...args),
 }))
 
-function renderComponent() {
+function renderComponent(props = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -32,7 +32,7 @@ function renderComponent() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <MarketplaceSearch debounceMs={0} />
+      <MarketplaceSearch debounceMs={0} {...props} />
     </QueryClientProvider>,
   )
 }
@@ -44,16 +44,17 @@ describe('MarketplaceSearch Experience Component', () => {
     mockApiClient.mockReset()
   })
 
-  it('1. Renderiza o combobox de busca com atributos ARIA corretos', () => {
+  it('1. Renderiza o combobox de busca com atributos ARIA corretos (sem aria-activedescendant quando fechado)', () => {
     renderComponent()
 
     const input = screen.getByRole('combobox')
     expect(input).toBeInTheDocument()
     expect(input).toHaveAttribute('aria-autocomplete', 'list')
     expect(input).toHaveAttribute('aria-expanded', 'false')
+    expect(input).not.toHaveAttribute('aria-activedescendant')
   })
 
-  it('2. Exibe pesquisas recentes ao focar no campo vazio', async () => {
+  it('2. Exibe pesquisas recentes ao focar no campo vazio e atribui role listbox', async () => {
     addRecentSearch('Mel Silvestre')
     addRecentSearch('Queijo Canastra')
 
@@ -64,11 +65,14 @@ describe('MarketplaceSearch Experience Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Pesquisas recentes')).toBeInTheDocument()
+      expect(screen.getByRole('listbox')).toBeInTheDocument()
       expect(screen.getByText('Mel Silvestre')).toBeInTheDocument()
       expect(screen.getByText('Queijo Canastra')).toBeInTheDocument()
     })
 
     expect(input).toHaveAttribute('aria-expanded', 'true')
+    // NENHUM aria-activedescendant se activeIndex for -1
+    expect(input).not.toHaveAttribute('aria-activedescendant')
   })
 
   it('3. Navega para /busca?q= ao submeter o formulário', async () => {
@@ -83,7 +87,7 @@ describe('MarketplaceSearch Experience Component', () => {
     expect(pushMock).toHaveBeenCalledWith('/busca?q=Cacha%C3%A7a%20Artesanal')
   })
 
-  it('4. Permite navegação por teclado (ArrowDown, ArrowUp e Enter)', async () => {
+  it('4. Permite navegação por teclado (ArrowDown, ArrowUp e Enter) atualizando aria-activedescendant', async () => {
     addRecentSearch('Item A')
     addRecentSearch('Item B')
 
@@ -98,18 +102,17 @@ describe('MarketplaceSearch Experience Component', () => {
     // ArrowDown seleciona o primeiro item recente (Item B)
     fireEvent.keyDown(input, { key: 'ArrowDown' })
     await waitFor(() => {
-      expect(optionB.closest('[role="option"]')).toHaveAttribute(
-        'aria-selected',
-        'true',
-      )
+      const optB = optionB.closest('[role="option"]')
+      expect(optB).toHaveAttribute('aria-selected', 'true')
+      expect(input).toHaveAttribute('aria-activedescendant', optB?.id)
     })
 
     // ArrowDown seleciona o próximo item recente (Item A)
     fireEvent.keyDown(input, { key: 'ArrowDown' })
     await waitFor(() => {
-      expect(
-        screen.getByText('Item A').closest('[role="option"]'),
-      ).toHaveAttribute('aria-selected', 'true')
+      const optA = screen.getByText('Item A').closest('[role="option"]')
+      expect(optA).toHaveAttribute('aria-selected', 'true')
+      expect(input).toHaveAttribute('aria-activedescendant', optA?.id)
     })
 
     // Enter executa Item A
@@ -117,7 +120,7 @@ describe('MarketplaceSearch Experience Component', () => {
     expect(pushMock).toHaveBeenCalledWith('/busca?q=Item%20A')
   })
 
-  it('5. Fecha o dropdown ao pressionar Escape', async () => {
+  it('5. Fecha o dropdown ao pressionar Escape e limpa aria-activedescendant', async () => {
     addRecentSearch('Mel')
 
     renderComponent()
@@ -132,10 +135,11 @@ describe('MarketplaceSearch Experience Component', () => {
     fireEvent.keyDown(input, { key: 'Escape' })
 
     expect(input).toHaveAttribute('aria-expanded', 'false')
+    expect(input).not.toHaveAttribute('aria-activedescendant')
     expect(screen.queryByText('Pesquisas recentes')).not.toBeInTheDocument()
   })
 
-  it('6. Remove um item individual das recentes ao clicar no botão de remover', async () => {
+  it('6. Remove um item individual das recentes ao clicar no botão de remover (fora do role=option)', async () => {
     addRecentSearch('Mel Silvestre')
 
     renderComponent()
@@ -161,8 +165,8 @@ describe('MarketplaceSearch Experience Component', () => {
       success: true,
       data: {
         suggestions: [
-          { text: 'cachaça artesanal', type: 'query' },
-          { text: 'cachaça envelhecida', type: 'query' },
+          { text: 'Cachaça Artesanal', type: 'query' },
+          { text: 'Cachaça Envelhecida', type: 'query' },
         ],
       },
     })
@@ -173,19 +177,26 @@ describe('MarketplaceSearch Experience Component', () => {
     fireEvent.focus(input)
     fireEvent.change(input, { target: { value: 'cacha' } })
 
-    const item = await screen.findByText('cachaça artesanal')
+    const item = await screen.findByText('Cachaça Artesanal')
     expect(item).toBeInTheDocument()
-    expect(screen.getByText('cachaça envelhecida')).toBeInTheDocument()
+    expect(screen.getByText('Cachaça Envelhecida')).toBeInTheDocument()
   })
 
-  it('8. Trata erro de API graciosamente sem travar a interface ao buscar', async () => {
+  it('8. Exibe mensagem discreta em caso de erro da API sem travar a submissão por Enter', async () => {
     mockApiClient.mockRejectedValueOnce(new Error('Network Error'))
 
     renderComponent()
 
     const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
     fireEvent.change(input, { target: { value: 'queijo' } })
 
+    const errorMsg = await screen.findByText(
+      'Não foi possível carregar sugestões',
+    )
+    expect(errorMsg).toBeInTheDocument()
+
+    // Enter ainda executa a busca manual normalmente
     const form = input.closest('form')!
     fireEvent.submit(form)
 

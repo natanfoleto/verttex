@@ -25,15 +25,38 @@ interface MarketplaceSearchProps {
   onSearchSubmitted?: () => void
 }
 
+function normalizeSearchText(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
 export function MarketplaceSearch({
   className = '',
-  limit = 8,
+  limit,
   debounceMs = 200,
   onSearchSubmitted,
 }: MarketplaceSearchProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const baseId = useId()
+
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Desktop max 8, Mobile max 6, API max 10
+  const effectiveLimit = Math.min(
+    10,
+    limit !== undefined ? limit : isMobile ? 6 : 8,
+  )
 
   const initialQuery = searchParams?.get('q') || ''
   const [query, setQuery] = useState(initialQuery)
@@ -46,6 +69,13 @@ export function MarketplaceSearch({
 
   const { recentSearches, addSearch, removeSearch, clearSearches } =
     useRecentSearches()
+
+  // Reset active index whenever typed query changes
+  const handleQueryChange = (newVal: string) => {
+    setQuery(newVal)
+    setActiveIndex(-1)
+    if (!isOpen) setIsOpen(true)
+  }
 
   // Debounce for query typing
   useEffect(() => {
@@ -64,12 +94,20 @@ export function MarketplaceSearch({
     data: suggestions = [],
     isLoading,
     isFetching,
-  } = useSearchSuggestions(debouncedQuery, limit)
+    isError,
+  } = useSearchSuggestions(debouncedQuery, effectiveLimit)
 
-  const normQuery = query.trim().toLowerCase()
+  const normQuery = normalizeSearchText(query)
+  const normDebounced = normalizeSearchText(debouncedQuery)
+
+  // Stale query protection: query typed is pending debounce
+  const isQueryPending = normQuery !== normDebounced
+
   const isAutocompleteMode = normQuery.length >= 2
+  const suggestionsToDisplay =
+    isAutocompleteMode && !isQueryPending ? suggestions : []
   const activeItems = isAutocompleteMode
-    ? suggestions.map((s) => s.text)
+    ? suggestionsToDisplay.map((s) => s.text)
     : recentSearches
 
   // Reset active index if out of bounds when item list changes
@@ -108,7 +146,13 @@ export function MarketplaceSearch({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
 
-    if (activeIndex >= 0 && activeItems[activeIndex]) {
+    // If query is pending debounce or activeIndex invalid, search typed query
+    if (
+      !isQueryPending &&
+      activeIndex >= 0 &&
+      activeIndex < activeItems.length &&
+      activeItems[activeIndex]
+    ) {
       executeSearch(activeItems[activeIndex])
     } else {
       executeSearch(query)
@@ -119,7 +163,12 @@ export function MarketplaceSearch({
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      if (activeIndex >= 0 && activeItems[activeIndex]) {
+      if (
+        !isQueryPending &&
+        activeIndex >= 0 &&
+        activeIndex < activeItems.length &&
+        activeItems[activeIndex]
+      ) {
         executeSearch(activeItems[activeIndex])
       } else {
         executeSearch(query)
@@ -185,17 +234,36 @@ export function MarketplaceSearch({
 
   const listboxId = `${baseId}-listbox`
   const activeOptionId =
-    activeIndex >= 0 ? `${baseId}-option-${activeIndex}` : undefined
+    isOpen && activeIndex >= 0 && activeIndex < activeItems.length
+      ? `${baseId}-option-${activeIndex}`
+      : undefined
 
   const showRecentDropdown = !isAutocompleteMode && recentSearches.length > 0
-  const showSuggestionsDropdown =
-    isAutocompleteMode && (suggestions.length > 0 || isLoading || isFetching)
   const showEmptyAutocomplete =
-    isAutocompleteMode && !isLoading && !isFetching && suggestions.length === 0
+    isAutocompleteMode &&
+    !isLoading &&
+    !isFetching &&
+    !isQueryPending &&
+    !isError &&
+    suggestionsToDisplay.length === 0
+  const showSuggestionsList =
+    isAutocompleteMode &&
+    !isQueryPending &&
+    !isError &&
+    suggestionsToDisplay.length > 0
+  const showLoadingState =
+    isAutocompleteMode &&
+    (isLoading || isFetching || isQueryPending) &&
+    !isError
+  const showErrorState = isAutocompleteMode && isError && !isQueryPending
 
   const shouldRenderDropdown =
     isOpen &&
-    (showRecentDropdown || showSuggestionsDropdown || showEmptyAutocomplete)
+    (showRecentDropdown ||
+      showLoadingState ||
+      showErrorState ||
+      showEmptyAutocomplete ||
+      showSuggestionsList)
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
@@ -208,10 +276,7 @@ export function MarketplaceSearch({
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value)
-              if (!isOpen) setIsOpen(true)
-            }}
+            onChange={(e) => handleQueryChange(e.target.value)}
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder="Buscar produtos, marcas e muito mais..."
@@ -231,6 +296,7 @@ export function MarketplaceSearch({
               onClick={() => {
                 setQuery('')
                 setDebouncedQuery('')
+                setActiveIndex(-1)
                 inputRef.current?.focus()
               }}
               className="mr-1 h-7 w-7 cursor-pointer p-0 text-stone-400 transition-colors hover:bg-transparent hover:text-stone-700"
@@ -254,16 +320,13 @@ export function MarketplaceSearch({
         </div>
       </form>
 
-      {/* Autocomplete & Recent Searches Dropdown */}
+      {/* Dropdown Overlay Container */}
       {shouldRenderDropdown && (
-        <div
-          id={listboxId}
-          role="listbox"
-          className="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-lg"
-        >
+        <div className="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-lg">
           {/* Mode 1: Recent Searches */}
           {showRecentDropdown && (
             <div className="p-2">
+              {/* Header outside listbox */}
               <div className="mb-1 flex items-center justify-between px-2 text-xs font-semibold text-stone-500">
                 <span className="flex items-center gap-1.5">
                   <History className="h-3.5 w-3.5 text-stone-400" />
@@ -280,25 +343,32 @@ export function MarketplaceSearch({
                 </Button>
               </div>
 
-              <div className="flex flex-col">
+              {/* Listbox */}
+              <div id={listboxId} role="listbox" className="flex flex-col">
                 {recentSearches.map((item, index) => {
                   const isSelected = index === activeIndex
                   const itemOptionId = `${baseId}-option-${index}`
                   return (
                     <div
                       key={`recent-${item}-${index}`}
-                      id={itemOptionId}
-                      role="option"
-                      aria-selected={isSelected}
-                      onClick={() => executeSearch(item)}
-                      onMouseEnter={() => setActiveIndex(index)}
-                      className={`group flex cursor-pointer items-center justify-between rounded-sm px-2.5 py-2 text-sm transition-colors ${
-                        isSelected
-                          ? 'bg-stone-100 font-medium text-emerald-800'
-                          : 'text-stone-700 hover:bg-stone-50'
+                      className={`group flex items-center justify-between rounded-sm px-2.5 py-1.5 transition-colors ${
+                        isSelected ? 'bg-stone-100' : 'hover:bg-stone-50'
                       }`}
                     >
-                      <span className="truncate">{item}</span>
+                      <div
+                        id={itemOptionId}
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => executeSearch(item)}
+                        onMouseEnter={() => setActiveIndex(index)}
+                        className={`flex-1 cursor-pointer text-sm ${
+                          isSelected
+                            ? 'font-medium text-emerald-800'
+                            : 'text-stone-700'
+                        }`}
+                      >
+                        <span className="truncate">{item}</span>
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -321,18 +391,30 @@ export function MarketplaceSearch({
           )}
 
           {/* Mode 2: Autocomplete Text Suggestions */}
-          {showSuggestionsDropdown && (
+          {isAutocompleteMode && (
             <div className="p-2">
-              {(isLoading || isFetching) && suggestions.length === 0 && (
+              {showLoadingState && (
                 <div className="flex items-center justify-center gap-2 py-4 text-xs text-stone-400">
                   <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
                   <span>Buscando sugestões...</span>
                 </div>
               )}
 
-              {suggestions.length > 0 && (
-                <div className="flex flex-col">
-                  {suggestions.map((sug, index) => {
+              {showErrorState && (
+                <div className="rounded-sm bg-amber-50 p-3 text-xs text-amber-700">
+                  Não foi possível carregar sugestões
+                </div>
+              )}
+
+              {showEmptyAutocomplete && (
+                <div className="p-3 text-center text-xs text-stone-500">
+                  Nenhuma sugestão encontrada para &quot;{query}&quot;
+                </div>
+              )}
+
+              {showSuggestionsList && (
+                <div id={listboxId} role="listbox" className="flex flex-col">
+                  {suggestionsToDisplay.map((sug, index) => {
                     const isSelected = index === activeIndex
                     const itemOptionId = `${baseId}-option-${index}`
                     return (
@@ -356,13 +438,6 @@ export function MarketplaceSearch({
                   })}
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Mode 3: Empty Autocomplete */}
-          {showEmptyAutocomplete && (
-            <div className="px-4 py-3 text-center text-xs text-stone-400">
-              Nenhuma sugestão encontrada para &quot;{query}&quot;
             </div>
           )}
         </div>

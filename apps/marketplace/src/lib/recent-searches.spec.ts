@@ -9,8 +9,11 @@ import {
 
 describe('recent-searches storage manager', () => {
   beforeEach(() => {
-    window.localStorage.clear()
+    vi.unstubAllGlobals()
     vi.restoreAllMocks()
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.clear()
+    }
   })
 
   it('1. Retorna lista vazia quando localStorage não contém dados', () => {
@@ -85,14 +88,36 @@ describe('recent-searches storage manager', () => {
     expect(getRecentSearches()).toEqual([])
   })
 
-  it('10. Suporta chamadas sem window (SSR safety)', () => {
-    const originalWindow = global.window
-    // @ts-expect-error simulating SSR
-    delete global.window
+  it('10. Suporta ambiente SSR sem objeto window via vi.stubGlobal', () => {
+    vi.stubGlobal('window', undefined)
 
     expect(getRecentSearches()).toEqual([])
     expect(addRecentSearch('teste')).toEqual(['teste'])
+    expect(removeRecentSearch('teste')).toEqual([])
+    expect(clearRecentSearches()).toEqual([])
+  })
 
-    global.window = originalWindow
+  it('11. Resiliente a SecurityError lançado em localStorage.getItem', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException(
+        'SecurityError: The operation is insecure.',
+        'SecurityError',
+      )
+    })
+
+    expect(getRecentSearches()).toEqual([])
+    expect(addRecentSearch('Cachaça')).toEqual(['Cachaça'])
+  })
+
+  it('12. Resiliente a SecurityError lançado em localStorage.setItem', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException(
+        'SecurityError: The operation is insecure.',
+        'SecurityError',
+      )
+    })
+
+    expect(addRecentSearch('Queijo')).toEqual(['Queijo'])
+    expect(removeRecentSearch('Queijo')).toEqual([])
   })
 })

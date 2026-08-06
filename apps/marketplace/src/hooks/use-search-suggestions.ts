@@ -57,11 +57,11 @@ export function useSearchSuggestions(debouncedQuery: string, limit = 8) {
           err &&
           typeof err === 'object' &&
           'name' in err &&
-          err.name === 'AbortError'
+          (err.name === 'AbortError' || err.name === 'CanceledError')
         ) {
           return []
         }
-        return []
+        throw err
       }
     },
     enabled: isEnabled,

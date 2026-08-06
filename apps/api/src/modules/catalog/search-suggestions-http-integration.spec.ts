@@ -33,14 +33,16 @@ describe('GET /public/catalog/search-suggestions HTTP Real Integration Tests', (
     const json = JSON.parse(res.body)
     expect(json.success).toBe(true)
     expect(Array.isArray(json.data.suggestions)).toBe(true)
+    expect(json.data.suggestions.length).toBeGreaterThan(0)
 
-    if (json.data.suggestions.length > 0) {
-      expect(json.data.suggestions[0]).toHaveProperty('text')
-      expect(json.data.suggestions[0]).toHaveProperty('type', 'query')
-    }
+    const hasMelMatch = json.data.suggestions.some((s: { text: string }) =>
+      s.text.toLowerCase().includes('mel'),
+    )
+    expect(hasMelMatch).toBe(true)
+    expect(json.data.suggestions[0]).toHaveProperty('type', 'query')
   })
 
-  it('2. GET /public/catalog/search-suggestions?q=cachaca — suporta termos sem acento', async () => {
+  it('2. GET /public/catalog/search-suggestions?q=cachaca — suporta termo sem acento e preserva capitalização/acento humano original', async () => {
     const res = await app.inject({
       method: 'GET',
       url: '/public/catalog/search-suggestions?q=cachaca',
@@ -50,6 +52,13 @@ describe('GET /public/catalog/search-suggestions HTTP Real Integration Tests', (
     const json = JSON.parse(res.body)
     expect(json.success).toBe(true)
     expect(Array.isArray(json.data.suggestions)).toBe(true)
+    expect(json.data.suggestions.length).toBeGreaterThan(0)
+
+    const hasOriginalHumanText = json.data.suggestions.some(
+      (s: { text: string }) =>
+        s.text.includes('Cachaça') || s.text.includes('cachaça'),
+    )
+    expect(hasOriginalHumanText).toBe(true)
   })
 
   it('3. GET /public/catalog/search-suggestions?q=termo-inexistente-xyz — retorna lista vazia quando nada coincide', async () => {
@@ -86,15 +95,25 @@ describe('GET /public/catalog/search-suggestions HTTP Real Integration Tests', (
     expect(jsonEmpty.data.suggestions).toEqual([])
   })
 
-  it('5. GET /public/catalog/search-suggestions respeita limite customizado (limit=3)', async () => {
+  it('5. GET /public/catalog/search-suggestions com termo de >=2 chars e limit=3 — trunca resultado para <=3', async () => {
+    const resFull = await app.inject({
+      method: 'GET',
+      url: '/public/catalog/search-suggestions?q=mel',
+    })
+    const fullCount = JSON.parse(resFull.body).data.suggestions.length
+
     const res = await app.inject({
       method: 'GET',
-      url: '/public/catalog/search-suggestions?q=a&limit=3',
+      url: '/public/catalog/search-suggestions?q=mel&limit=3',
     })
 
     expect(res.statusCode).toBe(200)
     const json = JSON.parse(res.body)
     expect(json.success).toBe(true)
     expect(json.data.suggestions.length).toBeLessThanOrEqual(3)
+
+    if (fullCount > 3) {
+      expect(json.data.suggestions.length).toBe(3)
+    }
   })
 })
