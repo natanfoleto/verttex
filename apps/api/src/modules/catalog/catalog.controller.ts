@@ -20,21 +20,32 @@ export async function discoverPublicProductsController(
   req: FastifyRequest<{ Querystring: DiscoveryQuery }>,
   reply: FastifyReply,
 ) {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const rawQuery = req.query as Record<string, any>;
-  const attributes: Record<string, any> = {
-    ...(rawQuery.attributes || {}),
+  const rawQuery = req.query as Record<string, unknown>;
+  const rawAttributes =
+    typeof rawQuery.attributes === "object" && rawQuery.attributes !== null
+      ? (rawQuery.attributes as Record<string, string | string[]>)
+      : {};
+
+  const attributes: Record<string, string | string[]> = {
+    ...rawAttributes,
   };
 
   for (const [key, val] of Object.entries(rawQuery)) {
-    if (key.startsWith("attr_") && val !== undefined) {
+    if (key.startsWith("attr_") && val !== undefined && typeof val === "string") {
       const cleanKey = key.replace(/^attr_/, "");
       attributes[cleanKey] = val;
     }
   }
 
+  const qParam = typeof req.query.q === "string" ? req.query.q : undefined;
+  const searchParam = typeof req.query.search === "string" ? req.query.search : undefined;
+  const queryParam = typeof req.query.query === "string" ? req.query.query : undefined;
+
+  const canonicalSearch = (qParam || searchParam || queryParam || "").trim().slice(0, 200) || undefined;
+
   const queryPayload: DiscoveryQuery = {
     ...req.query,
+    search: canonicalSearch,
     attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
   };
 

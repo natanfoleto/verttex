@@ -22,6 +22,10 @@ export const discoveryQuerySchema = z.object({
     .string()
     .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
     .optional(),
+  q: z
+    .string()
+    .transform((val) => (val ? val.trim().slice(0, 200) : undefined))
+    .optional(),
   categorySlug: z
     .string()
     .transform((val) => (val ? val.trim().slice(0, 200) : undefined))

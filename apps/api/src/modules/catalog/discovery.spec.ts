@@ -139,7 +139,19 @@ describe("Product Discovery Engine (PublicDiscoveryService)", () => {
     vi.mocked(prisma.productVariation.findMany).mockResolvedValue([
       { productId: "prod-sku-match" } as any,
     ]);
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValue([
+      {
+        id: "doc-desc-1",
+        productId: "prod-description-only",
+        titleNormalized: "cachaca prata",
+        contextNormalized: "cachacas alambique",
+        attributesNormalized: "",
+        descriptionNormalized: "exact-sku-999 garrafa de cachaca artesanal de minas",
+        searchTextNormalized: "exact-sku-999",
+        createdAt: new Date("2026-01-01"),
+        updatedAt: new Date("2026-01-01"),
+      },
+    ]);
 
     vi.mocked(prisma.product.findMany).mockResolvedValue([
       {

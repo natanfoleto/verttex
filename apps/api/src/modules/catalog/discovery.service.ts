@@ -168,7 +168,7 @@ export class PublicDiscoveryService {
 
     const anchorToken = tokens[0]!;
 
-    const productFilter: any = {
+    const productFilter = {
       status: "active",
       isPublished: true,
       deletedAt: null,
@@ -178,17 +178,12 @@ export class PublicDiscoveryService {
       ...(storeId ? { storeId } : {}),
     };
 
-    // 1. Exact SKU / Barcode lookup via Prisma Client (single-token original query)
+    // 1. Exact SKU / Barcode lookup via ProductVariation in Prisma Client
     const exactMatchingVariants = (await prisma.productVariation.findMany({
       where: {
         status: "active",
         deletedAt: null,
-        product: {
-          status: "active",
-          isPublished: true,
-          deletedAt: null,
-          store: { status: "active", deletedAt: null },
-        },
+        product: productFilter,
         OR: [
           { sku: { equals: searchTerm, mode: "insensitive" } },
           { barcode: { equals: searchTerm, mode: "insensitive" } },
@@ -200,26 +195,6 @@ export class PublicDiscoveryService {
     if (Array.isArray(exactMatchingVariants)) {
       for (const v of exactMatchingVariants) {
         rankMap.set(v.productId, 1000);
-      }
-    }
-
-    const exactMatchingProducts = (await prisma.product.findMany({
-      where: {
-        status: "active",
-        isPublished: true,
-        deletedAt: null,
-        store: { status: "active", deletedAt: null },
-        OR: [
-          { sku: { equals: searchTerm, mode: "insensitive" } },
-          { barcode: { equals: searchTerm, mode: "insensitive" } },
-        ],
-      } as any,
-      select: { id: true },
-    })) || [];
-
-    if (Array.isArray(exactMatchingProducts)) {
-      for (const p of exactMatchingProducts) {
-        rankMap.set(p.id, 1000);
       }
     }
 
@@ -433,7 +408,6 @@ export class PublicDiscoveryService {
       page,
       perPage,
       search: searchInput,
-      query: queryInput,
       categorySlug,
       categoryId,
       brandSlug,
@@ -448,7 +422,7 @@ export class PublicDiscoveryService {
       attributes: rawAttributes,
     } = query;
 
-    const searchTerm = (queryInput || searchInput || "").trim();
+    const searchTerm = (searchInput || "").trim();
     const normalizedSearch = normalizeSearchText(searchTerm);
 
     // Normalize attribute filters (split comma-separated values in URL query params)

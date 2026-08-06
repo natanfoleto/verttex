@@ -104,16 +104,30 @@ function setupMatrixMocks() {
     store: { id: p.storeId, name: p.storeName, slug: p.storeSlug, isPublished: true, status: "active", deletedAt: null },
     images: [{ url: "https://example.com/img.jpg" }],
     medias: [{ isMain: true, file: { objectKey: "img.jpg" } }],
-    variations: p.variations.map((v) => ({
-      id: v.id,
-      sku: v.sku,
-      barcode: v.barcode || null,
-      price: v.price,
-      values: Object.entries(v.attributes || {}).map(([key, val]) => ({
-        optionValue: { option: { name: key }, value: val },
+    variations: [
+      ...p.variations.map((v) => ({
+        id: v.id,
+        sku: v.sku || p.sku,
+        barcode: v.barcode || p.barcode || null,
+        price: v.price,
+        values: Object.entries(v.attributes || {}).map(([key, val]) => ({
+          optionValue: { option: { name: key }, value: val },
+        })),
+        stockItems: [{ quantity: p.stockTotal }],
       })),
-      stockItems: [{ quantity: p.stockTotal }],
-    })),
+      ...(p.sku && !p.variations.some((v) => v.sku === p.sku)
+        ? [
+            {
+              id: `${p.id}-main-var`,
+              sku: p.sku,
+              barcode: p.barcode || null,
+              price: p.price,
+              values: [],
+              stockItems: [{ quantity: p.stockTotal }],
+            },
+          ]
+        : []),
+    ],
   }));
 
   mockPrisma(prisma.category.findFirst).mockResolvedValue(null);
@@ -172,9 +186,9 @@ function setupMatrixMocks() {
             .filter(
               (v) =>
                 (skuTerm && v.sku?.toLowerCase() === skuTerm.toLowerCase()) ||
-                (barcodeTerm && v.barcode?.toLowerCase() === barcodeTerm.toLowerCase())
+                (barcodeTerm && v.barcode?.toLowerCase() === barcodeTerm.toLowerCase()),
             )
-            .map(() => ({ productId: p.id }))
+            .map(() => ({ productId: p.id })),
         );
         return matched as unknown as Awaited<ReturnType<typeof prisma.productVariation.findMany>>;
       }
