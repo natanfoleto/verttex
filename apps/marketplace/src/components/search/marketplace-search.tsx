@@ -43,19 +43,21 @@ export function MarketplaceSearch({
   const searchParams = useSearchParams()
   const baseId = useId()
 
-  const [isMobile, setIsMobile] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const mq = window.matchMedia('(min-width: 56rem)')
+    setIsDesktop(mq.matches)
+
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
   }, [])
 
-  // Desktop max 8, Mobile max 6, API max 10
+  // Desktop (>= 56rem) max 8, Mobile (< 56rem) max 6, API max 10
   const effectiveLimit = Math.min(
     10,
-    limit !== undefined ? limit : isMobile ? 6 : 8,
+    limit !== undefined ? limit : isDesktop ? 8 : 6,
   )
 
   const initialQuery = searchParams?.get('q') || ''
@@ -233,10 +235,6 @@ export function MarketplaceSearch({
   }, [])
 
   const listboxId = `${baseId}-listbox`
-  const activeOptionId =
-    isOpen && activeIndex >= 0 && activeIndex < activeItems.length
-      ? `${baseId}-option-${activeIndex}`
-      : undefined
 
   const showRecentDropdown = !isAutocompleteMode && recentSearches.length > 0
   const showEmptyAutocomplete =
@@ -265,6 +263,14 @@ export function MarketplaceSearch({
       showEmptyAutocomplete ||
       showSuggestionsList)
 
+  const isListboxRendered =
+    isOpen && (showRecentDropdown || showSuggestionsList)
+
+  const activeOptionId =
+    isListboxRendered && activeIndex >= 0 && activeIndex < activeItems.length
+      ? `${baseId}-option-${activeIndex}`
+      : undefined
+
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
       <form
@@ -284,7 +290,7 @@ export function MarketplaceSearch({
             role="combobox"
             aria-autocomplete="list"
             aria-expanded={shouldRenderDropdown}
-            aria-controls={shouldRenderDropdown ? listboxId : undefined}
+            aria-controls={isListboxRendered ? listboxId : undefined}
             aria-activedescendant={activeOptionId}
           />
 

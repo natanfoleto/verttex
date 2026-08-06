@@ -6,10 +6,10 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
-    "lint": "next lint && node -e \"const fs=require('fs');const p='./tsconfig.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.compilerOptions.jsx='react-jsx';fs.writeFileSync(p,JSON.stringify(c,null,2));\"",
-    "lint:fix": "next lint --fix && node -e \"const fs=require('fs');const p='./tsconfig.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.compilerOptions.jsx='react-jsx';fs.writeFileSync(p,JSON.stringify(c,null,2));\"",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "typecheck": "tsc --noEmit",
-    "test": "node -e \"const fs=require('fs');const p='./tsconfig.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));if(c.compilerOptions.jsx!=='react-jsx'){c.compilerOptions.jsx='react-jsx';fs.writeFileSync(p,JSON.stringify(c,null,2));}\" && vitest run"
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

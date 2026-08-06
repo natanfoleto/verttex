@@ -207,4 +207,87 @@ describe('MarketplaceSearch Debounce & Race Condition Tests', () => {
       '/busca?q=cacha%C3%A7a%20artesanal',
     )
   })
+
+  it('6. Cancela efetivamente a requisição anterior abortando o AbortSignal ao mudar a query', async () => {
+    let firstSignal: AbortSignal | undefined
+
+    mockApiClient.mockImplementationOnce(
+      (_url, options?: { signal?: AbortSignal }) => {
+        firstSignal = options?.signal
+        return new Promise(() => {}) // permanece pendente
+      },
+    )
+
+    renderComponent(200)
+
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+    fireEvent.change(input, { target: { value: 'cacha' } })
+
+    act(() => {
+      vi.advanceTimersByTime(200)
+    })
+
+    expect(firstSignal).toBeDefined()
+    expect(firstSignal?.aborted).toBe(false)
+
+    // Altera a query para disparar cancelamento
+    fireEvent.change(input, { target: { value: 'queijo' } })
+    act(() => {
+      vi.advanceTimersByTime(200)
+    })
+
+    // O signal da primeira requisição agora está abortado
+    expect(firstSignal?.aborted).toBe(true)
+  })
+
+  it('7. Envia limit=6 no mobile (<56rem) e limit=8 no desktop (>=56rem)', async () => {
+    // Simula tela Mobile (<56rem)
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: false, // < 56rem
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+
+    mockApiClient.mockResolvedValue({
+      success: true,
+      data: { suggestions: [] },
+    })
+
+    const { unmount } = renderComponent(0)
+    const inputMobile = screen.getByRole('combobox')
+    fireEvent.change(inputMobile, { target: { value: 'mel' } })
+
+    await waitFor(() => {
+      expect(mockApiClient.mock.calls[0]?.[0]).toContain('limit=6')
+    })
+
+    unmount()
+    mockApiClient.mockReset()
+
+    // Simula tela Desktop (>=56rem)
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: true, // >= 56rem
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+
+    renderComponent(0)
+    const inputDesktop = screen.getByRole('combobox')
+    fireEvent.change(inputDesktop, { target: { value: 'mel' } })
+
+    await waitFor(() => {
+      expect(mockApiClient.mock.calls[0]?.[0]).toContain('limit=8')
+    })
+  })
 })

@@ -3,11 +3,12 @@ import * as path from 'path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [
-    react({
-      jsxRuntime: 'automatic',
-    }),
-  ],
+  plugins: [react()],
+  oxc: {
+    jsx: {
+      runtime: 'automatic',
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

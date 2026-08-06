@@ -11,7 +11,7 @@ vi.mock('../../infrastructure/database/prisma', () => ({
   },
 }))
 
-type MockSearchDoc = {
+type MockCandidate = {
   productId: string
   product: {
     name: string
@@ -20,6 +20,12 @@ type MockSearchDoc = {
     store: { name: string } | null
     options: Array<{ values: Array<{ value: string }> }>
   } | null
+}
+
+function mockPrismaDocs(docs: MockCandidate[]) {
+  vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
+    docs as never,
+  )
 }
 
 describe('SearchSuggestionsService Unit Tests', () => {
@@ -46,7 +52,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
   })
 
   it('3. Chama Prisma com filtros de produto/loja ativos, take 50 e orderBy productId asc para query >= 2 caracteres', async () => {
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce([])
+    mockPrismaDocs([])
 
     await SearchSuggestionsService.getSuggestions({ q: '  cachaça  ' })
 
@@ -95,7 +101,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
   })
 
   it('4. Preserva capitalização, acentos e texto humano original nos resultados', async () => {
-    const docs: MockSearchDoc[] = [
+    const docs: MockCandidate[] = [
       {
         productId: 'p1',
         product: {
@@ -107,11 +113,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-      docs as unknown as Awaited<
-        ReturnType<typeof prisma.productSearchDocument.findMany>
-      >,
-    )
+    mockPrismaDocs(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({ q: 'cachaca' })
 
@@ -121,7 +123,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
   })
 
   it('5. Realiza deduplicação (case e accent insensitive)', async () => {
-    const docs: MockSearchDoc[] = [
+    const docs: MockCandidate[] = [
       {
         productId: 'p1',
         product: {
@@ -133,11 +135,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-      docs as unknown as Awaited<
-        ReturnType<typeof prisma.productSearchDocument.findMany>
-      >,
-    )
+    mockPrismaDocs(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({ q: 'cachaca' })
 
@@ -148,7 +146,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
   })
 
   it('6. Ordena sugestões por ranking determinístico (Exact > StartsWith > WordStartsWith > Contains)', async () => {
-    const docs: MockSearchDoc[] = [
+    const docs: MockCandidate[] = [
       {
         productId: 'p1',
         product: {
@@ -190,11 +188,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-      docs as unknown as Awaited<
-        ReturnType<typeof prisma.productSearchDocument.findMany>
-      >,
-    )
+    mockPrismaDocs(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({ q: 'mel' })
 
@@ -207,7 +201,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
   })
 
   it('7. Aplica limite default (8), customizado e teto máximo de 10', async () => {
-    const mockCandidates: MockSearchDoc[] = Array.from(
+    const mockCandidates: MockCandidate[] = Array.from(
       { length: 15 },
       (_, i) => ({
         productId: `p${i}`,
@@ -221,33 +215,21 @@ describe('SearchSuggestionsService Unit Tests', () => {
       }),
     )
 
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-      mockCandidates as unknown as Awaited<
-        ReturnType<typeof prisma.productSearchDocument.findMany>
-      >,
-    )
+    mockPrismaDocs(mockCandidates)
 
     const resDefault = await SearchSuggestionsService.getSuggestions({
       q: 'mel',
     })
     expect(resDefault.suggestions).toHaveLength(8)
 
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-      mockCandidates as unknown as Awaited<
-        ReturnType<typeof prisma.productSearchDocument.findMany>
-      >,
-    )
+    mockPrismaDocs(mockCandidates)
     const resCustom = await SearchSuggestionsService.getSuggestions({
       q: 'mel',
       limit: 3,
     })
     expect(resCustom.suggestions).toHaveLength(3)
 
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-      mockCandidates as unknown as Awaited<
-        ReturnType<typeof prisma.productSearchDocument.findMany>
-      >,
-    )
+    mockPrismaDocs(mockCandidates)
     const resMax = await SearchSuggestionsService.getSuggestions({
       q: 'mel',
       limit: 50,
@@ -256,7 +238,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
   })
 
   it('8. Retorna [] para termo sem correspondência', async () => {
-    const docs: MockSearchDoc[] = [
+    const docs: MockCandidate[] = [
       {
         productId: 'p1',
         product: {
@@ -268,15 +250,37 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-      docs as unknown as Awaited<
-        ReturnType<typeof prisma.productSearchDocument.findMany>
-      >,
-    )
+    mockPrismaDocs(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({
       q: 'xyz-inexistente',
     })
     expect(res).toEqual({ suggestions: [] })
+  })
+
+  it('9. Trata acentos, caixa, hífens/pontuação e espaços duplicados de forma consistente com a normalização canônica', async () => {
+    const docs: MockCandidate[] = [
+      {
+        productId: 'p1',
+        product: {
+          name: 'Doce de Leite Viçosa',
+          category: null,
+          brand: null,
+          store: null,
+          options: [],
+        },
+      },
+    ]
+
+    mockPrismaDocs(docs)
+
+    // Consulta com hífen, acento e caixa alta ("DOCE-DE-LEITE")
+    const resHyphen = await SearchSuggestionsService.getSuggestions({
+      q: 'DOCE-DE-LEITE',
+    })
+
+    expect(resHyphen.suggestions).toEqual([
+      { text: 'Doce de Leite Viçosa', type: 'query' },
+    ])
   })
 })

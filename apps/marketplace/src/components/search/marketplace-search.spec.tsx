@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { addRecentSearch } from '../../lib/recent-searches'
+import { addRecentSearch, getRecentSearches } from '../../lib/recent-searches'
 import { MarketplaceSearch } from './marketplace-search'
 
 const pushMock = vi.fn()
@@ -44,13 +44,14 @@ describe('MarketplaceSearch Experience Component', () => {
     mockApiClient.mockReset()
   })
 
-  it('1. Renderiza o combobox de busca com atributos ARIA corretos (sem aria-activedescendant quando fechado)', () => {
+  it('1. Renderiza o combobox de busca com atributos ARIA corretos (sem aria-controls nem aria-activedescendant quando fechado)', () => {
     renderComponent()
 
     const input = screen.getByRole('combobox')
     expect(input).toBeInTheDocument()
     expect(input).toHaveAttribute('aria-autocomplete', 'list')
     expect(input).toHaveAttribute('aria-expanded', 'false')
+    expect(input).not.toHaveAttribute('aria-controls')
     expect(input).not.toHaveAttribute('aria-activedescendant')
   })
 
@@ -71,7 +72,7 @@ describe('MarketplaceSearch Experience Component', () => {
     })
 
     expect(input).toHaveAttribute('aria-expanded', 'true')
-    // NENHUM aria-activedescendant se activeIndex for -1
+    expect(input).toHaveAttribute('aria-controls')
     expect(input).not.toHaveAttribute('aria-activedescendant')
   })
 
@@ -120,7 +121,7 @@ describe('MarketplaceSearch Experience Component', () => {
     expect(pushMock).toHaveBeenCalledWith('/busca?q=Item%20A')
   })
 
-  it('5. Fecha o dropdown ao pressionar Escape e limpa aria-activedescendant', async () => {
+  it('5. Fecha o dropdown ao pressionar Escape e limpa aria-activedescendant e aria-controls', async () => {
     addRecentSearch('Mel')
 
     renderComponent()
@@ -135,11 +136,12 @@ describe('MarketplaceSearch Experience Component', () => {
     fireEvent.keyDown(input, { key: 'Escape' })
 
     expect(input).toHaveAttribute('aria-expanded', 'false')
+    expect(input).not.toHaveAttribute('aria-controls')
     expect(input).not.toHaveAttribute('aria-activedescendant')
     expect(screen.queryByText('Pesquisas recentes')).not.toBeInTheDocument()
   })
 
-  it('6. Remove um item individual das recentes ao clicar no botão de remover (fora do role=option)', async () => {
+  it('6. Remove um item individual das recentes ao clicar no botão de remover (que fica fora do role=option)', async () => {
     addRecentSearch('Mel Silvestre')
 
     renderComponent()
@@ -154,6 +156,10 @@ describe('MarketplaceSearch Experience Component', () => {
     const removeBtn = screen.getByLabelText(
       'Remover Mel Silvestre das pesquisas recentes',
     )
+
+    // Confirma que o botão de remover NÃO está dentro do elemento com role="option"
+    expect(removeBtn.closest('[role="option"]')).toBeNull()
+
     fireEvent.click(removeBtn)
 
     expect(screen.queryByText('Mel Silvestre')).not.toBeInTheDocument()
@@ -196,10 +202,119 @@ describe('MarketplaceSearch Experience Component', () => {
     )
     expect(errorMsg).toBeInTheDocument()
 
+    // aria-controls fica undefined durante erro (pois o listbox div não é renderizado)
+    expect(input).not.toHaveAttribute('aria-controls')
+
     // Enter ainda executa a busca manual normalmente
     const form = input.closest('form')!
     fireEvent.submit(form)
 
     expect(pushMock).toHaveBeenCalledWith('/busca?q=queijo')
+  })
+
+  it('9. Clicar em uma sugestão executa a busca e adiciona a recentes', async () => {
+    mockApiClient.mockResolvedValueOnce({
+      success: true,
+      data: {
+        suggestions: [{ text: 'Queijo Canastra', type: 'query' }],
+      },
+    })
+
+    renderComponent()
+
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+    fireEvent.change(input, { target: { value: 'queijo' } })
+
+    const sug = await screen.findByText('Queijo Canastra')
+    fireEvent.click(sug)
+
+    expect(pushMock).toHaveBeenCalledWith('/busca?q=Queijo%20Canastra')
+    expect(getRecentSearches()).toContain('Queijo Canastra')
+  })
+
+  it('10. Clicar em um item de pesquisa recente executa a busca e o move para o topo', async () => {
+    addRecentSearch('Mel Silvestre')
+    addRecentSearch('Cachaça Ouro')
+
+    renderComponent()
+
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+
+    const itemMel = await screen.findByText('Mel Silvestre')
+    fireEvent.click(itemMel)
+
+    expect(pushMock).toHaveBeenCalledWith('/busca?q=Mel%20Silvestre')
+    expect(getRecentSearches()[0]).toBe('Mel Silvestre')
+  })
+
+  it('11. Pressionar Tab ou Clicar Fora fecha o dropdown', async () => {
+    addRecentSearch('Doce de Leite')
+
+    renderComponent()
+
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+
+    await screen.findByText('Doce de Leite')
+
+    fireEvent.keyDown(input, { key: 'Tab' })
+    expect(input).toHaveAttribute('aria-expanded', 'false')
+
+    // Reabre e testa clique fora
+    fireEvent.focus(input)
+    await screen.findByText('Doce de Leite')
+    fireEvent.pointerDown(document.body)
+    expect(input).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('12. Botão de limpar texto (X) limpa o input', async () => {
+    renderComponent()
+
+    const input = screen.getByRole('combobox')
+    fireEvent.change(input, { target: { value: 'texto teste' } })
+
+    const clearBtn = screen.getByLabelText('Limpar texto')
+    fireEvent.click(clearBtn)
+
+    expect(input).toHaveValue('')
+  })
+
+  it('13. Botão "Limpar" remove todas as pesquisas recentes', async () => {
+    addRecentSearch('Busca 1')
+    addRecentSearch('Busca 2')
+
+    renderComponent()
+
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+
+    await screen.findByText('Pesquisas recentes')
+
+    const clearAllBtn = screen.getByRole('button', { name: 'Limpar' })
+    fireEvent.click(clearAllBtn)
+
+    expect(getRecentSearches()).toEqual([])
+  })
+
+  it('14. Trata payload inesperado da API sem lançar exceção de UI', async () => {
+    mockApiClient.mockResolvedValueOnce({
+      success: true,
+      data: null,
+    })
+
+    renderComponent()
+
+    const input = screen.getByRole('combobox')
+    fireEvent.focus(input)
+    fireEvent.change(input, { target: { value: 'termo' } })
+
+    await waitFor(() => {
+      expect(mockApiClient).toHaveBeenCalled()
+    })
+
+    // UI não quebra e não renderiza erros fatais
+    expect(input).toBeInTheDocument()
   })
 })
