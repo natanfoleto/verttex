@@ -123,7 +123,7 @@ export function ProductSectionCarousel({
     <section className="relative space-y-3 font-sans">
       {/* Header com Título e Indicadores Verdes Menores */}
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-base sm:text-xl font-bold text-stone-900 tracking-tight">
+        <h3 className="text-base font-bold tracking-tight text-stone-900 sm:text-xl">
           {title}
         </h3>
 
@@ -135,7 +135,7 @@ export function ProductSectionCarousel({
                 key={index}
                 type="button"
                 onClick={() => setCurrentPage(index)}
-                className={`h-1.5 w-1.5 p-0 rounded-full cursor-pointer transition-colors ${
+                className={`h-1.5 w-1.5 cursor-pointer rounded-full p-0 transition-colors ${
                   index === currentPage
                     ? 'bg-emerald-700'
                     : 'bg-stone-200 hover:bg-stone-300'
@@ -154,7 +154,7 @@ export function ProductSectionCarousel({
           <Button
             type="button"
             onClick={handlePrev}
-            className="hidden min-[1408px]:flex absolute -left-14 top-27.5 sm:top-31.25 lg:top-33.75 -translate-y-1/2 z-30 h-10 w-10 items-center justify-center rounded-full shadow-md hover:bg-stone-50 cursor-pointer transition-colors"
+            className="absolute top-27.5 -left-14 z-30 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full shadow-md transition-colors hover:bg-stone-50 min-[1408px]:flex sm:top-31.25 lg:top-33.75"
             aria-label="Anterior"
           >
             <RiArrowLeftSLine className="size-5 text-emerald-700" />
@@ -165,7 +165,7 @@ export function ProductSectionCarousel({
           <Button
             type="button"
             onClick={handleNext}
-            className="hidden min-[1408px]:flex absolute -right-14 top-27.5 sm:top-31.25 lg:top-33.75 -translate-y-1/2 z-30 h-10 w-10 items-center justify-center rounded-full shadow-md hover:bg-stone-50 cursor-pointer transition-colors"
+            className="absolute top-27.5 -right-14 z-30 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full shadow-md transition-colors hover:bg-stone-50 min-[1408px]:flex sm:top-31.25 lg:top-33.75"
             aria-label="Próximo"
           >
             <RiArrowRightSLine className="size-5 text-emerald-700" />
@@ -179,7 +179,7 @@ export function ProductSectionCarousel({
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
-          className="overflow-hidden w-full select-none cursor-grab active:cursor-grabbing"
+          className="w-full cursor-grab overflow-hidden select-none active:cursor-grabbing"
         >
           <div
             className="flex w-full transition-transform duration-500 ease-in-out"
@@ -188,7 +188,7 @@ export function ProductSectionCarousel({
             {pages.map((pageProducts, pageIndex) => (
               <div
                 key={pageIndex}
-                className="w-full shrink-0 flex-none grid grid-cols-1 2xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 sm:gap-6"
+                className="2xs:grid-cols-2 grid w-full flex-none shrink-0 grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6 md:grid-cols-4 lg:grid-cols-5"
               >
                 {pageProducts.map((product) => (
                   <ProductCard key={product.id} {...product} />
@@ -201,12 +201,12 @@ export function ProductSectionCarousel({
 
       {/* Botões Centralizados na Parte Inferior para telas < 1408px */}
       {totalPages > 1 && (
-        <div className="flex min-[1408px]:hidden items-center justify-center space-x-4">
+        <div className="flex items-center justify-center space-x-4 min-[1408px]:hidden">
           <Button
             type="button"
             onClick={handlePrev}
             disabled={currentPage === 0}
-            className="flex h-9 w-9 items-center justify-center rounded-full shadow-md text-emerald-700 hover:bg-stone-50 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-emerald-700 shadow-md transition-colors hover:bg-stone-50 disabled:pointer-events-none disabled:opacity-30"
             aria-label="Anterior"
           >
             <RiArrowLeftSLine className="size-5 text-emerald-700" />
@@ -216,7 +216,7 @@ export function ProductSectionCarousel({
             type="button"
             onClick={handleNext}
             disabled={currentPage >= totalPages - 1}
-            className="flex h-9 w-9 items-center justify-center rounded-full shadow-md text-emerald-700 hover:bg-stone-50 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-emerald-700 shadow-md transition-colors hover:bg-stone-50 disabled:pointer-events-none disabled:opacity-30"
             aria-label="Próximo"
           >
             <RiArrowRightSLine className="size-5 text-emerald-700" />

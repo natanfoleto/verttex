@@ -129,7 +129,7 @@ export default function OrdersManagementPage() {
               setStatusFilter(e.target.value)
               setPage(1)
             }}
-            className="bg-zinc-900 border-zinc-800 text-xs cursor-pointer w-56"
+            className="w-56 cursor-pointer border-zinc-800 bg-zinc-900 text-xs"
           >
             <option value="ALL">Todos os Status</option>
             <option value="PAID">Aguardando Expedição (Pago)</option>
@@ -152,19 +152,19 @@ export default function OrdersManagementPage() {
         }}
       >
         <table className="w-full text-left text-xs">
-          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-5 py-3.5 font-bold">Código</th>
               <th className="px-5 py-3.5 font-bold">Cliente</th>
               <th className="px-5 py-3.5 font-bold">Total</th>
               <th className="px-5 py-3.5 font-bold">Status</th>
               <th className="px-5 py-3.5 font-bold">Rastreamento</th>
-              <th className="px-5 py-3.5 font-bold text-right">Ações</th>
+              <th className="px-5 py-3.5 text-right font-bold">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
             {ordersList.map((o) => (
-              <tr key={o.id} className="hover:bg-zinc-800/30 transition-colors">
+              <tr key={o.id} className="transition-colors hover:bg-zinc-800/30">
                 <td className="px-5 py-4 font-mono font-bold text-emerald-400">
                   {o.orderCode}
                 </td>
@@ -176,7 +176,7 @@ export default function OrdersManagementPage() {
                 </td>
                 <td className="px-5 py-4">
                   <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                    className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold ${
                       statusBadges[o.status]?.bg || 'bg-zinc-800 text-zinc-300'
                     }`}
                   >
@@ -194,9 +194,9 @@ export default function OrdersManagementPage() {
                         setDispatchOrderId(o.id)
                         setDispatchOrderCode(o.orderCode)
                       }}
-                      className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+                      className="cursor-pointer bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
                     >
-                      <RiTruckLine className="h-3.5 w-3.5 mr-1" />
+                      <RiTruckLine className="mr-1 h-3.5 w-3.5" />
                       <span>Expedir (FEFO)</span>
                     </Button>
                   )}
@@ -205,9 +205,9 @@ export default function OrdersManagementPage() {
                       size="sm"
                       onClick={() => deliverMutation.mutate(o.id)}
                       disabled={deliverMutation.isPending}
-                      className="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold"
+                      className="cursor-pointer bg-purple-600 text-xs font-bold text-white hover:bg-purple-700"
                     >
-                      <RiCheckLine className="h-3.5 w-3.5 mr-1" />
+                      <RiCheckLine className="mr-1 h-3.5 w-3.5" />
                       <span>Confirmar Entrega</span>
                     </Button>
                   )}

@@ -2,7 +2,7 @@
 
 export function ProductDetailSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-8 font-sans antialiased">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans antialiased sm:px-6 lg:px-8">
       {/* Breadcrumb Skeleton */}
       <div className="h-4 w-64 animate-pulse rounded-md bg-stone-200" />
 

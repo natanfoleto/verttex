@@ -207,17 +207,17 @@ export default function ReportsAndBiPage() {
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
             Relatórios Comerciais, Operacionais & Curva ABC
           </h1>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="mt-1 text-xs text-zinc-400">
             Métricas executivas de faturamento, ticket médio, inteligência da
             curva ABC de produtos e controle sanitário de perdas de estoque.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 shrink-0">
+        <div className="flex shrink-0 items-center space-x-2">
           <NativeSelect
             value={exportFormat}
             onChange={(e) => setExportFormat(e.target.value as 'csv' | 'json')}
-            className="w-36 text-xs bg-zinc-900 border-zinc-800 text-zinc-200 cursor-pointer"
+            className="w-36 cursor-pointer border-zinc-800 bg-zinc-900 text-xs text-zinc-200"
           >
             <option value="csv">Formato CSV</option>
             <option value="json">Formato JSON</option>
@@ -225,9 +225,9 @@ export default function ReportsAndBiPage() {
 
           <Button
             onClick={handleExport}
-            className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0"
+            className="shrink-0 cursor-pointer bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
           >
-            <RiDownloadLine className="h-4 w-4 mr-1.5" />
+            <RiDownloadLine className="mr-1.5 h-4 w-4" />
             <span>Exportar Relatório</span>
           </Button>
         </div>
@@ -236,15 +236,15 @@ export default function ReportsAndBiPage() {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Card 1: Faturamento Total */}
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 space-y-2">
+        <div className="space-y-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-bold uppercase tracking-wider">
+            <span className="text-xs font-bold tracking-wider uppercase">
               Faturamento Total
             </span>
             <RiExchangeDollarLine className="h-5 w-5 text-emerald-400" />
           </div>
           {isSalesLoading ? (
-            <div className="h-8 w-32 animate-pulse bg-zinc-800 rounded-lg" />
+            <div className="h-8 w-32 animate-pulse rounded-lg bg-zinc-800" />
           ) : (
             <div className="text-2xl font-black text-zinc-100">
               R$ {sales?.totalRevenue.toFixed(2)}
@@ -256,15 +256,15 @@ export default function ReportsAndBiPage() {
         </div>
 
         {/* Card 2: Pedidos & Ticket Médio */}
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 space-y-2">
+        <div className="space-y-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-bold uppercase tracking-wider">
+            <span className="text-xs font-bold tracking-wider uppercase">
               Ticket Médio
             </span>
             <RiShoppingBag3Line className="h-5 w-5 text-blue-400" />
           </div>
           {isSalesLoading ? (
-            <div className="h-8 w-32 animate-pulse bg-zinc-800 rounded-lg" />
+            <div className="h-8 w-32 animate-pulse rounded-lg bg-zinc-800" />
           ) : (
             <div className="text-2xl font-black text-zinc-100">
               R$ {sales?.averageTicket.toFixed(2)}
@@ -276,15 +276,15 @@ export default function ReportsAndBiPage() {
         </div>
 
         {/* Card 3: Perdas Sanitárias de Estoque */}
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 space-y-2">
+        <div className="space-y-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-bold uppercase tracking-wider">
+            <span className="text-xs font-bold tracking-wider uppercase">
               Perdas Sanitárias
             </span>
             <RiStackLine className="h-5 w-5 text-amber-400" />
           </div>
           {isLossesLoading ? (
-            <div className="h-8 w-32 animate-pulse bg-zinc-800 rounded-lg" />
+            <div className="h-8 w-32 animate-pulse rounded-lg bg-zinc-800" />
           ) : (
             <div className="text-2xl font-black text-amber-400">
               {losses?.totalDiscardedQuantity || 0} un.
@@ -322,21 +322,21 @@ export default function ReportsAndBiPage() {
         }}
       >
         <table className="w-full text-left text-xs">
-          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-5 py-3.5 font-bold">Produto</th>
               <th className="px-5 py-3.5 font-bold">SKU</th>
               <th className="px-5 py-3.5 font-bold">Qtd Vendida</th>
               <th className="px-5 py-3.5 font-bold">Faturamento (R$)</th>
               <th className="px-5 py-3.5 font-bold">% Acumulado</th>
-              <th className="px-5 py-3.5 font-bold text-right">Classe ABC</th>
+              <th className="px-5 py-3.5 text-right font-bold">Classe ABC</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
             {paginatedProducts.map((p) => (
               <tr
                 key={p.productId}
-                className="hover:bg-zinc-800/30 transition-colors"
+                className="transition-colors hover:bg-zinc-800/30"
               >
                 <td className="px-5 py-4 font-bold text-zinc-200">{p.name}</td>
                 <td className="px-5 py-4 font-mono text-zinc-400">{p.sku}</td>
@@ -349,7 +349,7 @@ export default function ReportsAndBiPage() {
                 </td>
                 <td className="px-5 py-4 text-right">
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black border ${
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-black ${
                       abcBadges[p.category]
                     }`}
                   >

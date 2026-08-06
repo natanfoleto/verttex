@@ -132,11 +132,11 @@ export default function OrderDetailPage({
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-8 space-y-6 font-sans antialiased">
-        <div className="h-6 w-36 bg-stone-200 rounded animate-pulse" />
-        <div className="p-8 bg-white rounded-3xl border border-stone-200 space-y-6 animate-pulse">
-          <div className="h-8 w-64 bg-stone-200 rounded" />
-          <div className="h-32 bg-stone-100 rounded-2xl" />
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 font-sans antialiased">
+        <div className="h-6 w-36 animate-pulse rounded bg-stone-200" />
+        <div className="animate-pulse space-y-6 rounded-3xl border border-stone-200 bg-white p-8">
+          <div className="h-8 w-64 rounded bg-stone-200" />
+          <div className="h-32 rounded-2xl bg-stone-100" />
         </div>
       </div>
     )
@@ -151,7 +151,7 @@ export default function OrderDetailPage({
         </h1>
         <Link
           href="/pedidos"
-          className="mt-6 inline-flex items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900 cursor-pointer"
+          className="mt-6 inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900"
         >
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Voltar aos meus pedidos</span>
@@ -163,12 +163,12 @@ export default function OrderDetailPage({
   const isPending = order.status === 'PENDING'
 
   return (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 font-sans text-stone-900 antialiased space-y-8">
+    <div className="mx-auto max-w-4xl space-y-8 px-4 py-8 font-sans text-stone-900 antialiased sm:px-6 lg:px-8">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-stone-200 pb-4">
         <Link
           href="/pedidos"
-          className="flex items-center space-x-2 text-xs font-bold text-stone-500 hover:text-emerald-800 transition-colors"
+          className="flex items-center space-x-2 text-xs font-bold text-stone-500 transition-colors hover:text-emerald-800"
         >
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Voltar aos Pedidos</span>
@@ -179,11 +179,11 @@ export default function OrderDetailPage({
       </div>
 
       {/* Main Order Card */}
-      <div className="rounded-3xl border border-stone-200 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+      <div className="space-y-6 rounded-3xl border border-stone-200 bg-white p-6 shadow-xs sm:p-8">
         {/* Status Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-stone-50 border border-stone-200">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 block">
+            <span className="block text-[11px] font-bold tracking-wider text-stone-500 uppercase">
               Status do Pedido
             </span>
             <span className="text-base font-extrabold text-stone-900">
@@ -202,7 +202,7 @@ export default function OrderDetailPage({
               variant="outline"
               size="sm"
               onClick={() => setShowCancelModal(true)}
-              className="text-xs text-rose-600 border-rose-200 hover:bg-rose-50 cursor-pointer"
+              className="cursor-pointer border-rose-200 text-xs text-rose-600 hover:bg-rose-50"
             >
               Cancelar Pedido
             </Button>
@@ -214,7 +214,7 @@ export default function OrderDetailPage({
               variant="outline"
               size="sm"
               onClick={() => setShowReturnModal(true)}
-              className="text-xs text-amber-700 border-amber-300 bg-amber-50 hover:bg-amber-100 cursor-pointer font-bold"
+              className="cursor-pointer border-amber-300 bg-amber-50 text-xs font-bold text-amber-700 hover:bg-amber-100"
             >
               Solicitar Troca / Devolução
             </Button>
@@ -223,10 +223,10 @@ export default function OrderDetailPage({
 
         {/* PIX Payment Box if pending & PIX */}
         {isPending && order.paymentMethod === 'pix' && (
-          <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-200 space-y-4 text-center">
+          <div className="space-y-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-center">
             <RiQrCodeLine className="mx-auto h-12 w-12 text-emerald-800" />
             <div>
-              <h3 className="font-extrabold text-sm text-emerald-950">
+              <h3 className="text-sm font-extrabold text-emerald-950">
                 Pagamento via PIX
               </h3>
               <p className="text-xs text-emerald-800">
@@ -238,7 +238,7 @@ export default function OrderDetailPage({
               <Input
                 readOnly
                 value="00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-42661417400052040000"
-                className="w-full max-w-md bg-white text-[11px] font-mono text-stone-700 select-all"
+                className="w-full max-w-md bg-white font-mono text-[11px] text-stone-700 select-all"
               />
               <Button
                 type="button"
@@ -251,21 +251,21 @@ export default function OrderDetailPage({
                     'Código PIX copiado para a área de transferência!',
                   )
                 }}
-                className="bg-emerald-800 hover:bg-emerald-900 text-white cursor-pointer text-xs"
+                className="cursor-pointer bg-emerald-800 text-xs text-white hover:bg-emerald-900"
               >
-                <RiFileCopyLine className="h-4 w-4 mr-1" /> Copiar
+                <RiFileCopyLine className="mr-1 h-4 w-4" /> Copiar
               </Button>
             </div>
           </div>
         )}
 
         {/* Store & Delivery Address */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div className="grid grid-cols-1 gap-6 pt-2 md:grid-cols-2">
           <div className="space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+            <h3 className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-stone-500 uppercase">
               <RiStore2Line className="h-4 w-4 text-emerald-800" /> Vendedor
             </h3>
-            <p className="font-bold text-stone-900 text-sm">
+            <p className="text-sm font-bold text-stone-900">
               {order.store.name}
             </p>
             {order.store.email && (
@@ -274,11 +274,11 @@ export default function OrderDetailPage({
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+            <h3 className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-stone-500 uppercase">
               <RiMapPinLine className="h-4 w-4 text-emerald-800" /> Endereço de
               Entrega
             </h3>
-            <p className="font-bold text-stone-900 text-xs">
+            <p className="text-xs font-bold text-stone-900">
               {order.address.recipient}
             </p>
             <p className="text-xs text-stone-600">
@@ -294,22 +294,22 @@ export default function OrderDetailPage({
 
         {/* Order Items with Lot Traceability */}
         <div className="space-y-4 border-t border-stone-100 pt-6">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-stone-900">
+          <h3 className="text-xs font-bold tracking-wider text-stone-900 uppercase">
             Itens do Pedido (Snapshot do Produto & Lote)
           </h3>
 
-          <div className="divide-y divide-stone-100 border border-stone-200 rounded-2xl overflow-hidden bg-white">
+          <div className="divide-y divide-stone-100 overflow-hidden rounded-2xl border border-stone-200 bg-white">
             {order.items.map((item) => (
-              <div key={item.id} className="p-4 space-y-2">
+              <div key={item.id} className="space-y-2 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-xs text-stone-900">
+                    <p className="text-xs font-bold text-stone-900">
                       {item.productName}
                     </p>
                     <p className="text-[11px] text-stone-500">
                       {item.variationName}
                     </p>
-                    <p className="text-[10px] font-mono text-stone-400">
+                    <p className="font-mono text-[10px] text-stone-400">
                       SKU: {item.sku}
                     </p>
                   </div>
@@ -325,11 +325,11 @@ export default function OrderDetailPage({
 
                 {/* Sanitay Lot Details if available */}
                 {item.itemLots && item.itemLots.length > 0 && (
-                  <div className="p-2 bg-stone-50 rounded-xl text-[11px] font-mono text-stone-600 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 rounded-xl bg-stone-50 p-2 font-mono text-[11px] text-stone-600">
                     {item.itemLots.map((il) => (
                       <span
                         key={il.id}
-                        className="bg-white border border-stone-200 px-2 py-0.5 rounded-md"
+                        className="rounded-md border border-stone-200 bg-white px-2 py-0.5"
                       >
                         Lote Reservado FEFO: <strong>{il.lot.lotNumber}</strong>{' '}
                         ({il.quantity} un.)
@@ -352,7 +352,7 @@ export default function OrderDetailPage({
         </div>
 
         {/* Order Financial Summary */}
-        <div className="border-t border-stone-100 pt-4 space-y-2 text-xs">
+        <div className="space-y-2 border-t border-stone-100 pt-4 text-xs">
           <div className="flex justify-between text-stone-600">
             <span>Subtotal</span>
             <span>R$ {Number(order.subtotal).toFixed(2)}</span>
@@ -373,7 +373,7 @@ export default function OrderDetailPage({
       {/* Modal Confirmar Cancelamento */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 shadow-xl">
+          <div className="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 shadow-xl">
             <h3 className="text-base font-bold text-stone-900">
               Cancelar Pedido #{order.code}
             </h3>
@@ -382,7 +382,7 @@ export default function OrderDetailPage({
               alocados para o catálogo.
             </p>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-stone-700 block">
+              <label className="block text-xs font-semibold text-stone-700">
                 Motivo do Cancelamento
               </label>
               <Textarea
@@ -406,7 +406,7 @@ export default function OrderDetailPage({
                 type="button"
                 onClick={() => cancelMutation.mutate()}
                 disabled={cancelMutation.isPending}
-                className="bg-rose-600 hover:bg-rose-700 text-white cursor-pointer text-xs"
+                className="cursor-pointer bg-rose-600 text-xs text-white hover:bg-rose-700"
               >
                 {cancelMutation.isPending
                   ? 'Cancelando...'
@@ -420,7 +420,7 @@ export default function OrderDetailPage({
       {/* Modal Solicitacão de Devolução / Troca */}
       {showReturnModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 shadow-xl">
+          <div className="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 shadow-xl">
             <h3 className="text-base font-bold text-stone-900">
               Solicitar Devolução / Troca #{order.code}
             </h3>
@@ -429,7 +429,7 @@ export default function OrderDetailPage({
               compulsória em Quarentena Sanitária de Inspeção.
             </p>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-stone-700 block">
+              <label className="block text-xs font-semibold text-stone-700">
                 Motivo da Devolução
               </label>
               <Textarea
@@ -453,7 +453,7 @@ export default function OrderDetailPage({
                 type="button"
                 onClick={() => returnMutation.mutate()}
                 disabled={returnMutation.isPending || !returnReason.trim()}
-                className="bg-amber-700 hover:bg-amber-800 text-white cursor-pointer text-xs font-bold"
+                className="cursor-pointer bg-amber-700 text-xs font-bold text-white hover:bg-amber-800"
               >
                 {returnMutation.isPending
                   ? 'Solicitando...'

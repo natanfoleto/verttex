@@ -2,7 +2,7 @@
 
 export function ProfileSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans antialiased">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 font-sans antialiased sm:px-6 lg:px-8">
       {/* Header Skeleton */}
       <div className="space-y-2">
         <div className="h-8 w-64 animate-pulse rounded-lg bg-stone-200" />
@@ -28,7 +28,7 @@ export function ProfileSkeleton() {
           </div>
         </div>
 
-        <div className="space-y-4 max-w-2xl">
+        <div className="max-w-2xl space-y-4">
           <div className="space-y-1.5">
             <div className="h-3 w-36 animate-pulse rounded-md bg-stone-200" />
             <div className="h-10 w-full animate-pulse rounded-lg bg-stone-100" />

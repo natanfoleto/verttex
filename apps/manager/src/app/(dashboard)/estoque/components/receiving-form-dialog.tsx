@@ -158,7 +158,7 @@ export function ReceivingFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-full max-w-3xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl max-h-[90vh]"
+        className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl"
         style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
       >
         <DialogHeader className="px-6 pt-5 pb-2">
@@ -178,10 +178,10 @@ export function ReceivingFormDialog({
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-1 pb-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="flex flex-1 flex-col space-y-4 overflow-y-auto px-6 pt-1 pb-6">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
-                <label className="text-xs font-medium text-zinc-300 block mb-1 whitespace-nowrap">
+                <label className="mb-1 block text-xs font-medium whitespace-nowrap text-zinc-300">
                   Loja Destino *
                 </label>
                 <NativeSelect
@@ -190,7 +190,7 @@ export function ReceivingFormDialog({
                     setRecStoreId(e.target.value)
                     setRecProductId('')
                   }}
-                  className="w-full bg-zinc-900 border-zinc-800 text-xs rounded-xl cursor-pointer"
+                  className="w-full cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs"
                   required
                 >
                   <option value="">Selecione uma loja...</option>
@@ -203,14 +203,14 @@ export function ReceivingFormDialog({
               </div>
 
               <div>
-                <label className="text-xs font-medium text-zinc-300 block mb-1 whitespace-nowrap">
+                <label className="mb-1 block text-xs font-medium whitespace-nowrap text-zinc-300">
                   Produto *
                 </label>
                 <NativeSelect
                   value={recProductId}
                   onChange={(e) => setRecProductId(e.target.value)}
                   disabled={!recStoreId}
-                  className="w-full bg-zinc-900 border-zinc-800 text-xs rounded-xl cursor-pointer"
+                  className="w-full cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs"
                   required
                 >
                   <option value="">Selecione um produto...</option>
@@ -223,22 +223,22 @@ export function ReceivingFormDialog({
               </div>
 
               <div>
-                <label className="text-xs font-medium text-zinc-300 block mb-1 whitespace-nowrap">
+                <label className="mb-1 block text-xs font-medium whitespace-nowrap text-zinc-300">
                   Doc. / NFe Referência
                 </label>
                 <Input
                   placeholder="Ex: NFe 12345"
                   value={recDocRef}
                   onChange={(e) => setRecDocRef(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-500 rounded-xl"
+                  className="rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-100 placeholder:text-zinc-500"
                 />
               </div>
             </div>
 
             {/* DIVIDER & LOT ROWS */}
             <div className="border-t border-zinc-800/80 pt-3">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+              <div className="mb-3 flex items-center justify-between">
+                <h4 className="text-xs font-bold tracking-wider text-zinc-300 uppercase">
                   Lotes do Recebimento ({recLots.length})
                 </h4>
                 <Button
@@ -246,7 +246,7 @@ export function ReceivingFormDialog({
                   size="sm"
                   variant="outline"
                   onClick={handleAddLotRow}
-                  className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-emerald-400 text-xs rounded-xl cursor-pointer"
+                  className="cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs text-emerald-400 hover:bg-zinc-800"
                 >
                   <RiAddLine className="mr-1 h-3.5 w-3.5" />
                   Adicionar Lote
@@ -257,7 +257,7 @@ export function ReceivingFormDialog({
                 {recLots.map((lot, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-3.5 space-y-3"
+                    className="space-y-3 rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-3.5"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-zinc-400">
@@ -269,16 +269,16 @@ export function ReceivingFormDialog({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveLotRow(idx)}
-                          className="h-6 w-6 p-0 text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg cursor-pointer"
+                          className="h-6 w-6 cursor-pointer rounded-lg p-0 text-rose-400 hover:bg-rose-950/40 hover:text-rose-300"
                         >
                           <RiDeleteBin6Line className="h-3.5 w-3.5" />
                         </Button>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-4">
                       <div>
-                        <label className="text-[11px] text-zinc-400 block mb-0.5 whitespace-nowrap">
+                        <label className="mb-0.5 block text-[11px] whitespace-nowrap text-zinc-400">
                           Cód. Impresso Lote *
                         </label>
                         <Input
@@ -287,13 +287,13 @@ export function ReceivingFormDialog({
                           onChange={(e) =>
                             handleUpdateLotRow(idx, 'lotNumber', e.target.value)
                           }
-                          className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg"
+                          className="rounded-lg border-zinc-800 bg-zinc-950 text-xs text-zinc-100"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] text-zinc-400 block mb-0.5 whitespace-nowrap">
+                        <label className="mb-0.5 block text-[11px] whitespace-nowrap text-zinc-400">
                           Data de Fabricação
                         </label>
                         <Input
@@ -306,12 +306,12 @@ export function ReceivingFormDialog({
                               e.target.value,
                             )
                           }
-                          className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg cursor-pointer"
+                          className="cursor-pointer rounded-lg border-zinc-800 bg-zinc-950 text-xs text-zinc-100"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] text-zinc-400 block mb-0.5 whitespace-nowrap">
+                        <label className="mb-0.5 block text-[11px] whitespace-nowrap text-zinc-400">
                           Data de Validade *
                         </label>
                         <Input
@@ -324,13 +324,13 @@ export function ReceivingFormDialog({
                               e.target.value,
                             )
                           }
-                          className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg cursor-pointer"
+                          className="cursor-pointer rounded-lg border-zinc-800 bg-zinc-950 text-xs text-zinc-100"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] text-zinc-400 block mb-0.5 whitespace-nowrap">
+                        <label className="mb-0.5 block text-[11px] whitespace-nowrap text-zinc-400">
                           Quantidade *
                         </label>
                         <Input
@@ -340,15 +340,15 @@ export function ReceivingFormDialog({
                           onChange={(e) =>
                             handleUpdateLotRow(idx, 'quantity', e.target.value)
                           }
-                          className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg"
+                          className="rounded-lg border-zinc-800 bg-zinc-950 text-xs text-zinc-100"
                           required
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                       <div>
-                        <label className="text-[11px] text-zinc-400 block mb-0.5 whitespace-nowrap">
+                        <label className="mb-0.5 block text-[11px] whitespace-nowrap text-zinc-400">
                           Fabricante
                         </label>
                         <Input
@@ -361,11 +361,11 @@ export function ReceivingFormDialog({
                               e.target.value,
                             )
                           }
-                          className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg"
+                          className="rounded-lg border-zinc-800 bg-zinc-950 text-xs text-zinc-100"
                         />
                       </div>
                       <div>
-                        <label className="text-[11px] text-zinc-400 block mb-0.5 whitespace-nowrap">
+                        <label className="mb-0.5 block text-[11px] whitespace-nowrap text-zinc-400">
                           Fornecedor
                         </label>
                         <Input
@@ -374,7 +374,7 @@ export function ReceivingFormDialog({
                           onChange={(e) =>
                             handleUpdateLotRow(idx, 'supplier', e.target.value)
                           }
-                          className="bg-zinc-950 border-zinc-800 text-xs text-zinc-100 rounded-lg"
+                          className="rounded-lg border-zinc-800 bg-zinc-950 text-xs text-zinc-100"
                         />
                       </div>
                     </div>
@@ -389,14 +389,14 @@ export function ReceivingFormDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs rounded-xl cursor-pointer"
+              className="cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={receiveMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-xl cursor-pointer shadow-lg shadow-emerald-950/40"
+              className="cursor-pointer rounded-xl bg-emerald-600 text-xs font-medium text-white shadow-lg shadow-emerald-950/40 hover:bg-emerald-500"
             >
               <RiCheckLine className="mr-1.5 h-4 w-4" />
               {receiveMutation.isPending

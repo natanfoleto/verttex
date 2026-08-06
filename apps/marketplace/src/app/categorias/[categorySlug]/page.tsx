@@ -74,7 +74,7 @@ export default function CategoryDetailPage({
   }))
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 font-sans text-stone-900 mb-24 lg:mb-32 sm:px-6 lg:px-8">
+    <div className="mx-auto mb-24 max-w-7xl space-y-10 px-4 py-10 font-sans text-stone-900 sm:px-6 lg:mb-32 lg:px-8">
       {/* Header */}
       <div className="space-y-4">
         <div className="flex items-center space-x-2 text-xs text-stone-500">

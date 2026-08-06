@@ -16,16 +16,16 @@ export function MarketplacePageLoader({
 }: MarketplacePageLoaderProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center space-y-3 w-full py-16 text-stone-500 font-sans antialiased ${minHeight}`}
+      className={`flex w-full flex-col items-center justify-center space-y-3 py-16 font-sans text-stone-500 antialiased ${minHeight}`}
     >
       <div className="relative flex items-center justify-center">
         {/* Pulse Ring */}
-        <div className="absolute h-12 w-12 rounded-full bg-emerald-500/10 animate-ping" />
+        <div className="absolute h-12 w-12 animate-ping rounded-full bg-emerald-500/10" />
         {/* Spinner Icon */}
-        <RiLoader4Line className="h-9 w-9 text-emerald-700 animate-spin" />
+        <RiLoader4Line className="h-9 w-9 animate-spin text-emerald-700" />
       </div>
       {label && (
-        <p className="text-xs font-semibold tracking-wide text-stone-600 animate-pulse">
+        <p className="animate-pulse text-xs font-semibold tracking-wide text-stone-600">
           {label}
         </p>
       )}

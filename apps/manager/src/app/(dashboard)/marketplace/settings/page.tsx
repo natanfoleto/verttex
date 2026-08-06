@@ -279,23 +279,23 @@ export default function MarketplaceSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 p-6 animate-pulse">
+      <div className="animate-pulse space-y-4 p-6">
         <div className="h-8 w-64 rounded bg-zinc-800" />
         <div className="h-4 w-96 rounded bg-zinc-800/60" />
-        <div className="h-96 w-full rounded-xl bg-zinc-900 border border-zinc-800" />
+        <div className="h-96 w-full rounded-xl border border-zinc-800 bg-zinc-900" />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 font-sans text-zinc-100 w-full">
+    <div className="w-full space-y-6 font-sans text-zinc-100">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
             Configurações Globais
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <p className="mt-1 text-sm text-zinc-400">
             Defina a identidade, branding, contatos de suporte, SEO, regras do
             carrossel e catálogo.
           </p>
@@ -305,7 +305,7 @@ export default function MarketplaceSettingsPage() {
             type="button"
             onClick={handleSubmit}
             disabled={!isDirty || isSubmitting || isUploading}
-            className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer gap-2 bg-emerald-600 text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting || isUploading ? (
               <RiLoader4Line className="h-4 w-4 animate-spin" />
@@ -317,10 +317,10 @@ export default function MarketplaceSettingsPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 w-full">
+      <form onSubmit={handleSubmit} className="w-full space-y-6">
         {/* Navegação por Abas */}
         <Tabs defaultValue="identity" className="w-full space-y-6">
-          <TabsList className="bg-zinc-900/90 border border-zinc-800 p-1.5 h-auto flex flex-wrap justify-start gap-1 w-full rounded-xl">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl border border-zinc-800 bg-zinc-900/90 p-1.5">
             <TabsTrigger
               value="identity"
               className="gap-2 px-4 py-2 text-xs font-semibold data-[state=active]:bg-zinc-800 data-[state=active]:text-emerald-400"
@@ -366,9 +366,9 @@ export default function MarketplaceSettingsPage() {
           </TabsList>
 
           {/* Aba 1: Identidade Visual */}
-          <TabsContent value="identity" className="space-y-6 mt-0 w-full">
+          <TabsContent value="identity" className="mt-0 w-full space-y-6">
             {/* Card Identidade */}
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 w-full">
+            <div className="w-full space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
               <div className="flex items-center gap-2">
                 <RiStoreLine className="h-5 w-5 text-emerald-400" />
                 <h2 className="text-base font-semibold text-zinc-100">
@@ -388,19 +388,19 @@ export default function MarketplaceSettingsPage() {
                   onChange={(e) =>
                     setSettings({ ...settings, publicName: e.target.value })
                   }
-                  className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                  className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                 />
               </div>
 
               {/* Linha 2: Favicon (esquerda) + Logo (direita) */}
-              <div className="flex flex-wrap gap-6 items-start">
+              <div className="flex flex-wrap items-start gap-6">
                 {/* Favicon — quadrado */}
                 <div className="w-fit">
                   <label className="text-xs font-semibold text-zinc-300">
                     Favicon
                   </label>
 
-                  <div className="flex gap-3 items-center w-fit mt-1">
+                  <div className="mt-1 flex w-fit items-center gap-3">
                     <Input
                       ref={faviconInputRef}
                       type="file"
@@ -412,7 +412,7 @@ export default function MarketplaceSettingsPage() {
                       type="button"
                       variant="ghost"
                       onClick={() => faviconInputRef.current?.click()}
-                      className="w-24 h-24 shrink-0 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0"
+                      className="group flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 p-0 transition-colors hover:border-zinc-500 hover:bg-zinc-800"
                     >
                       {faviconPreview || settings.faviconUrl ? (
                         <img
@@ -421,7 +421,7 @@ export default function MarketplaceSettingsPage() {
                           className="max-h-full max-w-full object-contain p-2"
                         />
                       ) : (
-                        <div className="flex flex-col items-center gap-1 text-zinc-500 group-hover:text-zinc-400 transition-colors">
+                        <div className="flex flex-col items-center gap-1 text-zinc-500 transition-colors group-hover:text-zinc-400">
                           <RiImageAddLine className="h-5 w-5" />
                           <span className="text-[10px] font-medium">
                             Favicon
@@ -457,7 +457,7 @@ export default function MarketplaceSettingsPage() {
                     Logo da Marca
                   </label>
 
-                  <div className="flex gap-3 items-center w-fit mt-1">
+                  <div className="mt-1 flex w-fit items-center gap-3">
                     <Input
                       ref={logoInputRef}
                       type="file"
@@ -469,7 +469,7 @@ export default function MarketplaceSettingsPage() {
                       type="button"
                       variant="ghost"
                       onClick={() => logoInputRef.current?.click()}
-                      className="h-24 px-6 shrink-0 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 flex items-center justify-center overflow-hidden cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-colors group p-0 min-w-44"
+                      className="group flex h-24 min-w-44 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-zinc-700 bg-zinc-800/60 p-0 px-6 transition-colors hover:border-zinc-500 hover:bg-zinc-800"
                     >
                       {logoPreview || settings.logoUrl ? (
                         <img
@@ -478,7 +478,7 @@ export default function MarketplaceSettingsPage() {
                           className="max-h-full max-w-full object-contain px-4 py-2"
                         />
                       ) : (
-                        <div className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-400 transition-colors px-4">
+                        <div className="flex items-center gap-2 px-4 text-zinc-500 transition-colors group-hover:text-zinc-400">
                           <RiImageAddLine className="h-5 w-5 shrink-0" />
                           <span className="text-[11px] font-medium">
                             Escolher logo
@@ -512,8 +512,8 @@ export default function MarketplaceSettingsPage() {
           </TabsContent>
 
           {/* Aba 2: Carrossel do Site */}
-          <TabsContent value="carousel" className="space-y-6 mt-0">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 w-full">
+          <TabsContent value="carousel" className="mt-0 space-y-6">
+            <div className="w-full space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
               <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                 <RiImageLine className="h-5 w-5 text-emerald-400" />
                 <h2 className="text-base font-semibold text-zinc-100">
@@ -533,7 +533,7 @@ export default function MarketplaceSettingsPage() {
                   />
                   <label
                     htmlFor="carouselAutoplay"
-                    className="text-sm text-zinc-300 cursor-pointer font-medium"
+                    className="cursor-pointer text-sm font-medium text-zinc-300"
                   >
                     Transição automática de banners (Autoplay)
                   </label>
@@ -559,7 +559,7 @@ export default function MarketplaceSettingsPage() {
                     <option value="10">10 segundos</option>
                     <option value="15">15 segundos</option>
                   </NativeSelect>
-                  <p className="text-xs text-zinc-500 mt-1.5">
+                  <p className="mt-1.5 text-xs text-zinc-500">
                     Tempo de permanência de cada slide na tela antes de avançar
                     automaticamente.
                   </p>
@@ -591,7 +591,7 @@ export default function MarketplaceSettingsPage() {
                       Exibir títulos e subtítulos sobre os banners
                     </option>
                   </NativeSelect>
-                  <p className="text-xs text-zinc-500 mt-1.5">
+                  <p className="mt-1.5 text-xs text-zinc-500">
                     Define se os textos de título e subtítulo serão renderizados
                     sobre as imagens dos banners.
                   </p>
@@ -618,7 +618,7 @@ export default function MarketplaceSettingsPage() {
                         <option value="CENTER">Centro (Padrão)</option>
                         <option value="BOTTOM">Embaixo</option>
                       </NativeSelect>
-                      <p className="text-xs text-zinc-500 mt-1.5">
+                      <p className="mt-1.5 text-xs text-zinc-500">
                         Define em qual altura os textos dos banners serão
                         posicionados verticalmente.
                       </p>
@@ -645,7 +645,7 @@ export default function MarketplaceSettingsPage() {
                         <option value="CENTER">Centralizar</option>
                         <option value="RIGHT">Alinhar à direita</option>
                       </NativeSelect>
-                      <p className="text-xs text-zinc-500 mt-1.5">
+                      <p className="mt-1.5 text-xs text-zinc-500">
                         Define o alinhamento horizontal dos títulos dentro dos
                         slides do carrossel.
                       </p>
@@ -657,8 +657,8 @@ export default function MarketplaceSettingsPage() {
           </TabsContent>
 
           {/* Aba 3: Barra de Comunicado */}
-          <TabsContent value="announcement" className="space-y-6 mt-0">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 w-full">
+          <TabsContent value="announcement" className="mt-0 space-y-6">
+            <div className="w-full space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
               <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                 <RiMegaphoneLine className="h-5 w-5 text-emerald-400" />
                 <h2 className="text-base font-semibold text-zinc-100">
@@ -677,7 +677,7 @@ export default function MarketplaceSettingsPage() {
                 />
                 <label
                   htmlFor="announcementActive"
-                  className="text-sm text-zinc-300 cursor-pointer font-medium"
+                  className="cursor-pointer text-sm font-medium text-zinc-300"
                 >
                   Ativar barra de aviso no topo do site
                 </label>
@@ -698,7 +698,7 @@ export default function MarketplaceSettingsPage() {
                           announcementText: e.target.value,
                         })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
 
@@ -715,7 +715,7 @@ export default function MarketplaceSettingsPage() {
                           announcementLink: e.target.value,
                         })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
                 </div>
@@ -724,10 +724,10 @@ export default function MarketplaceSettingsPage() {
           </TabsContent>
 
           {/* Aba 4: Atendimento & Endereço */}
-          <TabsContent value="support" className="space-y-6 mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <TabsContent value="support" className="mt-0 space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Card Contatos */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4">
+              <div className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                   <RiServiceLine className="h-5 w-5 text-emerald-400" />
                   <h2 className="text-base font-semibold text-zinc-100">
@@ -750,7 +750,7 @@ export default function MarketplaceSettingsPage() {
                           supportEmail: e.target.value,
                         })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
 
@@ -767,7 +767,7 @@ export default function MarketplaceSettingsPage() {
                           supportPhone: e.target.value,
                         })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
 
@@ -784,14 +784,14 @@ export default function MarketplaceSettingsPage() {
                           supportWhatsapp: e.target.value,
                         })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Card Endereço e Horário */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4">
+              <div className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                   <RiInformationLine className="h-5 w-5 text-emerald-400" />
                   <h2 className="text-base font-semibold text-zinc-100">
@@ -810,7 +810,7 @@ export default function MarketplaceSettingsPage() {
                       onChange={(e) =>
                         setSettings({ ...settings, address: e.target.value })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
 
@@ -827,7 +827,7 @@ export default function MarketplaceSettingsPage() {
                           businessHours: e.target.value,
                         })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
                 </div>
@@ -836,8 +836,8 @@ export default function MarketplaceSettingsPage() {
           </TabsContent>
 
           {/* Aba 5: SEO & Metadados */}
-          <TabsContent value="seo" className="space-y-6 mt-0">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4">
+          <TabsContent value="seo" className="mt-0 space-y-6">
+            <div className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
               <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                 <RiSearchLine className="h-5 w-5 text-emerald-400" />
                 <h2 className="text-base font-semibold text-zinc-100">
@@ -845,7 +845,7 @@ export default function MarketplaceSettingsPage() {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs font-semibold text-zinc-300">
@@ -857,7 +857,7 @@ export default function MarketplaceSettingsPage() {
                       onChange={(e) =>
                         setSettings({ ...settings, metaTitle: e.target.value })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                      className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
 
@@ -874,7 +874,7 @@ export default function MarketplaceSettingsPage() {
                           metaDescription: e.target.value,
                         })
                       }
-                      className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1 h-24"
+                      className="mt-1 h-24 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                     />
                   </div>
                 </div>
@@ -883,9 +883,9 @@ export default function MarketplaceSettingsPage() {
                   <label className="text-xs font-semibold text-zinc-300">
                     Imagem de Compartilhamento Social (OG Image)
                   </label>
-                  <div className="space-y-3 mt-1">
+                  <div className="mt-1 space-y-3">
                     {(ogImagePreview || settings.ogImageUrl) && (
-                      <div className="h-32 w-full rounded-md bg-zinc-950 border border-zinc-700 overflow-hidden flex items-center justify-center">
+                      <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-md border border-zinc-700 bg-zinc-950">
                         <img
                           src={ogImagePreview || settings.ogImageUrl!}
                           alt="OG Image"
@@ -906,7 +906,7 @@ export default function MarketplaceSettingsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => ogImageInputRef.current?.click()}
-                        className="cursor-pointer border-zinc-700 text-zinc-300 gap-1.5"
+                        className="cursor-pointer gap-1.5 border-zinc-700 text-zinc-300"
                       >
                         <RiImageAddLine className="h-4 w-4" />
                         <span>
@@ -928,7 +928,7 @@ export default function MarketplaceSettingsPage() {
                               ogImageUrl: null,
                             })
                           }}
-                          className="cursor-pointer text-red-400 hover:bg-red-950/40 text-xs"
+                          className="cursor-pointer text-xs text-red-400 hover:bg-red-950/40"
                         >
                           Remover
                         </Button>
@@ -941,8 +941,8 @@ export default function MarketplaceSettingsPage() {
           </TabsContent>
 
           {/* Aba 6: Regras do Catálogo & Estoque */}
-          <TabsContent value="catalog" className="space-y-6 mt-0">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-4 w-full">
+          <TabsContent value="catalog" className="mt-0 space-y-6">
+            <div className="w-full space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6">
               <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                 <RiGlobalLine className="h-5 w-5 text-emerald-400" />
                 <h2 className="text-base font-semibold text-zinc-100">
@@ -975,7 +975,7 @@ export default function MarketplaceSettingsPage() {
                     Mover produtos esgotados para o final do catálogo
                   </option>
                 </NativeSelect>
-                <p className="text-xs text-zinc-500 mt-1.5">
+                <p className="mt-1.5 text-xs text-zinc-500">
                   Determina como a API pública e o e-commerce ordenam ou filtram
                   produtos sem saldo em estoque comercial.
                 </p>

@@ -55,10 +55,10 @@ export function HoverDropdown({
 
       <div
         className={cn(
-          'invisible absolute opacity-0 transition-all duration-150 z-50 font-sans',
+          'invisible absolute z-50 font-sans opacity-0 transition-all duration-150',
           currentGroup.hover,
           position === 'right'
-            ? 'left-full top-1/2 -translate-y-1/2 pl-0.5'
+            ? 'top-1/2 left-full -translate-y-1/2 pl-0.5'
             : cn('top-full', align === 'right' ? 'right-0' : 'left-0'),
         )}
       >
@@ -72,7 +72,7 @@ export function HoverDropdown({
           {position === 'bottom' && showArrow && (
             <div
               className={cn(
-                'absolute top-0 w-0 h-0 border-l-[9px] border-r-[9px] border-b-[9px] border-l-transparent border-r-transparent border-b-white z-10',
+                'absolute top-0 z-10 h-0 w-0 border-r-[9px] border-b-[9px] border-l-[9px] border-r-transparent border-b-white border-l-transparent',
                 arrowOffset,
               )}
             />
@@ -80,7 +80,7 @@ export function HoverDropdown({
           {/* Container do conteúdo com fundo e bordas brancos por padrão */}
           <div
             className={cn(
-              'bg-white rounded-xs shadow-md font-sans overflow-hidden',
+              'overflow-hidden rounded-xs bg-white font-sans shadow-md',
               contentClassName,
             )}
           >

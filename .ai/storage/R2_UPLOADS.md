@@ -53,8 +53,8 @@ Todo arquivo ou mídia enviado para a plataforma VERTTEX através do Cloudflare 
 - O enum `UploadPurpose` no Zod e o validador do controller devem incluir explicitamente todos os valores listados na seção 2.
 - O `UploadService` deve utilizar o mapa estático `PURPOSE_FOLDER_MAP` para compor o `objectKey`:
   ```ts
-  const folder = PURPOSE_FOLDER_MAP[purpose] || "uncategorized";
-  const objectKey = `uploads/${folder}/${uniqueId}.${extension}`;
+  const folder = PURPOSE_FOLDER_MAP[purpose] || 'uncategorized'
+  const objectKey = `uploads/${folder}/${uniqueId}.${extension}`
   ```
 
 ---

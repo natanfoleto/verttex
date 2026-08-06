@@ -271,7 +271,7 @@ export default function CategoriesPage() {
       </div>
 
       {/* Filter Toolbar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4 backdrop-blur-xl">
+      <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:w-72">
           <RiSearchLine className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-500" />
           <Input
@@ -300,14 +300,14 @@ export default function CategoriesPage() {
       {/* Main Content: Categories Tree & List */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Hierarchical Tree Preview */}
-        <div className="lg:col-span-1 space-y-4 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-xl">
-          <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-zinc-300">
+        <div className="space-y-4 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-xl lg:col-span-1">
+          <div className="flex items-center space-x-2 text-xs font-semibold tracking-wider text-zinc-300 uppercase">
             <RiFolder3Line className="h-4 w-4 text-emerald-400" />
             <span>Árvore de Navegação</span>
           </div>
 
           {isLoadingTree ? (
-            <div className="p-8 text-center text-zinc-500 text-xs">
+            <div className="p-8 text-center text-xs text-zinc-500">
               Carregando árvore...
             </div>
           ) : treeData && treeData.length > 0 ? (
@@ -330,15 +330,15 @@ export default function CategoriesPage() {
         </div>
 
         {/* Categories Flat Table */}
-        <div className="lg:col-span-2 overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl">
+        <div className="overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl lg:col-span-2">
           <div className="border-b border-zinc-800/80 bg-zinc-950/60 p-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-300">
+            <h3 className="text-xs font-semibold tracking-wider text-zinc-300 uppercase">
               Listagem Completa ({listData.length})
             </h3>
           </div>
 
           {isLoadingList ? (
-            <div className="p-12 text-center text-zinc-500 text-xs">
+            <div className="p-12 text-center text-xs text-zinc-500">
               Carregando listagem...
             </div>
           ) : listData.length > 0 ? (
@@ -349,30 +349,30 @@ export default function CategoriesPage() {
                   className="flex items-center justify-between p-4 transition-colors hover:bg-zinc-800/30"
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <span className="font-semibold text-sm text-zinc-100">
+                    <div className="flex flex-wrap items-center space-x-2 gap-y-1">
+                      <span className="text-sm font-semibold text-zinc-100">
                         {cat.name}
                       </span>
-                      <span className="rounded-md bg-zinc-950 border border-zinc-800 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+                      <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
                         /{cat.slug}
                       </span>
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
                           cat.status === 'active'
-                            ? 'bg-emerald-950/80 border border-emerald-800/80 text-emerald-300'
-                            : 'bg-zinc-950 border border-zinc-800 text-zinc-400'
+                            ? 'border border-emerald-800/80 bg-emerald-950/80 text-emerald-300'
+                            : 'border border-zinc-800 bg-zinc-950 text-zinc-400'
                         }`}
                       >
                         {cat.status === 'active' ? 'Ativa' : 'Inativa'}
                       </span>
                       {cat.parent && (
-                        <span className="rounded-md bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 text-[10px] text-emerald-300">
+                        <span className="rounded-md border border-emerald-800/60 bg-emerald-950/60 px-2 py-0.5 text-[10px] text-emerald-300">
                           Pai: {cat.parent.name}
                         </span>
                       )}
                     </div>
                     {cat.description && (
-                      <p className="text-xs text-zinc-400 line-clamp-1">
+                      <p className="line-clamp-1 text-xs text-zinc-400">
                         {cat.description}
                       </p>
                     )}
@@ -398,7 +398,7 @@ export default function CategoriesPage() {
                         variant="outline"
                         size="icon"
                         onClick={() => setDeletingCategory(cat)}
-                        className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors"
+                        className="h-8 w-8 border-rose-900/40 bg-rose-950/20 p-1.5 text-rose-400 transition-colors hover:border-rose-800/80 hover:bg-rose-950/60 hover:text-rose-300"
                         title="Arquivar Categoria"
                       >
                         <RiArchiveLine className="h-4 w-4" />
@@ -426,7 +426,7 @@ export default function CategoriesPage() {
 
       {/* Modal Reusável do Shadcn UI (Dialog) */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="w-full max-w-xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+        <DialogContent className="flex w-full max-w-xl flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
           <DialogHeader className="px-6 pt-5 pb-2">
             <DialogTitle className="text-xl font-bold text-zinc-100">
               {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
@@ -442,9 +442,9 @@ export default function CategoriesPage() {
             onSubmit={handleSubmit}
             className="flex flex-1 flex-col overflow-hidden"
           >
-            <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-3 pb-6 space-y-4">
+            <div className="flex flex-1 flex-col space-y-4 overflow-y-auto px-6 pt-3 pb-6">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                   Nome da Categoria
                 </label>
                 <Input
@@ -458,7 +458,7 @@ export default function CategoriesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                     Slug (gerado automaticamente)
                   </label>
                   <Input
@@ -470,7 +470,7 @@ export default function CategoriesPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                     Categoria Pai
                   </label>
                   <NativeSelect
@@ -490,7 +490,7 @@ export default function CategoriesPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                   Descrição
                 </label>
                 <Textarea
@@ -503,7 +503,7 @@ export default function CategoriesPage() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                     Posição
                   </label>
                   <Input
@@ -514,7 +514,7 @@ export default function CategoriesPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                     Status
                   </label>
                   <NativeSelect
@@ -529,7 +529,7 @@ export default function CategoriesPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                     Visível no Marketplace
                   </label>
                   <NativeSelect
@@ -613,7 +613,7 @@ function TreeNode({
   ability: ReturnType<typeof useAuth>['ability']
 }) {
   return (
-    <div className="space-y-1 pl-3 border-l border-zinc-800/80">
+    <div className="space-y-1 border-l border-zinc-800/80 pl-3">
       <div className="flex items-center justify-between rounded-lg p-1.5 hover:bg-zinc-800/40">
         <div className="flex items-center space-x-2">
           <RiFolderLine className="h-4 w-4 text-emerald-400" />
@@ -627,7 +627,7 @@ function TreeNode({
               variant="ghost"
               size="sm"
               onClick={() => onAddSub(node)}
-              className="text-zinc-400 hover:text-emerald-400 text-xs px-2 h-7 font-medium"
+              className="h-7 px-2 text-xs font-medium text-zinc-400 hover:text-emerald-400"
               title="Adicionar subcategoria"
             >
               + Sub
@@ -639,7 +639,7 @@ function TreeNode({
               variant="ghost"
               size="sm"
               onClick={() => onEdit(node)}
-              className="text-zinc-400 hover:text-zinc-200 text-xs px-2 h-7 font-medium"
+              className="h-7 px-2 text-xs font-medium text-zinc-400 hover:text-zinc-200"
               title="Editar"
             >
               Editar

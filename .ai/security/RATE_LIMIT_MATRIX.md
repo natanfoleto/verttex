@@ -73,21 +73,21 @@ Evitar bloqueios permanentes automáticos que possam ser usados para negar acess
 
 ```typescript
 // apps/api/src/plugins/rate-limit.ts — a criar na Fase 3
-import fp from "fastify-plugin";
-import rateLimit from "@fastify/rate-limit";
+import fp from 'fastify-plugin'
+import rateLimit from '@fastify/rate-limit'
 
 export const rateLimitPlugin = fp(async (app) => {
   await app.register(rateLimit, {
     global: false, // Configurar por rota
     max: 120, // Default global
-    timeWindow: "1 minute",
+    timeWindow: '1 minute',
     // Redis: { client: redisClient } — quando Redis disponível
     addHeaders: {
-      "x-ratelimit-limit": true,
-      "x-ratelimit-remaining": true,
-      "x-ratelimit-reset": true,
-      "retry-after": true,
+      'x-ratelimit-limit': true,
+      'x-ratelimit-remaining': true,
+      'x-ratelimit-reset': true,
+      'retry-after': true,
     },
-  });
-});
+  })
+})
 ```

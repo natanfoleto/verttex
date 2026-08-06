@@ -110,13 +110,13 @@ export function TableWrapper({
         <div className="flex flex-col items-stretch justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 sm:flex-row sm:items-center">
           {onSearchChange ? (
             <div className="relative max-w-md flex-1">
-              <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500 z-10" />
+              <RiSearchLine className="absolute top-1/2 left-3.5 z-10 h-4 w-4 -translate-y-1/2 text-zinc-500" />
               <Input
                 type="text"
                 value={searchValue || ''}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full bg-zinc-950 pl-10 pr-4 text-sm text-zinc-100 placeholder-zinc-500 border-zinc-800 focus-visible:ring-1 focus-visible:ring-zinc-600"
+                className="w-full border-zinc-800 bg-zinc-950 pr-4 pl-10 text-sm text-zinc-100 placeholder-zinc-500 focus-visible:ring-1 focus-visible:ring-zinc-600"
               />
             </div>
           ) : (
@@ -184,7 +184,7 @@ export function TableWrapper({
                     value={currentPerPage}
                     onChange={(e) => onPerPageChange(Number(e.target.value))}
                     wrapperClassName="w-20"
-                    className="h-8 py-0 px-2 text-xs font-medium"
+                    className="h-8 px-2 py-0 text-xs font-medium"
                     title="Registros por página"
                   >
                     <option value={10}>10</option>
@@ -243,7 +243,7 @@ export function TableWrapper({
                       }
                     }}
                     onBlur={handlePageSubmit}
-                    className="h-8 w-12 rounded-lg border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 focus-visible:ring-emerald-600 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="h-8 w-12 [appearance:textfield] rounded-lg border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 focus-visible:ring-emerald-600 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     title="Ir para página"
                   />
                   <span>de</span>
@@ -252,7 +252,7 @@ export function TableWrapper({
                     readOnly
                     value={meta.totalPages || 1}
                     tabIndex={-1}
-                    className="h-8 w-12 cursor-default rounded-lg border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 select-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="h-8 w-12 cursor-default [appearance:textfield] rounded-lg border-zinc-800 bg-zinc-950 px-1 text-center font-semibold text-zinc-100 select-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     title="Total de páginas"
                   />
                 </div>

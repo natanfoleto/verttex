@@ -82,7 +82,7 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
           <Button
             type="button"
             onClick={() => setIsReceivingOpen(true)}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-xl cursor-pointer"
+            className="cursor-pointer rounded-xl bg-emerald-600 text-xs font-medium text-white hover:bg-emerald-500"
           >
             <RiAddLine className="mr-1.5 h-4 w-4" />
             <span>Novo Recebimento</span>
@@ -94,9 +94,9 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
             variant="outline"
             size="sm"
             onClick={() => refetch()}
-            className="cursor-pointer text-xs h-9 border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 rounded-xl"
+            className="h-9 cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800"
           >
-            <RiRefreshLine className="h-3.5 w-3.5 mr-1" />
+            <RiRefreshLine className="mr-1 h-3.5 w-3.5" />
             <span>Atualizar</span>
           </Button>
         }
@@ -116,7 +116,7 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
         }}
       >
         <table className="w-full text-left text-xs">
-          <thead className="bg-zinc-950/60 text-zinc-400 font-bold uppercase tracking-wider text-[10px] border-b border-zinc-800">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] font-bold tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-5 py-3.5">Produto / Variação</th>
               <th className="px-5 py-3.5">SKU</th>
@@ -134,12 +134,12 @@ export function StoreInventoryTab({ storeId }: { storeId: string }) {
               return (
                 <tr
                   key={item.variationId || item.sku}
-                  className="hover:bg-zinc-800/30 transition-colors"
+                  className="transition-colors hover:bg-zinc-800/30"
                 >
                   <td className="px-5 py-4 font-sans font-semibold text-zinc-100">
                     {item.productName}
                   </td>
-                  <td className="px-5 py-4 text-zinc-400 font-mono">
+                  <td className="px-5 py-4 font-mono text-zinc-400">
                     {item.sku}
                   </td>
                   <td className="px-5 py-4 text-center font-bold text-zinc-100">

@@ -62,7 +62,7 @@ export function StoresListingView() {
   }))
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 font-sans antialiased">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans antialiased sm:px-6 sm:py-12 lg:px-8">
       {/* Header Banner */}
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -76,7 +76,7 @@ export function StoresListingView() {
 
       {/* Top Search & Results Counter */}
       <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-xl">
+        <div className="relative max-w-xl flex-1">
           <RiSearchLine className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <Input
             type="text"
@@ -86,7 +86,7 @@ export function StoresListingView() {
               setPage(1)
             }}
             placeholder="Buscar produtor por nome ou descrição..."
-            className="pl-10 pr-9"
+            className="pr-9 pl-10"
           />
           {searchQuery && (
             <button
@@ -95,7 +95,7 @@ export function StoresListingView() {
                 setSearchQuery('')
                 setPage(1)
               }}
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer rounded-full p-0.5"
+              className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-stone-600"
             >
               <RiCloseLine className="h-4 w-4" />
             </button>

@@ -62,7 +62,7 @@ export default function CustomerProfilePage() {
 
   return (
     <CustomerAuthGuard>
-      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 font-sans text-stone-900 antialiased sm:px-6 lg:px-8">
         <ProfileHeader />
 
         {/* Form Box */}
@@ -93,7 +93,7 @@ export default function CustomerProfilePage() {
             </div>
           )}
 
-          <form onSubmit={handleUpdateProfile} className="space-y-5 max-w-xl">
+          <form onSubmit={handleUpdateProfile} className="max-w-xl space-y-5">
             <div>
               <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
                 E-mail (Não alterável)
@@ -102,7 +102,7 @@ export default function CustomerProfilePage() {
                 type="email"
                 value={customer?.email || ''}
                 disabled
-                className="mt-1.5 bg-stone-100/80 text-stone-500 cursor-not-allowed text-xs"
+                className="mt-1.5 cursor-not-allowed bg-stone-100/80 text-xs text-stone-500"
               />
             </div>
 
@@ -119,7 +119,7 @@ export default function CustomerProfilePage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
                   CPF ou CNPJ
@@ -150,7 +150,7 @@ export default function CustomerProfilePage() {
             <Button
               type="submit"
               disabled={!isDirty || isSubmitting}
-              className="mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RiCheckLine className="h-4 w-4" />
               <span>{isSubmitting ? 'Salvando...' : 'Salvar Alterações'}</span>

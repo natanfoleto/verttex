@@ -167,7 +167,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
         </p>
         <Link
           href="/produtos"
-          className="mt-6 inline-flex items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900 cursor-pointer"
+          className="mt-6 inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900"
         >
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Voltar ao Catálogo</span>
@@ -213,28 +213,28 @@ export function ProductDetailView({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8 py-6 font-sans antialiased">
+    <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 font-sans antialiased sm:px-6 lg:px-8">
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center space-x-2 text-xs font-semibold text-stone-500">
-        <Link href="/" className="hover:text-emerald-800 transition-colors">
+        <Link href="/" className="transition-colors hover:text-emerald-800">
           Início
         </Link>
         <span>/</span>
         <Link
           href="/produtos"
-          className="hover:text-emerald-800 transition-colors"
+          className="transition-colors hover:text-emerald-800"
         >
           Produtos
         </Link>
         <span>/</span>
         <Link
           href={`/categoria/${product.category.slug}`}
-          className="hover:text-emerald-800 transition-colors"
+          className="transition-colors hover:text-emerald-800"
         >
           {product.category.name}
         </Link>
         <span>/</span>
-        <span className="text-stone-900 font-bold truncate max-w-xs sm:max-w-md">
+        <span className="max-w-xs truncate font-bold text-stone-900 sm:max-w-md">
           {product.name}
         </span>
       </nav>
@@ -267,9 +267,9 @@ export function ProductDetailView({ slug }: { slug: string }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsWishlisted(!isWishlisted)}
-                    className={`absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white/90 shadow-xs backdrop-blur-xs transition-colors cursor-pointer ${
+                    className={`absolute top-3 right-3 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white/90 shadow-xs backdrop-blur-xs transition-colors ${
                       isWishlisted
-                        ? 'text-rose-600 bg-rose-50 border-rose-200'
+                        ? 'border-rose-200 bg-rose-50 text-rose-600'
                         : 'text-stone-500 hover:text-rose-600'
                     }`}
                     title="Salvar nos Favoritos"
@@ -280,14 +280,14 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
                 {/* Thumbnails List Below Main Photo */}
                 {product.images.length > 1 && (
-                  <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none">
+                  <div className="flex scrollbar-none space-x-3 overflow-x-auto pb-2">
                     {product.images.map((img, idx) => (
                       <Button
                         key={img.id}
                         type="button"
                         variant="ghost"
                         onClick={() => setSelectedImageIndex(idx)}
-                        className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 p-0 transition-all cursor-pointer ${
+                        className={`h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 p-0 transition-all ${
                           selectedImageIndex === idx
                             ? 'border-emerald-800 ring-2 ring-emerald-800/20'
                             : 'border-stone-200 opacity-70 hover:opacity-100'
@@ -315,7 +315,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                   </div>
 
                   {product.isFeatured && (
-                    <div className="inline-block rounded-md bg-amber-500 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-stone-950">
+                    <div className="inline-block rounded-md bg-amber-500 px-2.5 py-0.5 text-[10px] font-black tracking-wider text-stone-950 uppercase">
                       1º em {product.category.name}
                     </div>
                   )}
@@ -334,7 +334,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                       <RiStarFill className="h-4 w-4" />
                       <RiStarFill className="h-4 w-4" />
                     </div>
-                    <span className="text-stone-400 font-medium">
+                    <span className="font-medium text-stone-400">
                       (42 opiniões)
                     </span>
                   </div>
@@ -348,7 +348,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                     </span>
                   )}
                   <div className="flex items-baseline space-x-2">
-                    <span className="text-3xl font-black text-stone-900 tracking-tight">
+                    <span className="text-3xl font-black tracking-tight text-stone-900">
                       R$ {currentPrice.toFixed(2)}
                     </span>
                     {discountPercent && (
@@ -357,7 +357,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-stone-500 font-medium">
+                  <p className="text-xs font-medium text-stone-500">
                     em até{' '}
                     <strong className="text-stone-800">
                       3x de R$ {(currentPrice / 3).toFixed(2)}
@@ -391,12 +391,12 @@ export function ProductDetailView({ slug }: { slug: string }) {
                             type="button"
                             onClick={() => handleSelectVariation(v.id)}
                             disabled={!v.isAvailable}
-                            className={`rounded-xl border px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
+                            className={`cursor-pointer rounded-xl border px-3.5 py-2 text-xs font-bold transition-all ${
                               isSelected
                                 ? 'border-emerald-800 bg-emerald-800 text-white shadow-xs'
                                 : v.isAvailable
                                   ? 'border-stone-200 bg-white text-stone-700 hover:border-stone-400'
-                                  : 'border-stone-100 bg-stone-100 text-stone-400 line-through opacity-60 cursor-not-allowed'
+                                  : 'cursor-not-allowed border-stone-100 bg-stone-100 text-stone-400 line-through opacity-60'
                             }`}
                           >
                             {labelText} {!v.isAvailable && '(Esgotado)'}
@@ -409,25 +409,25 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
                 {/* Bullet Points */}
                 <div className="space-y-3 pt-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-stone-900">
+                  <h3 className="text-xs font-bold tracking-wider text-stone-900 uppercase">
                     O que você precisa saber sobre este produto
                   </h3>
                   <ul className="space-y-2 text-xs text-stone-600">
                     <li className="flex items-start space-x-2">
-                      <RiCheckboxCircleLine className="h-4 w-4 shrink-0 text-emerald-700 mt-0.5" />
+                      <RiCheckboxCircleLine className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
                       <span>
                         Produzido por artesão regional com receitas
                         tradicionais.
                       </span>
                     </li>
                     <li className="flex items-start space-x-2">
-                      <RiCheckboxCircleLine className="h-4 w-4 shrink-0 text-emerald-700 mt-0.5" />
+                      <RiCheckboxCircleLine className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
                       <span>
                         Ingredientes 100% naturais sem conservantes artificiais.
                       </span>
                     </li>
                     <li className="flex items-start space-x-2">
-                      <RiCheckboxCircleLine className="h-4 w-4 shrink-0 text-emerald-700 mt-0.5" />
+                      <RiCheckboxCircleLine className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
                       <span>
                         Rastreabilidade sanitária rigorosa com validação de lote
                         por FEFO.
@@ -440,29 +440,29 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
             {/* Detailed Description */}
             {product.fullDescription && (
-              <div className="border-t border-stone-200 mt-5 pt-5 space-y-3">
+              <div className="mt-5 space-y-3 border-t border-stone-200 pt-5">
                 <h2 className="text-lg font-bold text-stone-900">
                   Descrição detalhada do produto
                 </h2>
-                <div className="prose prose-stone max-w-none text-xs text-stone-600 leading-relaxed">
+                <div className="prose prose-stone max-w-none text-xs leading-relaxed text-stone-600">
                   {product.fullDescription}
                 </div>
               </div>
             )}
 
             {/* Product Reviews */}
-            <div className="border-t border-stone-200 mt-5 pt-5 space-y-4">
+            <div className="mt-5 space-y-4 border-t border-stone-200 pt-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-stone-900 flex items-center space-x-2">
+                <h2 className="flex items-center space-x-2 text-lg font-bold text-stone-900">
                   <RiStarFill className="h-5 w-5 text-amber-500" />
                   <span>Avaliações & Opiniões de Compras Verificadas</span>
                 </h2>
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
                   Compra Verificada Obrigatória
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-stone-200 bg-stone-50/60 p-5 space-y-4">
+              <div className="space-y-4 rounded-2xl border border-stone-200 bg-stone-50/60 p-5">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <div className="flex text-amber-500">
@@ -474,10 +474,10 @@ export function ProductDetailView({ slug }: { slug: string }) {
                       5.0 de 5 estrelas
                     </span>
                   </div>
-                  <div className="text-xs text-stone-600 rounded-xl bg-white p-4 border border-stone-200 shadow-2xs">
+                  <div className="rounded-xl border border-stone-200 bg-white p-4 text-xs text-stone-600 shadow-2xs">
                     <div className="flex items-center justify-between font-bold text-stone-900">
                       <span>Mateus Andrade</span>
-                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                         ✓ Compra Verificada (Entregue)
                       </span>
                     </div>
@@ -495,31 +495,31 @@ export function ProductDetailView({ slug }: { slug: string }) {
         {/* Right Sidebar Column */}
         <div className="space-y-4 lg:col-span-4">
           <div className="space-y-4 rounded-3xl border border-stone-200/80 bg-white p-5 shadow-xs">
-            <div className="rounded-xl bg-emerald-50 p-3 border border-emerald-200 text-xs font-bold text-emerald-900 flex items-center space-x-2">
-              <RiTruckLine className="h-5 w-5 text-emerald-700 shrink-0" />
+            <div className="flex items-center space-x-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-900">
+              <RiTruckLine className="h-5 w-5 shrink-0 text-emerald-700" />
               <span>FRETE REGIONAL GRÁTIS ACIMA DE R$ 150</span>
             </div>
 
             <div className="space-y-3 text-xs">
               <div className="flex items-start space-x-3">
-                <RiTruckLine className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5" />
+                <RiTruckLine className="mt-0.5 h-5 w-5 shrink-0 text-emerald-800" />
                 <div>
                   <p className="font-bold text-emerald-900">
                     Chegará em domicílio
                   </p>
-                  <p className="text-stone-500 text-[11px]">
+                  <p className="text-[11px] text-stone-500">
                     Entrega rápida por produtor regional (2 a 4 dias úteis)
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
-                <RiMapPinLine className="h-5 w-5 text-amber-700 shrink-0 mt-0.5" />
+                <RiMapPinLine className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
                 <div>
                   <p className="font-bold text-stone-900">
                     Retirada no produtor
                   </p>
-                  <p className="text-stone-500 text-[11px]">
+                  <p className="text-[11px] text-stone-500">
                     Disponível para retirada na sede de {product.store.name}
                   </p>
                 </div>
@@ -532,16 +532,16 @@ export function ProductDetailView({ slug }: { slug: string }) {
                   Estoque disponível
                 </span>
                 {stockAvailable > 5 ? (
-                  <span className="text-xs font-bold text-emerald-700 flex items-center space-x-1">
+                  <span className="flex items-center space-x-1 text-xs font-bold text-emerald-700">
                     <RiCheckLine className="h-4 w-4" />
                     <span>Em estoque ({stockAvailable} un.)</span>
                   </span>
                 ) : stockAvailable > 0 ? (
-                  <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 flex items-center space-x-1">
+                  <span className="flex items-center space-x-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">
                     <span>Últimas {stockAvailable} unidades!</span>
                   </span>
                 ) : (
-                  <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                  <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600">
                     Esgotado
                   </span>
                 )}
@@ -557,11 +557,11 @@ export function ProductDetailView({ slug }: { slug: string }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="h-7 w-7 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
+                    className="h-7 w-7 cursor-pointer p-0 text-stone-600 hover:text-stone-900"
                   >
                     <RiSubtractLine className="h-4 w-4" />
                   </Button>
-                  <span className="w-8 text-center font-bold text-xs">
+                  <span className="w-8 text-center text-xs font-bold">
                     {quantity}
                   </span>
                   <Button
@@ -569,7 +569,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(quantity + 1)}
-                    className="h-7 w-7 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
+                    className="h-7 w-7 cursor-pointer p-0 text-stone-600 hover:text-stone-900"
                   >
                     <RiAddLine className="h-4 w-4" />
                   </Button>
@@ -582,7 +582,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 type="button"
                 onClick={handleBuyNow}
                 disabled={!isAvailable || addToCartMutation.isPending}
-                className="w-full h-12 rounded-xl bg-emerald-800 text-xs font-extrabold text-white hover:bg-emerald-900 shadow-md cursor-pointer transition-all"
+                className="h-12 w-full cursor-pointer rounded-xl bg-emerald-800 text-xs font-extrabold text-white shadow-md transition-all hover:bg-emerald-900"
               >
                 Comprar agora
               </Button>
@@ -598,7 +598,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                   }
                 }}
                 disabled={!isAvailable || addToCartMutation.isPending}
-                className="w-full h-12 rounded-xl bg-emerald-100 text-xs font-bold text-emerald-900 hover:bg-emerald-200 border border-emerald-200 cursor-pointer transition-all"
+                className="h-12 w-full cursor-pointer rounded-xl border border-emerald-200 bg-emerald-100 text-xs font-bold text-emerald-900 transition-all hover:bg-emerald-200"
               >
                 <RiShoppingBag3Line className="h-4 w-4" />
                 <span>
@@ -611,7 +611,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
             <div className="space-y-3 border-t border-stone-100 pt-4 text-xs text-stone-600">
               <div className="flex items-start space-x-2.5">
-                <RiRefreshLine className="h-4 w-4 shrink-0 text-stone-400 mt-0.5" />
+                <RiRefreshLine className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
                 <div>
                   <strong className="text-stone-900">Devolução grátis.</strong>{' '}
                   Você tem 7 dias a partir do recebimento.
@@ -619,7 +619,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               </div>
 
               <div className="flex items-start space-x-2.5">
-                <RiShieldCheckLine className="h-4 w-4 shrink-0 text-stone-400 mt-0.5" />
+                <RiShieldCheckLine className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
                 <div>
                   <strong className="text-stone-900">
                     Compra Garantida VERTTEX.
@@ -631,12 +631,12 @@ export function ProductDetailView({ slug }: { slug: string }) {
           </div>
 
           <div className="space-y-4 rounded-3xl border border-stone-200/80 bg-white p-5 shadow-xs">
-            <div className="text-xs font-bold uppercase tracking-wider text-stone-500">
+            <div className="text-xs font-bold tracking-wider text-stone-500 uppercase">
               Informações sobre o vendedor
             </div>
 
             <div className="flex items-center space-x-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-amber-50 text-amber-900 font-extrabold text-lg">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-amber-50 text-lg font-extrabold text-amber-900">
                 {product.store.logoUrl ? (
                   <img
                     src={product.store.logoUrl}
@@ -651,7 +651,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               <div className="overflow-hidden">
                 <Link
                   href={`/produtor/${product.store.slug}`}
-                  className="font-extrabold text-sm text-stone-900 hover:text-emerald-800 transition-colors line-clamp-1 cursor-pointer"
+                  className="line-clamp-1 cursor-pointer text-sm font-extrabold text-stone-900 transition-colors hover:text-emerald-800"
                 >
                   {product.store.name}
                 </Link>
@@ -667,7 +667,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <div className="text-sm font-extrabold text-stone-900">
                   +1.000
                 </div>
-                <div className="text-[10px] text-stone-500 leading-tight">
+                <div className="text-[10px] leading-tight text-stone-500">
                   Vendas realizadas
                 </div>
               </div>
@@ -676,7 +676,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <div className="text-sm font-extrabold text-emerald-700">
                   Excelente
                 </div>
-                <div className="text-[10px] text-stone-500 leading-tight">
+                <div className="text-[10px] leading-tight text-stone-500">
                   Bom atendimento
                 </div>
               </div>
@@ -685,7 +685,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <div className="text-sm font-extrabold text-amber-700">
                   No prazo
                 </div>
-                <div className="text-[10px] text-stone-500 leading-tight">
+                <div className="text-[10px] leading-tight text-stone-500">
                   Entrega pontual
                 </div>
               </div>
@@ -693,7 +693,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
             <Link
               href={`/produtor/${product.store.slug}`}
-              className="block w-full text-center rounded-xl border border-stone-200 bg-stone-50 py-2.5 text-xs font-bold text-stone-800 hover:bg-stone-100 hover:border-stone-300 transition-colors cursor-pointer"
+              className="block w-full cursor-pointer rounded-xl border border-stone-200 bg-stone-50 py-2.5 text-center text-xs font-bold text-stone-800 transition-colors hover:border-stone-300 hover:bg-stone-100"
             >
               Ver perfil completo do produtor
             </Link>

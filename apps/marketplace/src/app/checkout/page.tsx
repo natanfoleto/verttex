@@ -170,29 +170,29 @@ export default function CheckoutPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8 space-y-8 font-sans antialiased">
-        <div className="h-6 w-48 bg-stone-200 rounded-md animate-pulse" />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-8 space-y-6">
-            <div className="p-6 bg-white rounded-3xl border border-stone-200 space-y-4 shadow-xs">
-              <div className="h-5 w-40 bg-stone-200 rounded animate-pulse" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="h-24 bg-stone-100 rounded-2xl animate-pulse" />
-                <div className="h-24 bg-stone-100 rounded-2xl animate-pulse" />
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans antialiased">
+        <div className="h-6 w-48 animate-pulse rounded-md bg-stone-200" />
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <div className="space-y-6 lg:col-span-8">
+            <div className="space-y-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-xs">
+              <div className="h-5 w-40 animate-pulse rounded bg-stone-200" />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="h-24 animate-pulse rounded-2xl bg-stone-100" />
+                <div className="h-24 animate-pulse rounded-2xl bg-stone-100" />
               </div>
             </div>
-            <div className="p-6 bg-white rounded-3xl border border-stone-200 space-y-4 shadow-xs">
-              <div className="h-5 w-40 bg-stone-200 rounded animate-pulse" />
-              <div className="h-16 bg-stone-100 rounded-2xl animate-pulse" />
+            <div className="space-y-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-xs">
+              <div className="h-5 w-40 animate-pulse rounded bg-stone-200" />
+              <div className="h-16 animate-pulse rounded-2xl bg-stone-100" />
             </div>
           </div>
-          <div className="lg:col-span-4 p-6 bg-white rounded-3xl border border-stone-200 space-y-4 shadow-xs">
-            <div className="h-6 w-32 bg-stone-200 rounded animate-pulse" />
+          <div className="space-y-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-xs lg:col-span-4">
+            <div className="h-6 w-32 animate-pulse rounded bg-stone-200" />
             <div className="space-y-2 pt-4">
-              <div className="h-4 w-full bg-stone-100 rounded animate-pulse" />
-              <div className="h-4 w-full bg-stone-100 rounded animate-pulse" />
+              <div className="h-4 w-full animate-pulse rounded bg-stone-100" />
+              <div className="h-4 w-full animate-pulse rounded bg-stone-100" />
             </div>
-            <div className="h-12 w-full bg-stone-200 rounded-xl animate-pulse pt-4" />
+            <div className="h-12 w-full animate-pulse rounded-xl bg-stone-200 pt-4" />
           </div>
         </div>
       </div>
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
         </p>
         <Link
           href="/produtos"
-          className="mt-6 inline-flex items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900 cursor-pointer"
+          className="mt-6 inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900"
         >
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Explorar Catálogo</span>
@@ -230,12 +230,12 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans text-stone-900 antialiased space-y-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 font-sans text-stone-900 antialiased sm:px-6 lg:px-8">
       {/* Navigation Header */}
       <div className="flex items-center justify-between border-b border-stone-200 pb-4">
         <Link
           href="/produtos"
-          className="flex items-center space-x-2 text-xs font-bold text-stone-500 hover:text-emerald-800 transition-colors"
+          className="flex items-center space-x-2 text-xs font-bold text-stone-500 transition-colors hover:text-emerald-800"
         >
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Voltar às compras</span>
@@ -243,13 +243,13 @@ export default function CheckoutPage() {
         <h1 className="text-xl font-extrabold text-stone-900">
           Finalizar Pedido
         </h1>
-        <div className="flex items-center space-x-1.5 text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+        <div className="flex items-center space-x-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
           <RiShieldCheckLine className="h-4 w-4" />
           <span>Checkout Seguro SSL</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Main Form Area (Span 8) */}
         <div className="space-y-6 lg:col-span-8">
           {/* Step 1: Address Selection */}
@@ -264,49 +264,49 @@ export default function CheckoutPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAddAddressModal(true)}
-                className="text-xs font-semibold cursor-pointer"
+                className="cursor-pointer text-xs font-semibold"
               >
-                <RiAddLine className="h-4 w-4 mr-1 text-emerald-700" />
+                <RiAddLine className="mr-1 h-4 w-4 text-emerald-700" />
                 Novo Endereço
               </Button>
             </div>
 
             {!addresses || addresses.length === 0 ? (
-              <div className="p-6 text-center border border-dashed rounded-2xl bg-stone-50 text-xs text-stone-500 space-y-3">
+              <div className="space-y-3 rounded-2xl border border-dashed bg-stone-50 p-6 text-center text-xs text-stone-500">
                 <p>Nenhum endereço cadastrado para entrega.</p>
                 <Button
                   type="button"
                   onClick={() => setShowAddAddressModal(true)}
-                  className="bg-emerald-800 hover:bg-emerald-900 text-white cursor-pointer text-xs"
+                  className="cursor-pointer bg-emerald-800 text-xs text-white hover:bg-emerald-900"
                 >
                   Cadastrar Primeiro Endereço
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {addresses.map((addr) => {
                   const isSelected = selectedAddressId === addr.id
                   return (
                     <div
                       key={addr.id}
                       onClick={() => setSelectedAddressId(addr.id)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 relative ${
+                      className={`relative cursor-pointer space-y-2 rounded-2xl border p-4 transition-all ${
                         isSelected
                           ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
                           : 'border-stone-200 bg-white hover:border-stone-400'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs text-stone-900 flex items-center gap-1.5">
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-stone-900">
                           {addr.label || 'Endereço'}
                           {addr.isDefault && (
-                            <span className="text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded-md font-normal">
+                            <span className="rounded-md bg-stone-200 px-1.5 py-0.5 text-[10px] font-normal text-stone-700">
                               Padrão
                             </span>
                           )}
                         </span>
                         {isSelected && (
-                          <RiCheckLine className="h-5 w-5 text-emerald-800 font-bold" />
+                          <RiCheckLine className="h-5 w-5 font-bold text-emerald-800" />
                         )}
                       </div>
                       <p className="text-xs font-semibold text-stone-800">
@@ -334,12 +334,12 @@ export default function CheckoutPage() {
               <span>2. Método de Pagamento</span>
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setPaymentMethod('pix')}
-                className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
+                className={`flex h-auto cursor-pointer flex-col items-stretch justify-between space-y-3 rounded-2xl border p-4 text-left whitespace-normal transition-all ${
                   paymentMethod === 'pix'
                     ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
                     : 'border-stone-200 bg-white hover:border-stone-400'
@@ -347,12 +347,12 @@ export default function CheckoutPage() {
               >
                 <div className="flex items-center justify-between">
                   <RiQrCodeLine className="h-6 w-6 text-emerald-800" />
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                  <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-black tracking-wider text-emerald-800 uppercase">
                     Instantâneo
                   </span>
                 </div>
                 <div>
-                  <p className="font-bold text-xs text-stone-900">PIX</p>
+                  <p className="text-xs font-bold text-stone-900">PIX</p>
                   <p className="text-[11px] text-stone-500">
                     Aprovação imediata com QR Code
                   </p>
@@ -363,7 +363,7 @@ export default function CheckoutPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setPaymentMethod('credit_card')}
-                className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
+                className={`flex h-auto cursor-pointer flex-col items-stretch justify-between space-y-3 rounded-2xl border p-4 text-left whitespace-normal transition-all ${
                   paymentMethod === 'credit_card'
                     ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
                     : 'border-stone-200 bg-white hover:border-stone-400'
@@ -373,7 +373,7 @@ export default function CheckoutPage() {
                   <RiBankCardLine className="h-6 w-6 text-stone-700" />
                 </div>
                 <div>
-                  <p className="font-bold text-xs text-stone-900">
+                  <p className="text-xs font-bold text-stone-900">
                     Cartão de Crédito
                   </p>
                   <p className="text-[11px] text-stone-500">
@@ -386,7 +386,7 @@ export default function CheckoutPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setPaymentMethod('boleto')}
-                className={`h-auto p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col items-stretch justify-between space-y-3 whitespace-normal ${
+                className={`flex h-auto cursor-pointer flex-col items-stretch justify-between space-y-3 rounded-2xl border p-4 text-left whitespace-normal transition-all ${
                   paymentMethod === 'boleto'
                     ? 'border-emerald-800 bg-emerald-50/50 ring-2 ring-emerald-800/20'
                     : 'border-stone-200 bg-white hover:border-stone-400'
@@ -396,7 +396,7 @@ export default function CheckoutPage() {
                   <RiBarcodeLine className="h-6 w-6 text-stone-700" />
                 </div>
                 <div>
-                  <p className="font-bold text-xs text-stone-900">
+                  <p className="text-xs font-bold text-stone-900">
                     Boleto Bancário
                   </p>
                   <p className="text-[11px] text-stone-500">
@@ -409,7 +409,7 @@ export default function CheckoutPage() {
 
           {/* Step 3: Order Notes */}
           <div className="space-y-3 rounded-3xl border border-stone-200 bg-white p-6 shadow-xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-900">
+            <h3 className="text-xs font-bold tracking-wider text-stone-900 uppercase">
               Observações do Pedido (Opcional)
             </h3>
             <Textarea
@@ -425,12 +425,12 @@ export default function CheckoutPage() {
         {/* Sidebar Order Summary (Span 4) */}
         <div className="space-y-6 lg:col-span-4">
           <div className="space-y-6 rounded-3xl border border-stone-200 bg-white p-6 shadow-xs">
-            <h2 className="text-base font-bold text-stone-900 border-b border-stone-100 pb-3">
+            <h2 className="border-b border-stone-100 pb-3 text-base font-bold text-stone-900">
               Resumo da Compra
             </h2>
 
             {/* List of Products */}
-            <div className="space-y-3 max-h-72 overflow-y-auto pr-1 divide-y divide-stone-100">
+            <div className="max-h-72 space-y-3 divide-y divide-stone-100 overflow-y-auto pr-1">
               {items.map((item) => {
                 const imgUrl =
                   item.variation.medias?.find((m) => m.isMain)?.url ||
@@ -452,11 +452,11 @@ export default function CheckoutPage() {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <RiShoppingBag3Line className="h-6 w-6 text-stone-300 m-auto mt-3" />
+                        <RiShoppingBag3Line className="m-auto mt-3 h-6 w-6 text-stone-300" />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-stone-900 truncate">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-bold text-stone-900">
                         {item.variation.product.name}
                       </p>
                       <p className="text-[11px] text-stone-500">
@@ -481,7 +481,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Frete Regional</span>
-                <span className="font-bold text-emerald-800 uppercase text-[11px]">
+                <span className="text-[11px] font-bold text-emerald-800 uppercase">
                   Grátis
                 </span>
               </div>
@@ -498,14 +498,14 @@ export default function CheckoutPage() {
               type="button"
               onClick={() => checkoutMutation.mutate()}
               disabled={checkoutMutation.isPending || !selectedAddressId}
-              className="w-full h-12 rounded-xl bg-emerald-800 text-xs font-extrabold text-white hover:bg-emerald-900 shadow-md cursor-pointer transition-all"
+              className="h-12 w-full cursor-pointer rounded-xl bg-emerald-800 text-xs font-extrabold text-white shadow-md transition-all hover:bg-emerald-900"
             >
               {checkoutMutation.isPending
                 ? 'Processando Pedido...'
                 : 'Finalizar Pedido'}
             </Button>
 
-            <div className="flex items-center justify-center space-x-2 text-[11px] text-stone-500 pt-2">
+            <div className="flex items-center justify-center space-x-2 pt-2 text-[11px] text-stone-500">
               <RiTruckLine className="h-4 w-4 text-emerald-700" />
               <span>Garantia de Entrega VERTTEX Direct</span>
             </div>
@@ -516,7 +516,7 @@ export default function CheckoutPage() {
       {/* Modal Novo Endereço */}
       {showAddAddressModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 shadow-xl">
+          <div className="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 shadow-xl">
             <h3 className="text-base font-bold text-stone-900">
               Cadastrar Novo Endereço
             </h3>
@@ -528,7 +528,7 @@ export default function CheckoutPage() {
               className="space-y-3 text-xs"
             >
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">
+                <label className="mb-1 block font-semibold text-stone-700">
                   Nome do Destinatário *
                 </label>
                 <Input
@@ -542,7 +542,7 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
+                  <label className="mb-1 block font-semibold text-stone-700">
                     CEP *
                   </label>
                   <Input
@@ -554,7 +554,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
+                  <label className="mb-1 block font-semibold text-stone-700">
                     Identificador
                   </label>
                   <Input
@@ -568,7 +568,7 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2">
-                  <label className="font-semibold text-stone-700 block mb-1">
+                  <label className="mb-1 block font-semibold text-stone-700">
                     Rua / Logradouro *
                   </label>
                   <Input
@@ -580,7 +580,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
+                  <label className="mb-1 block font-semibold text-stone-700">
                     Número *
                   </label>
                   <Input
@@ -595,7 +595,7 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
+                  <label className="mb-1 block font-semibold text-stone-700">
                     Bairro *
                   </label>
                   <Input
@@ -607,7 +607,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
+                  <label className="mb-1 block font-semibold text-stone-700">
                     Cidade *
                   </label>
                   <Input
@@ -619,7 +619,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
+                  <label className="mb-1 block font-semibold text-stone-700">
                     UF *
                   </label>
                   <Input
@@ -645,7 +645,7 @@ export default function CheckoutPage() {
                 <Button
                   type="submit"
                   disabled={addAddressMutation.isPending}
-                  className="bg-emerald-800 hover:bg-emerald-900 text-white cursor-pointer"
+                  className="cursor-pointer bg-emerald-800 text-white hover:bg-emerald-900"
                 >
                   {addAddressMutation.isPending
                     ? 'Salvando...'

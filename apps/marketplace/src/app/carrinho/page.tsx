@@ -106,7 +106,7 @@ export default function CartPage() {
   const hasItems = summary && summary.stores.length > 0
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 font-sans text-stone-900 antialiased sm:px-6 lg:px-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-stone-900">
@@ -153,39 +153,39 @@ export default function CartPage() {
                   {storeGroup.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between text-xs"
+                      className="flex flex-col gap-4 py-4 text-xs sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-center space-x-4 flex-1 min-w-0">
+                      <div className="flex min-w-0 flex-1 items-center space-x-4">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
                             alt={item.productName}
-                            className="h-16 w-16 rounded-xl object-cover border border-stone-200 shrink-0"
+                            className="h-16 w-16 shrink-0 rounded-xl border border-stone-200 object-cover"
                           />
                         ) : (
-                          <div className="h-16 w-16 rounded-xl bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
+                          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
                             <RiShoppingBag3Line className="h-8 w-8" />
                           </div>
                         )}
-                        <div className="flex-1 min-w-0">
+                        <div className="min-w-0 flex-1">
                           <Link
                             href={`/produtos`}
-                            className="font-bold text-stone-900 hover:text-emerald-800 text-sm truncate block"
+                            className="block truncate text-sm font-bold text-stone-900 hover:text-emerald-800"
                           >
                             {item.productName}
                           </Link>
-                          <p className="text-[11px] text-stone-400 font-mono mt-0.5">
+                          <p className="mt-0.5 font-mono text-[11px] text-stone-400">
                             SKU: {item.sku}
                           </p>
-                          <p className="text-xs font-semibold text-stone-700 mt-1">
+                          <p className="mt-1 text-xs font-semibold text-stone-700">
                             R$ {item.unitPrice.toFixed(2)} / un
                           </p>
                         </div>
                       </div>
 
                       {/* Quantity Controls & Item Total */}
-                      <div className="flex items-center justify-between sm:justify-end space-x-6">
-                        <div className="flex items-center space-x-1 border border-stone-200 rounded-lg p-0.5 bg-stone-50">
+                      <div className="flex items-center justify-between space-x-6 sm:justify-end">
+                        <div className="flex items-center space-x-1 rounded-lg border border-stone-200 bg-stone-50 p-0.5">
                           <Button
                             type="button"
                             variant="ghost"
@@ -200,11 +200,11 @@ export default function CartPage() {
                                 removeItemMutation.mutate(item.id)
                               }
                             }}
-                            className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
+                            className="h-6 w-6 cursor-pointer p-0 text-stone-600 hover:text-stone-900"
                           >
                             <RiSubtractLine className="h-3.5 w-3.5" />
                           </Button>
-                          <span className="w-8 text-center font-bold text-xs">
+                          <span className="w-8 text-center text-xs font-bold">
                             {item.quantity}
                           </span>
                           <Button
@@ -217,14 +217,14 @@ export default function CartPage() {
                                 quantity: item.quantity + 1,
                               })
                             }}
-                            className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
+                            className="h-6 w-6 cursor-pointer p-0 text-stone-600 hover:text-stone-900"
                           >
                             <RiAddLine className="h-3.5 w-3.5" />
                           </Button>
                         </div>
 
-                        <div className="text-right min-w-20">
-                          <span className="font-bold text-stone-900 text-xs sm:text-sm">
+                        <div className="min-w-20 text-right">
+                          <span className="text-xs font-bold text-stone-900 sm:text-sm">
                             R$ {item.itemTotal.toFixed(2)}
                           </span>
                         </div>
@@ -234,7 +234,7 @@ export default function CartPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => removeItemMutation.mutate(item.id)}
-                          className="h-7 w-7 p-0 text-stone-400 hover:text-rose-600 cursor-pointer"
+                          className="h-7 w-7 cursor-pointer p-0 text-stone-400 hover:text-rose-600"
                           title="Remover Item"
                         >
                           <RiDeleteBin6Line className="h-4 w-4" />
@@ -250,13 +250,13 @@ export default function CartPage() {
           {/* Right Column: Order Summary & Coupon Form */}
           <div className="space-y-6 lg:col-span-4">
             <div className="space-y-6 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs">
-              <h2 className="text-base font-bold text-stone-900 border-b border-stone-200 pb-3">
+              <h2 className="border-b border-stone-200 pb-3 text-base font-bold text-stone-900">
                 Resumo da Compra
               </h2>
 
               {/* Coupon Form */}
               <div className="space-y-3">
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase flex items-center space-x-1.5">
+                <label className="flex items-center space-x-1.5 text-[11px] font-bold tracking-wider text-stone-600 uppercase">
                   <RiCoupon3Line className="h-4 w-4 text-emerald-700" />
                   <span>Cupom de Desconto</span>
                 </label>
@@ -306,7 +306,7 @@ export default function CartPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => removeCouponMutation.mutate()}
-                          className="h-5 w-5 p-0 text-emerald-700 hover:text-rose-600 cursor-pointer"
+                          className="h-5 w-5 cursor-pointer p-0 text-emerald-700 hover:text-rose-600"
                         >
                           <RiDeleteBin6Line className="h-3.5 w-3.5" />
                         </Button>
@@ -326,13 +326,13 @@ export default function CartPage() {
                 </div>
 
                 {summary.discount > 0 && (
-                  <div className="flex justify-between text-emerald-800 font-semibold">
+                  <div className="flex justify-between font-semibold text-emerald-800">
                     <span>Desconto Aplicado:</span>
                     <span>- R$ {summary.discount.toFixed(2)}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between text-stone-500 text-[11px]">
+                <div className="flex justify-between text-[11px] text-stone-500">
                   <span>Frete:</span>
                   <span>Calculado no Checkout</span>
                 </div>
@@ -345,7 +345,7 @@ export default function CartPage() {
 
               <Link
                 href="/perfil/enderecos"
-                className="w-full flex items-center justify-center space-x-2 rounded-xl bg-emerald-800 py-3.5 text-xs font-bold text-white transition-colors hover:bg-emerald-900 cursor-pointer shadow-xs"
+                className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-xl bg-emerald-800 py-3.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-900"
               >
                 <span>Prosseguir para o Checkout</span>
                 <RiArrowRightLine className="h-4 w-4" />
@@ -354,18 +354,18 @@ export default function CartPage() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-stone-300 p-12 text-center space-y-4 bg-white">
+        <div className="space-y-4 rounded-2xl border border-dashed border-stone-300 bg-white p-12 text-center">
           <RiShoppingBag3Line className="mx-auto h-12 w-12 text-stone-300" />
           <h2 className="text-base font-bold text-stone-800">
             Seu carrinho de compras está vazio
           </h2>
-          <p className="text-xs text-stone-500 max-w-sm mx-auto">
+          <p className="mx-auto max-w-sm text-xs text-stone-500">
             Você ainda não adicionou nenhum item. Explore o catálogo de produtos
             artesanais e apoie os produtores locais!
           </p>
           <Link
             href="/produtos"
-            className="inline-flex items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900 transition-colors cursor-pointer"
+            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white transition-colors hover:bg-emerald-900"
           >
             <span>Ver Produtos</span>
             <RiArrowRightLine className="h-4 w-4" />

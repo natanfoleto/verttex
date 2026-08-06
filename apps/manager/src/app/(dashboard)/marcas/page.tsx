@@ -253,7 +253,7 @@ export default function BrandsPage() {
               setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')
               setPage(1)
             }}
-            className="w-44 bg-zinc-900 border-zinc-800 text-xs cursor-pointer"
+            className="w-44 cursor-pointer border-zinc-800 bg-zinc-900 text-xs"
           >
             <option value="all">Status: Todos</option>
             <option value="active">Ativas</option>
@@ -277,32 +277,32 @@ export default function BrandsPage() {
           {listData.map((brand) => (
             <div
               key={brand.id}
-              className="flex items-center justify-between p-4 transition-colors hover:bg-zinc-800/30 text-xs"
+              className="flex items-center justify-between p-4 text-xs transition-colors hover:bg-zinc-800/30"
             >
               <div className="flex items-center space-x-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950 text-emerald-400">
                   <RiPriceTag3Line className="h-5 w-5" />
                 </div>
                 <div className="space-y-1">
-                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                    <span className="font-semibold text-sm text-zinc-100">
+                  <div className="flex flex-wrap items-center space-x-2 gap-y-1">
+                    <span className="text-sm font-semibold text-zinc-100">
                       {brand.name}
                     </span>
-                    <span className="rounded-md bg-zinc-950 border border-zinc-800 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+                    <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
                       /{brand.slug}
                     </span>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
                         brand.status === 'active'
-                          ? 'bg-emerald-950/80 border border-emerald-800/80 text-emerald-300'
-                          : 'bg-zinc-950 border border-zinc-800 text-zinc-400'
+                          ? 'border border-emerald-800/80 bg-emerald-950/80 text-emerald-300'
+                          : 'border border-zinc-800 bg-zinc-950 text-zinc-400'
                       }`}
                     >
                       {brand.status === 'active' ? 'Ativa' : 'Inativa'}
                     </span>
                   </div>
                   {brand.description && (
-                    <p className="text-xs text-zinc-400 line-clamp-1">
+                    <p className="line-clamp-1 text-xs text-zinc-400">
                       {brand.description}
                     </p>
                   )}
@@ -316,7 +316,7 @@ export default function BrandsPage() {
                     variant="outline"
                     size="icon"
                     onClick={() => openEditModal(brand)}
-                    className="h-8 w-8 p-1.5 text-zinc-400 hover:text-zinc-200 cursor-pointer"
+                    className="h-8 w-8 cursor-pointer p-1.5 text-zinc-400 hover:text-zinc-200"
                     title="Editar"
                   >
                     <RiEditLine className="h-4 w-4" />
@@ -329,7 +329,7 @@ export default function BrandsPage() {
                     variant="outline"
                     size="icon"
                     onClick={() => setDeletingBrand(brand)}
-                    className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors cursor-pointer"
+                    className="h-8 w-8 cursor-pointer border-rose-900/40 bg-rose-950/20 p-1.5 text-rose-400 transition-colors hover:border-rose-800/80 hover:bg-rose-950/60 hover:text-rose-300"
                     title="Arquivar Marca"
                   >
                     <RiArchiveLine className="h-4 w-4" />
@@ -343,7 +343,7 @@ export default function BrandsPage() {
 
       {/* Modal Reusável do Shadcn UI (Dialog) */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="w-full max-w-xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+        <DialogContent className="flex w-full max-w-xl flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
           <DialogHeader className="px-6 pt-5 pb-2">
             <DialogTitle className="text-xl font-bold text-zinc-100">
               {editingBrand ? 'Editar Marca' : 'Nova Marca'}
@@ -359,9 +359,9 @@ export default function BrandsPage() {
             onSubmit={handleSubmit}
             className="flex flex-1 flex-col overflow-hidden"
           >
-            <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-3 pb-6 space-y-4">
+            <div className="flex flex-1 flex-col space-y-4 overflow-y-auto px-6 pt-3 pb-6">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                   Nome da Marca
                 </label>
                 <Input
@@ -374,7 +374,7 @@ export default function BrandsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                   Slug (gerado automaticamente)
                 </label>
                 <Input
@@ -386,7 +386,7 @@ export default function BrandsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                   Descrição
                 </label>
                 <Textarea
@@ -399,7 +399,7 @@ export default function BrandsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                     Status
                   </label>
                   <NativeSelect
@@ -414,7 +414,7 @@ export default function BrandsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-zinc-300 whitespace-nowrap">
+                  <label className="text-xs font-semibold whitespace-nowrap text-zinc-300">
                     Visível no Marketplace
                   </label>
                   <NativeSelect

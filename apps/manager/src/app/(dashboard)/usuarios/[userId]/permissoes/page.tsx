@@ -422,7 +422,7 @@ export default function UserPermissionsPage({
               variant="link"
               size="sm"
               onClick={resetFilters}
-              className="text-amber-400 hover:underline p-0 h-auto text-xs"
+              className="h-auto p-0 text-xs text-amber-400 hover:underline"
             >
               Limpar Filtros
             </Button>

@@ -145,45 +145,45 @@ export default function ReturnsManagementPage() {
         }}
       >
         <table className="w-full text-left text-xs">
-          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-5 py-3.5 font-bold">Pedido</th>
               <th className="px-5 py-3.5 font-bold">Cliente</th>
               <th className="px-5 py-3.5 font-bold">Motivo</th>
               <th className="px-5 py-3.5 font-bold">Status</th>
-              <th className="px-5 py-3.5 font-bold text-right">Ações</th>
+              <th className="px-5 py-3.5 text-right font-bold">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
             {returnsList.map((r) => (
-              <tr key={r.id} className="hover:bg-zinc-800/30 transition-colors">
+              <tr key={r.id} className="transition-colors hover:bg-zinc-800/30">
                 <td className="px-5 py-4 font-mono font-bold text-emerald-400">
                   {r.orderCode}
                 </td>
                 <td className="px-5 py-4 font-medium text-zinc-200">
                   {r.customerName}
                 </td>
-                <td className="px-5 py-4 text-zinc-400 max-w-xs truncate">
+                <td className="max-w-xs truncate px-5 py-4 text-zinc-400">
                   {r.reason}
                 </td>
                 <td className="px-5 py-4">
                   <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                    className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold ${
                       statusBadges[r.status]?.bg || 'bg-zinc-800 text-zinc-300'
                     }`}
                   >
                     {statusBadges[r.status]?.label || r.status}
                   </span>
                 </td>
-                <td className="px-5 py-4 text-right space-x-2">
+                <td className="space-x-2 px-5 py-4 text-right">
                   {r.status === 'REQUESTED' && (
                     <Button
                       size="sm"
                       onClick={() => quarantineEntryMutation.mutate(r.id)}
                       disabled={quarantineEntryMutation.isPending}
-                      className="cursor-pointer bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold"
+                      className="cursor-pointer bg-amber-600 text-xs font-bold text-white hover:bg-amber-700"
                     >
-                      <RiShieldCheckLine className="h-3.5 w-3.5 mr-1" />
+                      <RiShieldCheckLine className="mr-1 h-3.5 w-3.5" />
                       <span>Entrada em Quarentena</span>
                     </Button>
                   )}
@@ -191,9 +191,9 @@ export default function ReturnsManagementPage() {
                     <Button
                       size="sm"
                       onClick={() => setSelectedReturnId(r.id)}
-                      className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold"
+                      className="cursor-pointer bg-blue-600 text-xs font-bold text-white hover:bg-blue-700"
                     >
-                      <RiCheckLine className="h-3.5 w-3.5 mr-1" />
+                      <RiCheckLine className="mr-1 h-3.5 w-3.5" />
                       <span>Emitir Laudo</span>
                     </Button>
                   )}
@@ -202,9 +202,9 @@ export default function ReturnsManagementPage() {
                       size="sm"
                       onClick={() => refundMutation.mutate(r.id)}
                       disabled={refundMutation.isPending}
-                      className="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold"
+                      className="cursor-pointer bg-purple-600 text-xs font-bold text-white hover:bg-purple-700"
                     >
-                      <RiExchangeDollarLine className="h-3.5 w-3.5 mr-1" />
+                      <RiExchangeDollarLine className="mr-1 h-3.5 w-3.5" />
                       <span>Processar Reembolso</span>
                     </Button>
                   )}

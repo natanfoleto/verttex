@@ -60,9 +60,9 @@ export function QuarantineInspectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl max-w-xl max-h-[90vh]">
+      <DialogContent className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
-          <DialogTitle className="text-xl font-bold text-zinc-100 flex items-center space-x-2">
+          <DialogTitle className="flex items-center space-x-2 text-xl font-bold text-zinc-100">
             <RiShieldCheckLine className="h-5 w-5 text-amber-400" />
             <span>Laudo Técnico de Inspeção Sanitária em Quarentena</span>
           </DialogTitle>
@@ -79,7 +79,7 @@ export function QuarantineInspectionDialog({
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-1 pb-6 space-y-4">
+          <div className="flex flex-1 flex-col space-y-4 overflow-y-auto px-6 pt-1 pb-6">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-zinc-200">
                 Parecer / Destino Sanitário
@@ -94,7 +94,7 @@ export function QuarantineInspectionDialog({
                       | 'EXPIRATION_DISCARD',
                   )
                 }
-                className="bg-zinc-900 border-zinc-800 text-xs cursor-pointer"
+                className="cursor-pointer border-zinc-800 bg-zinc-900 text-xs"
               >
                 <option value="QUARANTINE_RELEASE">
                   Aprovado — Liberação Sanitária (Retorno ao Estoque Comercial)
@@ -117,12 +117,12 @@ export function QuarantineInspectionDialog({
                 onChange={(e) => setInspectionReport(e.target.value)}
                 placeholder="Descreva as condições de integridade da embalagem, lacre e validade do lote..."
                 required
-                className="bg-zinc-900 border-zinc-800 text-xs min-h-25"
+                className="min-h-25 border-zinc-800 bg-zinc-900 text-xs"
               />
             </div>
           </div>
 
-          <DialogFooter className="bg-zinc-950 px-6 py-4 border-t border-zinc-800/60 flex justify-end space-x-3">
+          <DialogFooter className="flex justify-end space-x-3 border-t border-zinc-800/60 bg-zinc-950 px-6 py-4">
             <Button
               type="button"
               variant="outline"
@@ -136,9 +136,9 @@ export function QuarantineInspectionDialog({
               disabled={
                 inspectionMutation.isPending || !inspectionReport.trim()
               }
-              className="cursor-pointer bg-amber-600 hover:bg-amber-700 text-xs font-bold"
+              className="cursor-pointer bg-amber-600 text-xs font-bold hover:bg-amber-700"
             >
-              <RiCheckLine className="h-4 w-4 mr-1.5" />
+              <RiCheckLine className="mr-1.5 h-4 w-4" />
               <span>
                 {inspectionMutation.isPending
                   ? 'Registrando Laudo...'

@@ -64,11 +64,11 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="h-28 rounded-2xl bg-zinc-900 animate-pulse border border-zinc-800"
+              className="h-28 animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900"
             />
           ))}
         </div>
-        <div className="h-64 rounded-2xl bg-zinc-900 animate-pulse border border-zinc-800" />
+        <div className="h-64 animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900" />
       </div>
     )
   }
@@ -101,7 +101,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
             <span className="text-2xl font-bold text-zinc-100">
               {metrics.totalProducts}
             </span>
-            <span className="ml-2 text-xs text-zinc-500 font-mono">
+            <span className="ml-2 font-mono text-xs text-zinc-500">
               ({metrics.totalVariations} variações)
             </span>
           </div>
@@ -124,11 +124,11 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
             <span className="text-2xl font-bold text-zinc-100">
               {metrics.totalPhysicalStock}
             </span>
-            <span className="ml-2 text-xs text-zinc-400 font-medium">
+            <span className="ml-2 text-xs font-medium text-zinc-400">
               unidades
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-emerald-400 font-medium">
+          <p className="mt-1 text-[11px] font-medium text-emerald-400">
             {metrics.availableStock} disponíveis ({metrics.totalReservedStock}{' '}
             reservados)
           </p>
@@ -185,7 +185,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
           </div>
           <p className="mt-1 text-[11px] text-zinc-500">
             {metrics.expiredLotsCount > 0 ? (
-              <span className="text-rose-400 font-bold">
+              <span className="font-bold text-rose-400">
                 ⚠️ {metrics.expiredLotsCount} lotes vencidos
               </span>
             ) : (
@@ -198,7 +198,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
       {/* Secondary Grid: Recent Activity & Store Stats */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent Movements Feed */}
-        <div className="lg:col-span-2 space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+        <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 lg:col-span-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <RiHistoryLine className="h-5 w-5 text-emerald-400" />
@@ -206,7 +206,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
                 Últimas Movimentações de Estoque
               </h3>
             </div>
-            <span className="text-xs text-zinc-500 font-mono">Tempo Real</span>
+            <span className="font-mono text-xs text-zinc-500">Tempo Real</span>
           </div>
 
           {recentMovements && recentMovements.length > 0 ? (
@@ -220,8 +220,8 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
                     <span
                       className={`inline-flex h-8 w-8 items-center justify-center rounded-lg font-bold ${
                         mov.quantity > 0
-                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60'
-                          : 'bg-rose-950 text-rose-400 border border-rose-800/60'
+                          ? 'border border-emerald-800/60 bg-emerald-950 text-emerald-400'
+                          : 'border border-rose-800/60 bg-rose-950 text-rose-400'
                       }`}
                     >
                       {mov.quantity > 0 ? `+${mov.quantity}` : mov.quantity}
@@ -229,7 +229,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
                     <div>
                       <p className="font-semibold text-zinc-200">
                         {mov.variation?.product?.name || 'Produto'}{' '}
-                        <span className="font-mono text-zinc-500 font-normal">
+                        <span className="font-mono font-normal text-zinc-500">
                           ({mov.variation?.sku})
                         </span>
                       </p>
@@ -239,7 +239,7 @@ export function StoreOverviewTab({ storeId }: { storeId: string }) {
                       </p>
                     </div>
                   </div>
-                  <span className="text-[11px] font-mono text-zinc-500">
+                  <span className="font-mono text-[11px] text-zinc-500">
                     {new Date(mov.createdAt).toLocaleDateString('pt-BR', {
                       hour: '2-digit',
                       minute: '2-digit',

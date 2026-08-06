@@ -53,7 +53,7 @@ export function ProfileHeader() {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`flex items-center space-x-2 border-b-2 px-1 pb-3 pt-1 transition-colors cursor-pointer ${
+                className={`flex cursor-pointer items-center space-x-2 border-b-2 px-1 pt-1 pb-3 transition-colors ${
                   tab.isActive
                     ? 'border-emerald-700 font-bold text-emerald-800'
                     : 'border-transparent text-stone-500 hover:border-stone-300 hover:text-stone-900'

@@ -225,7 +225,7 @@ export default function CustomerAddressesPage() {
 
   return (
     <CustomerAuthGuard>
-      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 font-sans text-stone-900 antialiased sm:px-6 lg:px-8">
         <ProfileHeader />
 
         {/* Addresses Container Box */}
@@ -274,7 +274,7 @@ export default function CustomerAddressesPage() {
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-stone-900 text-sm">
+                      <span className="text-sm font-bold text-stone-900">
                         {addr.label || 'Endereço'}
                       </span>
                       {addr.isDefault && (
@@ -295,7 +295,7 @@ export default function CustomerAddressesPage() {
                     <p className="text-xs text-stone-500">
                       {addr.neighborhood} — {addr.city}/{addr.state}
                     </p>
-                    <p className="text-[11px] font-mono text-stone-400">
+                    <p className="font-mono text-[11px] text-stone-400">
                       CEP: {addr.zipCode.replace(/^(\d{5})(\d{3})$/, '$1-$2')}
                     </p>
                   </div>
@@ -307,12 +307,12 @@ export default function CustomerAddressesPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setDefaultMutation.mutate(addr.id)}
-                        className="text-emerald-800 hover:bg-emerald-50 p-0 h-auto font-medium cursor-pointer"
+                        className="h-auto cursor-pointer p-0 font-medium text-emerald-800 hover:bg-emerald-50"
                       >
                         Tornar Padrão
                       </Button>
                     ) : (
-                      <span className="text-[11px] text-emerald-700 font-medium">
+                      <span className="text-[11px] font-medium text-emerald-700">
                         Endereço principal
                       </span>
                     )}
@@ -323,7 +323,7 @@ export default function CustomerAddressesPage() {
                         variant="outline"
                         size="icon"
                         onClick={() => openModal(addr)}
-                        className="h-7 w-7 text-stone-600 cursor-pointer"
+                        className="h-7 w-7 cursor-pointer text-stone-600"
                         title="Editar Endereço"
                       >
                         <RiEditLine className="h-3.5 w-3.5" />
@@ -340,7 +340,7 @@ export default function CustomerAddressesPage() {
                             deleteMutation.mutate(addr.id)
                           }
                         }}
-                        className="h-7 w-7 text-rose-600 hover:bg-rose-50 cursor-pointer"
+                        className="h-7 w-7 cursor-pointer text-rose-600 hover:bg-rose-50"
                         title="Remover Endereço"
                       >
                         <RiDeleteBin6Line className="h-3.5 w-3.5" />
@@ -390,7 +390,7 @@ export default function CustomerAddressesPage() {
             className="space-y-4 pt-2"
           >
             <div>
-              <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+              <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                 CEP *
               </label>
               <div className="relative mt-1">
@@ -401,17 +401,17 @@ export default function CustomerAddressesPage() {
                   onChange={(e) => handleCepSearch(e.target.value)}
                   placeholder="00000-000"
                   maxLength={9}
-                  className="text-xs pr-8"
+                  className="pr-8 text-xs"
                 />
                 {isSearchingCep && (
-                  <RiSearchLine className="absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-emerald-700" />
+                  <RiSearchLine className="absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 animate-spin text-emerald-700" />
                 )}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   Identificação (ex: Casa, Sítio)
                 </label>
                 <Input
@@ -424,7 +424,7 @@ export default function CustomerAddressesPage() {
               </div>
 
               <div>
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   Destinatário *
                 </label>
                 <Input
@@ -440,7 +440,7 @@ export default function CustomerAddressesPage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-2">
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   Rua / Logradouro *
                 </label>
                 <Input
@@ -454,7 +454,7 @@ export default function CustomerAddressesPage() {
               </div>
 
               <div>
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   Número *
                 </label>
                 <Input
@@ -470,7 +470,7 @@ export default function CustomerAddressesPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   Complemento
                 </label>
                 <Input
@@ -483,7 +483,7 @@ export default function CustomerAddressesPage() {
               </div>
 
               <div>
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   Bairro *
                 </label>
                 <Input
@@ -499,7 +499,7 @@ export default function CustomerAddressesPage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-2">
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   Cidade *
                 </label>
                 <Input
@@ -513,7 +513,7 @@ export default function CustomerAddressesPage() {
               </div>
 
               <div>
-                <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                <label className="text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                   UF *
                 </label>
                 <Input
@@ -536,7 +536,7 @@ export default function CustomerAddressesPage() {
               />
               <label
                 htmlFor="isDefaultCheckbox"
-                className="text-xs font-semibold text-stone-700 cursor-pointer"
+                className="cursor-pointer text-xs font-semibold text-stone-700"
               >
                 Definir como endereço padrão de entrega
               </label>
@@ -555,7 +555,7 @@ export default function CustomerAddressesPage() {
               <Button
                 type="submit"
                 disabled={!isAddressDirty || saveMutation.isPending}
-                className="cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RiCheckLine className="h-4 w-4" />
                 <span>

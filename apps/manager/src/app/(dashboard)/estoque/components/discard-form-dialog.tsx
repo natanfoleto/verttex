@@ -86,7 +86,7 @@ export function DiscardFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl max-h-[90vh]"
+        className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl"
         style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
       >
         <DialogHeader className="px-6 pt-5 pb-2">
@@ -110,10 +110,10 @@ export function DiscardFormDialog({
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-1 pb-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex flex-1 flex-col space-y-4 overflow-y-auto px-6 pt-1 pb-6">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-medium text-zinc-300 block mb-1 whitespace-nowrap">
+                <label className="mb-1 block text-xs font-medium whitespace-nowrap text-zinc-300">
                   Quantidade para Descarte *
                 </label>
                 <Input
@@ -123,13 +123,13 @@ export function DiscardFormDialog({
                   placeholder={`Max: ${availablePhysical}`}
                   value={discardQty}
                   onChange={(e) => setDiscardQty(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 text-xs text-zinc-100 rounded-xl"
+                  className="rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-100"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-medium text-zinc-300 block mb-1 whitespace-nowrap">
+                <label className="mb-1 block text-xs font-medium whitespace-nowrap text-zinc-300">
                   Motivo Formal *
                 </label>
                 <NativeSelect
@@ -140,7 +140,7 @@ export function DiscardFormDialog({
                         'expired' | 'damaged' | 'recalled' | 'other',
                     )
                   }
-                  className="w-full bg-zinc-900 border-zinc-800 text-xs rounded-xl cursor-pointer"
+                  className="w-full cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs"
                   required
                 >
                   <option value="expired">Vencimento de Validade</option>
@@ -154,27 +154,27 @@ export function DiscardFormDialog({
             </div>
 
             <div>
-              <label className="text-xs font-medium text-zinc-300 block mb-1 whitespace-nowrap">
+              <label className="mb-1 block text-xs font-medium whitespace-nowrap text-zinc-300">
                 Destino do Descarte *
               </label>
               <Input
                 placeholder="Ex: Incineração Sanitária, Devolução ao Fornecedor, Lixo Orgânico"
                 value={discardDestination}
                 onChange={(e) => setDiscardDestination(e.target.value)}
-                className="bg-zinc-900 border-zinc-800 text-xs text-zinc-100 rounded-xl"
+                className="rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-100"
                 required
               />
             </div>
 
             <div>
-              <label className="text-xs font-medium text-zinc-300 block mb-1 whitespace-nowrap">
+              <label className="mb-1 block text-xs font-medium whitespace-nowrap text-zinc-300">
                 Observações Adicionais / Laudo
               </label>
               <Textarea
                 placeholder="Observações complementares para ata de auditoria..."
                 value={discardNotes}
                 onChange={(e) => setDiscardNotes(e.target.value)}
-                className="bg-zinc-900 border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-500 rounded-xl min-h-20"
+                className="min-h-20 rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-100 placeholder:text-zinc-500"
               />
             </div>
           </div>
@@ -184,14 +184,14 @@ export function DiscardFormDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs rounded-xl cursor-pointer"
+              className="cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={discardMutation.isPending}
-              className="bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs rounded-xl cursor-pointer shadow-lg shadow-rose-950/40"
+              className="cursor-pointer rounded-xl bg-rose-600 text-xs font-medium text-white shadow-lg shadow-rose-950/40 hover:bg-rose-500"
             >
               <RiCheckLine className="mr-1.5 h-4 w-4" />
               {discardMutation.isPending

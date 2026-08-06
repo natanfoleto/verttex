@@ -1,47 +1,47 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
-  extends: ["@rocketseat/eslint-config/react", "plugin:@next/next/recommended"],
-  plugins: ["simple-import-sort"],
+  extends: ['@rocketseat/eslint-config/react', 'plugin:@next/next/recommended'],
+  plugins: ['simple-import-sort'],
   rules: {
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
     camelcase: [
-      "error",
+      'error',
       {
-        allow: [""],
-        properties: "never",
+        allow: [''],
+        properties: 'never',
       },
     ],
-    "@typescript-eslint/no-explicit-any": "error",
-    "@next/next/no-img-element": "warn",
-    "react/forbid-elements": [
-      "warn",
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@next/next/no-img-element': 'warn',
+    'react/forbid-elements': [
+      'warn',
       {
         forbid: [
           {
-            element: "button",
+            element: 'button',
             message:
-              "Preferencial uso do componente <Button> do Shadcn UI (@/components/ui/button). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              'Preferencial uso do componente <Button> do Shadcn UI (@/components/ui/button). Consulte .ai/frontend/FRONTEND_UI.md#1013.',
           },
           {
-            element: "input",
+            element: 'input',
             message:
-              "Preferencial uso do componente <Input> do Shadcn UI (@/components/ui/input). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              'Preferencial uso do componente <Input> do Shadcn UI (@/components/ui/input). Consulte .ai/frontend/FRONTEND_UI.md#1013.',
           },
           {
-            element: "select",
+            element: 'select',
             message:
-              "Preferencial uso do componente <NativeSelect> ou <Select> do Shadcn UI (@/components/ui/native-select). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              'Preferencial uso do componente <NativeSelect> ou <Select> do Shadcn UI (@/components/ui/native-select). Consulte .ai/frontend/FRONTEND_UI.md#1013.',
           },
           {
-            element: "textarea",
+            element: 'textarea',
             message:
-              "Preferencial uso do componente <Textarea> do Shadcn UI (@/components/ui/textarea). Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              'Preferencial uso do componente <Textarea> do Shadcn UI (@/components/ui/textarea). Consulte .ai/frontend/FRONTEND_UI.md#1013.',
           },
           {
-            element: "dialog",
+            element: 'dialog',
             message:
-              "Preferencial uso dos componentes <Dialog> ou <AlertDialog> do Shadcn UI. Consulte .ai/frontend/FRONTEND_UI.md#1013.",
+              'Preferencial uso dos componentes <Dialog> ou <AlertDialog> do Shadcn UI. Consulte .ai/frontend/FRONTEND_UI.md#1013.',
           },
         ],
       },
@@ -49,10 +49,10 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["**/components/ui/**/*", "**/ui/**/*"],
+      files: ['**/components/ui/**/*', '**/ui/**/*'],
       rules: {
-        "react/forbid-elements": "off",
+        'react/forbid-elements': 'off',
       },
     },
   ],
-};
+}

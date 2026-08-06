@@ -49,8 +49,8 @@ Não cobertos: 0
 
 - **Ajuste de Assertion:** Em `discovery-facets-quality.spec.ts` (teste 28), substituída a verificação genérica `toBeGreaterThan(0)` por expectativas exatas baseadas na fixture controlada:
   ```ts
-  expect(silvestreOpt?.count).toBe(1);
-  expect(eucaliptoOpt?.count).toBe(1);
+  expect(silvestreOpt?.count).toBe(1)
+  expect(eucaliptoOpt?.count).toBe(1)
   ```
 - **Status:** Teste comprova matematicamente que a busca disjuntiva calcula 1 produto para Silvestre e 1 produto para Eucalipto na consulta "mel".
 
@@ -58,7 +58,7 @@ Não cobertos: 0
 
 - **Ajuste de Assertion:** Em `discovery-facets-quality.spec.ts` (teste 29), substituída a verificação genérica `toBeLessThanOrEqual(products.length)` por expectation exata baseada na fixture controlada:
   ```ts
-  expect(amburanaOpt?.count).toBe(2);
+  expect(amburanaOpt?.count).toBe(2)
   ```
 - **Status:** Teste comprova matematicamente que mesmo existindo variantes adicionais compatíveis em `prod-golden-multi-var` e `prod-golden-3`, a faceta Amburana contabiliza exatamente 2 produtos únicos.
 

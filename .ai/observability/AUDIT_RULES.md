@@ -98,65 +98,65 @@ A propriedade `entity` deve usar nomes técnicos consistentes (PascalCase, singu
 Localização: `apps/api/src/shared/utils/audit.ts`
 
 ```typescript
-import { logAudit } from "../../shared/utils/audit";
+import { logAudit } from '../../shared/utils/audit'
 
 await logAudit({
   userId: userPayload.id, // null para ações do sistema
-  action: "CREATE",
-  entity: "Store",
+  action: 'CREATE',
+  entity: 'Store',
   entityId: store.id,
   oldValues: previousStore, // omitir em criações
   newValues: store,
   req, // FastifyRequest — para captura de IP/UA
-});
+})
 ```
 
 ### Criação
 
 ```typescript
-const store = await prisma.store.create({ data });
+const store = await prisma.store.create({ data })
 
 await logAudit({
   userId: userPayload.id,
-  action: "CREATE",
-  entity: "Store",
+  action: 'CREATE',
+  entity: 'Store',
   entityId: store.id,
   newValues: store,
   req,
-});
+})
 ```
 
 ### Atualização (sempre capturar estado anterior)
 
 ```typescript
-const previousStore = await prisma.store.findUnique({ where: { id } });
-const updatedStore = await prisma.store.update({ where: { id }, data });
+const previousStore = await prisma.store.findUnique({ where: { id } })
+const updatedStore = await prisma.store.update({ where: { id }, data })
 
 await logAudit({
   userId: userPayload.id,
-  action: "UPDATE",
-  entity: "Store",
+  action: 'UPDATE',
+  entity: 'Store',
   entityId: id,
   oldValues: previousStore,
   newValues: updatedStore,
   req,
-});
+})
 ```
 
 ### Exclusão
 
 ```typescript
-const existingStore = await prisma.store.findUnique({ where: { id } });
-await prisma.store.delete({ where: { id } });
+const existingStore = await prisma.store.findUnique({ where: { id } })
+await prisma.store.delete({ where: { id } })
 
 await logAudit({
   userId: userPayload.id,
-  action: "DELETE",
-  entity: "Store",
+  action: 'DELETE',
+  entity: 'Store',
   entityId: id,
   oldValues: existingStore,
   req,
-});
+})
 ```
 
 ### Ações do sistema (sem usuário)
@@ -164,11 +164,11 @@ await logAudit({
 ```typescript
 await logAudit({
   userId: null,
-  action: "SYSTEM_ACTION",
-  entity: "Store",
+  action: 'SYSTEM_ACTION',
+  entity: 'Store',
   entityId: store.id,
-  newValues: { source: "cron-job", job: "sync-store-status" },
-});
+  newValues: { source: 'cron-job', job: 'sync-store-status' },
+})
 ```
 
 ---
@@ -274,40 +274,40 @@ Ao criar um novo módulo `Product`:
 
 ```typescript
 // CREATE
-const product = await prisma.product.create({ data });
+const product = await prisma.product.create({ data })
 await logAudit({
   userId: userPayload.id,
-  action: "CREATE",
-  entity: "Product",
+  action: 'CREATE',
+  entity: 'Product',
   entityId: product.id,
   newValues: product,
   req,
-});
+})
 
 // UPDATE
-const prev = await prisma.product.findUnique({ where: { id } });
-const updated = await prisma.product.update({ where: { id }, data });
+const prev = await prisma.product.findUnique({ where: { id } })
+const updated = await prisma.product.update({ where: { id }, data })
 await logAudit({
   userId: userPayload.id,
-  action: "UPDATE",
-  entity: "Product",
+  action: 'UPDATE',
+  entity: 'Product',
   entityId: id,
   oldValues: prev,
   newValues: updated,
   req,
-});
+})
 
 // DELETE
-const existing = await prisma.product.findUnique({ where: { id } });
-await prisma.product.delete({ where: { id } });
+const existing = await prisma.product.findUnique({ where: { id } })
+await prisma.product.delete({ where: { id } })
 await logAudit({
   userId: userPayload.id,
-  action: "DELETE",
-  entity: "Product",
+  action: 'DELETE',
+  entity: 'Product',
   entityId: id,
   oldValues: existing,
   req,
-});
+})
 ```
 
 Adicionar o label em `apps/manager/src/app/(dashboard)/auditoria/page.tsx`:
@@ -315,6 +315,6 @@ Adicionar o label em `apps/manager/src/app/(dashboard)/auditoria/page.tsx`:
 ```typescript
 const entityLabels: Record<string, string> = {
   // ...
-  Product: "Produto",
-};
+  Product: 'Produto',
+}
 ```

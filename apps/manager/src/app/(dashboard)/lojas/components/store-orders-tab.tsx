@@ -168,7 +168,7 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
                   queryKey: ['store-orders-tab'],
                 })
               }
-              className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs cursor-pointer"
+              className="cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800"
             >
               <RiRefreshLine className="mr-1.5 h-4 w-4" />
               <span>Atualizar</span>
@@ -190,33 +190,33 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
         }}
       >
         <table className="w-full text-left text-xs">
-          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-zinc-400 uppercase tracking-wider text-[10px]">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-5 py-3.5 font-bold">Código</th>
               <th className="px-5 py-3.5 font-bold">Cliente</th>
-              <th className="px-5 py-3.5 font-bold font-mono text-right">
+              <th className="px-5 py-3.5 text-right font-mono font-bold">
                 Subtotal Loja
               </th>
-              <th className="px-5 py-3.5 font-bold text-center">Status</th>
+              <th className="px-5 py-3.5 text-center font-bold">Status</th>
               <th className="px-5 py-3.5 font-bold">Rastreamento</th>
-              <th className="px-5 py-3.5 font-bold text-right">Ações</th>
+              <th className="px-5 py-3.5 text-right font-bold">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/60">
             {ordersList.map((o) => (
-              <tr key={o.id} className="hover:bg-zinc-800/30 transition-colors">
+              <tr key={o.id} className="transition-colors hover:bg-zinc-800/30">
                 <td className="px-5 py-4 font-mono font-bold text-emerald-400">
                   {o.orderCode || o.code}
                 </td>
                 <td className="px-5 py-4 font-medium text-zinc-200">
                   {o.customerName || o.customer?.name || 'Cliente'}
                 </td>
-                <td className="px-5 py-4 font-bold text-zinc-100 font-mono text-right">
+                <td className="px-5 py-4 text-right font-mono font-bold text-zinc-100">
                   R$ {Number(o.subtotal || o.totalAmount || 0).toFixed(2)}
                 </td>
                 <td className="px-5 py-4 text-center">
                   <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                    className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold ${
                       statusBadges[o.status]?.bg || 'bg-zinc-800 text-zinc-300'
                     }`}
                   >
@@ -226,7 +226,7 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
                 <td className="px-5 py-4 font-mono text-zinc-400">
                   {o.trackingCode || '—'}
                 </td>
-                <td className="px-5 py-4 text-right space-x-2">
+                <td className="space-x-2 px-5 py-4 text-right">
                   {o.status === 'PAID' && (
                     <Button
                       size="sm"
@@ -234,9 +234,9 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
                         setDispatchOrderId(o.id)
                         setDispatchOrderCode(o.orderCode || o.code || '')
                       }}
-                      className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+                      className="cursor-pointer bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
                     >
-                      <RiTruckLine className="h-3.5 w-3.5 mr-1" />
+                      <RiTruckLine className="mr-1 h-3.5 w-3.5" />
                       <span>Expedir (FEFO)</span>
                     </Button>
                   )}
@@ -245,9 +245,9 @@ export function StoreOrdersTab({ storeId }: { storeId: string }) {
                       size="sm"
                       onClick={() => deliverMutation.mutate(o.id)}
                       disabled={deliverMutation.isPending}
-                      className="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold"
+                      className="cursor-pointer bg-purple-600 text-xs font-bold text-white hover:bg-purple-700"
                     >
-                      <RiCheckLine className="h-3.5 w-3.5 mr-1" />
+                      <RiCheckLine className="mr-1 h-3.5 w-3.5" />
                       <span>Confirmar Entrega</span>
                     </Button>
                   )}

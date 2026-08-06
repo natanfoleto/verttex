@@ -97,7 +97,7 @@ export default function StoreDetailPage({
         <div className="absolute top-6 left-6 z-10">
           <Link
             href="/lojas"
-            className="inline-flex items-center space-x-2 rounded-full border border-white/20 bg-stone-900/60 px-4 py-2 text-xs font-semibold text-white backdrop-blur-xs transition-colors hover:bg-stone-900 cursor-pointer"
+            className="inline-flex cursor-pointer items-center space-x-2 rounded-full border border-white/20 bg-stone-900/60 px-4 py-2 text-xs font-semibold text-white backdrop-blur-xs transition-colors hover:bg-stone-900"
           >
             <RiArrowLeftLine className="h-4 w-4" />
             <span>Voltar aos Produtores</span>

@@ -358,13 +358,13 @@ Every feature screen must implement:
 ```ts
 // ✅ CORRETO — Cobre lista, tree e dropdown em um só helper
 onSuccess: async () => {
-  await invalidateCategories(queryClient);
-};
+  await invalidateCategories(queryClient)
+}
 
 // ❌ ERRADO — Não cobre o dropdown usado no formulário de produto
 onSuccess: () => {
-  queryClient.invalidateQueries({ queryKey: ["categories-list"] });
-};
+  queryClient.invalidateQueries({ queryKey: ['categories-list'] })
+}
 ```
 
 ### 10.6.2 Regra Mandatória de Input de Preço — `<PriceInput>`
@@ -432,16 +432,16 @@ onSuccess: () => {
 - Navigation structure supports submenus (`children` array on `NavItem`):
   ```ts
   interface NavItem {
-    label: string;
-    href?: string;
-    icon: IconType;
-    show?: boolean;
+    label: string
+    href?: string
+    icon: IconType
+    show?: boolean
     children?: {
-      label: string;
-      href: string;
-      icon?: IconType;
-      show?: boolean;
-    }[];
+      label: string
+      href: string
+      icon?: IconType
+      show?: boolean
+    }[]
   }
   ```
 - Active route highlighting applies automatically to both parent and child routes.

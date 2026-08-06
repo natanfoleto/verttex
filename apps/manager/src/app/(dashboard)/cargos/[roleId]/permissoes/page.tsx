@@ -220,7 +220,7 @@ export default function RolePermissionsPage({
         <Button
           onClick={handleOpenSaveModal}
           disabled={updateRolePermissionsMutation.isPending}
-          className="bg-emerald-600 hover:bg-emerald-500 font-semibold"
+          className="bg-emerald-600 font-semibold hover:bg-emerald-500"
         >
           <RiCheckLine className="h-4 w-4" />
           <span>Salvar Permissões</span>
@@ -279,7 +279,7 @@ export default function RolePermissionsPage({
       {/* Propagation Strategy Modal (Decision 4) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl space-y-6">
+          <div className="w-full max-w-2xl space-y-6 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
               <div className="flex items-center space-x-3">
                 <div className="rounded-xl border border-emerald-800 bg-emerald-950 p-2 text-emerald-400">
@@ -300,7 +300,7 @@ export default function RolePermissionsPage({
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsModalOpen(false)}
-                className="h-8 w-8 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 p-0"
+                className="h-8 w-8 p-0 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
               >
                 <RiCloseLine className="h-5 w-5" />
               </Button>
@@ -402,7 +402,7 @@ export default function RolePermissionsPage({
                       variant="link"
                       size="sm"
                       onClick={handleSelectAllUsers}
-                      className="p-0 text-emerald-400 hover:underline h-auto"
+                      className="h-auto p-0 text-emerald-400 hover:underline"
                     >
                       Selecionar Todos
                     </Button>
@@ -412,7 +412,7 @@ export default function RolePermissionsPage({
                       variant="link"
                       size="sm"
                       onClick={handleDeselectAllUsers}
-                      className="p-0 text-zinc-400 hover:underline h-auto"
+                      className="h-auto p-0 text-zinc-400 hover:underline"
                     >
                       Remover Seleções
                     </Button>
@@ -420,7 +420,7 @@ export default function RolePermissionsPage({
                 </div>
 
                 <div className="relative">
-                  <RiSearchLine className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                  <RiSearchLine className="absolute top-2.5 left-3 h-4 w-4 text-zinc-500" />
                   <Input
                     type="text"
                     value={userSearch}
@@ -430,7 +430,7 @@ export default function RolePermissionsPage({
                   />
                 </div>
 
-                <div className="max-h-48 overflow-y-auto divide-y divide-zinc-800/60 rounded-lg border border-zinc-800/60">
+                <div className="max-h-48 divide-y divide-zinc-800/60 overflow-y-auto rounded-lg border border-zinc-800/60">
                   {filteredUsers.length === 0 ? (
                     <div className="p-3 text-center text-xs text-zinc-500">
                       Nenhum usuário encontrado.
@@ -457,7 +457,7 @@ export default function RolePermissionsPage({
                             </span>
                           </div>
                           {isSelected && (
-                            <RiCheckLine className="h-4 w-4 text-emerald-400 shrink-0" />
+                            <RiCheckLine className="h-4 w-4 shrink-0 text-emerald-400" />
                           )}
                         </div>
                       )

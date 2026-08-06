@@ -351,7 +351,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 type="button"
                 variant="ghost"
                 onClick={() => toggleSubmenu(item.label)}
-                className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors h-auto ${
+                className={`flex h-auto w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
                     ? 'font-semibold text-zinc-100'
                     : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
@@ -379,7 +379,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       return (
                         <div
                           key={child.label}
-                          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-zinc-600 opacity-60 cursor-not-allowed select-none"
+                          className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-zinc-600 opacity-60 select-none"
                           title="Recurso em desenvolvimento"
                         >
                           <div className="flex items-center space-x-2.5">
@@ -389,7 +389,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             </span>
                           </div>
                           {child.badge && (
-                            <span className="rounded bg-zinc-800/80 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400 border border-zinc-700/60">
+                            <span className="rounded border border-zinc-700/60 bg-zinc-800/80 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400">
                               {child.badge}
                             </span>
                           )}
@@ -401,7 +401,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                        className={`flex cursor-pointer items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                           isSubActive
                             ? 'bg-zinc-800 font-semibold text-emerald-400'
                             : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
@@ -568,7 +568,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-9 w-9 cursor-pointer rounded-xl border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+                        className="h-9 w-9 cursor-pointer rounded-xl border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                       >
                         {theme === 'light' ? (
                           <RiSunLine className="h-4.5 w-4.5 text-amber-400" />
@@ -587,15 +587,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-40 bg-zinc-950 border-zinc-800 z-100"
+                  className="z-100 w-40 border-zinc-800 bg-zinc-950"
                 >
-                  <DropdownMenuLabel className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                  <DropdownMenuLabel className="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
                     Tema do Painel
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => setTheme('light')}
-                    className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
+                    className="flex cursor-pointer items-center justify-between text-xs text-zinc-200"
                   >
                     <div className="flex items-center space-x-2">
                       <RiSunLine className="h-4 w-4 text-amber-400" />
@@ -607,7 +607,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setTheme('dark')}
-                    className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
+                    className="flex cursor-pointer items-center justify-between text-xs text-zinc-200"
                   >
                     <div className="flex items-center space-x-2">
                       <RiMoonLine className="h-4 w-4 text-emerald-400" />
@@ -619,7 +619,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setTheme('system')}
-                    className="flex items-center justify-between text-xs text-zinc-200 cursor-pointer"
+                    className="flex cursor-pointer items-center justify-between text-xs text-zinc-200"
                   >
                     <div className="flex items-center space-x-2">
                       <RiComputerLine className="h-4 w-4 text-zinc-400" />
@@ -640,7 +640,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="relative h-9 w-9 cursor-pointer rounded-xl border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+                        className="relative h-9 w-9 cursor-pointer rounded-xl border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                       >
                         <RiNotification3Line className="h-4.5 w-4.5" />
                         <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-zinc-900" />
@@ -654,22 +654,22 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-80 bg-zinc-950 border-zinc-800 z-100"
+                  className="z-100 w-80 border-zinc-800 bg-zinc-950"
                 >
                   <DropdownMenuLabel className="flex items-center justify-between">
                     <span className="text-xs font-bold text-zinc-100">
                       Notificações
                     </span>
-                    <span className="text-[10px] font-medium text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/40">
+                    <span className="rounded-full border border-emerald-800/40 bg-emerald-950/60 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
                       Sistema Ativo
                     </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <div className="p-3 space-y-2.5">
-                    <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 space-y-1">
-                      <p className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
+                  <div className="space-y-2.5 p-3">
+                    <div className="space-y-1 rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5">
+                      <p className="flex items-center justify-between text-xs font-semibold text-zinc-200">
                         <span>Lote L-2026-CAN-02</span>
-                        <span className="text-[10px] text-amber-400 font-mono">
+                        <span className="font-mono text-[10px] text-amber-400">
                           18d rest.
                         </span>
                       </p>
@@ -677,10 +677,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         Próximo do vencimento. Priorize saída via FEFO.
                       </p>
                     </div>
-                    <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5 space-y-1">
-                      <p className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
+                    <div className="space-y-1 rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-2.5">
+                      <p className="flex items-center justify-between text-xs font-semibold text-zinc-200">
                         <span>Auditoria & Segurança</span>
-                        <span className="text-[10px] text-zinc-500 font-mono">
+                        <span className="font-mono text-[10px] text-zinc-500">
                           Hoje
                         </span>
                       </p>
@@ -693,7 +693,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </DropdownMenu>
 
               {/* Vertical Divider */}
-              <div className="h-5 w-px bg-zinc-800/80 shrink-0 mx-1" />
+              <div className="mx-1 h-5 w-px shrink-0 bg-zinc-800/80" />
 
               {/* User Profile Dropdown Menu (No Gray Hover Background Block) */}
               <DropdownMenu>
@@ -701,25 +701,25 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <Button
                     type="button"
                     variant="ghost"
-                    className="flex cursor-pointer items-center space-x-2.5 text-left outline-none rounded-xl p-1.5 transition-colors group bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent border-none shadow-none h-auto"
+                    className="group flex h-auto cursor-pointer items-center space-x-2.5 rounded-xl border-none bg-transparent p-1.5 text-left shadow-none transition-colors outline-none hover:bg-transparent focus:bg-transparent active:bg-transparent"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300 ring-1 ring-emerald-800/40 group-hover:ring-emerald-500/60 transition-all">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-sm font-semibold text-emerald-300 ring-1 ring-emerald-800/40 transition-all group-hover:ring-emerald-500/60">
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div className="hidden flex-col text-left sm:flex">
-                      <span className="text-xs font-semibold whitespace-nowrap text-zinc-200 group-hover:text-emerald-500 transition-colors">
+                      <span className="text-xs font-semibold whitespace-nowrap text-zinc-200 transition-colors group-hover:text-emerald-500">
                         {user?.name || 'Usuário'}
                       </span>
-                      <span className="text-[10px] whitespace-nowrap text-zinc-400 group-hover:text-emerald-600 transition-colors">
+                      <span className="text-[10px] whitespace-nowrap text-zinc-400 transition-colors group-hover:text-emerald-600">
                         {user?.role?.name || 'Gestor'}
                       </span>
                     </div>
-                    <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+                    <RiArrowDownSLine className="h-4 w-4 shrink-0 text-zinc-400 transition-colors group-hover:text-emerald-500" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="z-100 w-64 bg-zinc-950 border-zinc-800"
+                  className="z-100 w-64 border-zinc-800 bg-zinc-950"
                 >
                   <DropdownMenuLabel className="font-normal text-zinc-100 normal-case">
                     <div className="flex flex-col space-y-0.5">
@@ -735,7 +735,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/perfil"
-                      className="flex items-center space-x-2 cursor-pointer"
+                      className="flex cursor-pointer items-center space-x-2"
                     >
                       <RiUser3Line className="h-4 w-4 text-zinc-400" />
                       <span>Meu perfil</span>
@@ -744,7 +744,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => logout()}
-                    className="flex items-center space-x-2 text-rose-400 focus:bg-rose-950/50 focus:text-rose-300 cursor-pointer"
+                    className="flex cursor-pointer items-center space-x-2 text-rose-400 focus:bg-rose-950/50 focus:text-rose-300"
                   >
                     <RiLogoutBoxRLine className="h-4 w-4" />
                     <span>Encerrar sessão</span>

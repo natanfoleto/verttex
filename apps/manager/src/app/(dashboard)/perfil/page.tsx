@@ -282,7 +282,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="seguranca" className="space-y-6">
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-xl space-y-6">
+          <div className="space-y-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-xl">
             <div>
               <h2 className="text-lg font-bold text-zinc-100">
                 Alteração de Senha
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                 <Button
                   type="submit"
                   disabled={!isPasswordDirty || isPasswordSubmitting}
-                  className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-purple-600 hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <RiLockPasswordLine className="h-4 w-4" />
                   <span>Atualizar Senha</span>

@@ -135,17 +135,17 @@ export function MarketplaceHeader() {
   }
 
   return (
-    <header className="bg-stone-50 w-full font-sans antialiased">
+    <header className="w-full bg-stone-50 font-sans antialiased">
       {/* ─── Global Top Announcement Bar ─── */}
       {settings?.announcementActive &&
         settings?.announcementText &&
         !announcementDismissed && (
-          <div className="relative w-full bg-emerald-950 text-emerald-100 py-1.5 px-4 text-xs font-medium">
+          <div className="relative w-full bg-emerald-950 px-4 py-1.5 text-xs font-medium text-emerald-100">
             <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 text-center">
               {settings.announcementLink ? (
                 <Link
                   href={settings.announcementLink}
-                  className="hover:underline font-semibold flex items-center gap-1"
+                  className="flex items-center gap-1 font-semibold hover:underline"
                 >
                   <span>{settings.announcementText}</span>
                   <RiArrowRightSLine className="h-4 w-4 shrink-0" />
@@ -159,7 +159,7 @@ export function MarketplaceHeader() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setAnnouncementDismissed(true)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-emerald-300 hover:text-white hover:bg-transparent transition-colors cursor-pointer"
+                  className="absolute top-1/2 right-4 h-6 w-6 -translate-y-1/2 cursor-pointer p-0 text-emerald-300 transition-colors hover:bg-transparent hover:text-white"
                   aria-label="Fechar comunicado"
                 >
                   <RiCloseLine className="h-4 w-4" />
@@ -174,10 +174,10 @@ export function MarketplaceHeader() {
         {/* ROW 1: Logo (Col 1-3) | Search Input (Col 4-9) | Promo Banner (Col 10-12) */}
         <div className="grid grid-cols-12 items-center gap-4">
           {/* Logo Alinhada na Coluna 1 a 2 (Reduzido para aproximar a busca) */}
-          <div className="col-span-6 4xl:col-span-2 flex items-center">
+          <div className="4xl:col-span-2 col-span-6 flex items-center">
             <Link
               href="/"
-              className="inline-flex items-center space-x-2.5 group"
+              className="group inline-flex items-center space-x-2.5"
             >
               {settings?.logoUrl ? (
                 <img
@@ -187,14 +187,14 @@ export function MarketplaceHeader() {
                 />
               ) : (
                 <div className="flex items-center space-x-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white font-black text-base shadow-xs">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-base font-black text-white shadow-xs">
                     {(settings?.publicName || 'Verttex').charAt(0)}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-lg font-black tracking-tight leading-none">
+                    <span className="text-lg leading-none font-black tracking-tight">
                       {settings?.publicName || 'Verttex'}
                     </span>
-                    <span className="text-[9px] font-bold tracking-widest uppercase mt-0.5">
+                    <span className="mt-0.5 text-[9px] font-bold tracking-widest uppercase">
                       Mercado Local
                     </span>
                   </div>
@@ -206,15 +206,15 @@ export function MarketplaceHeader() {
           {/* Input de Busca Alinhado na Coluna 3 a 8 (6 colunas) */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden 4xl:flex col-span-6 items-center"
+            className="4xl:flex col-span-6 hidden items-center"
           >
-            <div className="relative w-full flex items-center bg-white rounded-md shadow-sm overflow-hidden">
+            <div className="relative flex w-full items-center overflow-hidden rounded-md bg-white shadow-sm">
               <Input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar produtos, marcas e muito mais..."
-                className="w-full bg-transparent border-none focus-visible:ring-0 px-4 py-2.5 text-sm placeholder:text-stone-500 focus:outline-none"
+                className="w-full border-none bg-transparent px-4 py-2.5 text-sm placeholder:text-stone-500 focus:outline-none focus-visible:ring-0"
               />
               {searchQuery && (
                 <Button
@@ -222,16 +222,16 @@ export function MarketplaceHeader() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setSearchQuery('')}
-                  className="h-7 w-7 p-0 text-stone-400 hover:text-stone-700 hover:bg-transparent transition-colors cursor-pointer mr-1"
+                  className="mr-1 h-7 w-7 cursor-pointer p-0 text-stone-400 transition-colors hover:bg-transparent hover:text-stone-700"
                 >
                   <RiCloseLine className="h-4 w-4" />
                 </Button>
               )}
-              <div className="h-5 w-px bg-stone-200 shrink-0" />
+              <div className="h-5 w-px shrink-0 bg-stone-200" />
               <Button
                 type="submit"
                 variant="ghost"
-                className="px-3.5 py-2.5 h-auto text-stone-500 hover:text-emerald-600 hover:bg-transparent transition-colors cursor-pointer"
+                className="h-auto cursor-pointer px-3.5 py-2.5 text-stone-500 transition-colors hover:bg-transparent hover:text-emerald-600"
                 title="Buscar"
               >
                 <RiSearchLine className="h-4 w-4" />
@@ -240,10 +240,10 @@ export function MarketplaceHeader() {
           </form>
 
           {/* Banner Promocional no Topo Direita (Coluna 9 a 12 - 4 colunas) */}
-          <div className="hidden 4xl:flex col-span-4 items-center justify-end text-xs font-semibold">
+          <div className="4xl:flex col-span-4 hidden items-center justify-end text-xs font-semibold">
             <Link
               href="/produtos"
-              className="inline-flex items-center space-x-2 hover:opacity-90 transition-opacity"
+              className="inline-flex items-center space-x-2 transition-opacity hover:opacity-90"
             >
               <RiDiscountPercentLine className="h-5 w-5" />
               <span className="text-xs font-bold tracking-tight">
@@ -253,7 +253,7 @@ export function MarketplaceHeader() {
           </div>
 
           {/* Mobile Actions Toggle */}
-          <div className="col-span-6 flex items-center justify-end space-x-1 4xl:hidden">
+          <div className="4xl:hidden col-span-6 flex items-center justify-end space-x-1">
             <Button
               type="button"
               variant="ghost"
@@ -264,7 +264,7 @@ export function MarketplaceHeader() {
             >
               <ShoppingBag className="size-5 stroke-[1.5px]" />
               {cartTotalItems > 0 && (
-                <Badge className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-emerald-600 p-0 text-[10px] font-bold text-white border-none">
+                <Badge className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full border-none bg-emerald-600 p-0 text-[10px] font-bold text-white">
                   {cartTotalItems}
                 </Badge>
               )}
@@ -287,17 +287,17 @@ export function MarketplaceHeader() {
         </div>
 
         {/* ROW 2: 1. CEP (Col 1-2) | 2. Menus Nav & Auth Unificados (Col 3-12) Alinhados na Base do CEP */}
-        <div className="hidden 4xl:grid grid-cols-12 items-end gap-4 pt-2.5 pb-0.5">
+        <div className="4xl:grid hidden grid-cols-12 items-end gap-4 pt-2.5 pb-0.5">
           {/* 1. Componente de Informe seu CEP (Coluna 1 a 2) */}
           <div className="col-span-2 flex items-end">
             <Button
               type="button"
               variant="ghost"
-              className="group inline-flex items-center space-x-1 p-0! h-auto text-left hover:bg-transparent cursor-pointer"
+              className="group inline-flex h-auto cursor-pointer items-center space-x-1 p-0! text-left hover:bg-transparent"
             >
-              <RiMapPinLine className="h-5 w-5 shrink-0 group-hover:text-emerald-600 transition-colors" />
-              <div className="flex flex-col leading-tight group-hover:text-emerald-600 transition-colors">
-                <span className="text-[10px] opacity-80 font-medium">
+              <RiMapPinLine className="h-5 w-5 shrink-0 transition-colors group-hover:text-emerald-600" />
+              <div className="flex flex-col leading-tight transition-colors group-hover:text-emerald-600">
+                <span className="text-[10px] font-medium opacity-80">
                   Informe seu
                 </span>
                 <span className="text-xs font-medium">CEP</span>
@@ -317,10 +317,10 @@ export function MarketplaceHeader() {
                 trigger={
                   <button
                     type="button"
-                    className="inline-flex items-center gap-0.5 text-xs font-normal hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                    className="inline-flex cursor-pointer items-center gap-0.5 border-none bg-transparent p-0 text-xs font-normal transition-opacity outline-none hover:opacity-90 focus:ring-0 focus:outline-none"
                   >
                     <span>Categorias</span>
-                    <RiArrowDownSLine className="h-3.5 w-3.5 opacity-75 shrink-0" />
+                    <RiArrowDownSLine className="h-3.5 w-3.5 shrink-0 opacity-75" />
                   </button>
                 }
               >
@@ -333,11 +333,11 @@ export function MarketplaceHeader() {
                       const categoryItemLink = (
                         <Link
                           href={`/produtos?categorySlug=${cat.slug}`}
-                          className="flex items-center justify-between rounded-xs px-3 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                          className="flex items-center justify-between rounded-xs px-3 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                         >
                           <span className="truncate">{cat.name}</span>
                           {hasChildren && (
-                            <RiArrowRightSLine className="h-3.5 w-3.5 text-stone-400 shrink-0 ml-2" />
+                            <RiArrowRightSLine className="ml-2 h-3.5 w-3.5 shrink-0 text-stone-400" />
                           )}
                         </Link>
                       )
@@ -359,7 +359,7 @@ export function MarketplaceHeader() {
                             <Link
                               key={sub.id}
                               href={`/produtos?categorySlug=${sub.slug}`}
-                              className="block rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                              className="block rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                             >
                               <span className="truncate">{sub.name}</span>
                             </Link>
@@ -370,7 +370,7 @@ export function MarketplaceHeader() {
 
                     <Link
                       href="/categorias"
-                      className="block rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="block rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       <span className="truncate">Ver mais categorias</span>
                     </Link>
@@ -384,35 +384,35 @@ export function MarketplaceHeader() {
 
               <Link
                 href="/produtos"
-                className="hover:text-emerald-600 transition-opacity"
+                className="transition-opacity hover:text-emerald-600"
               >
                 Ofertas
               </Link>
 
               <Link
                 href="/produtos"
-                className="hover:text-emerald-600 transition-opacity"
+                className="transition-opacity hover:text-emerald-600"
               >
                 Cupons
               </Link>
 
               <Link
                 href="/lojas"
-                className="hover:text-emerald-600 transition-opacity"
+                className="transition-opacity hover:text-emerald-600"
               >
                 Produtores
               </Link>
 
               <Link
                 href="/lojas"
-                className="hover:text-emerald-600 transition-opacity"
+                className="transition-opacity hover:text-emerald-600"
               >
                 Vender
               </Link>
 
               <Link
                 href="/atendimento"
-                className="hover:text-emerald-600 transition-opacity"
+                className="transition-opacity hover:text-emerald-600"
               >
                 Contato
               </Link>
@@ -428,10 +428,10 @@ export function MarketplaceHeader() {
                   trigger={
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1 text-xs font-normal hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none p-0 focus:outline-none focus:ring-0"
+                      className="inline-flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-xs font-normal transition-opacity outline-none hover:opacity-90 focus:ring-0 focus:outline-none"
                     >
                       <Avatar className="h-5 w-5 shrink-0">
-                        <AvatarFallback className="text-[10px] font-bold uppercase bg-emerald-600 text-white">
+                        <AvatarFallback className="bg-emerald-600 text-[10px] font-bold text-white uppercase">
                           {customer.name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
@@ -448,34 +448,34 @@ export function MarketplaceHeader() {
                   {/* User Info Header — Botão clicável que leva ao Perfil */}
                   <Link
                     href="/perfil"
-                    className="flex items-center justify-between p-4 border-b border-stone-100 hover:bg-stone-100 transition-colors cursor-pointer"
+                    className="flex cursor-pointer items-center justify-between border-b border-stone-100 p-4 transition-colors hover:bg-stone-100"
                   >
-                    <div className="flex items-center space-x-3 min-w-0">
+                    <div className="flex min-w-0 items-center space-x-3">
                       <Avatar className="h-11 w-11 shrink-0 shadow-xs">
-                        <AvatarFallback className="bg-emerald-600 text-white text-base font-bold uppercase">
+                        <AvatarFallback className="bg-emerald-600 text-base font-bold text-white uppercase">
                           {customer.name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col min-w-0">
-                        <span className="font-bold text-sm truncate leading-tight">
+                      <div className="flex min-w-0 flex-col">
+                        <span className="truncate text-sm leading-tight font-bold">
                           {customer.name}
                         </span>
-                        <span className="text-[11px] text-stone-500 truncate mt-0.5">
+                        <span className="mt-0.5 truncate text-[11px] text-stone-500">
                           {customer.email}
                         </span>
                       </div>
                     </div>
-                    <RiArrowRightSLine className="h-5 w-5 text-stone-400 shrink-0 ml-2" />
+                    <RiArrowRightSLine className="ml-2 h-5 w-5 shrink-0 text-stone-400" />
                   </Link>
 
                   {/* Promo Banner Meli+ / Verttex+ */}
-                  <div className="p-3 border-b border-stone-100">
+                  <div className="border-b border-stone-100 p-3">
                     <Link
                       href="/perfil"
-                      className="flex items-center justify-between w-full bg-linear-to-r from-pink-600 to-rose-600 text-white text-[11px] font-bold px-3.5 py-2.5 rounded-full hover:brightness-105 transition-all shadow-xs cursor-pointer"
+                      className="flex w-full cursor-pointer items-center justify-between rounded-full bg-linear-to-r from-pink-600 to-rose-600 px-3.5 py-2.5 text-[11px] font-bold text-white shadow-xs transition-all hover:brightness-105"
                     >
                       <span>meli+ Assine a partir de R$ 9,90/mês</span>
-                      <RiArrowRightSLine className="h-4 w-4 shrink-0 ml-1" />
+                      <RiArrowRightSLine className="ml-1 h-4 w-4 shrink-0" />
                     </Link>
                   </div>
 
@@ -483,25 +483,25 @@ export function MarketplaceHeader() {
                   <div className="border-b border-stone-100 py-1.5">
                     <Link
                       href="/pedidos"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Compras
                     </Link>
                     <Link
                       href="/produtos"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Histórico
                     </Link>
                     <Link
                       href="/atendimento"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Perguntas
                     </Link>
                     <Link
                       href="/perfil"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Opiniões
                     </Link>
@@ -511,19 +511,19 @@ export function MarketplaceHeader() {
                   <div className="border-b border-stone-100 py-1.5">
                     <Link
                       href="/perfil"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Empréstimos
                     </Link>
                     <Link
                       href="/perfil"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Assinaturas
                     </Link>
                     <Link
                       href="/perfil"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Faturamento
                     </Link>
@@ -533,13 +533,13 @@ export function MarketplaceHeader() {
                   <div className="border-b border-stone-100 py-1.5">
                     <Link
                       href="/lojas"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Vender
                     </Link>
                     <Link
                       href="/perfil"
-                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal hover:text-emerald-600 transition-colors"
+                      className="flex items-center justify-between rounded-xs px-3.5 py-1.5 text-xs font-normal transition-colors hover:text-emerald-600"
                     >
                       Resumo
                     </Link>
@@ -551,7 +551,7 @@ export function MarketplaceHeader() {
                       type="button"
                       variant="ghost"
                       onClick={() => logout()}
-                      className="block w-full text-left justify-start px-4 py-1.5 h-auto text-xs font-medium hover:text-rose-600 transition-colors cursor-pointer rounded-none"
+                      className="block h-auto w-full cursor-pointer justify-start rounded-none px-4 py-1.5 text-left text-xs font-medium transition-colors hover:text-rose-600"
                     >
                       Sair
                     </Button>
@@ -563,7 +563,7 @@ export function MarketplaceHeader() {
                     type="button"
                     variant="ghost"
                     onClick={() => openAuthModal('register')}
-                    className="p-0 h-auto text-xs font-normal hover:text-emerald-600 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
+                    className="h-auto cursor-pointer border-none p-0 text-xs font-normal shadow-none transition-opacity hover:bg-transparent hover:text-emerald-600"
                   >
                     Crie a sua conta
                   </Button>
@@ -571,7 +571,7 @@ export function MarketplaceHeader() {
                     type="button"
                     variant="ghost"
                     onClick={() => openAuthModal('login')}
-                    className="p-0 h-auto text-xs font-normal hover:text-emerald-600 hover:bg-transparent transition-opacity cursor-pointer border-none shadow-none"
+                    className="h-auto cursor-pointer border-none p-0 text-xs font-normal shadow-none transition-opacity hover:bg-transparent hover:text-emerald-600"
                   >
                     Entre
                   </Button>
@@ -587,7 +587,7 @@ export function MarketplaceHeader() {
                     openAuthModal('login')
                   }
                 }}
-                className="hover:text-emerald-600 transition-opacity cursor-pointer inline-flex items-center"
+                className="inline-flex cursor-pointer items-center transition-opacity hover:text-emerald-600"
               >
                 Compras
               </Link>
@@ -601,33 +601,33 @@ export function MarketplaceHeader() {
                   trigger={
                     <button
                       type="button"
-                      className="inline-flex items-center gap-0.5 text-xs font-normal hover:opacity-90 transition-opacity cursor-pointer border-none bg-transparent outline-none focus:outline-none focus:ring-0"
+                      className="inline-flex cursor-pointer items-center gap-0.5 border-none bg-transparent text-xs font-normal transition-opacity outline-none hover:opacity-90 focus:ring-0 focus:outline-none"
                     >
                       <span>Favoritos</span>
-                      <RiArrowDownSLine className="h-3.5 w-3.5 opacity-75 shrink-0" />
+                      <RiArrowDownSLine className="h-3.5 w-3.5 shrink-0 opacity-75" />
                     </button>
                   }
                 >
                   {/* Header */}
                   <div className="px-4 py-3">
-                    <h4 className="font-medium text-stone-900 text-sm tracking-tight">
+                    <h4 className="text-sm font-medium tracking-tight text-stone-900">
                       Favoritos
                     </h4>
                   </div>
 
                   {/* Body */}
-                  <div className="border-y py-12 px-6 text-center">
-                    <p className="text-xs text-stone-500 font-normal max-w-60 mx-auto">
+                  <div className="border-y px-6 py-12 text-center">
+                    <p className="mx-auto max-w-60 text-xs font-normal text-stone-500">
                       Adicione aqui os produtos que você gostou para poder
                       vê-los mais tarde.
                     </p>
                   </div>
 
                   {/* Footer */}
-                  <div className="py-4 px-4 text-center">
+                  <div className="px-4 py-4 text-center">
                     <Link
                       href="/perfil"
-                      className="text-xs font-normal text-emerald-600 hover:text-emerald-700 transition-colors"
+                      className="text-xs font-normal text-emerald-600 transition-colors hover:text-emerald-700"
                     >
                       Ver todos os favoritos e listas
                     </Link>
@@ -641,12 +641,12 @@ export function MarketplaceHeader() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-0.5 h-auto w-auto hover:opacity-80 hover:text-emerald-600 cursor-pointer inline-flex items-center justify-center"
+                className="relative inline-flex h-auto w-auto cursor-pointer items-center justify-center p-0.5 hover:text-emerald-600 hover:opacity-80"
                 title="Carrinho de Compras"
               >
                 <ShoppingBag className="size-4.5 stroke-[1.5px]" />
                 {cartTotalItems > 0 && (
-                  <Badge className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 p-0 text-[9px] font-bold text-white border-none">
+                  <Badge className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border-none bg-emerald-600 p-0 px-1 text-[9px] font-bold text-white">
                     {cartTotalItems}
                   </Badge>
                 )}

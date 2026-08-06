@@ -10,25 +10,25 @@ export function MarketplaceFooter() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-stone-600">
             <Link
               href="/lojas"
-              className="hover:text-stone-900 transition-colors"
+              className="transition-colors hover:text-stone-900"
             >
               Produtores Parceiros
             </Link>
             <Link
               href="/produtos"
-              className="hover:text-stone-900 transition-colors"
+              className="transition-colors hover:text-stone-900"
             >
               Todos os Produtos
             </Link>
-            <span className="cursor-pointer hover:text-stone-900 transition-colors">
+            <span className="cursor-pointer transition-colors hover:text-stone-900">
               Termos e condições
             </span>
-            <span className="cursor-pointer hover:text-stone-900 transition-colors">
+            <span className="cursor-pointer transition-colors hover:text-stone-900">
               Como cuidamos da sua privacidade
             </span>
             <Link
               href="/atendimento"
-              className="hover:text-stone-900 transition-colors"
+              className="transition-colors hover:text-stone-900"
             >
               Contato & Suporte
             </Link>

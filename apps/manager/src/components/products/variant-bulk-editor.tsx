@@ -104,7 +104,7 @@ export function VariantBulkEditor({
 
   if (variations.length === 0) {
     return (
-      <div className="text-center p-6 border border-dashed rounded-xl text-stone-400 text-xs">
+      <div className="rounded-xl border border-dashed p-6 text-center text-xs text-stone-400">
         Nenhuma variação adicionada ainda. Utilize a Matriz de Variações acima
         para gerar combinações.
       </div>
@@ -114,9 +114,9 @@ export function VariantBulkEditor({
   return (
     <div className="space-y-4 font-sans text-xs antialiased">
       {/* Barra de Ações em Massa (Bulk Actions) */}
-      <div className="p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50 p-3 dark:border-stone-800 dark:bg-stone-900">
         <div className="flex items-center gap-2">
-          <RiEqualizerLine className="w-4 h-4 text-emerald-600" />
+          <RiEqualizerLine className="h-4 w-4 text-emerald-600" />
           <span className="font-semibold text-stone-900 dark:text-stone-100">
             Edição em Massa ({selectedIndexes.size} selecionadas):
           </span>
@@ -127,18 +127,18 @@ export function VariantBulkEditor({
             placeholder="Preço em massa"
             value={bulkPrice}
             onValueChange={setBulkPrice}
-            className="w-32 h-8 text-xs"
+            className="h-8 w-32 text-xs"
           />
           <PriceInput
             placeholder="Custo em massa"
             value={bulkCostPrice}
             onValueChange={setBulkCostPrice}
-            className="w-32 h-8 text-xs"
+            className="h-8 w-32 text-xs"
           />
           <NativeSelect
             value={bulkStockMode}
             onChange={(e) => setBulkStockMode(e.target.value)}
-            className="w-36 h-8 text-xs"
+            className="h-8 w-36 text-xs"
           >
             <option value="">Modo Estoque...</option>
             <option value="SIMPLE">Estoque Simples</option>
@@ -149,7 +149,7 @@ export function VariantBulkEditor({
           <NativeSelect
             value={bulkStatus}
             onChange={(e) => setBulkStatus(e.target.value)}
-            className="w-28 h-8 text-xs"
+            className="h-8 w-28 text-xs"
           >
             <option value="">Status...</option>
             <option value="active">Ativa</option>
@@ -160,20 +160,20 @@ export function VariantBulkEditor({
             size="sm"
             onClick={handleApplyBulkChanges}
             disabled={selectedIndexes.size === 0}
-            className="bg-emerald-700 hover:bg-emerald-800 text-white h-8 text-xs cursor-pointer px-3"
+            className="h-8 cursor-pointer bg-emerald-700 px-3 text-xs text-white hover:bg-emerald-800"
           >
-            <RiCheckboxCircleLine className="w-3.5 h-3.5 mr-1" />
+            <RiCheckboxCircleLine className="mr-1 h-3.5 w-3.5" />
             Aplicar às Selecionadas
           </Button>
         </div>
       </div>
 
       {/* Tabela de Variações */}
-      <div className="border border-stone-200 dark:border-stone-800 rounded-xl overflow-x-auto bg-white dark:bg-stone-950">
-        <table className="w-full text-left text-xs border-collapse">
+      <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-950">
+        <table className="w-full border-collapse text-left text-xs">
           <thead>
-            <tr className="border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 font-semibold text-stone-700 dark:text-stone-300">
-              <th className="p-3 w-10 text-center">
+            <tr className="border-b border-stone-200 bg-stone-50 font-semibold text-stone-700 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300">
+              <th className="w-10 p-3 text-center">
                 <Checkbox
                   checked={
                     selectedIndexes.size === variations.length &&
@@ -182,15 +182,15 @@ export function VariantBulkEditor({
                   onCheckedChange={toggleSelectAll}
                 />
               </th>
-              <th className="p-3 w-12 text-center">Padrão</th>
+              <th className="w-12 p-3 text-center">Padrão</th>
               <th className="p-3">Atributos / Combinação</th>
               <th className="p-3">SKU</th>
-              <th className="p-3 w-28">Preço (R$)</th>
-              <th className="p-3 w-28">Preço Promocional</th>
-              <th className="p-3 w-28">Custo (R$)</th>
-              <th className="p-3 w-32">Modo Estoque</th>
-              <th className="p-3 w-24">Status</th>
-              <th className="p-3 w-10 text-center"></th>
+              <th className="w-28 p-3">Preço (R$)</th>
+              <th className="w-28 p-3">Preço Promocional</th>
+              <th className="w-28 p-3">Custo (R$)</th>
+              <th className="w-32 p-3">Modo Estoque</th>
+              <th className="w-24 p-3">Status</th>
+              <th className="w-10 p-3 text-center"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-100 dark:divide-stone-900">
@@ -209,7 +209,7 @@ export function VariantBulkEditor({
                     onCheckedChange={() => toggleSelectIndex(idx)}
                   />
                 </td>
-                <td className="p-3 text-center flex justify-center items-center">
+                <td className="flex items-center justify-center p-3 text-center">
                   <RadioGroupItem
                     value={String(idx)}
                     checked={item.isDefault}
@@ -223,9 +223,9 @@ export function VariantBulkEditor({
                       <Badge
                         key={k}
                         variant="secondary"
-                        className="text-[10px] py-0 px-1.5 font-normal"
+                        className="px-1.5 py-0 text-[10px] font-normal"
                       >
-                        {k}: <span className="font-semibold ml-0.5">{v}</span>
+                        {k}: <span className="ml-0.5 font-semibold">{v}</span>
                       </Badge>
                     ))}
                   </div>
@@ -236,7 +236,7 @@ export function VariantBulkEditor({
                     onChange={(e) =>
                       handleUpdateItemField(idx, 'sku', e.target.value)
                     }
-                    className="h-8 text-xs font-mono"
+                    className="h-8 font-mono text-xs"
                   />
                 </td>
                 <td className="p-3">
@@ -306,9 +306,9 @@ export function VariantBulkEditor({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRemoveVariation(idx)}
-                    className="text-rose-600 hover:text-rose-800 hover:bg-rose-50 h-8 w-8 p-0 cursor-pointer"
+                    className="h-8 w-8 cursor-pointer p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-800"
                   >
-                    <RiDeleteBinLine className="w-3.5 h-3.5" />
+                    <RiDeleteBinLine className="h-3.5 w-3.5" />
                   </Button>
                 </td>
               </tr>

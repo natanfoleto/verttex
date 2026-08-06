@@ -107,7 +107,7 @@ export default function NotificationsCenterPage() {
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
             Central de Notificações & Alertas Sanitários de Validade
           </h1>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="mt-1 text-xs text-zinc-400">
             Acompanhe alertas de vencimento de lotes por faixas de dias e avisos
             transacionais do ecossistema VERTTEX.
           </p>
@@ -116,9 +116,9 @@ export default function NotificationsCenterPage() {
         <Button
           onClick={() => runExpirationCheckMutation.mutate()}
           disabled={runExpirationCheckMutation.isPending}
-          className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0"
+          className="shrink-0 cursor-pointer bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
         >
-          <RiRefreshLine className="h-4 w-4 mr-1.5" />
+          <RiRefreshLine className="mr-1.5 h-4 w-4" />
           <span>
             {runExpirationCheckMutation.isPending
               ? 'Varrendo Lotes...'
@@ -174,7 +174,7 @@ export default function NotificationsCenterPage() {
           {data.notifications.map((n) => (
             <div
               key={n.id}
-              className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border transition-all ${
+              className={`flex flex-col justify-between rounded-2xl border p-4 transition-all sm:flex-row sm:items-center ${
                 n.isRead
                   ? 'border-zinc-800/60 bg-zinc-900/30 text-zinc-400'
                   : 'border-emerald-800/40 bg-emerald-950/20 text-zinc-100 shadow-sm'
@@ -182,16 +182,16 @@ export default function NotificationsCenterPage() {
             >
               <div className="flex items-start space-x-3">
                 {n.type === 'EXPIRATION_ALERT' ? (
-                  <RiAlertLine className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+                  <RiAlertLine className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
                 ) : (
-                  <RiNotification3Line className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <RiNotification3Line className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
                 )}
                 <div>
                   <h4 className="text-xs font-bold text-zinc-200">{n.title}</h4>
-                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                  <p className="mt-1 text-xs leading-relaxed text-zinc-400">
                     {n.message}
                   </p>
-                  <span className="text-[10px] text-zinc-500 mt-2 block font-mono">
+                  <span className="mt-2 block font-mono text-[10px] text-zinc-500">
                     {new Date(n.createdAt).toLocaleString()}
                   </span>
                 </div>
@@ -203,9 +203,9 @@ export default function NotificationsCenterPage() {
                   variant="outline"
                   onClick={() => markReadMutation.mutate(n.id)}
                   disabled={markReadMutation.isPending}
-                  className="cursor-pointer border-zinc-800 text-xs mt-3 sm:mt-0 shrink-0 self-end sm:self-center"
+                  className="mt-3 shrink-0 cursor-pointer self-end border-zinc-800 text-xs sm:mt-0 sm:self-center"
                 >
-                  <RiCheckLine className="h-3.5 w-3.5 mr-1" />
+                  <RiCheckLine className="mr-1 h-3.5 w-3.5" />
                   <span>Marcar como Lida</span>
                 </Button>
               )}

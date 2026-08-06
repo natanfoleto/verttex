@@ -128,7 +128,7 @@ export default function MarketplaceHomePage() {
       {/* Carrossel do Banner Principal */}
       <MarketplaceCarousel />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-32">
+      <div className="mx-auto max-w-7xl space-y-32 px-4 sm:px-6 lg:px-8">
         {/* SEÇÃO 1: Inspirado no último visto */}
         <ProductSectionCarousel
           title="Inspirado no último visto"
@@ -163,19 +163,19 @@ export default function MarketplaceHomePage() {
         {storesList.length > 0 && (
           <section className="space-y-4 pt-2">
             <div className="flex items-center justify-between pb-1">
-              <h2 className="text-base sm:text-lg font-bold tracking-tight text-stone-900">
+              <h2 className="text-base font-bold tracking-tight text-stone-900 sm:text-lg">
                 Lojas e Produtores Parceiros
               </h2>
               <Link
                 href="/lojas"
-                className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 cursor-pointer transition-colors"
+                className="flex cursor-pointer items-center space-x-1 text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-800"
               >
                 <span>Ver Todos os Produtores</span>
                 <RiArrowRightLine className="h-4 w-4" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {storesList.map((s) => (
                 <StoreCard key={s.id} {...s} />
               ))}

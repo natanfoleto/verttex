@@ -89,7 +89,7 @@ export default function StoreDetailPage({
         <div className="flex items-center space-x-4">
           <Link
             href="/lojas"
-            className="rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer"
+            className="cursor-pointer rounded-xl border border-zinc-800 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
           >
             <RiArrowLeftLine className="h-5 w-5" />
           </Link>
@@ -111,14 +111,15 @@ export default function StoreDetailPage({
                   {store.name}
                 </h1>
                 <span
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase ${store.status === 'active'
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase ${
+                    store.status === 'active'
                       ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                       : store.status === 'draft'
                         ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                         : store.status === 'suspended'
                           ? 'border-rose-800 bg-rose-950 text-rose-400'
                           : 'border-amber-800 bg-amber-950 text-amber-400'
-                    }`}
+                  }`}
                 >
                   {store.status === 'active'
                     ? 'Ativa'
@@ -139,7 +140,7 @@ export default function StoreDetailPage({
         <div className="flex items-center space-x-3">
           <Link
             href={`/lojas/${storeId}/membros`}
-            className="inline-flex items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-800 cursor-pointer"
+            className="inline-flex cursor-pointer items-center space-x-2 rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-800"
           >
             <RiUserSharedLine className="h-4 w-4" />
             <span>Gerenciar Membros</span>
@@ -162,10 +163,10 @@ export default function StoreDetailPage({
         className="w-full"
       >
         <div className="w-full overflow-x-auto pb-2">
-          <TabsList className="mb-4 flex w-full min-w-190 h-10 items-center justify-between rounded-xl bg-zinc-900/80 p-1 text-zinc-400 gap-1">
+          <TabsList className="mb-4 flex h-10 w-full min-w-190 items-center justify-between gap-1 rounded-xl bg-zinc-900/80 p-1 text-zinc-400">
             <TabsTrigger
               value="overview"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiInformationLine className="h-4 w-4 shrink-0" />
               <span>Visão Geral</span>
@@ -173,7 +174,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="details"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiFileTextLine className="h-4 w-4 shrink-0" />
               <span>Dados</span>
@@ -181,7 +182,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="products"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiShoppingBag3Line className="h-4 w-4 shrink-0" />
               <span>Produtos</span>
@@ -189,7 +190,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="orders"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiFileList3Line className="h-4 w-4 shrink-0" />
               <span>Pedidos</span>
@@ -197,7 +198,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="inventory"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiStackLine className="h-4 w-4 shrink-0" />
               <span>Estoque</span>
@@ -205,7 +206,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="lots"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiTimeLine className="h-4 w-4 shrink-0" />
               <span>Lotes & Validades</span>
@@ -213,7 +214,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="movements"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiHistoryLine className="h-4 w-4 shrink-0" />
               <span>Movimentações</span>
@@ -221,7 +222,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="team"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiUserSharedLine className="h-4 w-4 shrink-0" />
               <span>Equipe</span>
@@ -229,7 +230,7 @@ export default function StoreDetailPage({
 
             <TabsTrigger
               value="audit"
-              className="flex-1 flex items-center justify-center space-x-1.5 text-xs cursor-pointer px-3 py-1.5"
+              className="flex flex-1 cursor-pointer items-center justify-center space-x-1.5 px-3 py-1.5 text-xs"
             >
               <RiShieldKeyholeLine className="h-4 w-4 shrink-0" />
               <span>Auditoria</span>
@@ -266,14 +267,15 @@ export default function StoreDetailPage({
                     Status Atual
                   </span>
                   <span
-                    className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${store.status === 'active'
+                    className={`mt-1 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                      store.status === 'active'
                         ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                         : store.status === 'draft'
                           ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                           : store.status === 'suspended'
                             ? 'border-rose-800 bg-rose-950 text-rose-400'
                             : 'border-amber-800 bg-amber-950 text-amber-400'
-                      }`}
+                    }`}
                   >
                     {store.status === 'active'
                       ? 'Ativa'

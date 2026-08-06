@@ -56,7 +56,7 @@ export default function ProducerStorePage({
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans antialiased">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 font-sans antialiased sm:px-6 lg:px-8">
         <div className="h-48 w-full animate-pulse rounded-3xl bg-stone-200" />
         <div className="flex items-center space-x-4">
           <div className="h-20 w-20 animate-pulse rounded-2xl bg-stone-200" />
@@ -81,7 +81,7 @@ export default function ProducerStorePage({
         </p>
         <Link
           href="/produtos"
-          className="mt-6 inline-flex items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900 cursor-pointer"
+          className="mt-6 inline-flex cursor-pointer items-center space-x-2 rounded-xl bg-emerald-800 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-900"
         >
           <RiArrowLeftLine className="h-4 w-4" />
           <span>Voltar ao Catálogo</span>
@@ -91,7 +91,7 @@ export default function ProducerStorePage({
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
+    <div className="mx-auto max-w-7xl space-y-12 px-4 py-12 font-sans text-stone-900 antialiased sm:px-6 lg:px-8">
       {/* Banner / Cover Header */}
       <div className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-stone-900 text-white shadow-md">
         {store.coverUrl ? (
@@ -106,9 +106,9 @@ export default function ProducerStorePage({
 
         <div className="absolute inset-0 bg-linear-to-t from-stone-950/80 via-transparent to-transparent" />
 
-        <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+        <div className="absolute right-6 bottom-6 left-6 flex items-end justify-between">
           <div className="flex items-center space-x-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-2 border-white bg-amber-50 text-amber-900 font-black text-2xl shadow-lg">
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-2 border-white bg-amber-50 text-2xl font-black text-amber-900 shadow-lg">
               {store.logoUrl ? (
                 <img
                   src={store.logoUrl}
@@ -135,7 +135,7 @@ export default function ProducerStorePage({
       {store.description && (
         <div className="rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs">
           <h2 className="text-sm font-bold text-stone-900">Sobre o Produtor</h2>
-          <p className="mt-2 text-xs text-stone-600 leading-relaxed">
+          <p className="mt-2 text-xs leading-relaxed text-stone-600">
             {store.description}
           </p>
         </div>
@@ -155,7 +155,7 @@ export default function ProducerStorePage({
               <Link
                 key={product.id}
                 href={`/produtos/${product.slug}`}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/80 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-md cursor-pointer"
+                className="group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/80 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-md"
               >
                 <div className="space-y-3">
                   <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-stone-100">
@@ -173,17 +173,17 @@ export default function ProducerStorePage({
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                    <span className="text-[10px] font-bold tracking-wider text-emerald-800 uppercase">
                       {product.category.name}
                     </span>
-                    <h3 className="font-bold text-stone-900 text-sm group-hover:text-emerald-800 transition-colors line-clamp-1">
+                    <h3 className="line-clamp-1 text-sm font-bold text-stone-900 transition-colors group-hover:text-emerald-800">
                       {product.name}
                     </h3>
                   </div>
                 </div>
 
-                <div className="mt-4 border-t border-stone-100 pt-3 flex items-center justify-between">
-                  <span className="font-extrabold text-stone-900 text-sm">
+                <div className="mt-4 flex items-center justify-between border-t border-stone-100 pt-3">
+                  <span className="text-sm font-extrabold text-stone-900">
                     R$ {(product.promotionalPrice || product.price).toFixed(2)}
                   </span>
                   <span className="text-[10px] font-semibold text-stone-500">

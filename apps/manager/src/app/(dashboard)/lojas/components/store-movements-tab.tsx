@@ -115,9 +115,9 @@ export function StoreMovementsTab({ storeId }: { storeId: string }) {
                   queryKey: ['store-movements-tab'],
                 })
               }
-              className="cursor-pointer text-xs h-9 border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 rounded-xl"
+              className="h-9 cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800"
             >
-              <RiRefreshLine className="h-3.5 w-3.5 mr-1" />
+              <RiRefreshLine className="mr-1 h-3.5 w-3.5" />
               <span>Atualizar</span>
             </Button>
           </div>
@@ -131,7 +131,7 @@ export function StoreMovementsTab({ storeId }: { storeId: string }) {
         }}
       >
         <table className="w-full text-left text-xs">
-          <thead className="bg-zinc-950/60 text-zinc-400 font-bold uppercase tracking-wider text-[10px] border-b border-zinc-800">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] font-bold tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-5 py-3.5">Data & Hora</th>
               <th className="px-5 py-3.5">Tipo de Operação</th>
@@ -145,7 +145,7 @@ export function StoreMovementsTab({ storeId }: { storeId: string }) {
             {movementsList.map((mov) => (
               <tr
                 key={mov.id}
-                className="hover:bg-zinc-800/30 transition-colors"
+                className="transition-colors hover:bg-zinc-800/30"
               >
                 <td className="px-5 py-4 text-zinc-400">
                   {new Date(mov.createdAt).toLocaleString('pt-BR')}
@@ -166,13 +166,13 @@ export function StoreMovementsTab({ storeId }: { storeId: string }) {
                   )}
                 </td>
                 <td
-                  className={`px-5 py-4 text-center font-bold font-mono text-sm ${
+                  className={`px-5 py-4 text-center font-mono text-sm font-bold ${
                     mov.quantity > 0 ? 'text-emerald-400' : 'text-rose-400'
                   }`}
                 >
                   {mov.quantity > 0 ? `+${mov.quantity}` : mov.quantity}
                 </td>
-                <td className="px-5 py-4 font-sans text-zinc-400 max-w-xs truncate">
+                <td className="max-w-xs truncate px-5 py-4 font-sans text-zinc-400">
                   {mov.reason || mov.referenceId || 'Sem observações'}
                 </td>
                 <td className="px-5 py-4 text-right font-sans text-zinc-300">

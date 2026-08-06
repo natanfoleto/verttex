@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   RiAddLine,
   RiCalendarEventLine,
@@ -246,9 +246,14 @@ export function ProductFormDialog({
     staleTime: 0, // Always fetch fresh so newly created brands appear immediately
   })
 
-  const storesList: Store[] = storesRes ?? []
-  const categoriesList: Category[] = categoriesRes ?? []
-  const brandsList: Brand[] = brandsRes ?? []
+  const storesList: Store[] = useMemo(() => storesRes ?? [], [storesRes])
+  const categoriesList: Category[] = useMemo(
+    () => categoriesRes ?? [],
+    [categoriesRes],
+  )
+  const brandsList: Brand[] = useMemo(() => brandsRes ?? [], [brandsRes])
+
+  const [initialSnapshot, setInitialSnapshot] = useState<string>('')
 
   // Initialize or Reset Form
   useEffect(() => {
@@ -422,81 +427,78 @@ export function ProductFormDialog({
       setVariations([])
       setMediaItems([])
     }
-  }, [
-    open,
-    productToEdit,
-    defaultStoreId,
-    storesList.length,
-    categoriesList.length,
-  ])
 
-  const [initialSnapshot, setInitialSnapshot] = useState<string>('')
-
-  useEffect(() => {
-    if (open) {
-      const timer = setTimeout(() => {
-        setInitialSnapshot(
-          JSON.stringify({
-            name,
-            slug,
-            shortDescription,
-            fullDescription,
-            type,
-            status,
-            isPublished,
-            isFeatured,
-            storeId,
-            categoryId,
-            brandId,
-            price,
-            promotionalPrice,
-            costPrice,
-            sku,
-            barcode,
-            mediaItems,
-            weight,
-            width,
-            height,
-            length,
-            metaTitle,
-            metaDescription,
-            hasBatchControl,
-            hasExpirationControl,
-          }),
-        )
-      }, 50)
-      return () => clearTimeout(timer)
-    }
-  }, [open, productToEdit?.id])
+    const timer = setTimeout(() => {
+      setInitialSnapshot(
+        JSON.stringify({
+          name: productToEdit?.name || '',
+          slug: productToEdit?.slug || '',
+          shortDescription: productToEdit?.shortDescription || '',
+          fullDescription: productToEdit?.fullDescription || '',
+          type: productToEdit?.type || 'simple',
+          status: productToEdit?.status || 'draft',
+          isPublished: Boolean(productToEdit?.isPublished),
+          isFeatured: Boolean(productToEdit?.isFeatured),
+          storeId:
+            productToEdit?.storeId || defaultStoreId || storesList[0]?.id || '',
+          categoryId: productToEdit?.categoryId || categoriesList[0]?.id || '',
+          brandId: productToEdit?.brandId || '',
+          price: productToEdit?.variations?.[0]?.price
+            ? Number(productToEdit.variations[0].price)
+            : 0,
+          promotionalPrice: productToEdit?.variations?.[0]?.promotionalPrice
+            ? Number(productToEdit.variations[0].promotionalPrice)
+            : 0,
+          costPrice: productToEdit?.variations?.[0]?.costPrice
+            ? Number(productToEdit.variations[0].costPrice)
+            : 0,
+          sku: productToEdit?.variations?.[0]?.sku || '',
+          barcode: productToEdit?.variations?.[0]?.barcode || '',
+          mediaItems: productToEdit?.medias
+            ? productToEdit.medias.map((m) => m.fileId)
+            : [],
+          weight: productToEdit?.weight ? String(productToEdit.weight) : '',
+          width: productToEdit?.width ? String(productToEdit.width) : '',
+          height: productToEdit?.height ? String(productToEdit.height) : '',
+          length: productToEdit?.length ? String(productToEdit.length) : '',
+          metaTitle: productToEdit?.metaTitle || '',
+          metaDescription: productToEdit?.metaDescription || '',
+          hasBatchControl: Boolean(productToEdit?.hasBatchControl),
+          hasExpirationControl: Boolean(productToEdit?.hasExpirationControl),
+        }),
+      )
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [open, productToEdit, defaultStoreId, storesList, categoriesList])
 
   const isFormDirty = isEditing
     ? JSON.stringify({
-      name,
-      slug,
-      shortDescription,
-      fullDescription,
-      type,
-      status,
-      isPublished,
-      isFeatured,
-      storeId,
-      categoryId,
-      brandId,
-      price,
-      promotionalPrice,
-      costPrice,
-      sku,
-      barcode,
-      mediaItems,
-      weight,
-      width,
-      height,
-      length,
-      metaTitle,
-      metaDescription,
-      hasBatchControl,
-      hasExpirationControl,
-    }) !== initialSnapshot
+        name,
+        slug,
+        shortDescription,
+        fullDescription,
+        type,
+        status,
+        isPublished,
+        isFeatured,
+        storeId,
+        categoryId,
+        brandId,
+        price,
+        promotionalPrice,
+        costPrice,
+        sku,
+        barcode,
+        mediaItems,
+        weight,
+        width,
+        height,
+        length,
+        metaTitle,
+        metaDescription,
+        hasBatchControl,
+        hasExpirationControl,
+      }) !== initialSnapshot
     : name.trim().length > 0
 
   // Handle Name Input Change (Auto Slug)
@@ -907,7 +909,7 @@ export function ProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-185 max-h-[90vh] min-h-150 w-full max-w-4xl flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+      <DialogContent className="flex h-185 max-h-[90vh] min-h-150 w-full max-w-4xl flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
             {isEditing ? 'Editar Produto' : 'Novo Produto'}
@@ -923,13 +925,13 @@ export function ProductFormDialog({
           onSubmit={handleSubmit}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-1 pb-6">
+          <div className="flex flex-1 flex-col overflow-y-auto px-6 pt-1 pb-6">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
-              className="w-full flex-1 flex flex-col"
+              className="flex w-full flex-1 flex-col"
             >
-              <TabsList className="mb-5 grid w-full grid-cols-6 bg-zinc-900/80 p-1 shrink-0">
+              <TabsList className="mb-5 grid w-full shrink-0 grid-cols-6 bg-zinc-900/80 p-1">
                 <TabsTrigger
                   value="geral"
                   className="flex items-center space-x-1.5 text-xs"
@@ -978,7 +980,7 @@ export function ProductFormDialog({
               {/* TAB 1: GERAL */}
               <TabsContent
                 value="geral"
-                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5.5 space-y-3.5"
+                className="flex-1 space-y-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5.5"
               >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div>
@@ -1090,7 +1092,7 @@ export function ProductFormDialog({
                       onChange={(e) =>
                         setStatus(
                           e.target.value as
-                          'draft' | 'active' | 'inactive' | 'archived',
+                            'draft' | 'active' | 'inactive' | 'archived',
                         )
                       }
                     >
@@ -1112,7 +1114,7 @@ export function ProductFormDialog({
                     />
                     <label
                       htmlFor="isFeatured"
-                      className="cursor-pointer text-xs font-medium text-zinc-300 select-none whitespace-nowrap"
+                      className="cursor-pointer text-xs font-medium whitespace-nowrap text-zinc-300 select-none"
                     >
                       Produto em Destaque
                     </label>
@@ -1147,7 +1149,7 @@ export function ProductFormDialog({
               {/* TAB 2: PREÇO & ESTOQUE */}
               <TabsContent
                 value="preco"
-                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+                className="flex-1 space-y-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6"
               >
                 {type === 'variable' && (
                   <div className="rounded-xl border border-amber-800/60 bg-amber-950/40 p-3 text-xs text-amber-300">
@@ -1239,7 +1241,7 @@ export function ProductFormDialog({
               {/* TAB: LOTE & VALIDADE */}
               <TabsContent
                 value="validade"
-                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5.5 space-y-4"
+                className="flex-1 space-y-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5.5"
               >
                 <div className="rounded-xl border border-emerald-950/60 bg-emerald-950/20 p-4">
                   <h4 className="text-xs font-semibold text-emerald-400">
@@ -1253,7 +1255,7 @@ export function ProductFormDialog({
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 flex items-center justify-between">
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5">
                     <div>
                       <span className="block text-xs font-semibold text-zinc-200">
                         Controle por Lote
@@ -1271,7 +1273,7 @@ export function ProductFormDialog({
                     />
                   </div>
 
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 flex items-center justify-between">
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5">
                     <div>
                       <span className="block text-xs font-semibold text-zinc-200">
                         Controle de Validade
@@ -1289,7 +1291,7 @@ export function ProductFormDialog({
                     />
                   </div>
 
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 flex items-center justify-between">
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5">
                     <div>
                       <span className="block text-xs font-semibold text-zinc-200">
                         Validade Obrigatória
@@ -1309,7 +1311,7 @@ export function ProductFormDialog({
                 </div>
 
                 {(hasBatchControl || hasExpirationControl) && (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+                  <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
                       <label className="mb-1 block text-xs font-semibold text-zinc-300">
                         Validade Padrão (dias)
@@ -1392,7 +1394,7 @@ export function ProductFormDialog({
               {/* TAB 3: VARIAÇÕES */}
               <TabsContent
                 value="variacoes"
-                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+                className="flex-1 space-y-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6"
               >
                 {type !== 'variable' ? (
                   <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-sm text-zinc-400">
@@ -1403,7 +1405,7 @@ export function ProductFormDialog({
                 ) : (
                   <div className="space-y-6">
                     {/* Define Options */}
-                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 space-y-4">
+                    <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
                       <h3 className="text-sm font-semibold text-zinc-200">
                         1. Definir Opções do Produto
                       </h3>
@@ -1437,10 +1439,10 @@ export function ProductFormDialog({
                           {options.map((opt, optIdx) => (
                             <div
                               key={opt.name}
-                              className="rounded-xl border border-zinc-800/80 bg-zinc-950 p-3 space-y-2"
+                              className="space-y-2 rounded-xl border border-zinc-800/80 bg-zinc-950 p-3"
                             >
                               <div className="flex items-center justify-between">
-                                <span className="font-semibold text-xs text-emerald-400 uppercase tracking-wide">
+                                <span className="text-xs font-semibold tracking-wide text-emerald-400 uppercase">
                                   {opt.name}
                                 </span>
                                 <Button
@@ -1454,7 +1456,7 @@ export function ProductFormDialog({
                                 </Button>
                               </div>
 
-                              <div className="flex flex-wrap gap-1.5 items-center">
+                              <div className="flex flex-wrap items-center gap-1.5">
                                 {opt.values.map((val, valIdx) => (
                                   <span
                                     key={val}
@@ -1525,11 +1527,11 @@ export function ProductFormDialog({
                           2. Variações Geradas ({variations.length})
                         </h3>
 
-                        <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                        <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
                           {variations.map((vItem, vIdx) => (
                             <div
                               key={vIdx}
-                              className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 space-y-2 text-xs"
+                              className="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 text-xs"
                             >
                               <div className="flex items-center justify-between font-semibold text-zinc-200">
                                 <span className="text-emerald-400">
@@ -1554,7 +1556,7 @@ export function ProductFormDialog({
 
                               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                  <label className="mb-0.5 block text-[10px] text-zinc-400">
                                     SKU *
                                   </label>
                                   <Input
@@ -1573,7 +1575,7 @@ export function ProductFormDialog({
                                 </div>
 
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                  <label className="mb-0.5 block text-[10px] text-zinc-400">
                                     Preço *
                                   </label>
                                   <PriceInput
@@ -1587,7 +1589,7 @@ export function ProductFormDialog({
                                 </div>
 
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                  <label className="mb-0.5 block text-[10px] text-zinc-400">
                                     Promoção
                                   </label>
                                   <PriceInput
@@ -1604,7 +1606,7 @@ export function ProductFormDialog({
                                 </div>
 
                                 <div>
-                                  <label className="text-[10px] text-zinc-400 block mb-0.5">
+                                  <label className="mb-0.5 block text-[10px] text-zinc-400">
                                     Custo
                                   </label>
                                   <PriceInput
@@ -1632,7 +1634,7 @@ export function ProductFormDialog({
               {/* TAB 4: MÍDIAS & IMAGENS */}
               <TabsContent
                 value="midias"
-                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+                className="flex-1 space-y-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -1668,10 +1670,11 @@ export function ProductFormDialog({
                       {mediaItems.map((item) => (
                         <div
                           key={item.fileId}
-                          className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-zinc-900 p-2 transition-all ${item.isMain
+                          className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-zinc-900 p-2 transition-all ${
+                            item.isMain
                               ? 'border-amber-500/80 ring-1 ring-amber-500/30'
                               : 'border-zinc-800'
-                            }`}
+                          }`}
                         >
                           <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-950">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1689,7 +1692,7 @@ export function ProductFormDialog({
                           </div>
 
                           <div className="mt-2 flex items-center justify-between px-1">
-                            <span className="truncate text-[11px] text-zinc-400 max-w-25">
+                            <span className="max-w-25 truncate text-[11px] text-zinc-400">
                               {item.originalName}
                             </span>
                             <div className="flex items-center space-x-1">
@@ -1722,11 +1725,11 @@ export function ProductFormDialog({
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 p-8 text-center">
-                      <RiImageAddLine className="h-10 w-10 text-zinc-600 mb-2" />
+                      <RiImageAddLine className="mb-2 h-10 w-10 text-zinc-600" />
                       <p className="text-sm font-medium text-zinc-300">
                         Nenhuma imagem enviada
                       </p>
-                      <p className="text-xs text-zinc-500 mt-1">
+                      <p className="mt-1 text-xs text-zinc-500">
                         Carregue arquivos nos formatos JPG, PNG ou WebP de até 5
                         MB.
                       </p>
@@ -1738,7 +1741,7 @@ export function ProductFormDialog({
               {/* TAB 5: FRETE & SEO */}
               <TabsContent
                 value="frete-seo"
-                className="flex-1 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+                className="flex-1 space-y-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6"
               >
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-zinc-200">
@@ -1795,7 +1798,7 @@ export function ProductFormDialog({
                   </div>
                 </div>
 
-                <hr className="border-zinc-800/80 my-4" />
+                <hr className="my-4 border-zinc-800/80" />
 
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-zinc-200">

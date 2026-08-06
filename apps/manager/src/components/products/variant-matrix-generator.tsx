@@ -113,7 +113,7 @@ export function VariantMatrixGenerator({
 
   if (options.length === 0 || allCombinations.length === 0) {
     return (
-      <div className="p-6 text-center border border-dashed rounded-xl text-stone-400 text-xs">
+      <div className="rounded-xl border border-dashed p-6 text-center text-xs text-stone-400">
         Cadastre pelo menos uma opção com valores no Gerenciador de Opções para
         gerar a matriz de variações.
       </div>
@@ -121,11 +121,11 @@ export function VariantMatrixGenerator({
   }
 
   return (
-    <div className="space-y-4 p-4 bg-stone-50/50 dark:bg-stone-900/50 border rounded-xl border-stone-200 dark:border-stone-800">
+    <div className="space-y-4 rounded-xl border border-stone-200 bg-stone-50/50 p-4 dark:border-stone-800 dark:bg-stone-900/50">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <RiGridLine className="w-5 h-5 text-emerald-600" />
-          <h4 className="font-semibold text-sm text-stone-900 dark:text-stone-100">
+          <RiGridLine className="h-5 w-5 text-emerald-600" />
+          <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
             Matriz de Combinações de Variações (Sparse Matrix)
           </h4>
         </div>
@@ -135,16 +135,16 @@ export function VariantMatrixGenerator({
             variant="ghost"
             size="sm"
             onClick={toggleSelectAll}
-            className="text-xs cursor-pointer"
+            className="cursor-pointer text-xs"
           >
             {selectedSkus.size === allCombinations.length ? (
               <>
-                <RiCheckboxBlankLine className="w-3.5 h-3.5 mr-1" /> Desmarcar
+                <RiCheckboxBlankLine className="mr-1 h-3.5 w-3.5" /> Desmarcar
                 Todas
               </>
             ) : (
               <>
-                <RiCheckboxLine className="w-3.5 h-3.5 mr-1" /> Selecionar Todas
+                <RiCheckboxLine className="mr-1 h-3.5 w-3.5" /> Selecionar Todas
               </>
             )}
           </Button>
@@ -160,17 +160,17 @@ export function VariantMatrixGenerator({
       </p>
 
       {/* Grid de combinações */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto p-1">
+      <div className="grid max-h-60 grid-cols-1 gap-2.5 overflow-y-auto p-1 sm:grid-cols-2 md:grid-cols-3">
         {allCombinations.map((combo) => {
           const isSelected = selectedSkus.has(combo.sku)
           return (
             <div
               key={combo.sku}
               onClick={() => toggleSku(combo.sku)}
-              className={`p-3 rounded-lg border text-xs cursor-pointer transition-all flex items-center justify-between ${
+              className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 text-xs transition-all ${
                 isSelected
-                  ? 'bg-emerald-50 border-emerald-600/80 dark:bg-emerald-950/40 dark:border-emerald-700'
-                  : 'bg-white dark:bg-stone-950 border-stone-200 dark:border-stone-800 opacity-60 hover:opacity-100'
+                  ? 'border-emerald-600/80 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/40'
+                  : 'border-stone-200 bg-white opacity-60 hover:opacity-100 dark:border-stone-800 dark:bg-stone-950'
               }`}
             >
               <div className="space-y-1">
@@ -179,10 +179,10 @@ export function VariantMatrixGenerator({
                     <Badge
                       key={optKey}
                       variant="secondary"
-                      className="text-[10px] py-0 px-1.5 font-normal"
+                      className="px-1.5 py-0 text-[10px] font-normal"
                     >
                       {optKey}:{' '}
-                      <span className="font-semibold ml-0.5">{val}</span>
+                      <span className="ml-0.5 font-semibold">{val}</span>
                     </Badge>
                   ))}
                 </div>
@@ -204,9 +204,9 @@ export function VariantMatrixGenerator({
           type="button"
           onClick={handleConfirmMatrix}
           disabled={selectedSkus.size === 0}
-          className="bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer"
+          className="cursor-pointer bg-emerald-700 text-white hover:bg-emerald-800"
         >
-          <RiMagicLine className="w-4 h-4 mr-1.5" />
+          <RiMagicLine className="mr-1.5 h-4 w-4" />
           Gerar {selectedSkus.size} Variações Selecionadas
         </Button>
       </div>

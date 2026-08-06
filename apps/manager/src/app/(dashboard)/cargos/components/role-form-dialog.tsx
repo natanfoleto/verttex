@@ -126,7 +126,7 @@ export function RoleFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-lg flex flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
+      <DialogContent className="flex w-full max-w-lg flex-col overflow-hidden bg-zinc-950 p-0 text-zinc-100 sm:rounded-2xl">
         <DialogHeader className="px-6 pt-5 pb-2">
           <DialogTitle className="text-xl font-bold text-zinc-100">
             {isEditing ? 'Editar Cargo' : 'Novo Cargo'}
@@ -145,7 +145,7 @@ export function RoleFormDialog({
           }}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <div className="flex-1 flex flex-col overflow-y-auto px-6 pt-3 pb-6 space-y-4">
+          <div className="flex flex-1 flex-col space-y-4 overflow-y-auto px-6 pt-3 pb-6">
             {errorMessage && (
               <div className="rounded-xl border border-rose-800/60 bg-rose-950/60 p-3 text-xs text-rose-300">
                 {errorMessage}
@@ -155,7 +155,7 @@ export function RoleFormDialog({
             <div>
               <label
                 htmlFor="role-name"
-                className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
+                className="mb-1 block text-xs font-semibold whitespace-nowrap text-zinc-300"
               >
                 Nome do Cargo <span className="text-rose-400">*</span>
               </label>
@@ -174,7 +174,7 @@ export function RoleFormDialog({
               <div>
                 <label
                   htmlFor="role-key"
-                  className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
+                  className="mb-1 block text-xs font-semibold whitespace-nowrap text-zinc-300"
                 >
                   Identificador (Key) <span className="text-rose-400">*</span>
                 </label>
@@ -194,7 +194,7 @@ export function RoleFormDialog({
             <div>
               <label
                 htmlFor="role-description"
-                className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
+                className="mb-1 block text-xs font-semibold whitespace-nowrap text-zinc-300"
               >
                 Descrição
               </label>
@@ -212,7 +212,7 @@ export function RoleFormDialog({
               <div>
                 <label
                   htmlFor="role-status"
-                  className="text-xs font-semibold text-zinc-300 block mb-1 whitespace-nowrap"
+                  className="mb-1 block text-xs font-semibold whitespace-nowrap text-zinc-300"
                 >
                   Status
                 </label>

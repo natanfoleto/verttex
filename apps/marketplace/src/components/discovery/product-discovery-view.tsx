@@ -231,11 +231,11 @@ export function ProductDiscoveryView({
   }
 
   return (
-    <div className="min-h-screen text-stone-900 font-sans pb-16 pt-4">
+    <div className="min-h-screen pt-4 pb-16 font-sans text-stone-900">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Mobile Filter Drawer Button */}
-        <div className="lg:hidden flex items-center justify-between pb-4 border-b border-stone-200 mb-4">
-          <div className="text-xs text-stone-600 font-medium">
+        <div className="mb-4 flex items-center justify-between border-b border-stone-200 pb-4 lg:hidden">
+          <div className="text-xs font-medium text-stone-600">
             {pagination?.total || products.length} resultados
           </div>
           <Button
@@ -243,7 +243,7 @@ export function ProductDiscoveryView({
             variant="outline"
             size="sm"
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            className="text-xs gap-1.5 border-stone-300 bg-white cursor-pointer"
+            className="cursor-pointer gap-1.5 border-stone-300 bg-white text-xs"
           >
             <RiFilter3Line className="h-4 w-4 text-emerald-700" />
             <span>Filtros</span>
@@ -251,34 +251,34 @@ export function ProductDiscoveryView({
         </div>
 
         {/* Layout de Duas Colunas: Sidebar Esquerda + Grid de Produtos Direita */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+        <div className="flex flex-col items-start gap-8 lg:flex-row lg:gap-10">
           {/* ─── SIDEBAR ESQUERDA (Breadcrumb, Título, Resultados, Filtros) ─── */}
           <aside
-            className={`w-full lg:w-60 shrink-0 space-y-5 ${
+            className={`w-full shrink-0 space-y-5 lg:w-60 ${
               mobileFilterOpen
-                ? 'block bg-white p-4 rounded-lg shadow-md'
+                ? 'block rounded-lg bg-white p-4 shadow-md'
                 : 'hidden lg:block'
             }`}
           >
             {/* 1. Breadcrumbs Empilhados no Topo da Sidebar */}
             {breadcrumbs.length > 0 && (
-              <nav className="flex flex-wrap items-center gap-1 text-[12px] text-stone-500 font-normal leading-tight">
+              <nav className="flex flex-wrap items-center gap-1 text-[12px] leading-tight font-normal text-stone-500">
                 {breadcrumbs.map((crumb, idx) => (
                   <span
                     key={crumb.url + idx}
                     className="inline-flex items-center gap-1"
                   >
                     {idx > 0 && (
-                      <span className="text-stone-400 font-light">&gt;</span>
+                      <span className="font-light text-stone-400">&gt;</span>
                     )}
                     {idx === breadcrumbs.length - 1 ? (
-                      <span className="text-stone-700 font-normal">
+                      <span className="font-normal text-stone-700">
                         {crumb.name}
                       </span>
                     ) : (
                       <Link
                         href={crumb.url}
-                        className="hover:text-stone-900 hover:underline transition-colors"
+                        className="transition-colors hover:text-stone-900 hover:underline"
                       >
                         {crumb.name}
                       </Link>
@@ -290,10 +290,10 @@ export function ProductDiscoveryView({
 
             {/* 2. Título Principal da Busca / Categoria & Contagem de Resultados */}
             <div className="space-y-1 pt-1">
-              <h1 className="text-2xl sm:text-[26px] font-bold text-stone-900 tracking-tight leading-tight capitalize">
+              <h1 className="text-2xl leading-tight font-bold tracking-tight text-stone-900 capitalize sm:text-[26px]">
                 {title}
               </h1>
-              <p className="text-xs text-stone-500 font-normal">
+              <p className="text-xs font-normal text-stone-500">
                 {pagination?.total ?? products.length}{' '}
                 {(pagination?.total ?? products.length) === 1
                   ? 'resultado'
@@ -307,13 +307,13 @@ export function ProductDiscoveryView({
                 {query && (
                   <Badge
                     variant="outline"
-                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                    className="gap-1.5 rounded-sm border-stone-300 bg-white px-2 py-0.5 text-[11px] font-normal text-stone-700 shadow-2xs hover:bg-stone-50"
                   >
                     <span>{query}</span>
                     <button
                       type="button"
                       onClick={() => updateUrl({ q: null })}
-                      className="hover:text-stone-950 cursor-pointer"
+                      className="cursor-pointer hover:text-stone-950"
                     >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
@@ -322,13 +322,13 @@ export function ProductDiscoveryView({
                 {categorySlug && (
                   <Badge
                     variant="outline"
-                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                    className="gap-1.5 rounded-sm border-stone-300 bg-white px-2 py-0.5 text-[11px] font-normal text-stone-700 shadow-2xs hover:bg-stone-50"
                   >
                     <span>{context?.category?.name || categorySlug}</span>
                     <button
                       type="button"
                       onClick={() => updateUrl({ categorySlug: null })}
-                      className="hover:text-stone-950 cursor-pointer"
+                      className="cursor-pointer hover:text-stone-950"
                     >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
@@ -337,13 +337,13 @@ export function ProductDiscoveryView({
                 {brandSlug && (
                   <Badge
                     variant="outline"
-                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                    className="gap-1.5 rounded-sm border-stone-300 bg-white px-2 py-0.5 text-[11px] font-normal text-stone-700 shadow-2xs hover:bg-stone-50"
                   >
                     <span>{context?.brand?.name || brandSlug}</span>
                     <button
                       type="button"
                       onClick={() => updateUrl({ brandSlug: null })}
-                      className="hover:text-stone-950 cursor-pointer"
+                      className="cursor-pointer hover:text-stone-950"
                     >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
@@ -352,13 +352,13 @@ export function ProductDiscoveryView({
                 {storeSlug && (
                   <Badge
                     variant="outline"
-                    className="bg-white border-stone-300 text-stone-700 text-[11px] py-0.5 px-2 font-normal rounded-sm gap-1.5 hover:bg-stone-50 shadow-2xs"
+                    className="gap-1.5 rounded-sm border-stone-300 bg-white px-2 py-0.5 text-[11px] font-normal text-stone-700 shadow-2xs hover:bg-stone-50"
                   >
                     <span>{context?.store?.name || storeSlug}</span>
                     <button
                       type="button"
                       onClick={() => updateUrl({ storeSlug: null })}
-                      className="hover:text-stone-950 cursor-pointer"
+                      className="cursor-pointer hover:text-stone-950"
                     >
                       <RiCloseLine className="h-3.5 w-3.5 text-stone-400" />
                     </button>
@@ -378,15 +378,15 @@ export function ProductDiscoveryView({
                     placeholder="Mín"
                     value={inputMinPrice}
                     onChange={(e) => setInputMinPrice(e.target.value)}
-                    className="w-1/2 px-2 py-1 text-xs border border-stone-300 rounded-sm bg-white focus:outline-none"
+                    className="w-1/2 rounded-sm border border-stone-300 bg-white px-2 py-1 text-xs focus:outline-none"
                   />
-                  <span className="text-stone-400 text-xs">-</span>
+                  <span className="text-xs text-stone-400">-</span>
                   <input
                     type="number"
                     placeholder="Máx"
                     value={inputMaxPrice}
                     onChange={(e) => setInputMaxPrice(e.target.value)}
-                    className="w-1/2 px-2 py-1 text-xs border border-stone-300 rounded-sm bg-white focus:outline-none"
+                    className="w-1/2 rounded-sm border border-stone-300 bg-white px-2 py-1 text-xs focus:outline-none"
                   />
                   <Button
                     type="button"
@@ -398,7 +398,7 @@ export function ProductDiscoveryView({
                         maxPrice: inputMaxPrice || null,
                       })
                     }
-                    className="text-xs px-2 py-1 cursor-pointer border-stone-300 bg-white"
+                    className="cursor-pointer border-stone-300 bg-white px-2 py-1 text-xs"
                   >
                     OK
                   </Button>
@@ -466,14 +466,14 @@ export function ProductDiscoveryView({
                             key={opt.value}
                             type="button"
                             onClick={handleFacetClick}
-                            className={`block w-full text-left truncate py-0.5 cursor-pointer transition-colors ${
+                            className={`block w-full cursor-pointer truncate py-0.5 text-left transition-colors ${
                               isActive
                                 ? 'font-bold text-emerald-700'
                                 : 'text-stone-600 hover:text-stone-900'
                             }`}
                           >
                             {opt.label}{' '}
-                            <span className="text-stone-400 text-[11px]">
+                            <span className="text-[11px] text-stone-400">
                               ({opt.count})
                             </span>
                           </button>
@@ -487,22 +487,22 @@ export function ProductDiscoveryView({
           </aside>
 
           {/* ─── SEÇÃO DE PRODUTOS DIREITA ─── */}
-          <main className="flex-1 w-full space-y-4">
+          <main className="w-full flex-1 space-y-4">
             {/* 5. Ordenação Alinhada à Direita no Topo dos Produtos */}
-            <div className="flex items-center justify-end gap-1.5 text-xs text-stone-600 font-normal pb-1">
+            <div className="flex items-center justify-end gap-1.5 pb-1 text-xs font-normal text-stone-600">
               <span className="text-stone-500">Ordenar por</span>
               <div className="relative inline-flex items-center">
                 <select
                   value={sort}
                   onChange={(e) => updateUrl({ sort: e.target.value })}
-                  className="appearance-none bg-transparent text-stone-900 font-semibold focus:outline-none cursor-pointer pr-4 text-xs py-0.5"
+                  className="cursor-pointer appearance-none bg-transparent py-0.5 pr-4 text-xs font-semibold text-stone-900 focus:outline-none"
                 >
                   <option value="relevance">Mais relevantes</option>
                   <option value="price_asc">Menor preço</option>
                   <option value="price_desc">Maior preço</option>
                   <option value="newest">Lançamentos</option>
                 </select>
-                <RiArrowDownSLine className="absolute right-0 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-600 pointer-events-none" />
+                <RiArrowDownSLine className="pointer-events-none absolute top-1/2 right-0 h-3.5 w-3.5 -translate-y-1/2 text-stone-600" />
               </div>
             </div>
 
@@ -521,7 +521,7 @@ export function ProductDiscoveryView({
                 onActionClick={hasActiveFilters ? clearAllFilters : undefined}
               />
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 {products.map((prod) => (
                   <ProductCard
                     key={prod.id}
@@ -543,13 +543,13 @@ export function ProductDiscoveryView({
 
             {/* Controle de Paginação */}
             {pagination && pagination.totalPages > 1 && (
-              <div className="bg-white rounded-md border border-stone-200 p-4 flex items-center justify-between shadow-2xs mt-6">
+              <div className="mt-6 flex items-center justify-between rounded-md border border-stone-200 bg-white p-4 shadow-2xs">
                 {pagination.hasPreviousPage ? (
                   <Button
                     asChild
                     variant="outline"
                     size="sm"
-                    className="text-xs gap-1 cursor-pointer bg-white"
+                    className="cursor-pointer gap-1 bg-white text-xs"
                   >
                     <Link
                       href={(() => {
@@ -572,7 +572,7 @@ export function ProductDiscoveryView({
                     variant="outline"
                     size="sm"
                     disabled
-                    className="text-xs gap-1 opacity-50 bg-white"
+                    className="gap-1 bg-white text-xs opacity-50"
                   >
                     <RiArrowLeftSLine className="h-4 w-4" />
                     <span>Anterior</span>
@@ -588,7 +588,7 @@ export function ProductDiscoveryView({
                     asChild
                     variant="outline"
                     size="sm"
-                    className="text-xs gap-1 cursor-pointer bg-white"
+                    className="cursor-pointer gap-1 bg-white text-xs"
                   >
                     <Link
                       href={(() => {
@@ -609,7 +609,7 @@ export function ProductDiscoveryView({
                     variant="outline"
                     size="sm"
                     disabled
-                    className="text-xs gap-1 opacity-50 bg-white"
+                    className="gap-1 bg-white text-xs opacity-50"
                   >
                     <span>Próxima</span>
                     <RiArrowRightSLine className="h-4 w-4" />

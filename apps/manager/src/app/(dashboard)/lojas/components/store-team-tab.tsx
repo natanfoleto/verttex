@@ -75,7 +75,7 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
           <Link href={`/lojas/${storeId}/membros`}>
             <Button
               type="button"
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-xl cursor-pointer"
+              className="cursor-pointer rounded-xl bg-emerald-600 text-xs font-medium text-white hover:bg-emerald-500"
             >
               <RiUserSharedLine className="mr-1.5 h-4 w-4" />
               <span>Gerenciar Membros & Permissões</span>
@@ -98,7 +98,7 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
         }}
       >
         <table className="w-full text-left text-xs">
-          <thead className="bg-zinc-950/60 text-zinc-400 font-bold uppercase tracking-wider text-[10px] border-b border-zinc-800">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] font-bold tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-5 py-3.5">Nome do Gestor</th>
               <th className="px-5 py-3.5">E-mail</th>
@@ -111,7 +111,7 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
             {paginatedMembers.map((item) => (
               <tr
                 key={item.id}
-                className="hover:bg-zinc-800/30 transition-colors"
+                className="transition-colors hover:bg-zinc-800/30"
               >
                 <td className="px-5 py-4 font-sans font-semibold text-zinc-100">
                   {item.user?.name}
@@ -123,18 +123,18 @@ export function StoreTeamTab({ storeId }: { storeId: string }) {
                   {item.user?.role?.name || 'Gestor de Loja'}
                 </td>
                 <td className="px-5 py-4 text-center font-sans">
-                  <span className="inline-flex items-center rounded-full border border-emerald-900/60 bg-emerald-950/60 px-2.5 py-0.5 text-[10px] uppercase font-bold text-emerald-400">
+                  <span className="inline-flex items-center rounded-full border border-emerald-900/60 bg-emerald-950/60 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 uppercase">
                     {item.user?.status || 'Ativo'}
                   </span>
                 </td>
                 <td className="px-5 py-4 text-right font-sans">
                   {item.isOwner ? (
-                    <span className="inline-flex items-center rounded border border-amber-900/60 bg-amber-950/60 px-2 py-0.5 text-[10px] uppercase font-bold text-amber-400">
-                      <RiUserStarLine className="h-3 w-3 mr-1" />
+                    <span className="inline-flex items-center rounded border border-amber-900/60 bg-amber-950/60 px-2 py-0.5 text-[10px] font-bold text-amber-400 uppercase">
+                      <RiUserStarLine className="mr-1 h-3 w-3" />
                       Proprietário
                     </span>
                   ) : (
-                    <span className="text-zinc-500 text-[10px]">Membro</span>
+                    <span className="text-[10px] text-zinc-500">Membro</span>
                   )}
                 </td>
               </tr>

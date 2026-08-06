@@ -65,22 +65,22 @@ export function ErrorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg rounded-2xl border border-zinc-800 shadow-2xl bg-zinc-900 p-6 font-sans text-zinc-100">
+      <DialogContent className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 font-sans text-zinc-100 shadow-2xl sm:max-w-lg">
         <DialogHeader className="space-y-3">
           <div className="flex items-center space-x-3 text-rose-500">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-rose-500/20 bg-rose-500/10 text-rose-500">
               <RiAlertLine className="h-5 w-5" />
             </div>
-            <DialogTitle className="text-base font-bold text-zinc-100 tracking-tight">
+            <DialogTitle className="text-base font-bold tracking-tight text-zinc-100">
               {title}
             </DialogTitle>
           </div>
-          <DialogDescription className="text-xs text-zinc-400 leading-relaxed">
+          <DialogDescription className="text-xs leading-relaxed text-zinc-400">
             {description}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-2 max-h-60 overflow-y-auto rounded-xl bg-zinc-950/70 p-4 border border-zinc-800 space-y-2.5">
+        <div className="my-2 max-h-60 space-y-2.5 overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950/70 p-4">
           {hasFieldErrors ? (
             Object.entries(fieldErrors).map(([field, messages]) => {
               const formattedLabel = formatFieldLabel(field)
@@ -89,14 +89,14 @@ export function ErrorDialog({
                 : [messages]
 
               return (
-                <div key={field} className="text-xs space-y-1">
-                  <span className="font-semibold text-zinc-200 block">
+                <div key={field} className="space-y-1 text-xs">
+                  <span className="block font-semibold text-zinc-200">
                     {formattedLabel}:
                   </span>
                   {messageList.map((msg, i) => (
                     <div
                       key={i}
-                      className="flex items-start space-x-2 text-rose-500 font-medium pl-2"
+                      className="flex items-start space-x-2 pl-2 font-medium text-rose-500"
                     >
                       <span className="shrink-0 text-rose-500">•</span>
                       <span>{msg}</span>
@@ -106,7 +106,7 @@ export function ErrorDialog({
               )
             })
           ) : (
-            <div className="text-xs font-medium text-rose-500 flex items-start space-x-2">
+            <div className="flex items-start space-x-2 text-xs font-medium text-rose-500">
               <span className="shrink-0 text-rose-500">•</span>
               <span>
                 {error.message || 'Ocorreu um erro ao processar a requisição.'}
@@ -119,7 +119,7 @@ export function ErrorDialog({
           <Button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10 rounded-lg shadow-xs cursor-pointer"
+            className="h-10 w-full cursor-pointer rounded-lg bg-emerald-600 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 sm:w-auto"
           >
             Entendi
           </Button>

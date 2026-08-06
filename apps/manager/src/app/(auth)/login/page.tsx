@@ -70,7 +70,7 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md space-y-8 rounded-3xl border border-zinc-800/80 bg-zinc-900/50 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
         {/* Header */}
         <div className="space-y-3 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-linear-to-br from-emerald-500 to-emerald-700 text-2xl font-black text-white shadow-lg shadow-emerald-950/60 ring-4 ring-emerald-950/50">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-linear-to-br from-emerald-500 to-emerald-700 text-2xl font-black text-white shadow-lg ring-4 shadow-emerald-950/60 ring-emerald-950/50">
             V
           </div>
           <div className="space-y-1">
@@ -85,8 +85,8 @@ export default function LoginPage() {
 
         {/* Server Error Alert */}
         {serverError && (
-          <div className="flex items-center space-x-2.5 rounded-2xl border border-rose-800/60 bg-rose-950/40 p-4 text-xs font-medium text-rose-300 backdrop-blur-sm animate-in fade-in slide-in-from-top-1">
-            <div className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+          <div className="animate-in fade-in slide-in-from-top-1 flex items-center space-x-2.5 rounded-2xl border border-rose-800/60 bg-rose-950/40 p-4 text-xs font-medium text-rose-300 backdrop-blur-sm">
+            <div className="h-2 w-2 shrink-0 rounded-full bg-rose-500" />
             <span>{serverError}</span>
           </div>
         )}
@@ -109,7 +109,7 @@ export default function LoginPage() {
                 name="email"
                 type="email"
                 placeholder="seu.email@verttexloja.com.br"
-                className="pl-10 h-11 rounded-2xl"
+                className="h-11 rounded-2xl pl-10"
               />
             </div>
             {errors.email && (
@@ -143,7 +143,7 @@ export default function LoginPage() {
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="pl-10 pr-11 h-11 rounded-2xl"
+                className="h-11 rounded-2xl pr-11 pl-10"
               />
               <Button
                 type="button"
@@ -172,7 +172,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 rounded-2xl text-sm"
+            className="h-11 w-full rounded-2xl text-sm"
           >
             {isLoading ? (
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />

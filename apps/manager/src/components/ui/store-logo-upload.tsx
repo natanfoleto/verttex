@@ -163,7 +163,7 @@ export function StoreLogoUpload({
               fileInputRef.current?.click()
             }
           }}
-          className="relative group flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-xs transition-all hover:border-emerald-500/60 hover:shadow-md"
+          className="group relative flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-xs transition-all hover:border-emerald-500/60 hover:shadow-md"
           title="Clique para alterar a foto da loja"
         >
           {displayUrl ? (
@@ -173,9 +173,9 @@ export function StoreLogoUpload({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-zinc-500 group-hover:text-emerald-400 transition-colors">
-              <RiStore2Line className="h-7 w-7 mb-0.5" />
-              <span className="text-[11px] font-mono font-bold text-zinc-400">
+            <div className="flex flex-col items-center justify-center text-zinc-500 transition-colors group-hover:text-emerald-400">
+              <RiStore2Line className="mb-0.5 h-7 w-7" />
+              <span className="font-mono text-[11px] font-bold text-zinc-400">
                 {initials}
               </span>
             </div>
@@ -183,8 +183,8 @@ export function StoreLogoUpload({
 
           {/* Hover Edit Overlay */}
           {!isUploading && !isDeleting && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/65 opacity-0 backdrop-blur-xs transition-opacity duration-200 group-hover:opacity-100 text-white">
-              <RiCameraLine className="h-5 w-5 text-emerald-400 mb-0.5" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/65 text-white opacity-0 backdrop-blur-xs transition-opacity duration-200 group-hover:opacity-100">
+              <RiCameraLine className="mb-0.5 h-5 w-5 text-emerald-400" />
               <span className="text-[10px] font-medium text-zinc-200">
                 Alterar
               </span>
@@ -207,9 +207,9 @@ export function StoreLogoUpload({
             size="sm"
             onClick={() => setIsDeleteDialogOpen(true)}
             disabled={disabled || isUploading || isDeleting}
-            className="cursor-pointer text-xs h-8 px-2.5 text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 border border-rose-900/30"
+            className="h-8 cursor-pointer border border-rose-900/30 px-2.5 text-xs text-rose-400 hover:bg-rose-950/30 hover:text-rose-300"
           >
-            <RiDeleteBinLine className="h-3.5 w-3.5 mr-1" />
+            <RiDeleteBinLine className="mr-1 h-3.5 w-3.5" />
             <span>Remover foto</span>
           </Button>
         )}
@@ -220,7 +220,7 @@ export function StoreLogoUpload({
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
       >
-        <AlertDialogContent className="bg-zinc-950 text-zinc-100 border-zinc-800 sm:rounded-2xl">
+        <AlertDialogContent className="border-zinc-800 bg-zinc-950 text-zinc-100 sm:rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-lg font-bold">
               Remover foto de perfil da loja?
@@ -233,14 +233,14 @@ export function StoreLogoUpload({
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={isDeleting}
-              className="bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 cursor-pointer"
+              className="cursor-pointer border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
             >
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRemove}
               disabled={isDeleting}
-              className="bg-rose-600 hover:bg-rose-700 text-white font-semibold cursor-pointer"
+              className="cursor-pointer bg-rose-600 font-semibold text-white hover:bg-rose-700"
             >
               {isDeleting ? 'Removendo...' : 'Confirmar Remoção'}
             </AlertDialogAction>

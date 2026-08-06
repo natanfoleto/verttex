@@ -35,11 +35,11 @@ export function StoreCard({
   const imageUrl = coverUrl || logoUrl
 
   return (
-    <div className="group flex flex-col cursor-pointer font-sans">
+    <div className="group flex cursor-pointer flex-col font-sans">
       {/* Imagem de Capa/Logo sem Container de Borda Externa */}
       <Link
         href={`/lojas/${slug}`}
-        className="relative aspect-4/3 sm:aspect-square w-full overflow-hidden bg-stone-100 rounded-sm block cursor-pointer"
+        className="relative block aspect-4/3 w-full cursor-pointer overflow-hidden rounded-sm bg-stone-100 sm:aspect-square"
       >
         {imageUrl ? (
           <img
@@ -50,14 +50,14 @@ export function StoreCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-emerald-800 text-white text-3xl font-bold">
+          <div className="flex h-full w-full items-center justify-center bg-emerald-800 text-3xl font-bold text-white">
             {name.charAt(0).toUpperCase()}
           </div>
         )}
 
         {/* Badge de Produtos no Canto Superior */}
         <div className="absolute top-2.5 right-2.5 z-10 flex items-center space-x-1 rounded-xs bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
-          <RiStore2Line className="h-3 w-3 text-white shrink-0" />
+          <RiStore2Line className="h-3 w-3 shrink-0 text-white" />
           <span>
             {productsCount} {productsCount === 1 ? 'produto' : 'produtos'}
           </span>
@@ -70,13 +70,13 @@ export function StoreCard({
         <div className="flex items-center space-x-1.5">
           <Link
             href={`/lojas/${slug}`}
-            className="text-xs sm:text-sm text-stone-800 font-normal line-clamp-1 leading-snug group-hover:text-emerald-700 cursor-pointer"
+            className="line-clamp-1 cursor-pointer text-xs leading-snug font-normal text-stone-800 group-hover:text-emerald-700 sm:text-sm"
           >
             {name}
           </Link>
           {isVerified && (
             <RiShieldCheckLine
-              className="h-4 w-4 text-emerald-600 shrink-0"
+              className="h-4 w-4 shrink-0 text-emerald-600"
               title="Produtor Verificado Verttex"
             />
           )}
@@ -84,22 +84,22 @@ export function StoreCard({
 
         {/* Localização */}
         {location && (
-          <div className="flex items-center space-x-1 text-xs text-stone-500 mt-1">
-            <RiMapPinLine className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+          <div className="mt-1 flex items-center space-x-1 text-xs text-stone-500">
+            <RiMapPinLine className="h-3.5 w-3.5 shrink-0 text-amber-600" />
             <span className="truncate">{location}</span>
           </div>
         )}
 
         {/* Descrição em 2 Linhas */}
         {description && (
-          <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed mt-1">
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-600">
             {description}
           </p>
         )}
 
         {/* Badge de Benefício Verde */}
         <div className="mt-1.5">
-          <span className="inline-block bg-emerald-50 text-emerald-800 font-medium text-[11px] px-2 py-0.5 rounded-xs leading-tight">
+          <span className="inline-block rounded-xs bg-emerald-50 px-2 py-0.5 text-[11px] leading-tight font-medium text-emerald-800">
             Produtor Parceiro Verificado
           </span>
         </div>
@@ -107,7 +107,7 @@ export function StoreCard({
         {/* Link de Ação Visitar Loja */}
         <Link
           href={`/lojas/${slug}`}
-          className="inline-flex items-center space-x-1 text-xs font-semibold text-emerald-600 mt-1 hover:underline cursor-pointer"
+          className="mt-1 inline-flex cursor-pointer items-center space-x-1 text-xs font-semibold text-emerald-600 hover:underline"
         >
           <span>Visitar Loja</span>
           <RiArrowRightLine className="h-3.5 w-3.5 shrink-0" />

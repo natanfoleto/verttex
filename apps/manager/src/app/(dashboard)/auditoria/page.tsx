@@ -101,7 +101,7 @@ function ActionBadge({ action }: { action: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${config.className}`}
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase ${config.className}`}
     >
       {config.label}
     </span>
@@ -211,7 +211,7 @@ function JsonDiffViewer({
   const isNewArray = Array.isArray(newVal)
   if (isOldArray || isNewArray) {
     return (
-      <pre className="whitespace-pre-wrap text-zinc-300 text-xs">
+      <pre className="text-xs whitespace-pre-wrap text-zinc-300">
         {oldVal !== null && (
           <div className="text-rose-400">
             - {JSON.stringify(oldVal, null, 2)}
@@ -235,7 +235,7 @@ function JsonDiffViewer({
           key={idx}
           className={
             line.type === 'added'
-              ? 'rounded bg-emerald-950/30 px-1 py-0.5 font-bold leading-normal text-emerald-400'
+              ? 'rounded bg-emerald-950/30 px-1 py-0.5 leading-normal font-bold text-emerald-400'
               : line.type === 'removed'
                 ? 'rounded bg-rose-950/30 px-1 py-0.5 leading-normal text-rose-400 line-through opacity-70'
                 : 'px-1 py-0.5 leading-normal text-zinc-500'
@@ -283,13 +283,13 @@ function ExpandedRow({ log }: { log: AuditLogEntry }) {
                 </div>
                 <div>
                   <dt className="font-semibold text-zinc-500">User-Agent</dt>
-                  <dd className="break-all text-[10px] text-zinc-300">
+                  <dd className="text-[10px] break-all text-zinc-300">
                     {log.userAgent ?? '—'}
                   </dd>
                 </div>
                 <div>
                   <dt className="font-semibold text-zinc-500">ID do Log</dt>
-                  <dd className="break-all text-[10px] text-zinc-300">
+                  <dd className="text-[10px] break-all text-zinc-300">
                     {log.id}
                   </dd>
                 </div>
@@ -298,7 +298,7 @@ function ExpandedRow({ log }: { log: AuditLogEntry }) {
                     <dt className="font-semibold text-zinc-500">
                       ID do Recurso
                     </dt>
-                    <dd className="break-all text-[10px] text-zinc-300">
+                    <dd className="text-[10px] break-all text-zinc-300">
                       {log.entityId}
                     </dd>
                   </div>
@@ -464,7 +464,7 @@ export default function AuditPage() {
           setPage(1)
         }}
       >
-        <table className="w-full border-collapse text-left text-sm table-fixed">
+        <table className="w-full table-fixed border-collapse text-left text-sm">
           <colgroup>
             <col style={{ width: '15%' }} />
             <col style={{ width: '22%' }} />
@@ -494,7 +494,7 @@ export default function AuditPage() {
                 <Fragment key={log.id}>
                   <tr
                     onClick={() => toggleRow(log.id)}
-                    className={`cursor-pointer select-none transition-colors hover:bg-zinc-800/30 ${
+                    className={`cursor-pointer transition-colors select-none hover:bg-zinc-800/30 ${
                       isExpanded ? 'bg-zinc-800/20' : ''
                     }`}
                   >
@@ -510,7 +510,7 @@ export default function AuditPage() {
                           {authorName.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-xs font-semibold leading-none text-zinc-100">
+                          <p className="text-xs leading-none font-semibold text-zinc-100">
                             {authorName}
                           </p>
                           {authorEmail && (

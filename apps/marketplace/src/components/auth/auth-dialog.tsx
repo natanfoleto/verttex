@@ -93,18 +93,18 @@ export function AuthDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl md:max-w-5xl w-[95vw] h-170 overflow-hidden p-0 border-0 bg-stone-950 text-stone-900 shadow-2xl rounded-2xl [&>button:last-child]:h-9 [&>button:last-child]:w-9 [&>button:last-child]:rounded-full [&>button:last-child]:border [&>button:last-child]:border-stone-200/80 [&>button:last-child]:bg-white [&>button:last-child]:shadow-md [&>button:last-child]:opacity-100 [&>button:last-child]:flex [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:text-stone-900 [&>button:last-child]:transition-all [&>button:last-child]:hover:bg-stone-100 [&>button:last-child]:hover:scale-105 [&>button:last-child]:top-4 [&>button:last-child]:right-4 [&>button:last-child]:cursor-pointer">
+      <DialogContent className="h-170 w-[95vw] overflow-hidden rounded-2xl border-0 bg-stone-950 p-0 text-stone-900 shadow-2xl sm:max-w-5xl md:max-w-5xl [&>button:last-child]:top-4 [&>button:last-child]:right-4 [&>button:last-child]:flex [&>button:last-child]:h-9 [&>button:last-child]:w-9 [&>button:last-child]:cursor-pointer [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:rounded-full [&>button:last-child]:border [&>button:last-child]:border-stone-200/80 [&>button:last-child]:bg-white [&>button:last-child]:text-stone-900 [&>button:last-child]:opacity-100 [&>button:last-child]:shadow-md [&>button:last-child]:transition-all [&>button:last-child]:hover:scale-105 [&>button:last-child]:hover:bg-stone-100">
         <DialogTitle className="sr-only">
           {mode === 'login' ? 'Fazer Login' : 'Criar Conta'}
         </DialogTitle>
 
         <div className="grid h-full grid-cols-1 md:grid-cols-12">
           {/* Left Column: Form Panel using Marketplace Light Theme */}
-          <div className="md:col-span-7 flex flex-col justify-between p-8 sm:p-10 overflow-y-auto bg-white">
+          <div className="flex flex-col justify-between overflow-y-auto bg-white p-8 sm:p-10 md:col-span-7">
             <div>
               {/* Header Branding */}
               <div className="flex items-center space-x-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 font-bold text-white text-base shadow-xs">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-base font-bold text-white shadow-xs">
                   V
                 </div>
                 <div className="flex flex-col">
@@ -137,7 +137,7 @@ export function AuthDialog({
                   onClick={() =>
                     toast.info('Login social com Google em breve!')
                   }
-                  className="h-11 border-stone-200 hover:bg-stone-50 text-stone-700 cursor-pointer"
+                  className="h-11 cursor-pointer border-stone-200 text-stone-700 hover:bg-stone-50"
                 >
                   <RiGoogleFill className="h-4.5 w-4.5 text-emerald-700" />
                   <span>Google</span>
@@ -147,7 +147,7 @@ export function AuthDialog({
                   type="button"
                   variant="outline"
                   onClick={() => toast.info('Login social com Apple em breve!')}
-                  className="h-11 border-stone-200 hover:bg-stone-50 text-stone-700 cursor-pointer"
+                  className="h-11 cursor-pointer border-stone-200 text-stone-700 hover:bg-stone-50"
                 >
                   <RiAppleFill className="h-4.5 w-4.5 text-stone-900" />
                   <span>Apple</span>
@@ -166,7 +166,7 @@ export function AuthDialog({
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'register' && (
                   <div className="space-y-1">
-                    <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                    <label className="block text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                       Nome Completo
                     </label>
                     <div className="relative">
@@ -177,14 +177,14 @@ export function AuthDialog({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Seu nome completo"
-                        className="h-11 pl-10 border-stone-200 focus-visible:ring-emerald-600 text-stone-900"
+                        className="h-11 border-stone-200 pl-10 text-stone-900 focus-visible:ring-emerald-600"
                       />
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                  <label className="block text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                     E-mail
                   </label>
                   <div className="relative">
@@ -195,21 +195,21 @@ export function AuthDialog({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="seu.email@exemplo.com"
-                      className="h-11 pl-10 border-stone-200 focus-visible:ring-emerald-600 text-stone-900"
+                      className="h-11 border-stone-200 pl-10 text-stone-900 focus-visible:ring-emerald-600"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="block text-[11px] font-bold tracking-wider text-stone-600 uppercase whitespace-nowrap">
+                    <label className="block text-[11px] font-bold tracking-wider whitespace-nowrap text-stone-600 uppercase">
                       Senha
                     </label>
                     {mode === 'login' && (
                       <Link
                         href="/esqueci-minha-senha"
                         onClick={() => onOpenChange(false)}
-                        className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors hover:underline cursor-pointer"
+                        className="cursor-pointer text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-800 hover:underline"
                       >
                         Esqueceu a senha?
                       </Link>
@@ -227,14 +227,14 @@ export function AuthDialog({
                           ? 'Sua senha'
                           : 'Crie uma senha de acesso'
                       }
-                      className="h-11 pr-10 pl-10 border-stone-200 focus-visible:ring-emerald-600 text-stone-900"
+                      className="h-11 border-stone-200 pr-10 pl-10 text-stone-900 focus-visible:ring-emerald-600"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 p-0 text-stone-400 hover:text-stone-600 cursor-pointer"
+                      className="absolute top-1/2 right-3 h-6 w-6 -translate-y-1/2 cursor-pointer p-0 text-stone-400 hover:text-stone-600"
                     >
                       {showPassword ? (
                         <RiEyeOffLine className="h-4 w-4" />
@@ -248,7 +248,7 @@ export function AuthDialog({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 shadow-xs cursor-pointer"
+                  className="mt-2 h-11 w-full cursor-pointer bg-emerald-600 font-bold text-white shadow-xs hover:bg-emerald-700"
                 >
                   {isSubmitting
                     ? 'Aguarde...'
@@ -269,7 +269,7 @@ export function AuthDialog({
                     variant="link"
                     size="sm"
                     onClick={() => handleModeSwitch('register')}
-                    className="p-0 font-bold text-emerald-700 hover:text-emerald-800 hover:underline h-auto text-xs cursor-pointer"
+                    className="h-auto cursor-pointer p-0 text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
                   >
                     Cadastrar-se agora
                   </Button>
@@ -282,7 +282,7 @@ export function AuthDialog({
                     variant="link"
                     size="sm"
                     onClick={() => handleModeSwitch('login')}
-                    className="p-0 font-bold text-emerald-700 hover:text-emerald-800 hover:underline h-auto text-xs cursor-pointer"
+                    className="h-auto cursor-pointer p-0 text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
                   >
                     Fazer login
                   </Button>
@@ -292,7 +292,7 @@ export function AuthDialog({
           </div>
 
           {/* Right Column: Visual Brand Showcase Panel */}
-          <div className="md:col-span-5 relative hidden flex-col justify-between overflow-hidden border-l border-stone-200/80 bg-linear-to-br from-stone-900 via-stone-850 to-amber-950 p-8 sm:p-10 md:flex text-white">
+          <div className="via-stone-850 relative hidden flex-col justify-between overflow-hidden border-l border-stone-200/80 bg-linear-to-br from-stone-900 to-amber-950 p-8 text-white sm:p-10 md:col-span-5 md:flex">
             {/* Background Radial Glow Effects */}
             <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-600/20 blur-3xl" />
             <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-amber-600/20 blur-3xl" />
@@ -307,7 +307,7 @@ export function AuthDialog({
 
             {/* Middle Big Headline */}
             <div className="relative z-10 my-auto space-y-4 py-8">
-              <h3 className="text-3xl font-extrabold tracking-tight text-white leading-snug sm:text-4xl">
+              <h3 className="text-3xl leading-snug font-extrabold tracking-tight text-white sm:text-4xl">
                 100+ Produtores Locais. <br />
                 <span className="text-emerald-400">1.000+ Produtos</span>{' '}
                 Artesanais.

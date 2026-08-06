@@ -333,7 +333,7 @@ export function ProductsTable({
         onPageChange={setPage}
       >
         <table className="w-full text-left text-xs text-zinc-300">
-          <thead className="border-b border-zinc-800/80 bg-zinc-950 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+          <thead className="border-b border-zinc-800/80 bg-zinc-950 text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-4 py-3">Produto</th>
               {!fixedStoreId && <th className="px-4 py-3">Loja</th>}
@@ -358,7 +358,7 @@ export function ProductsTable({
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-3">
-                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 flex items-center justify-center">
+                      <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
                         {imgUrl ? (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img
@@ -374,9 +374,9 @@ export function ProductsTable({
                         <div className="flex items-center space-x-1.5 font-semibold text-zinc-100">
                           <span>{prod.name}</span>
                         </div>
-                        <div className="flex items-center space-x-2 text-[11px] text-zinc-500 font-mono">
+                        <div className="flex items-center space-x-2 font-mono text-[11px] text-zinc-500">
                           <span>{prod.slug}</span>
-                          <span className="rounded bg-zinc-800 px-1.5 py-0.2 text-[10px] text-zinc-400">
+                          <span className="py-0.2 rounded bg-zinc-800 px-1.5 text-[10px] text-zinc-400">
                             {prod.type === 'simple' ? 'Simples' : 'Variável'}
                           </span>
                         </div>
@@ -404,7 +404,7 @@ export function ProductsTable({
                   </td>
 
                   <td className="px-4 py-3">
-                    <div className="flex flex-col text-xs font-mono">
+                    <div className="flex flex-col font-mono text-xs">
                       <span className="font-semibold text-emerald-400">
                         {formatPrice(prod)}
                       </span>
@@ -517,7 +517,7 @@ export function ProductsTable({
                             size="icon"
                             title="Arquivar Produto"
                             onClick={() => setDeletingProduct(prod)}
-                            className="h-8 w-8 p-1.5 border-rose-900/40 bg-rose-950/20 text-rose-400 hover:bg-rose-950/60 hover:border-rose-800/80 hover:text-rose-300 transition-colors"
+                            className="h-8 w-8 border-rose-900/40 bg-rose-950/20 p-1.5 text-rose-400 transition-colors hover:border-rose-800/80 hover:bg-rose-950/60 hover:text-rose-300"
                           >
                             <RiArchiveLine className="h-4 w-4" />
                           </Button>

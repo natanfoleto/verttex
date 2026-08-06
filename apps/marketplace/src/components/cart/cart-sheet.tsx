@@ -95,8 +95,8 @@ export function CartSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex flex-col w-full sm:max-w-md bg-white p-0 text-stone-900 border-l border-stone-200">
-        <SheetHeader className="px-6 py-5 border-b border-stone-200 bg-stone-50/50">
+      <SheetContent className="flex w-full flex-col border-l border-stone-200 bg-white p-0 text-stone-900 sm:max-w-md">
+        <SheetHeader className="border-b border-stone-200 bg-stone-50/50 px-6 py-5">
           <SheetTitle className="flex items-center space-x-2 text-base font-bold text-stone-900">
             <RiShoppingBag3Line className="h-5 w-5 text-emerald-800" />
             <span>Seu Carrinho ({summary?.itemCount || 0})</span>
@@ -104,7 +104,7 @@ export function CartSheet({
         </SheetHeader>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 space-y-6 overflow-y-auto p-6">
           {isLoading ? (
             <div className="space-y-4">
               <div className="h-20 animate-pulse rounded-md bg-stone-100" />
@@ -114,7 +114,7 @@ export function CartSheet({
             summary.stores.map((storeGroup) => (
               <div
                 key={storeGroup.store.id}
-                className="rounded-md border border-stone-200/80 bg-white p-4 space-y-4 shadow-xs"
+                className="space-y-4 rounded-md border border-stone-200/80 bg-white p-4 shadow-xs"
               >
                 <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
                   <RiStore2Line className="h-4 w-4 text-amber-700" />
@@ -129,30 +129,30 @@ export function CartSheet({
                       key={item.id}
                       className="flex items-center justify-between space-x-3 text-xs"
                     >
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                      <div className="flex min-w-0 flex-1 items-center space-x-3">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
                             alt={item.productName}
-                            className="h-12 w-12 rounded-md object-cover border border-stone-200 shrink-0"
+                            className="h-12 w-12 shrink-0 rounded-md border border-stone-200 object-cover"
                           />
                         ) : (
-                          <div className="h-12 w-12 rounded-md bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-stone-100 text-stone-400">
                             <RiShoppingBag3Line className="h-6 w-6" />
                           </div>
                         )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-stone-900 truncate">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold text-stone-900">
                             {item.productName}
                           </p>
-                          <p className="text-[11px] text-stone-500 font-mono">
+                          <p className="font-mono text-[11px] text-stone-500">
                             R$ {item.unitPrice.toFixed(2)}
                           </p>
                         </div>
                       </div>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center space-x-1 border border-stone-200 rounded-sm p-0.5 bg-stone-50">
+                      <div className="flex items-center space-x-1 rounded-sm border border-stone-200 bg-stone-50 p-0.5">
                         <Button
                           type="button"
                           variant="ghost"
@@ -167,11 +167,11 @@ export function CartSheet({
                               removeItemMutation.mutate(item.id)
                             }
                           }}
-                          className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
+                          className="h-6 w-6 cursor-pointer p-0 text-stone-600 hover:text-stone-900"
                         >
                           <RiSubtractLine className="h-3 w-3" />
                         </Button>
-                        <span className="w-5 text-center font-bold text-[11px]">
+                        <span className="w-5 text-center text-[11px] font-bold">
                           {item.quantity}
                         </span>
                         <Button
@@ -184,7 +184,7 @@ export function CartSheet({
                               quantity: item.quantity + 1,
                             })
                           }}
-                          className="h-6 w-6 p-0 text-stone-600 hover:text-stone-900 cursor-pointer"
+                          className="h-6 w-6 cursor-pointer p-0 text-stone-600 hover:text-stone-900"
                         >
                           <RiAddLine className="h-3 w-3" />
                         </Button>
@@ -195,7 +195,7 @@ export function CartSheet({
                         variant="ghost"
                         size="icon"
                         onClick={() => removeItemMutation.mutate(item.id)}
-                        className="h-7 w-7 text-stone-400 hover:text-rose-600 p-0 cursor-pointer"
+                        className="h-7 w-7 cursor-pointer p-0 text-stone-400 hover:text-rose-600"
                         title="Remover Item"
                       >
                         <RiDeleteBin6Line className="h-4 w-4" />
@@ -206,7 +206,7 @@ export function CartSheet({
               </div>
             ))
           ) : (
-            <div className="py-12 text-center space-y-3">
+            <div className="space-y-3 py-12 text-center">
               <RiShoppingBag3Line className="mx-auto h-12 w-12 text-stone-300" />
               <p className="text-sm font-bold text-stone-800">
                 Seu carrinho está vazio
@@ -220,7 +220,7 @@ export function CartSheet({
 
         {/* Footer Summary */}
         {hasItems && summary && (
-          <div className="p-6 border-t border-stone-200 bg-stone-50/50 space-y-4">
+          <div className="space-y-4 border-t border-stone-200 bg-stone-50/50 p-6">
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between text-stone-600">
                 <span>Subtotal:</span>
@@ -229,12 +229,12 @@ export function CartSheet({
                 </span>
               </div>
               {summary.discount > 0 && (
-                <div className="flex justify-between text-emerald-800 font-semibold">
+                <div className="flex justify-between font-semibold text-emerald-800">
                   <span>Descontos:</span>
                   <span>- R$ {summary.discount.toFixed(2)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-base font-extrabold text-stone-900 pt-2 border-t border-stone-200">
+              <div className="flex justify-between border-t border-stone-200 pt-2 text-base font-extrabold text-stone-900">
                 <span>Total:</span>
                 <span>R$ {summary.total.toFixed(2)}</span>
               </div>
@@ -243,7 +243,7 @@ export function CartSheet({
             <Link
               href="/carrinho"
               onClick={() => onOpenChange(false)}
-              className="w-full flex items-center justify-center space-x-2 rounded-md bg-emerald-800 py-3 text-xs font-bold text-white transition-colors hover:bg-emerald-900 cursor-pointer shadow-xs"
+              className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md bg-emerald-800 py-3 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-900"
             >
               <span>Ver Carrinho Completo</span>
               <RiArrowRightLine className="h-4 w-4" />

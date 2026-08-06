@@ -119,7 +119,7 @@ export default function StoresListPage() {
               >
                 <td className="px-6 py-4 font-medium text-zinc-100">
                   <div className="flex items-center space-x-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 text-xs font-bold font-mono text-emerald-400">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 font-mono text-xs font-bold text-emerald-400">
                       {store.logoUrl ? (
                         <img
                           src={store.logoUrl}
@@ -157,14 +157,15 @@ export default function StoresListPage() {
                 </td>
                 <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${store.status === 'active'
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                      store.status === 'active'
                         ? 'border-emerald-800 bg-emerald-950 text-emerald-400'
                         : store.status === 'draft'
                           ? 'border-zinc-700 bg-zinc-800 text-zinc-300'
                           : store.status === 'suspended'
                             ? 'border-rose-800 bg-rose-950 text-rose-400'
                             : 'border-amber-800 bg-amber-950 text-amber-400'
-                      }`}
+                    }`}
                   >
                     {store.status === 'active'
                       ? 'Ativa'

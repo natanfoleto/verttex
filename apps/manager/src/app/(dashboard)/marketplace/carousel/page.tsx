@@ -482,21 +482,21 @@ export default function CarouselPage() {
   )
 
   return (
-    <div className="space-y-6 font-sans text-zinc-100 w-full">
+    <div className="w-full space-y-6 font-sans text-zinc-100">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">
             Carrossel do Site
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <p className="mt-1 text-sm text-zinc-400">
             Gerencie os banners exibidos no carrossel principal do marketplace.
           </p>
         </div>
         <Button
           type="button"
           onClick={openCreate}
-          className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
+          className="cursor-pointer gap-2 bg-emerald-600 text-white hover:bg-emerald-500"
         >
           <RiAddLine className="h-4 w-4" />
           <span>Novo Banner</span>
@@ -505,17 +505,17 @@ export default function CarouselPage() {
 
       {/* Lista de Banners empilhados verticalmente (Soltos na página para edição fluida) */}
       {isLoading ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-32 rounded-xl bg-zinc-900 border border-zinc-800" />
-          <div className="h-32 rounded-xl bg-zinc-900 border border-zinc-800" />
+        <div className="animate-pulse space-y-4">
+          <div className="h-32 rounded-xl border border-zinc-800 bg-zinc-900" />
+          <div className="h-32 rounded-xl border border-zinc-800 bg-zinc-900" />
         </div>
       ) : isError ? (
-        <div className="p-8 text-center text-red-400 rounded-xl bg-zinc-900 border border-zinc-800">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-center text-red-400">
           Erro ao carregar banners do carrossel. Tente novamente.
         </div>
       ) : banners.length === 0 ? (
-        <div className="p-12 text-center text-zinc-400 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-          <RiImageLine className="h-8 w-8 text-zinc-500 mx-auto" />
+        <div className="space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/60 p-12 text-center text-zinc-400">
+          <RiImageLine className="mx-auto h-8 w-8 text-zinc-500" />
           <p className="font-semibold text-zinc-200">
             Nenhum banner cadastrado
           </p>
@@ -531,13 +531,13 @@ export default function CarouselPage() {
               return (
                 <div
                   key={banner.id}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 hover:border-zinc-700 transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-5"
+                  className="flex flex-col items-start justify-between gap-5 rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 transition-colors hover:border-zinc-700 md:flex-row md:items-center"
                 >
                   {/* Informações Principais do Banner */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1 min-w-0">
+                  <div className="flex min-w-0 flex-1 flex-col items-start gap-4 sm:flex-row sm:items-center">
                     {/* Posição e Botões de Reordenação Rápida do lado esquerdo (Soltos sem quadrado nem borda) */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-xs font-mono font-bold text-zinc-400 pr-1">
+                    <div className="flex shrink-0 items-center gap-3">
+                      <span className="pr-1 font-mono text-xs font-bold text-zinc-400">
                         #{banner.position + 1}
                       </span>
 
@@ -551,7 +551,7 @@ export default function CarouselPage() {
                               disabled={
                                 index === 0 || reorderMutation.isPending
                               }
-                              className="cursor-pointer h-8 w-8 border-zinc-700 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30"
+                              className="h-8 w-8 cursor-pointer border-zinc-700 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30"
                             >
                               <RiArrowUpLine className="h-4 w-4" />
                             </Button>
@@ -569,7 +569,7 @@ export default function CarouselPage() {
                                 index === banners.length - 1 ||
                                 reorderMutation.isPending
                               }
-                              className="cursor-pointer h-8 w-8 border-zinc-700 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30"
+                              className="h-8 w-8 cursor-pointer border-zinc-700 text-zinc-300 hover:bg-zinc-800 disabled:opacity-30"
                             >
                               <RiArrowDownLine className="h-4 w-4" />
                             </Button>
@@ -580,17 +580,17 @@ export default function CarouselPage() {
                     </div>
 
                     {/* Thumbnail / Preview com Altura Ampliada (h-28 w-52) */}
-                    <div className="relative h-28 w-52 rounded-xl overflow-hidden bg-zinc-950 border border-zinc-700/80 shadow-md shrink-0 flex items-center justify-center group">
+                    <div className="group relative flex h-28 w-52 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-zinc-700/80 bg-zinc-950 shadow-md">
                       {hasImage ? (
                         <img
                           src={banner.imageUrl!}
                           alt={banner.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="text-center p-2 space-y-1">
-                          <RiImageLine className="h-7 w-7 text-zinc-600 mx-auto" />
-                          <span className="text-[11px] text-zinc-500 font-medium block">
+                        <div className="space-y-1 p-2 text-center">
+                          <RiImageLine className="mx-auto h-7 w-7 text-zinc-600" />
+                          <span className="block text-[11px] font-medium text-zinc-500">
                             Sem Imagem
                           </span>
                         </div>
@@ -598,24 +598,24 @@ export default function CarouselPage() {
                     </div>
 
                     {/* Detalhes de Texto */}
-                    <div className="space-y-3 min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 space-y-3">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-sm font-bold text-zinc-100 truncate">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="truncate text-sm font-bold text-zinc-100">
                             {banner.title}
                           </h3>
                         </div>
 
                         {banner.subtitle && (
-                          <p className="text-xs text-zinc-400 truncate">
+                          <p className="truncate text-xs text-zinc-400">
                             {banner.subtitle}
                           </p>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-4 text-[11px] text-zinc-500 flex-wrap">
+                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-zinc-500">
                         {banner.linkUrl && (
-                          <span className="truncate max-w-64">
+                          <span className="max-w-64 truncate">
                             <strong className="text-zinc-400">Link:</strong>{' '}
                             {banner.linkUrl}
                           </span>
@@ -637,7 +637,7 @@ export default function CarouselPage() {
                   </div>
 
                   {/* Botões de Ação na Direita com Ícones e Tooltips */}
-                  <div className="flex items-center gap-1.5 shrink-0 self-end md:self-center">
+                  <div className="flex shrink-0 items-center gap-1.5 self-end md:self-center">
                     {/* Ativar/Desativar */}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -650,7 +650,7 @@ export default function CarouselPage() {
                               isActive: !banner.isActive,
                             })
                           }
-                          className={`cursor-pointer h-8 w-8 border-zinc-700 ${
+                          className={`h-8 w-8 cursor-pointer border-zinc-700 ${
                             banner.isActive
                               ? 'text-emerald-400 hover:bg-emerald-950/40'
                               : 'text-zinc-500 hover:bg-zinc-800'
@@ -675,7 +675,7 @@ export default function CarouselPage() {
                           size="icon"
                           variant="outline"
                           onClick={() => openEdit(banner)}
-                          className="cursor-pointer h-8 w-8 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                          className="h-8 w-8 cursor-pointer border-zinc-700 text-zinc-300 hover:bg-zinc-800"
                         >
                           <RiEditLine className="h-4 w-4" />
                         </Button>
@@ -691,7 +691,7 @@ export default function CarouselPage() {
                             <Button
                               size="icon"
                               variant="outline"
-                              className="cursor-pointer h-8 w-8 border-zinc-700 text-zinc-400 hover:text-red-400 hover:bg-red-950/30"
+                              className="h-8 w-8 cursor-pointer border-zinc-700 text-zinc-400 hover:bg-red-950/30 hover:text-red-400"
                             >
                               <RiDeleteBin6Line className="h-4 w-4" />
                             </Button>
@@ -722,7 +722,7 @@ export default function CarouselPage() {
                             onClick={() =>
                               deleteBannerMutation.mutate(banner.id)
                             }
-                            className="cursor-pointer bg-red-600 hover:bg-red-500 text-white"
+                            className="cursor-pointer bg-red-600 text-white hover:bg-red-500"
                           >
                             Remover
                           </AlertDialogAction>
@@ -739,7 +739,7 @@ export default function CarouselPage() {
 
       {/* Modal de Criação */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-2xl w-full border-zinc-800 bg-zinc-900 text-zinc-100">
+        <DialogContent className="w-full border-zinc-800 bg-zinc-900 text-zinc-100 sm:max-w-2xl">
           <form onSubmit={handleCreateSubmit}>
             <DialogHeader>
               <DialogTitle className="text-zinc-100">
@@ -764,7 +764,7 @@ export default function CarouselPage() {
                     onChange={(e) =>
                       setCreateForm({ ...createForm, title: e.target.value })
                     }
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                    className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                   />
                 </div>
 
@@ -778,7 +778,7 @@ export default function CarouselPage() {
                     onChange={(e) =>
                       setCreateForm({ ...createForm, subtitle: e.target.value })
                     }
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                    className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                   />
                 </div>
               </div>
@@ -796,7 +796,7 @@ export default function CarouselPage() {
               <Button
                 type="submit"
                 disabled={!isCreateDirty || createMutation.isPending}
-                className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer gap-2 bg-emerald-600 text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {createMutation.isPending && (
                   <RiLoader4Line className="h-4 w-4 animate-spin" />
@@ -813,7 +813,7 @@ export default function CarouselPage() {
         open={!!editingBanner}
         onOpenChange={(open) => !open && handleCloseEditModal()}
       >
-        <DialogContent className="sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden border-zinc-800 bg-zinc-900 text-zinc-100">
+        <DialogContent className="max-h-[90vh] w-full overflow-x-hidden overflow-y-auto border-zinc-800 bg-zinc-900 text-zinc-100 sm:max-w-2xl">
           <form onSubmit={handleEditSubmit} className="overflow-hidden">
             <DialogHeader>
               <DialogTitle className="text-zinc-100">
@@ -824,9 +824,9 @@ export default function CarouselPage() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-5 py-4 overflow-hidden">
+            <div className="space-y-5 overflow-hidden py-4">
               {/* Título & Subtítulo */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="text-xs font-semibold text-zinc-300">
                     Título Oficial *
@@ -838,7 +838,7 @@ export default function CarouselPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, title: e.target.value })
                     }
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                    className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                   />
                 </div>
 
@@ -852,7 +852,7 @@ export default function CarouselPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, subtitle: e.target.value })
                     }
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                    className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                   />
                 </div>
               </div>
@@ -863,7 +863,7 @@ export default function CarouselPage() {
                   Imagem do Banner
                 </label>
 
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 space-y-2 overflow-hidden">
+                <div className="space-y-2 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950/80 p-4">
                   <Input
                     ref={fileInputRef}
                     type="file"
@@ -875,17 +875,17 @@ export default function CarouselPage() {
                   {/* Container da Imagem Clicável com Efeito Hover */}
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="group relative w-full h-44 rounded-lg overflow-hidden border border-zinc-700/60 bg-zinc-900 flex items-center justify-center shadow-inner cursor-pointer"
+                    className="group relative flex h-44 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-zinc-700/60 bg-zinc-900 shadow-inner"
                   >
                     {localPreviewUrl || editForm.imageUrl ? (
                       <>
                         <img
                           src={localPreviewUrl ?? editForm.imageUrl!}
                           alt="Preview"
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
                         />
                         {/* Overlay no Hover: Clique para trocar a imagem */}
-                        <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center space-y-1.5 cursor-pointer z-10">
+                        <div className="absolute inset-0 z-10 flex cursor-pointer flex-col items-center justify-center space-y-1.5 bg-black/65 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                           <RiImageAddLine className="h-6 w-6 text-white" />
                           <span className="text-xs font-semibold text-white">
                             Clique para trocar a imagem
@@ -893,9 +893,9 @@ export default function CarouselPage() {
                         </div>
                       </>
                     ) : (
-                      <div className="p-8 text-center space-y-2 flex flex-col items-center justify-center w-full h-full group-hover:bg-zinc-800/40 transition-colors">
-                        <RiImageAddLine className="h-8 w-8 text-zinc-400 group-hover:text-emerald-400 transition-colors" />
-                        <p className="text-xs text-zinc-300 font-semibold group-hover:text-white transition-colors">
+                      <div className="flex h-full w-full flex-col items-center justify-center space-y-2 p-8 text-center transition-colors group-hover:bg-zinc-800/40">
+                        <RiImageAddLine className="h-8 w-8 text-zinc-400 transition-colors group-hover:text-emerald-400" />
+                        <p className="text-xs font-semibold text-zinc-300 transition-colors group-hover:text-white">
                           Clique para selecionar uma imagem
                         </p>
                         <p className="text-[11px] text-zinc-500">
@@ -906,9 +906,9 @@ export default function CarouselPage() {
                   </div>
 
                   {/* Rodapé: Nome do arquivo como texto simples à esquerda | Botão de remover estilo link à direita */}
-                  <div className="flex items-center justify-between gap-4 w-full pt-1">
+                  <div className="flex w-full items-center justify-between gap-4 pt-1">
                     <span
-                      className="text-xs font-mono text-zinc-300 truncate min-w-0 flex-1"
+                      className="min-w-0 flex-1 truncate font-mono text-xs text-zinc-300"
                       title={
                         selectedFile
                           ? selectedFile.name
@@ -927,7 +927,7 @@ export default function CarouselPage() {
                     {(editForm.imageUrl || editForm.fileId || selectedFile) && (
                       <Button
                         variant="link"
-                        className="p-0 h-0"
+                        className="h-0 p-0"
                         onClick={() => {
                           if (selectedFile) {
                             setSelectedFile(null)
@@ -944,13 +944,13 @@ export default function CarouselPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-zinc-500 font-normal leading-relaxed">
+                <p className="text-xs leading-relaxed font-normal text-zinc-500">
                   Formatos aceitos: JPG, PNG, WebP ou GIF (máx. 5 MB).
                 </p>
               </div>
 
               {/* Link URL & Botão CTA */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="text-xs font-semibold text-zinc-300">
                     Link ao Clicar (URL)
@@ -961,7 +961,7 @@ export default function CarouselPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, linkUrl: e.target.value })
                     }
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                    className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                   />
                 </div>
 
@@ -975,7 +975,7 @@ export default function CarouselPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, ctaText: e.target.value })
                     }
-                    className="bg-zinc-800/60 border-zinc-700 text-zinc-100 mt-1"
+                    className="mt-1 border-zinc-700 bg-zinc-800/60 text-zinc-100"
                   />
                 </div>
               </div>
@@ -988,11 +988,11 @@ export default function CarouselPage() {
                   onCheckedChange={(checked) =>
                     setEditForm({ ...editForm, isActive: !!checked })
                   }
-                  className="cursor-pointer border-zinc-600 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                  className="cursor-pointer border-zinc-600 data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
                 />
                 <label
                   htmlFor="edit-banner-active"
-                  className="text-sm text-zinc-300 cursor-pointer font-normal"
+                  className="cursor-pointer text-sm font-normal text-zinc-300"
                 >
                   Banner ativo no carrossel
                 </label>
@@ -1011,7 +1011,7 @@ export default function CarouselPage() {
               <Button
                 type="submit"
                 disabled={!isEditDirty || isSavingEdit}
-                className="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer gap-2 bg-emerald-600 text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSavingEdit && (
                   <RiLoader4Line className="h-4 w-4 animate-spin" />

@@ -1,6 +1,7 @@
 {
   "name": "verttex",
   "private": true,
+  "prettier": "@verttex/prettier",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20.18.0"

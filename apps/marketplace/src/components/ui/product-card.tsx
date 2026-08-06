@@ -55,15 +55,15 @@ export function ProductCard({
 
   return (
     <div
-      className={`group flex flex-col cursor-pointer ${!isAvailable ? 'opacity-80' : ''}`}
+      className={`group flex cursor-pointer flex-col ${!isAvailable ? 'opacity-80' : ''}`}
     >
       {/* Foto do Produto */}
       <Link
         href={productUrl}
-        className="relative aspect-square w-full overflow-hidden bg-stone-100 rounded-sm block cursor-pointer"
+        className="relative block aspect-square w-full cursor-pointer overflow-hidden rounded-sm bg-stone-100"
       >
         {!isAvailable && (
-          <div className="absolute top-2 left-2 z-10 bg-stone-900/85 text-stone-100 text-[10px] font-bold uppercase px-2 py-0.5 rounded-xs tracking-wider">
+          <div className="absolute top-2 left-2 z-10 rounded-xs bg-stone-900/85 px-2 py-0.5 text-[10px] font-bold tracking-wider text-stone-100 uppercase">
             Esgotado
           </div>
         )}
@@ -88,35 +88,35 @@ export function ProductCard({
         {/* Título com Hover Seco Verde */}
         <Link
           href={productUrl}
-          className="text-xs sm:text-sm font-normal line-clamp-2 leading-snug group-hover:text-emerald-700 cursor-pointer text-stone-800"
+          className="line-clamp-2 cursor-pointer text-xs leading-snug font-normal text-stone-800 group-hover:text-emerald-700 sm:text-sm"
         >
           {name}
         </Link>
 
         {/* Preço de Tabela Riscado */}
         {formattedOriginalPrice && (
-          <span className="text-xs text-stone-400 line-through leading-none mt-1.5">
+          <span className="mt-1.5 text-xs leading-none text-stone-400 line-through">
             {formattedOriginalPrice}
           </span>
         )}
 
         {/* Preço Atual + Badge % OFF Verde */}
-        <div className="flex items-baseline space-x-1.5 mt-1">
-          <span className="text-lg sm:text-xl font-bold leading-none">
+        <div className="mt-1 flex items-baseline space-x-1.5">
+          <span className="text-lg leading-none font-bold sm:text-xl">
             R$ {integerPrice}
-            <sup className="text-xs font-bold align-super ml-0.5">
+            <sup className="ml-0.5 align-super text-xs font-bold">
               {decimalCents}
             </sup>
           </span>
           {calcDiscount && calcDiscount > 0 ? (
-            <span className="bg-emerald-600 text-white font-bold text-xs px-1.5 py-0.5 rounded-xs leading-none">
+            <span className="rounded-xs bg-emerald-600 px-1.5 py-0.5 text-xs leading-none font-bold text-white">
               {calcDiscount}% OFF
             </span>
           ) : null}
         </div>
 
         {/* Parcelamento / Linha de Crédito */}
-        <span className="text-xs text-stone-600 leading-tight mt-1">
+        <span className="mt-1 text-xs leading-tight text-stone-600">
           {installments ||
             `3x R$ ${(price / 3).toFixed(2).replace('.', ',')} com sua Linha de Crédito`}
         </span>
@@ -124,7 +124,7 @@ export function ProductCard({
         {/* Badge de Benefício em Verde Suave */}
         {benefitBadge !== null && (
           <div className="mt-1">
-            <span className="inline-block bg-emerald-50 text-emerald-800 font-medium text-[11px] px-2 py-0.5 rounded-xs leading-tight">
+            <span className="inline-block rounded-xs bg-emerald-50 px-2 py-0.5 text-[11px] leading-tight font-medium text-emerald-800">
               {benefitBadge || '20% OFF no Pix'}
             </span>
           </div>
@@ -132,7 +132,7 @@ export function ProductCard({
 
         {/* Frete Grátis */}
         {freeShipping !== false && (
-          <span className="text-xs font-semibold text-emerald-600 mt-1">
+          <span className="mt-1 text-xs font-semibold text-emerald-600">
             Frete grátis
           </span>
         )}

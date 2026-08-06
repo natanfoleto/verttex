@@ -150,7 +150,7 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
           <Button
             type="button"
             onClick={() => setIsReceivingOpen(true)}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-xl cursor-pointer"
+            className="cursor-pointer rounded-xl bg-emerald-600 text-xs font-medium text-white hover:bg-emerald-500"
           >
             <RiAddLine className="mr-1.5 h-4 w-4" />
             <span>Novo Recebimento de Lotes</span>
@@ -212,7 +212,7 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
               onClick={() =>
                 queryClient.invalidateQueries({ queryKey: ['lots-list-store'] })
               }
-              className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs cursor-pointer"
+              className="cursor-pointer rounded-xl border-zinc-800 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800"
             >
               <RiRefreshLine className="mr-1.5 h-4 w-4" />
               Atualizar
@@ -221,7 +221,7 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
         }
       >
         <table className="w-full text-left text-xs">
-          <thead className="bg-zinc-950/60 text-zinc-400 font-bold uppercase tracking-wider text-[10px] border-b border-zinc-800">
+          <thead className="border-b border-zinc-800 bg-zinc-950/60 text-[10px] font-bold tracking-wider text-zinc-400 uppercase">
             <tr>
               <th className="px-4 py-3.5">Código do Lote</th>
               <th className="px-4 py-3.5">Produto / SKU</th>
@@ -238,7 +238,7 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
               return (
                 <tr
                   key={lot.id}
-                  className="hover:bg-zinc-800/30 transition-colors"
+                  className="transition-colors hover:bg-zinc-800/30"
                 >
                   <td className="px-4 py-3.5 font-mono font-bold text-zinc-100">
                     {lot.lotNumber}
@@ -248,7 +248,7 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
                     <span className="block font-semibold text-zinc-100">
                       {lot.product?.name}
                     </span>
-                    <span className="text-[11px] font-mono text-zinc-500">
+                    <span className="font-mono text-[11px] text-zinc-500">
                       {lot.variation?.sku || 'SKU Padrão'}
                     </span>
                   </td>
@@ -286,22 +286,22 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
 
                   <td className="px-4 py-3.5">
                     {lot.status === 'available' && (
-                      <Badge className="bg-emerald-950/80 text-emerald-400 border-emerald-800/80 text-[11px]">
+                      <Badge className="border-emerald-800/80 bg-emerald-950/80 text-[11px] text-emerald-400">
                         Disponível
                       </Badge>
                     )}
                     {lot.status === 'quarantine' && (
-                      <Badge className="bg-amber-950/80 text-amber-400 border-amber-800/80 text-[11px]">
+                      <Badge className="border-amber-800/80 bg-amber-950/80 text-[11px] text-amber-400">
                         Quarentena
                       </Badge>
                     )}
                     {lot.status === 'blocked' && (
-                      <Badge className="bg-rose-950/80 text-rose-400 border-rose-800/80 text-[11px]">
+                      <Badge className="border-rose-800/80 bg-rose-950/80 text-[11px] text-rose-400">
                         Bloqueado
                       </Badge>
                     )}
                     {lot.status === 'recalled' && (
-                      <Badge className="bg-purple-950/80 text-purple-400 border-purple-800/80 text-[11px]">
+                      <Badge className="border-purple-800/80 bg-purple-950/80 text-[11px] text-purple-400">
                         Recolhido (Recall)
                       </Badge>
                     )}
@@ -316,12 +316,12 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
                     </span>
                   </td>
 
-                  <td className="px-4 py-3.5 text-right space-x-2">
+                  <td className="space-x-2 px-4 py-3.5 text-right">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setStatusModalLot(lot)}
-                      className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-[11px] cursor-pointer"
+                      className="cursor-pointer border-zinc-800 bg-zinc-900 text-[11px] text-zinc-300 hover:bg-zinc-800"
                     >
                       <RiLockLine className="mr-1 h-3.5 w-3.5" />
                       <span>Status</span>
@@ -333,7 +333,7 @@ export function StoreLotsTab({ storeId }: { storeId: string }) {
                           variant="destructive"
                           size="sm"
                           onClick={() => setDiscardModalLot(lot)}
-                          className="bg-rose-950 border border-rose-800/80 hover:bg-rose-900 text-rose-200 text-[11px] cursor-pointer"
+                          className="cursor-pointer border border-rose-800/80 bg-rose-950 text-[11px] text-rose-200 hover:bg-rose-900"
                         >
                           <RiDeleteBin6Line className="mr-1 h-3.5 w-3.5" />
                           <span>Descartar</span>

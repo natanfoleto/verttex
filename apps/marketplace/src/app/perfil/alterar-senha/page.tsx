@@ -70,7 +70,7 @@ export default function CustomerChangePasswordPage() {
 
   return (
     <CustomerAuthGuard>
-      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-12 font-sans text-stone-900 antialiased">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-12 font-sans text-stone-900 antialiased sm:px-6 lg:px-8">
         <ProfileHeader />
 
         {/* Change Password Container Box */}
@@ -104,7 +104,7 @@ export default function CustomerChangePasswordPage() {
 
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 max-w-md"
+            className="max-w-md space-y-4"
           >
             <div className="space-y-1">
               <label className="text-[11px] font-bold tracking-wider text-stone-600 uppercase">
@@ -120,7 +120,7 @@ export default function CustomerChangePasswordPage() {
                 />
               </div>
               {errors.currentPassword && (
-                <p className="mt-1 text-xs text-rose-600 font-medium">
+                <p className="mt-1 text-xs font-medium text-rose-600">
                   {errors.currentPassword.message}
                 </p>
               )}
@@ -140,7 +140,7 @@ export default function CustomerChangePasswordPage() {
                 />
               </div>
               {errors.newPassword && (
-                <p className="mt-1 text-xs text-rose-600 font-medium">
+                <p className="mt-1 text-xs font-medium text-rose-600">
                   {errors.newPassword.message}
                 </p>
               )}
@@ -160,7 +160,7 @@ export default function CustomerChangePasswordPage() {
                 />
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-rose-600 font-medium">
+                <p className="mt-1 text-xs font-medium text-rose-600">
                   {errors.confirmPassword.message}
                 </p>
               )}
@@ -169,7 +169,7 @@ export default function CustomerChangePasswordPage() {
             <Button
               type="submit"
               disabled={!isDirty || isLoading}
-              className="mt-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
