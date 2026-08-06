@@ -575,5 +575,132 @@ Recebido: ${receivedOrder.join(' -> ')}
     })
     expect(res.products.length).toBeGreaterThan(0)
     expect(res.products[0]?.id).toBe('prod-barcode-match')
+    expect(res.products[0]?.relevanceScore).toBe(1000)
+  })
+
+  it('16. Proteção numérica exata dos pesos de campo no ranking através do engine real (title=510, context=210, attr=110, desc=60)', async () => {
+    const term = 'quixaba'
+    const termNorm = normalizeSearchText(term)
+
+    const mockSearchDocs = [
+      {
+        productId: 'prod-title',
+        titleNormalized: `suco de ${termNorm} puro`,
+        contextNormalized: 'categoria generica',
+        attributesNormalized: 'padrao',
+        descriptionNormalized: 'descricao generica',
+        searchTextNormalized: `suco de ${termNorm} puro categoria generica padrao descricao generica`,
+        price: 10,
+        inStock: true,
+      },
+      {
+        productId: 'prod-context',
+        titleNormalized: 'produto b',
+        contextNormalized: `marca ${termNorm} artesanal`,
+        attributesNormalized: 'padrao',
+        descriptionNormalized: 'descricao generica',
+        searchTextNormalized: `produto b marca ${termNorm} artesanal padrao descricao generica`,
+        price: 10,
+        inStock: true,
+      },
+      {
+        productId: 'prod-attr',
+        titleNormalized: 'produto c',
+        contextNormalized: 'categoria generica',
+        attributesNormalized: `ingrediente ${termNorm}`,
+        descriptionNormalized: 'descricao generica',
+        searchTextNormalized: `produto c categoria generica ingrediente ${termNorm} descricao generica`,
+        price: 10,
+        inStock: true,
+      },
+      {
+        productId: 'prod-desc',
+        titleNormalized: 'produto d',
+        contextNormalized: 'categoria generica',
+        attributesNormalized: 'padrao',
+        descriptionNormalized: `extrato de ${termNorm} artesanal`,
+        searchTextNormalized: `produto d categoria generica padrao extrato de ${termNorm} artesanal`,
+        price: 10,
+        inStock: true,
+      },
+    ]
+
+    const mockFullProducts = mockSearchDocs.map((d) => ({
+      id: d.productId,
+      name: d.titleNormalized,
+      slug: d.productId,
+      price: d.price,
+      isPublished: true,
+      status: 'active',
+      deletedAt: null,
+      storeId: 'st-1',
+      category: { id: 'cat-1', name: 'Cat', slug: 'cat' },
+      store: {
+        id: 'st-1',
+        name: 'Store',
+        slug: 'store',
+        isPublished: true,
+        status: 'active',
+        deletedAt: null,
+        logoUrl: null,
+      },
+      images: [{ url: 'https://example.com/img.jpg' }],
+      medias: [{ isMain: true, file: { objectKey: 'img.jpg' } }],
+      variations: [
+        {
+          id: `v-${d.productId}`,
+          price: d.price,
+          values: [],
+          stockItems: [{ quantity: 10 }],
+        },
+      ],
+    }))
+
+    mockPrisma(prisma.productSearchDocument.findMany).mockImplementation(
+      async (
+        args?: Parameters<typeof prisma.productSearchDocument.findMany>[0],
+      ) => {
+        let result = [...mockSearchDocs]
+        const searchWhere = args?.where?.searchTextNormalized as
+          { contains?: string } | undefined
+        if (searchWhere?.contains) {
+          const token = searchWhere.contains
+          result = result.filter((d) => d.searchTextNormalized.includes(token))
+        }
+        return result as unknown as Awaited<
+          ReturnType<typeof prisma.productSearchDocument.findMany>
+        >
+      },
+    )
+
+    mockPrisma(prisma.product.findMany).mockImplementation(
+      async (args?: Parameters<typeof prisma.product.findMany>[0]) => {
+        const idIn = (args?.where as { id?: { in?: string[] } } | undefined)?.id
+          ?.in
+        if (idIn) {
+          return mockFullProducts.filter((p) =>
+            idIn.includes(p.id),
+          ) as unknown as Awaited<ReturnType<typeof prisma.product.findMany>>
+        }
+        return mockFullProducts as unknown as Awaited<
+          ReturnType<typeof prisma.product.findMany>
+        >
+      },
+    )
+
+    const res = await PublicDiscoveryService.discover({
+      search: term,
+      page: 1,
+      perPage: 50,
+    })
+
+    const scoresById = Object.fromEntries(
+      res.products.map((p) => [p.id, p.relevanceScore]),
+    )
+
+    expect(scoresById['prod-title']).toBe(510) // 500 (title) + 10 (text match bonus)
+    expect(scoresById['prod-context']).toBe(210) // 200 (context) + 10 (text match bonus)
+    expect(scoresById['prod-attr']).toBe(110) // 100 (attributes) + 10 (text match bonus)
+    expect(scoresById['prod-desc']).toBe(60) // 50 (description) + 10 (text match bonus)
   })
 })

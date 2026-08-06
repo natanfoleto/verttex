@@ -266,7 +266,7 @@ export class PublicDiscoveryService {
 
     if (Array.isArray(exactMatchingVariants)) {
       for (const v of exactMatchingVariants) {
-        rankMap.set(v.productId, 1000)
+        rankMap.set(v.productId, SEARCH_FIELD_WEIGHTS.exact)
       }
     }
 
@@ -801,8 +801,8 @@ export class PublicDiscoveryService {
         storeId: string
         variations: Array<{
           id: string
-          price: string | number
-          promotionalPrice?: string | number | null
+          price: unknown
+          promotionalPrice?: unknown
           values?: Array<{
             optionValue?: {
               option?: { name?: string; slug?: string }
@@ -814,14 +814,14 @@ export class PublicDiscoveryService {
           isMain?: boolean
           file?: { objectKey?: string }
         }>
-        store?: {
-          id?: string
-          slug?: string
-          name?: string
-          logoUrl?: string | null
-        } | null
-        category?: { id?: string; slug?: string; name?: string } | null
-        brand?: { id?: string; slug?: string; name?: string } | null
+        store: {
+          id: string
+          slug: string
+          name: string
+          logoUrl: string | null
+        }
+        category: { id: string; slug: string; name: string }
+        brand: { id: string; slug: string; name: string } | null
       },
       attrFilters: Record<string, string[]>,
     ) => {
@@ -870,26 +870,22 @@ export class PublicDiscoveryService {
           ?.file?.objectKey
           ? `${process.env.R2_PUBLIC_URL || ''}/${(prod.medias.find((m) => m.isMain) || prod.medias[0])!.file!.objectKey}`
           : null,
-        store: prod.store
-          ? {
-              id: prod.store.id || '',
-              name: prod.store.name || '',
-              slug: prod.store.slug || '',
-              logoUrl: prod.store.logoUrl ?? null,
-            }
-          : { id: '', name: '', slug: '', logoUrl: null },
-        category: prod.category
-          ? {
-              id: prod.category.id || '',
-              name: prod.category.name || '',
-              slug: prod.category.slug || '',
-            }
-          : { id: '', name: '', slug: '' },
+        store: {
+          id: prod.store.id,
+          name: prod.store.name,
+          slug: prod.store.slug,
+          logoUrl: prod.store.logoUrl,
+        },
+        category: {
+          id: prod.category.id,
+          name: prod.category.name,
+          slug: prod.category.slug,
+        },
         brand: prod.brand
           ? {
-              id: prod.brand.id || '',
-              name: prod.brand.name || '',
-              slug: prod.brand.slug || '',
+              id: prod.brand.id,
+              name: prod.brand.name,
+              slug: prod.brand.slug,
             }
           : null,
         commercialStockAvailable: stock,
@@ -903,12 +899,7 @@ export class PublicDiscoveryService {
 
     // 4. Process Base Products
     let processedProducts = rawProducts
-      .map((p) =>
-        evaluateProductEligibility(
-          p as unknown as Parameters<typeof evaluateProductEligibility>[0],
-          parsedAttributes,
-        ),
-      )
+      .map((p) => evaluateProductEligibility(p, parsedAttributes))
       .filter((prod) => {
         if (searchTerm && (!prod.relevanceScore || prod.relevanceScore <= 0)) {
           return false
