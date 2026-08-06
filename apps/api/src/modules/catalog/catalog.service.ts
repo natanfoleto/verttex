@@ -1,7 +1,9 @@
-import { prisma } from "../../infrastructure/database/prisma";
-import { AppError } from "../../shared/errors/app-error";
-import { LotsService } from "../lots/lots.service";
-import { PublicProductListQuery, PublicStoreListQuery } from "./catalog.schemas";
+import { Prisma } from '@prisma/client'
+
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { LotsService } from '../lots/lots.service'
+import { PublicProductListQuery, PublicStoreListQuery } from './catalog.schemas'
 
 export class PublicCatalogService {
   /**
@@ -16,49 +18,53 @@ export class PublicCatalogService {
       where: {
         storeId,
         variationId,
-        location: { status: "active" },
+        location: { status: 'active' },
       },
       include: {
         lot: true,
       },
-    });
+    })
 
-    let totalCommercialAvailable = 0;
+    let totalCommercialAvailable = 0
 
     for (const item of stockItems) {
-      const netAvailable = Math.max(0, item.physicalQuantity - item.reservedQuantity);
-      if (netAvailable <= 0) continue;
+      const netAvailable = Math.max(
+        0,
+        item.physicalQuantity - item.reservedQuantity,
+      )
+      if (netAvailable <= 0) continue
 
-      let isEligible = true;
+      let isEligible = true
       if (item.lot) {
-        if (item.lot.status !== "available") {
-          isEligible = false;
+        if (item.lot.status !== 'available') {
+          isEligible = false
         }
 
         const expAnalysis = LotsService.calculateExpirationCondition(
           item.lot.expirationDate,
           minDeliveryDays,
           30,
-        );
+        )
 
         if (expAnalysis.isExpired) {
-          isEligible = false;
+          isEligible = false
         } else if (item.lot.expirationDate) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const targetTime = today.getTime() + minDeliveryDays * 24 * 60 * 60 * 1000;
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const targetTime =
+            today.getTime() + minDeliveryDays * 24 * 60 * 60 * 1000
           if (new Date(item.lot.expirationDate).getTime() < targetTime) {
-            isEligible = false; // Insufficient shelf life for customer delivery
+            isEligible = false // Insufficient shelf life for customer delivery
           }
         }
       }
 
       if (isEligible) {
-        totalCommercialAvailable += netAvailable;
+        totalCommercialAvailable += netAvailable
       }
     }
 
-    return totalCommercialAvailable;
+    return totalCommercialAvailable
   }
 
   /**
@@ -79,30 +85,30 @@ export class PublicCatalogService {
       maxPrice,
       isFeatured,
       sort,
-    } = query;
+    } = query
 
-    const skip = (page - 1) * perPage;
+    const skip = (page - 1) * perPage
 
-    const where: any = {
-      status: "active",
+    const where: Prisma.ProductWhereInput = {
+      status: 'active',
       isPublished: true,
       deletedAt: null,
       store: {
-        status: "active",
+        status: 'active',
         deletedAt: null,
       },
-    };
+    }
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { shortDescription: { contains: search, mode: "insensitive" } },
-        { fullDescription: { contains: search, mode: "insensitive" } },
-      ];
+        { name: { contains: search, mode: 'insensitive' } },
+        { shortDescription: { contains: search, mode: 'insensitive' } },
+        { fullDescription: { contains: search, mode: 'insensitive' } },
+      ]
     }
 
     if (categoryId) {
-      where.categoryId = categoryId;
+      where.categoryId = categoryId
     } else if (categorySlug) {
       const category = await prisma.category.findUnique({
         where: { slug: categorySlug },
@@ -112,47 +118,49 @@ export class PublicCatalogService {
             select: { id: true },
           },
         },
-      });
+      })
       if (category) {
-        const childIds = category.children.map((c) => c.id);
-        where.categoryId = { in: [category.id, ...childIds] };
+        const childIds = category.children.map((c) => c.id)
+        where.categoryId = { in: [category.id, ...childIds] }
       }
     }
 
     if (brandId) {
-      where.brandId = brandId;
+      where.brandId = brandId
     } else if (brandSlug) {
       const brand = await prisma.brand.findUnique({
         where: { slug: brandSlug },
-      });
+      })
       if (brand) {
-        where.brandId = brand.id;
+        where.brandId = brand.id
       }
     }
 
     if (storeId) {
-      where.storeId = storeId;
+      where.storeId = storeId
     } else if (storeSlug) {
       const store = await prisma.store.findUnique({
         where: { slug: storeSlug },
-      });
+      })
       if (store) {
-        where.storeId = store.id;
+        where.storeId = store.id
       }
     }
 
     if (isFeatured) {
-      where.isFeatured = true;
+      where.isFeatured = true
     }
 
     // Determine orderBy
-    let orderBy: any = [];
-    if (sort === "newest") {
-      orderBy = [{ createdAt: "desc" }];
-    } else if (sort === "featured") {
-      orderBy = [{ isFeatured: "desc" }, { createdAt: "desc" }];
+    let orderBy:
+      | Prisma.ProductOrderByWithRelationInput
+      | Prisma.ProductOrderByWithRelationInput[] = []
+    if (sort === 'newest') {
+      orderBy = [{ createdAt: 'desc' }]
+    } else if (sort === 'featured') {
+      orderBy = [{ isFeatured: 'desc' }, { createdAt: 'desc' }]
     } else {
-      orderBy = [{ createdAt: "desc" }];
+      orderBy = [{ createdAt: 'desc' }]
     }
 
     const [rawProducts, total] = await Promise.all([
@@ -170,11 +178,11 @@ export class PublicCatalogService {
           },
           medias: {
             include: { file: true },
-            orderBy: [{ isMain: "desc" }, { position: "asc" }],
+            orderBy: [{ isMain: 'desc' }, { position: 'asc' }],
           },
           variations: {
-            where: { status: "active", deletedAt: null },
-            orderBy: [{ isDefault: "desc" }, { position: "asc" }],
+            where: { status: 'active', deletedAt: null },
+            orderBy: [{ isDefault: 'desc' }, { position: 'asc' }],
           },
         },
         orderBy,
@@ -182,33 +190,33 @@ export class PublicCatalogService {
         take: perPage,
       }),
       prisma.product.count({ where }),
-    ]);
+    ])
 
     // Process products with FEFO stock calculations
     const formattedProducts = await Promise.all(
       rawProducts.map(async (prod) => {
-        const defaultVar = prod.variations[0];
-        const minDeliveryDays = prod.minDeliveryShelfLifeDays || 15;
+        const defaultVar = prod.variations[0]
+        const minDeliveryDays = prod.minDeliveryShelfLifeDays || 15
 
-        let totalAvailableStock = 0;
+        let totalAvailableStock = 0
         if (defaultVar) {
           totalAvailableStock =
             await PublicCatalogService.calculateVariationCommercialStock(
               prod.storeId,
               defaultVar.id,
               minDeliveryDays,
-            );
+            )
         }
 
-        const price = defaultVar ? Number(defaultVar.price) : 0;
+        const price = defaultVar ? Number(defaultVar.price) : 0
         const promotionalPrice = defaultVar?.promotionalPrice
           ? Number(defaultVar.promotionalPrice)
-          : null;
+          : null
 
-        const mainMedia = prod.medias.find((m) => m.isMain) || prod.medias[0];
+        const mainMedia = prod.medias.find((m) => m.isMain) || prod.medias[0]
         const mainImageUrl = mainMedia?.file?.objectKey
-          ? `${process.env.R2_PUBLIC_URL || ""}/${mainMedia.file.objectKey}`
-          : null;
+          ? `${process.env.R2_PUBLIC_URL || ''}/${mainMedia.file.objectKey}`
+          : null
 
         return {
           id: prod.id,
@@ -225,38 +233,47 @@ export class PublicCatalogService {
           brand: prod.brand,
           commercialStockAvailable: totalAvailableStock,
           isAvailable: totalAvailableStock > 0,
-        };
+        }
       }),
-    );
+    )
 
     // Apply price filter if provided
-    let items = formattedProducts;
+    let items = formattedProducts
     if (minPrice !== undefined) {
-      items = items.filter((p) => (p.promotionalPrice || p.price) >= minPrice);
+      items = items.filter((p) => (p.promotionalPrice || p.price) >= minPrice)
     }
     if (maxPrice !== undefined) {
-      items = items.filter((p) => (p.promotionalPrice || p.price) <= maxPrice);
+      items = items.filter((p) => (p.promotionalPrice || p.price) <= maxPrice)
     }
 
     // Apply outOfStockBehavior settings from Marketplace
-    const marketplaceSettings = await prisma.marketplaceSettings.findFirst();
-    const outOfStockBehavior = marketplaceSettings?.outOfStockBehavior || "show_badge";
+    const marketplaceSettings = await prisma.marketplaceSettings.findFirst()
+    const outOfStockBehavior =
+      marketplaceSettings?.outOfStockBehavior || 'show_badge'
 
-    if (outOfStockBehavior === "hide_product") {
-      items = items.filter((p) => p.commercialStockAvailable > 0);
-    } else if (outOfStockBehavior === "move_to_end") {
+    if (outOfStockBehavior === 'hide_product') {
+      items = items.filter((p) => p.commercialStockAvailable > 0)
+    } else if (outOfStockBehavior === 'move_to_end') {
       items.sort((a, b) => {
-        if (a.commercialStockAvailable > 0 && b.commercialStockAvailable <= 0) return -1;
-        if (a.commercialStockAvailable <= 0 && b.commercialStockAvailable > 0) return 1;
-        return 0;
-      });
+        if (a.commercialStockAvailable > 0 && b.commercialStockAvailable <= 0)
+          return -1
+        if (a.commercialStockAvailable <= 0 && b.commercialStockAvailable > 0)
+          return 1
+        return 0
+      })
     }
 
     // Sort by price if requested
-    if (sort === "price_asc") {
-      items.sort((a, b) => (a.promotionalPrice || a.price) - (b.promotionalPrice || b.price));
-    } else if (sort === "price_desc") {
-      items.sort((a, b) => (b.promotionalPrice || b.price) - (a.promotionalPrice || a.price));
+    if (sort === 'price_asc') {
+      items.sort(
+        (a, b) =>
+          (a.promotionalPrice || a.price) - (b.promotionalPrice || b.price),
+      )
+    } else if (sort === 'price_desc') {
+      items.sort(
+        (a, b) =>
+          (b.promotionalPrice || b.price) - (a.promotionalPrice || a.price),
+      )
     }
 
     return {
@@ -269,7 +286,7 @@ export class PublicCatalogService {
         hasNextPage: page * perPage < total,
         hasPreviousPage: page > 1,
       },
-    };
+    }
   }
 
   /**
@@ -279,17 +296,24 @@ export class PublicCatalogService {
     const product = await prisma.product.findFirst({
       where: {
         OR: [{ slug: identifier }, { id: identifier }],
-        status: "active",
+        status: 'active',
         isPublished: true,
         deletedAt: null,
         store: {
-          status: "active",
+          status: 'active',
           deletedAt: null,
         },
       },
       include: {
         store: {
-          select: { id: true, name: true, slug: true, description: true, logoUrl: true, coverUrl: true },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            description: true,
+            logoUrl: true,
+            coverUrl: true,
+          },
         },
         category: {
           select: { id: true, name: true, slug: true },
@@ -299,47 +323,54 @@ export class PublicCatalogService {
         },
         medias: {
           include: { file: true },
-          orderBy: [{ isMain: "desc" }, { position: "asc" }],
+          orderBy: [{ isMain: 'desc' }, { position: 'asc' }],
         },
         options: {
           include: {
-            values: { orderBy: { position: "asc" } },
+            values: { orderBy: { position: 'asc' } },
           },
-          orderBy: { position: "asc" },
+          orderBy: { position: 'asc' },
         },
         variations: {
-          where: { status: "active", deletedAt: null },
+          where: { status: 'active', deletedAt: null },
           include: {
             values: {
               include: { optionValue: true },
             },
           },
-          orderBy: [{ isDefault: "desc" }, { position: "asc" }],
+          orderBy: [{ isDefault: 'desc' }, { position: 'asc' }],
         },
       },
-    });
+    })
 
     if (!product) {
-      throw new AppError("NOT_FOUND", "Produto não encontrado ou indisponível no marketplace", 404);
+      throw new AppError(
+        'NOT_FOUND',
+        'Produto não encontrado ou indisponível no marketplace',
+        404,
+      )
     }
 
-    const minDeliveryDays = product.minDeliveryShelfLifeDays || 15;
+    const minDeliveryDays = product.minDeliveryShelfLifeDays || 15
 
     // Calculate stock per variation
     const variationsWithStock = await Promise.all(
       product.variations.map(async (v) => {
-        const stock = await PublicCatalogService.calculateVariationCommercialStock(
-          product.storeId,
-          v.id,
-          minDeliveryDays,
-        );
+        const stock =
+          await PublicCatalogService.calculateVariationCommercialStock(
+            product.storeId,
+            v.id,
+            minDeliveryDays,
+          )
 
         return {
           id: v.id,
           sku: v.sku,
           barcode: v.barcode,
           price: Number(v.price),
-          promotionalPrice: v.promotionalPrice ? Number(v.promotionalPrice) : null,
+          promotionalPrice: v.promotionalPrice
+            ? Number(v.promotionalPrice)
+            : null,
           weight: v.weight,
           isDefault: v.isDefault,
           commercialStockAvailable: stock,
@@ -348,18 +379,18 @@ export class PublicCatalogService {
             optionValueId: val.optionValueId,
             value: val.optionValue.value,
           })),
-        };
+        }
       }),
-    );
+    )
 
     const images = product.medias.map((m) => ({
       id: m.id,
       isMain: m.isMain,
       altText: m.altText,
       url: m.file?.objectKey
-        ? `${process.env.R2_PUBLIC_URL || ""}/${m.file.objectKey}`
+        ? `${process.env.R2_PUBLIC_URL || ''}/${m.file.objectKey}`
         : null,
-    }));
+    }))
 
     return {
       id: product.id,
@@ -379,7 +410,7 @@ export class PublicCatalogService {
       images,
       options: product.options,
       variations: variationsWithStock,
-    };
+    }
   }
 
   /**
@@ -388,7 +419,7 @@ export class PublicCatalogService {
   static async listPublicCategories() {
     const categories = await prisma.category.findMany({
       where: {
-        status: "active",
+        status: 'active',
         isVisible: true,
         deletedAt: null,
       },
@@ -397,7 +428,7 @@ export class PublicCatalogService {
           select: {
             products: {
               where: {
-                status: "active",
+                status: 'active',
                 isPublished: true,
                 deletedAt: null,
               },
@@ -405,8 +436,8 @@ export class PublicCatalogService {
           },
         },
       },
-      orderBy: [{ position: "asc" }, { name: "asc" }],
-    });
+      orderBy: [{ position: 'asc' }, { name: 'asc' }],
+    })
 
     return categories.map((c) => ({
       id: c.id,
@@ -417,7 +448,7 @@ export class PublicCatalogService {
       iconUrl: c.iconUrl,
       parentId: c.parentId,
       productsCount: c._count.products,
-    }));
+    }))
   }
 
   /**
@@ -426,7 +457,7 @@ export class PublicCatalogService {
   static async listPublicBrands() {
     const brands = await prisma.brand.findMany({
       where: {
-        status: "active",
+        status: 'active',
         isVisible: true,
         deletedAt: null,
       },
@@ -435,7 +466,7 @@ export class PublicCatalogService {
           select: {
             products: {
               where: {
-                status: "active",
+                status: 'active',
                 isPublished: true,
                 deletedAt: null,
               },
@@ -443,8 +474,8 @@ export class PublicCatalogService {
           },
         },
       },
-      orderBy: { name: "asc" },
-    });
+      orderBy: { name: 'asc' },
+    })
 
     return brands.map((b) => ({
       id: b.id,
@@ -453,26 +484,26 @@ export class PublicCatalogService {
       description: b.description,
       logoUrl: b.logoUrl,
       productsCount: b._count.products,
-    }));
+    }))
   }
 
   /**
    * List public partner stores
    */
   static async listPublicStores(query: PublicStoreListQuery) {
-    const { page, perPage, search } = query;
-    const skip = (page - 1) * perPage;
+    const { page, perPage, search } = query
+    const skip = (page - 1) * perPage
 
-    const where: any = {
-      status: "active",
+    const where: Prisma.StoreWhereInput = {
+      status: 'active',
       deletedAt: null,
-    };
+    }
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ]
     }
 
     const [rawStores, total] = await Promise.all([
@@ -490,7 +521,7 @@ export class PublicCatalogService {
             select: {
               products: {
                 where: {
-                  status: "active",
+                  status: 'active',
                   isPublished: true,
                   deletedAt: null,
                 },
@@ -498,12 +529,12 @@ export class PublicCatalogService {
             },
           },
         },
-        orderBy: { name: "asc" },
+        orderBy: { name: 'asc' },
         skip,
         take: perPage,
       }),
       prisma.store.count({ where }),
-    ]);
+    ])
 
     const stores = rawStores.map((s) => ({
       id: s.id,
@@ -513,7 +544,7 @@ export class PublicCatalogService {
       logoUrl: s.logoUrl,
       coverUrl: s.coverUrl,
       productsCount: s._count.products,
-    }));
+    }))
 
     return {
       data: stores,
@@ -525,7 +556,7 @@ export class PublicCatalogService {
         hasNextPage: page * perPage < total,
         hasPreviousPage: page > 1,
       },
-    };
+    }
   }
 
   /**
@@ -535,7 +566,7 @@ export class PublicCatalogService {
     const store = await prisma.store.findFirst({
       where: {
         slug,
-        status: "active",
+        status: 'active',
         deletedAt: null,
       },
       select: {
@@ -547,10 +578,14 @@ export class PublicCatalogService {
         coverUrl: true,
         createdAt: true,
       },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja parceira não encontrada ou inativa", 404);
+      throw new AppError(
+        'NOT_FOUND',
+        'Loja parceira não encontrada ou inativa',
+        404,
+      )
     }
 
     // Get products for this store
@@ -558,13 +593,13 @@ export class PublicCatalogService {
       storeSlug: slug,
       page: 1,
       perPage: 50,
-      sort: "featured",
-    });
+      sort: 'featured',
+    })
 
     return {
       ...store,
       products: productsResult.data,
       totalProducts: productsResult.meta.total,
-    };
+    }
   }
 }

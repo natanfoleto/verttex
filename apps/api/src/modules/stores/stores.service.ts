@@ -1,19 +1,19 @@
-import { FastifyRequest } from "fastify";
-import { Prisma } from "@prisma/client";
-import { AuthenticatedUserPayload } from "../../@types/fastify";
-import { prisma } from "../../infrastructure/database/prisma";
-import { AppError } from "../../shared/errors/app-error";
-import { logAudit } from "../../shared/utils/audit";
-import { normalizeSlug, isSlugReserved } from "./reserved-slugs";
-import { UploadService } from "../../shared/services/upload.service";
-import {
-  StoreQuery,
-  CreateStoreBody,
-  UpdateStoreBody,
-  AddStoreMemberBody,
-} from "./stores.schemas";
-import { ProductSearchIndexService } from "../catalog/product-search-index.service";
+import { Prisma } from '@prisma/client'
+import { FastifyRequest } from 'fastify'
 
+import { AuthenticatedUserPayload } from '../../@types/fastify'
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { UploadService } from '../../shared/services/upload.service'
+import { logAudit } from '../../shared/utils/audit'
+import { ProductSearchIndexService } from '../catalog/product-search-index.service'
+import { isSlugReserved, normalizeSlug } from './reserved-slugs'
+import {
+  AddStoreMemberBody,
+  CreateStoreBody,
+  StoreQuery,
+  UpdateStoreBody,
+} from './stores.schemas'
 
 export class StoresService {
   async createStore(
@@ -21,30 +21,30 @@ export class StoresService {
     data: CreateStoreBody,
     req?: FastifyRequest,
   ) {
-    const slug = normalizeSlug(data.slug);
+    const slug = normalizeSlug(data.slug)
 
     if (!slug) {
-      throw new AppError("VALIDATION_ERROR", "Slug inválido", 400);
+      throw new AppError('VALIDATION_ERROR', 'Slug inválido', 400)
     }
 
     if (isSlugReserved(slug)) {
       throw new AppError(
-        "CONFLICT",
-        "Este slug é uma palavra reservada do sistema e não pode ser utilizado",
+        'CONFLICT',
+        'Este slug é uma palavra reservada do sistema e não pode ser utilizado',
         409,
-      );
+      )
     }
 
     const existingStore = await prisma.store.findUnique({
       where: { slug },
-    });
+    })
 
     if (existingStore) {
       throw new AppError(
-        "CONFLICT",
-        "Este slug já está em uso por outra loja",
+        'CONFLICT',
+        'Este slug já está em uso por outra loja',
         409,
-      );
+      )
     }
 
     return prisma.$transaction(async (tx) => {
@@ -57,9 +57,9 @@ export class StoresService {
           logoFileId: data.logoFileId || null,
           coverUrl: data.coverUrl || null,
           customDomain: data.customDomain || null,
-          status: "draft",
+          status: 'draft',
         },
-      });
+      })
 
       await tx.storeUser.create({
         data: {
@@ -68,49 +68,49 @@ export class StoresService {
           isOwner: true,
           isActive: true,
         },
-      });
+      })
 
       await logAudit({
         userId: userPayload.id,
-        action: "CREATE",
-        entity: "Store",
+        action: 'CREATE',
+        entity: 'Store',
         entityId: store.id,
         newValues: store,
         req,
-      });
+      })
 
-      return store;
-    });
+      return store
+    })
   }
 
   async listStores(userPayload: AuthenticatedUserPayload, query: StoreQuery) {
-    const page = Math.max(1, query.page || 1);
-    const perPage = Math.max(1, Math.min(100, query.perPage || 20));
-    const skip = (page - 1) * perPage;
+    const page = Math.max(1, query.page || 1)
+    const perPage = Math.max(1, Math.min(100, query.perPage || 20))
+    const skip = (page - 1) * perPage
     const where: Prisma.StoreWhereInput = {
       deletedAt: null,
-    };
+    }
 
     if (query.search) {
-      const search = query.search.trim();
+      const search = query.search.trim()
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { slug: { contains: search, mode: "insensitive" } },
-      ];
+        { name: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ]
     }
 
     if (query.status) {
-      where.status = query.status;
+      where.status = query.status
     }
 
     // Scoped access: non-admin users only see linked stores
-    if (userPayload.role !== "admin") {
+    if (userPayload.role !== 'admin') {
       where.users = {
         some: {
           userId: userPayload.id,
           isActive: true,
         },
-      };
+      }
     }
 
     const [total, stores] = await Promise.all([
@@ -119,16 +119,16 @@ export class StoresService {
         where,
         skip,
         take: perPage,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         include: {
           _count: {
             select: { users: true },
           },
         },
       }),
-    ]);
+    ])
 
-    const totalPages = Math.ceil(total / perPage);
+    const totalPages = Math.ceil(total / perPage)
 
     return {
       data: stores,
@@ -140,7 +140,7 @@ export class StoresService {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
-    };
+    }
   }
 
   async getStore(storeId: string) {
@@ -161,13 +161,13 @@ export class StoresService {
           },
         },
       },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
-    return store;
+    return store
   }
 
   async updateStore(
@@ -178,46 +178,46 @@ export class StoresService {
   ) {
     const previousStore = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!previousStore) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
-    let newSlug: string | undefined;
+    let newSlug: string | undefined
 
     if (data.slug) {
-      newSlug = normalizeSlug(data.slug);
+      newSlug = normalizeSlug(data.slug)
 
       if (newSlug !== previousStore.slug) {
         if (isSlugReserved(newSlug)) {
           throw new AppError(
-            "CONFLICT",
-            "Este slug é uma palavra reservada do sistema e não pode ser utilizado",
+            'CONFLICT',
+            'Este slug é uma palavra reservada do sistema e não pode ser utilizado',
             409,
-          );
+          )
         }
 
         const existing = await prisma.store.findUnique({
           where: { slug: newSlug },
-        });
+        })
 
         if (existing) {
           throw new AppError(
-            "CONFLICT",
-            "Este slug já está em uso por outra loja",
+            'CONFLICT',
+            'Este slug já está em uso por outra loja',
             409,
-          );
+          )
         }
       }
     }
 
-    if (data.status === "suspended" && userPayload.role !== "admin") {
+    if (data.status === 'suspended' && userPayload.role !== 'admin') {
       throw new AppError(
-        "FORBIDDEN",
-        "Apenas administradores podem suspender uma loja",
+        'FORBIDDEN',
+        'Apenas administradores podem suspender uma loja',
         403,
-      );
+      )
     }
 
     const updatedStore = await prisma.store.update({
@@ -237,7 +237,7 @@ export class StoresService {
             : undefined,
         status: data.status,
       },
-    });
+    })
 
     if (
       data.logoFileId !== undefined &&
@@ -250,18 +250,18 @@ export class StoresService {
           `Erro ao remover logo anterior ${previousStore.logoFileId}:`,
           err,
         ),
-      );
+      )
     }
 
     const action =
       data.status && data.status !== previousStore.status
-        ? "STATUS_CHANGE"
-        : "UPDATE";
+        ? 'STATUS_CHANGE'
+        : 'UPDATE'
 
     await logAudit({
       userId: userPayload.id,
       action,
-      entity: "Store",
+      entity: 'Store',
       entityId: storeId,
       oldValues: {
         name: previousStore.name,
@@ -282,85 +282,85 @@ export class StoresService {
         customDomain: updatedStore.customDomain,
       },
       req,
-    });
+    })
 
     // Sync Search Documents for all products of this store (name may have changed)
-    await ProductSearchIndexService.refreshByStore(storeId).catch(() => {});
+    await ProductSearchIndexService.refreshByStore(storeId).catch(() => {})
 
-    return updatedStore;
+    return updatedStore
   }
 
   async deleteStore(storeId: string, userId?: string, req?: FastifyRequest) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
     await prisma.store.update({
       where: { id: storeId },
       data: {
-        status: "inactive",
+        status: 'inactive',
         deletedAt: new Date(),
         deletedBy: userId || null,
       },
-    });
+    })
 
     await logAudit({
       userId: userId ?? null,
-      action: "ARCHIVE",
-      entity: "Store",
+      action: 'ARCHIVE',
+      entity: 'Store',
       entityId: storeId,
       oldValues: {
         name: store.name,
         slug: store.slug,
         status: store.status,
       },
-      newValues: { status: "inactive", deletedAt: new Date() },
+      newValues: { status: 'inactive', deletedAt: new Date() },
       req,
-    });
+    })
 
-    return { message: "Loja arquivada com sucesso" };
+    return { message: 'Loja arquivada com sucesso' }
   }
 
   async restoreStore(storeId: string, userId?: string, req?: FastifyRequest) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
     const restoredStore = await prisma.store.update({
       where: { id: storeId },
       data: {
-        status: "active",
+        status: 'active',
         deletedAt: null,
         deletedBy: null,
       },
-    });
+    })
 
     await logAudit({
       userId: userId ?? null,
-      action: "RESTORE",
-      entity: "Store",
+      action: 'RESTORE',
+      entity: 'Store',
       entityId: storeId,
       req,
-    });
+    })
 
-    return restoredStore;
+    return restoredStore
   }
 
   async listStoreMembers(storeId: string) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
     const members = await prisma.storeUser.findMany({
@@ -377,10 +377,10 @@ export class StoresService {
           },
         },
       },
-      orderBy: { createdAt: "asc" },
-    });
+      orderBy: { createdAt: 'asc' },
+    })
 
-    return members;
+    return members
   }
 
   async addStoreMember(
@@ -391,18 +391,18 @@ export class StoresService {
   ) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
     const user = await prisma.user.findUnique({
       where: { id: data.userId },
-    });
+    })
 
     if (!user) {
-      throw new AppError("NOT_FOUND", "Usuário não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Usuário não encontrado', 404)
     }
 
     const member = await prisma.storeUser.upsert({
@@ -433,18 +433,18 @@ export class StoresService {
           },
         },
       },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "MEMBER_ADD",
-      entity: "Store",
+      action: 'MEMBER_ADD',
+      entity: 'Store',
       entityId: storeId,
       newValues: { userId: data.userId, isOwner: data.isOwner ?? false },
       req,
-    });
+    })
 
-    return member;
+    return member
   }
 
   async removeStoreMember(
@@ -460,10 +460,10 @@ export class StoresService {
           userId,
         },
       },
-    });
+    })
 
     if (!storeUser) {
-      throw new AppError("NOT_FOUND", "Membro não encontrado nesta loja", 404);
+      throw new AppError('NOT_FOUND', 'Membro não encontrado nesta loja', 404)
     }
 
     await prisma.storeUser.delete({
@@ -473,18 +473,18 @@ export class StoresService {
           userId,
         },
       },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "MEMBER_REMOVE",
-      entity: "Store",
+      action: 'MEMBER_REMOVE',
+      entity: 'Store',
       entityId: storeId,
       oldValues: { userId, isOwner: storeUser.isOwner },
       req,
-    });
+    })
 
-    return { message: "Membro removido da loja com sucesso" };
+    return { message: 'Membro removido da loja com sucesso' }
   }
 
   async uploadStoreLogo(
@@ -497,23 +497,23 @@ export class StoresService {
   ) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
-    const previousLogoFileId = store.logoFileId;
+    const previousLogoFileId = store.logoFileId
 
     // Direct upload into Cloudflare R2 / Local Storage
     const uploadedFile = await UploadService.directUpload({
       fileName,
       mimeType,
       buffer,
-      purpose: "store_logo",
+      purpose: 'store_logo',
       storeId,
       userId: userPayload.id,
-    });
+    })
 
     // Transactional pointer update
     const updatedStore = await prisma.store.update({
@@ -525,19 +525,19 @@ export class StoresService {
       include: {
         logoFile: true,
       },
-    });
+    })
 
     // Compensatory cleanup of previous file if it existed
     if (previousLogoFileId && previousLogoFileId !== uploadedFile.id) {
       UploadService.deleteFile(previousLogoFileId).catch((err) =>
         console.warn(`Erro ao limpar logo antiga ${previousLogoFileId}:`, err),
-      );
+      )
     }
 
     await logAudit({
       userId: userPayload.id,
-      action: "UPDATE",
-      entity: "Store",
+      action: 'UPDATE',
+      entity: 'Store',
       entityId: storeId,
       newValues: {
         logoFileId: uploadedFile.id,
@@ -548,9 +548,9 @@ export class StoresService {
         logoUrl: store.logoUrl,
       },
       req,
-    });
+    })
 
-    return updatedStore;
+    return updatedStore
   }
 
   async removeStoreLogo(
@@ -560,13 +560,13 @@ export class StoresService {
   ) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
-    const previousLogoFileId = store.logoFileId;
+    const previousLogoFileId = store.logoFileId
 
     const updatedStore = await prisma.store.update({
       where: { id: storeId },
@@ -574,18 +574,18 @@ export class StoresService {
         logoFileId: null,
         logoUrl: null,
       },
-    });
+    })
 
     if (previousLogoFileId) {
       UploadService.deleteFile(previousLogoFileId).catch((err) =>
         console.warn(`Erro ao deletar logo antiga ${previousLogoFileId}:`, err),
-      );
+      )
     }
 
     await logAudit({
       userId: userPayload.id,
-      action: "UPDATE",
-      entity: "Store",
+      action: 'UPDATE',
+      entity: 'Store',
       entityId: storeId,
       newValues: { logoFileId: null, logoUrl: null },
       oldValues: {
@@ -593,27 +593,25 @@ export class StoresService {
         logoUrl: store.logoUrl,
       },
       req,
-    });
+    })
 
     return {
-      message: "Foto de perfil da loja removida com sucesso!",
+      message: 'Foto de perfil da loja removida com sucesso!',
       store: updatedStore,
-    };
+    }
   }
 
   async getStoreSummary(storeId: string) {
     const store = await prisma.store.findUnique({
       where: { id: storeId },
-    });
+    })
 
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
     }
 
-    const now = new Date();
-    const thirtyDaysFromNow = new Date(
-      now.getTime() + 30 * 24 * 60 * 60 * 1000,
-    );
+    const now = new Date()
+    const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
     const [
       totalProducts,
@@ -631,11 +629,11 @@ export class StoresService {
     ] = await Promise.all([
       prisma.product.count({ where: { storeId, deletedAt: null } }),
       prisma.product.count({
-        where: { storeId, status: "active", deletedAt: null },
+        where: { storeId, status: 'active', deletedAt: null },
       }),
       prisma.productVariation.count({ where: { storeId, deletedAt: null } }),
       prisma.order.count({ where: { storeId } }),
-      prisma.order.count({ where: { storeId, status: "PENDING" } }),
+      prisma.order.count({ where: { storeId, status: 'PENDING' } }),
       prisma.stockItem.aggregate({
         where: { storeId },
         _sum: {
@@ -647,7 +645,7 @@ export class StoresService {
         where: {
           storeId,
           expirationDate: { gte: now, lte: thirtyDaysFromNow },
-          status: "available",
+          status: 'available',
         },
       }),
       prisma.productLot.count({
@@ -658,7 +656,7 @@ export class StoresService {
       }),
       prisma.stockMovement.findMany({
         where: { storeId },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         take: 5,
         include: {
           variation: {
@@ -667,16 +665,16 @@ export class StoresService {
         },
       }),
       prisma.storeUser.count({ where: { storeId } }),
-      prisma.stockReservation.count({ where: { storeId, status: "ACTIVE" } }),
+      prisma.stockReservation.count({ where: { storeId, status: 'ACTIVE' } }),
       prisma.productLot.count({ where: { storeId } }),
-    ]);
+    ])
 
-    const totalPhysicalStock = stockItemsAgg._sum.physicalQuantity || 0;
-    const totalReservedStock = stockItemsAgg._sum.reservedQuantity || 0;
+    const totalPhysicalStock = stockItemsAgg._sum.physicalQuantity || 0
+    const totalReservedStock = stockItemsAgg._sum.reservedQuantity || 0
 
     const lowStockItems = await prisma.stockItem.count({
       where: { storeId, physicalQuantity: { lte: 5 } },
-    });
+    })
 
     return {
       storeId,
@@ -697,6 +695,6 @@ export class StoresService {
         lotsCount,
       },
       recentMovements,
-    };
+    }
   }
 }

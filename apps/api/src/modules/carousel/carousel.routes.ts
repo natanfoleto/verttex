@@ -1,111 +1,112 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
-import { requirePermission } from "../../shared/middlewares/require-permission";
-import { carouselController } from "./carousel.controller";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
+
+import { requirePermission } from '../../shared/middlewares/require-permission'
+import { carouselController } from './carousel.controller'
 import {
   createCarouselBannerSchema,
   reorderCarouselBannersSchema,
   updateCarouselBannerSchema,
-} from "./carousel.schemas";
+} from './carousel.schemas'
 
-const idParamsSchema = z.object({ id: z.string().min(1) });
+const idParamsSchema = z.object({ id: z.string().min(1) })
 
 export async function carouselRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   // Listar banners (Admin)
   typedApp.get(
-    "/",
+    '/',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("read", "Marketplace"),
+        requirePermission('read', 'Marketplace'),
       ],
     },
-    carouselController.listBanners
-  );
+    carouselController.listBanners,
+  )
 
   // Criar banner (sem imagem inicial)
   typedApp.post(
-    "/",
+    '/',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("create", "Marketplace"),
+        requirePermission('create', 'Marketplace'),
       ],
       schema: { body: createCarouselBannerSchema },
     },
-    carouselController.createBanner
-  );
+    carouselController.createBanner,
+  )
 
   // Consultar banner por ID
   typedApp.get(
-    "/:id",
+    '/:id',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("read", "Marketplace"),
+        requirePermission('read', 'Marketplace'),
       ],
       schema: { params: idParamsSchema },
     },
-    carouselController.getBanner
-  );
+    carouselController.getBanner,
+  )
 
   // Atualizar dados/imagem do banner
   typedApp.patch(
-    "/:id",
+    '/:id',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("update", "Marketplace"),
+        requirePermission('update', 'Marketplace'),
       ],
       schema: { params: idParamsSchema, body: updateCarouselBannerSchema },
     },
-    carouselController.updateBanner
-  );
+    carouselController.updateBanner,
+  )
 
   // Excluir somente a imagem do banner
   typedApp.delete(
-    "/:id/image",
+    '/:id/image',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("update", "Marketplace"),
+        requirePermission('update', 'Marketplace'),
       ],
       schema: { params: idParamsSchema },
     },
-    carouselController.deleteBannerImage
-  );
+    carouselController.deleteBannerImage,
+  )
 
   // Excluir banner permanentemente (e sua imagem no R2)
   typedApp.delete(
-    "/:id",
+    '/:id',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("delete", "Marketplace"),
+        requirePermission('delete', 'Marketplace'),
       ],
       schema: { params: idParamsSchema },
     },
-    carouselController.deleteBanner
-  );
+    carouselController.deleteBanner,
+  )
 
   // Reordenar banners
   typedApp.post(
-    "/reorder",
+    '/reorder',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("update", "Marketplace"),
+        requirePermission('update', 'Marketplace'),
       ],
       schema: { body: reorderCarouselBannersSchema },
     },
-    carouselController.reorderBanners
-  );
+    carouselController.reorderBanners,
+  )
 }
 
 export async function carouselPublicRoutes(app: FastifyInstance) {
   // Rota pública do Marketplace (retorna somente banners ativos com imagem válida ordenados por posição)
-  app.get("/", carouselController.listActiveBanners);
+  app.get('/', carouselController.listActiveBanners)
 }

@@ -1,30 +1,43 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 const safeUrlSchema = z
   .string()
   .refine(
     (val) => {
-      if (!val) return true;
-      const lower = val.trim().toLowerCase();
-      if (lower.startsWith("javascript:") || lower.startsWith("data:") || lower.startsWith("vbscript:")) {
-        return false;
+      if (!val) return true
+      const lower = val.trim().toLowerCase()
+      if (
+        lower.startsWith('javascript:') ||
+        lower.startsWith('data:') ||
+        lower.startsWith('vbscript:')
+      ) {
+        return false
       }
-      return true;
+      return true
     },
-    { message: "URL inválida ou contém protocolo não permitido." }
+    { message: 'URL inválida ou contém protocolo não permitido.' },
   )
   .optional()
-  .nullable();
+  .nullable()
 
 export const updateMarketplaceSettingsSchema = z
   .object({
-    publicName: z.string().min(2, "Nome público é obrigatório").max(100).optional(),
+    publicName: z
+      .string()
+      .min(2, 'Nome público é obrigatório')
+      .max(100)
+      .optional(),
     logoFileId: z.string().nullable().optional(),
     faviconFileId: z.string().nullable().optional(),
     logoUrl: safeUrlSchema,
     faviconUrl: safeUrlSchema,
     ogImageUrl: safeUrlSchema,
-    supportEmail: z.string().email("E-mail de suporte inválido").nullable().optional().or(z.literal("")),
+    supportEmail: z
+      .string()
+      .email('E-mail de suporte inválido')
+      .nullable()
+      .optional()
+      .or(z.literal('')),
     supportPhone: z.string().nullable().optional(),
     supportWhatsapp: z.string().nullable().optional(),
     address: z.string().nullable().optional(),
@@ -37,23 +50,34 @@ export const updateMarketplaceSettingsSchema = z
     announcementLink: safeUrlSchema,
     announcementDismissible: z.boolean().optional(),
     outOfStockBehavior: z
-      .enum(["show_badge", "hide_product", "move_to_end"], {
-        errorMap: () => ({ message: "Comportamento inválido. Opções válidas: show_badge, hide_product, move_to_end" }),
+      .enum(['show_badge', 'hide_product', 'move_to_end'], {
+        errorMap: () => ({
+          message:
+            'Comportamento inválido. Opções válidas: show_badge, hide_product, move_to_end',
+        }),
       })
       .optional(),
     carouselAutoplay: z.boolean().optional(),
     carouselIntervalSeconds: z.number().int().min(1).max(60).optional(),
     carouselTitlePosition: z
-      .enum(["TOP", "CENTER", "BOTTOM", "NONE"], {
-        errorMap: () => ({ message: "Posição de título inválida. Opções válidas: TOP, CENTER, BOTTOM, NONE" }),
+      .enum(['TOP', 'CENTER', 'BOTTOM', 'NONE'], {
+        errorMap: () => ({
+          message:
+            'Posição de título inválida. Opções válidas: TOP, CENTER, BOTTOM, NONE',
+        }),
       })
       .optional(),
     carouselTitleHAlign: z
-      .enum(["LEFT", "CENTER", "RIGHT"], {
-        errorMap: () => ({ message: "Alinhamento horizontal inválido. Opções válidas: LEFT, CENTER, RIGHT" }),
+      .enum(['LEFT', 'CENTER', 'RIGHT'], {
+        errorMap: () => ({
+          message:
+            'Alinhamento horizontal inválido. Opções válidas: LEFT, CENTER, RIGHT',
+        }),
       })
       .optional(),
   })
-  .passthrough();
+  .passthrough()
 
-export type UpdateMarketplaceSettingsInput = z.infer<typeof updateMarketplaceSettingsSchema>;
+export type UpdateMarketplaceSettingsInput = z.infer<
+  typeof updateMarketplaceSettingsSchema
+>

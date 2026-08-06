@@ -1,6 +1,7 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
+
 import {
   addItemToCartController,
   applyCouponController,
@@ -10,127 +11,128 @@ import {
   removeCouponController,
   syncCartController,
   updateCartItemQuantityController,
-} from "./cart.controller";
+} from './cart.controller'
 import {
   addItemToCartBodySchema,
   applyCouponBodySchema,
   syncCartBodySchema,
   updateCartItemQuantityBodySchema,
-} from "./cart.schemas";
+} from './cart.schemas'
 
 export async function cartRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   // Optional customer auth hook (does not reject anonymous requests)
-  const optionalAuth = async (req: any, reply: any) => {
+  const optionalAuth = async (req: FastifyRequest) => {
     try {
-      await app.authenticateCustomer(req, reply);
+      await app.authenticateCustomer(req, {} as FastifyReply)
     } catch {
       // Continue as guest
     }
-  };
+  }
 
   typedApp.get(
-    "/",
+    '/',
     {
       preHandler: [optionalAuth],
       schema: {
-        tags: ["Cart"],
-        summary: "Obter carrinho de compras ativo agrupado por loja vendedora",
+        tags: ['Cart'],
+        summary: 'Obter carrinho de compras ativo agrupado por loja vendedora',
       },
     },
     getCartController,
-  );
+  )
 
   typedApp.post(
-    "/items",
+    '/items',
     {
       preHandler: [optionalAuth],
       schema: {
-        tags: ["Cart"],
-        summary: "Adicionar item ao carrinho com validação de estoque/FEFO",
+        tags: ['Cart'],
+        summary: 'Adicionar item ao carrinho com validação de estoque/FEFO',
         body: addItemToCartBodySchema,
       },
     },
     addItemToCartController,
-  );
+  )
 
   typedApp.patch(
-    "/items/:id",
+    '/items/:id',
     {
       preHandler: [optionalAuth],
       schema: {
-        tags: ["Cart"],
-        summary: "Atualizar quantidade de um item no carrinho",
+        tags: ['Cart'],
+        summary: 'Atualizar quantidade de um item no carrinho',
         params: z.object({ id: z.string() }),
         body: updateCartItemQuantityBodySchema,
       },
     },
     updateCartItemQuantityController,
-  );
+  )
 
   typedApp.delete(
-    "/items/:id",
+    '/items/:id',
     {
       preHandler: [optionalAuth],
       schema: {
-        tags: ["Cart"],
-        summary: "Remover um item do carrinho",
+        tags: ['Cart'],
+        summary: 'Remover um item do carrinho',
         params: z.object({ id: z.string() }),
       },
     },
     removeCartItemController,
-  );
+  )
 
   typedApp.delete(
-    "/",
+    '/',
     {
       preHandler: [optionalAuth],
       schema: {
-        tags: ["Cart"],
-        summary: "Limpar todos os itens do carrinho",
+        tags: ['Cart'],
+        summary: 'Limpar todos os itens do carrinho',
       },
     },
     clearCartController,
-  );
+  )
 
   typedApp.post(
-    "/coupon",
+    '/coupon',
     {
       preHandler: [optionalAuth],
       schema: {
-        tags: ["Cart Coupons"],
-        summary: "Aplicar cupom de desconto ao carrinho",
+        tags: ['Cart Coupons'],
+        summary: 'Aplicar cupom de desconto ao carrinho',
         body: applyCouponBodySchema,
       },
     },
     applyCouponController,
-  );
+  )
 
   typedApp.delete(
-    "/coupon/:code",
+    '/coupon/:code',
     {
       preHandler: [optionalAuth],
       schema: {
-        tags: ["Cart Coupons"],
-        summary: "Remover cupom de desconto do carrinho",
+        tags: ['Cart Coupons'],
+        summary: 'Remover cupom de desconto do carrinho',
         params: z.object({ code: z.string() }),
       },
     },
     removeCouponController,
-  );
+  )
 
   typedApp.post(
-    "/sync",
+    '/sync',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Cart"],
-        summary: "Sincronizar/mesclar carrinho anônimo para a conta do cliente ao realizar login",
+        tags: ['Cart'],
+        summary:
+          'Sincronizar/mesclar carrinho anônimo para a conta do cliente ao realizar login',
         security: [{ bearerAuth: [] }],
         body: syncCartBodySchema,
       },
     },
     syncCartController,
-  );
+  )
 }

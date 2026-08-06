@@ -1,6 +1,7 @@
-import "./load-env";
-import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod";
+import './load-env'
+
+import { createEnv } from '@t3-oss/env-core'
+import { z } from 'zod'
 
 export const env = createEnv({
   server: {
@@ -16,9 +17,9 @@ export const env = createEnv({
     R2_PUBLIC_URL: z.string().url().optional(),
     REDIS_URL: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
-    EMAIL_FROM: z.string().default("Verttex <no-reply@verttexloja.com.br>"),
-    MANAGER_APP_URL: z.string().url().default("http://localhost:3002"),
-    MARKETPLACE_APP_URL: z.string().url().default("http://localhost:3001"),
+    EMAIL_FROM: z.string().default('Verttex <no-reply@verttexloja.com.br>'),
+    MANAGER_APP_URL: z.string().url().default('http://localhost:3002'),
+    MARKETPLACE_APP_URL: z.string().url().default('http://localhost:3001'),
   },
   runtimeEnv: {
     SERVER_PORT: process.env.SERVER_PORT,
@@ -38,6 +39,6 @@ export const env = createEnv({
     MARKETPLACE_APP_URL: process.env.MARKETPLACE_APP_URL,
   },
   emptyStringAsUndefined: true,
-});
-export type Env = typeof env;
-export { env as apiEnv };
+})
+export type Env = typeof env
+export { env as apiEnv }

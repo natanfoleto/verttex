@@ -1,27 +1,28 @@
-import { FastifyRequest } from "fastify";
-import { AppError } from "../../shared/errors/app-error";
-import { prisma } from "../../infrastructure/database/prisma";
-import { logAudit } from "../../shared/utils/audit";
-import { isValidGtin } from "../../shared/utils/barcode-validator";
+import { Prisma } from '@prisma/client'
+import { FastifyRequest } from 'fastify'
+
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { UploadService } from '../../shared/services/upload.service'
+import { logAudit } from '../../shared/utils/audit'
+import { isValidGtin } from '../../shared/utils/barcode-validator'
+import { ProductSearchIndexService } from '../catalog/product-search-index.service'
 import {
   CreateProductBody,
   ProductListQuery,
   UpdateProductBody,
-} from "./products.schemas";
-
-import { UploadService } from "../../shared/services/upload.service";
-import { ProductSearchIndexService } from "../catalog/product-search-index.service";
+} from './products.schemas'
 
 export function slugify(text: string): string {
   return text
     .toString()
     .toLowerCase()
     .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 export class ProductsService {
@@ -39,34 +40,34 @@ export class ProductsService {
       isFeatured,
       page,
       limit,
-    } = query;
+    } = query
 
-    const where: any = {
+    const where: Prisma.ProductWhereInput = {
       deletedAt: null,
-    };
+    }
 
-    if (storeId) where.storeId = storeId;
-    if (categoryId) where.categoryId = categoryId;
-    if (brandId) where.brandId = brandId;
-    if (status && status !== "all") where.status = status;
-    if (isPublished !== undefined) where.isPublished = isPublished;
-    if (isFeatured !== undefined) where.isFeatured = isFeatured;
+    if (storeId) where.storeId = storeId
+    if (categoryId) where.categoryId = categoryId
+    if (brandId) where.brandId = brandId
+    if (status && status !== 'all') where.status = status
+    if (isPublished !== undefined) where.isPublished = isPublished
+    if (isFeatured !== undefined) where.isFeatured = isFeatured
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { slug: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
         {
           variations: {
             some: {
-              sku: { contains: search, mode: "insensitive" },
+              sku: { contains: search, mode: 'insensitive' },
             },
           },
         },
-      ];
+      ]
     }
 
-    const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit
 
     const [items, total] = await Promise.all([
       prisma.product.findMany({
@@ -86,19 +87,19 @@ export class ProductsService {
                 },
               },
             },
-            orderBy: { position: "asc" },
+            orderBy: { position: 'asc' },
           },
           medias: {
             include: { file: true },
-            orderBy: [{ isMain: "desc" }, { position: "asc" }],
+            orderBy: [{ isMain: 'desc' }, { position: 'asc' }],
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
       prisma.product.count({ where }),
-    ]);
+    ])
 
     return {
       data: items,
@@ -108,18 +109,18 @@ export class ProductsService {
         total,
         totalPages: Math.ceil(total / limit),
       },
-    };
+    }
   }
 
   /**
    * Get single product by ID or slug
    */
   static async getProduct(idOrSlug: string, storeId?: string) {
-    const where: any = {
+    const where: Prisma.ProductWhereInput = {
       deletedAt: null,
       OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-    };
-    if (storeId) where.storeId = storeId;
+    }
+    if (storeId) where.storeId = storeId
 
     const product = await prisma.product.findFirst({
       where,
@@ -128,8 +129,8 @@ export class ProductsService {
         category: { select: { id: true, name: true, slug: true } },
         brand: { select: { id: true, name: true, slug: true } },
         options: {
-          include: { values: { orderBy: { position: "asc" } } },
-          orderBy: { position: "asc" },
+          include: { values: { orderBy: { position: 'asc' } } },
+          orderBy: { position: 'asc' },
         },
         variations: {
           where: { deletedAt: null },
@@ -142,20 +143,20 @@ export class ProductsService {
               },
             },
           },
-          orderBy: { position: "asc" },
+          orderBy: { position: 'asc' },
         },
         medias: {
           include: { file: true },
-          orderBy: [{ isMain: "desc" }, { position: "asc" }],
+          orderBy: [{ isMain: 'desc' }, { position: 'asc' }],
         },
       },
-    });
+    })
 
     if (!product) {
-      throw new AppError("NOT_FOUND", "Produto não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Produto não encontrado', 404)
     }
 
-    return product;
+    return product
   }
 
   /**
@@ -169,25 +170,21 @@ export class ProductsService {
     // 1. Verify Store exists
     const store = await prisma.store.findFirst({
       where: { id: body.storeId, deletedAt: null },
-    });
+    })
     if (!store) {
-      throw new AppError("NOT_FOUND", "Loja vinculada não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Loja vinculada não encontrada', 404)
     }
 
     // 2. Verify Category exists
     const category = await prisma.category.findFirst({
       where: { id: body.categoryId, deletedAt: null },
-    });
+    })
     if (!category) {
-      throw new AppError(
-        "NOT_FOUND",
-        "Categoria vinculada não encontrada",
-        404,
-      );
+      throw new AppError('NOT_FOUND', 'Categoria vinculada não encontrada', 404)
     }
 
     // 3. Generate slug
-    const finalSlug = body.slug ? slugify(body.slug) : slugify(body.name);
+    const finalSlug = body.slug ? slugify(body.slug) : slugify(body.name)
     const existingSlug = await prisma.product.findUnique({
       where: {
         storeId_slug: {
@@ -195,22 +192,22 @@ export class ProductsService {
           slug: finalSlug,
         },
       },
-    });
+    })
     if (existingSlug && !existingSlug.deletedAt) {
       throw new AppError(
-        "VALIDATION_ERROR",
+        'VALIDATION_ERROR',
         `Já existe um produto com o slug "${finalSlug}" nesta loja`,
         400,
-      );
+      )
     }
 
     // Validation for simple products
-    if (body.type === "simple" && (!body.price || body.price <= 0)) {
+    if (body.type === 'simple' && (!body.price || body.price <= 0)) {
       throw new AppError(
-        "VALIDATION_ERROR",
-        "Produtos simples devem possuir um preço de venda válido maior que zero",
+        'VALIDATION_ERROR',
+        'Produtos simples devem possuir um preço de venda válido maior que zero',
         400,
-      );
+      )
     }
 
     // 4. Create Product with options & variations in a transaction
@@ -244,20 +241,20 @@ export class ProductsService {
           createdBy: userId,
           updatedBy: userId,
         },
-      });
+      })
 
       // Generate default single variation for Simple Product
-      if (body.type === "simple") {
+      if (body.type === 'simple') {
         const generatedSku =
           body.sku ||
-          `${finalSlug.toUpperCase().slice(0, 8)}-${Date.now().toString(36).toUpperCase()}`;
-        
+          `${finalSlug.toUpperCase().slice(0, 8)}-${Date.now().toString(36).toUpperCase()}`
+
         if (body.barcode && !isValidGtin(body.barcode)) {
           throw new AppError(
-            "VALIDATION_ERROR",
-            "Código de barras GTIN/EAN inválido: dígito verificador ou tamanho incorreto",
+            'VALIDATION_ERROR',
+            'Código de barras GTIN/EAN inválido: dígito verificador ou tamanho incorreto',
             400,
-          );
+          )
         }
 
         await tx.productVariation.create({
@@ -270,49 +267,49 @@ export class ProductsService {
             promotionalPrice: body.promotionalPrice || null,
             costPrice: body.costPrice || null,
             isDefault: true,
-            status: "active",
+            status: 'active',
             weight: body.weight || null,
             width: body.width || null,
             height: body.height || null,
             length: body.length || null,
           },
-        });
-      } else if (body.type === "variable") {
+        })
+      } else if (body.type === 'variable') {
         // Validate duplicate option combinations & EAN barcodes
-        const seenCombinations = new Set<string>();
+        const seenCombinations = new Set<string>()
 
         for (const varItem of body.variations) {
           if (varItem.barcode && !isValidGtin(varItem.barcode)) {
             throw new AppError(
-              "VALIDATION_ERROR",
+              'VALIDATION_ERROR',
               `Código de barras GTIN/EAN inválido para a variação SKU "${varItem.sku}"`,
               400,
-            );
+            )
           }
 
           if (varItem.optionValues) {
             const comboKey = Object.entries(varItem.optionValues)
               .sort(([a], [b]) => a.localeCompare(b))
               .map(([k, v]) => `${k}:${v}`)
-              .join("|");
-            
+              .join('|')
+
             if (seenCombinations.has(comboKey)) {
               throw new AppError(
-                "VALIDATION_ERROR",
+                'VALIDATION_ERROR',
                 `Combinação de opções duplicada encontrada na variação SKU "${varItem.sku}"`,
                 400,
-              );
+              )
             }
-            seenCombinations.add(comboKey);
+            seenCombinations.add(comboKey)
           }
         }
 
         // Create options & values
-        const optionValueMap = new Map<string, string>();
+        const optionValueMap = new Map<string, string>()
 
         for (let i = 0; i < body.options.length; i++) {
-          const opt = body.options[i];
-          if (!opt) continue;
+          const opt = body.options[i]
+          if (!opt) continue
 
           const createdOption = await tx.productOption.create({
             data: {
@@ -320,11 +317,11 @@ export class ProductsService {
               name: opt.name,
               position: opt.position ?? i,
             },
-          });
+          })
 
           for (let j = 0; j < opt.values.length; j++) {
-            const valName = opt.values[j];
-            if (!valName) continue;
+            const valName = opt.values[j]
+            if (!valName) continue
 
             const createdVal = await tx.productOptionValue.create({
               data: {
@@ -332,15 +329,15 @@ export class ProductsService {
                 value: valName,
                 position: j,
               },
-            });
-            optionValueMap.set(`${opt.name}:${valName}`, createdVal.id);
+            })
+            optionValueMap.set(`${opt.name}:${valName}`, createdVal.id)
           }
         }
 
         // Create variations
         for (let k = 0; k < body.variations.length; k++) {
-          const varItem = body.variations[k];
-          if (!varItem) continue;
+          const varItem = body.variations[k]
+          if (!varItem) continue
 
           const createdVar = await tx.productVariation.create({
             data: {
@@ -352,24 +349,24 @@ export class ProductsService {
               promotionalPrice: varItem.promotionalPrice || null,
               costPrice: varItem.costPrice || null,
               isDefault: varItem.isDefault || k === 0,
-              status: varItem.status || "active",
+              status: varItem.status || 'active',
               position: k,
             },
-          });
+          })
 
           // Connect variation option values
           if (varItem.optionValues) {
             for (const [optName, valName] of Object.entries(
               varItem.optionValues,
             )) {
-              const optionValueId = optionValueMap.get(`${optName}:${valName}`);
+              const optionValueId = optionValueMap.get(`${optName}:${valName}`)
               if (optionValueId) {
                 await tx.productVariationValue.create({
                   data: {
                     variationId: createdVar.id,
                     optionValueId,
                   },
-                });
+                })
               }
             }
           }
@@ -379,11 +376,11 @@ export class ProductsService {
       // Link media files
       if (body.mediaFileIds && body.mediaFileIds.length > 0) {
         for (let idx = 0; idx < body.mediaFileIds.length; idx++) {
-          const fileId = body.mediaFileIds[idx];
-          if (!fileId) continue;
+          const fileId = body.mediaFileIds[idx]
+          if (!fileId) continue
           const isMain = body.mainMediaFileId
             ? fileId === body.mainMediaFileId
-            : idx === 0;
+            : idx === 0
           await tx.productMedia.create({
             data: {
               productId: createdProduct.id,
@@ -391,17 +388,17 @@ export class ProductsService {
               isMain,
               position: idx,
             },
-          });
+          })
         }
       }
 
-      return createdProduct;
-    });
+      return createdProduct
+    })
 
     await logAudit({
       userId,
-      action: "CREATE_PRODUCT",
-      entity: "Product",
+      action: 'CREATE_PRODUCT',
+      entity: 'Product',
       entityId: product.id,
       newValues: {
         name: product.name,
@@ -410,12 +407,14 @@ export class ProductsService {
         type: product.type,
       },
       req,
-    });
+    })
 
     // Sync Search Projection after creation
-    await ProductSearchIndexService.syncProductSearchDocument(product.id).catch(() => {});
+    await ProductSearchIndexService.syncProductSearchDocument(product.id).catch(
+      () => {},
+    )
 
-    return this.getProduct(product.id);
+    return this.getProduct(product.id)
   }
 
   /**
@@ -429,47 +428,47 @@ export class ProductsService {
   ) {
     const existing = await prisma.product.findFirst({
       where: { id, deletedAt: null },
-    });
+    })
 
     if (!existing) {
-      throw new AppError("NOT_FOUND", "Produto não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Produto não encontrado', 404)
     }
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       updatedBy: userId,
-    };
+    }
 
-    if (body.name !== undefined) payload.name = body.name;
+    if (body.name !== undefined) payload.name = body.name
     if (body.shortDescription !== undefined)
-      payload.shortDescription = body.shortDescription;
+      payload.shortDescription = body.shortDescription
     if (body.fullDescription !== undefined)
-      payload.fullDescription = body.fullDescription;
-    if (body.status !== undefined) payload.status = body.status;
-    if (body.isPublished !== undefined) payload.isPublished = body.isPublished;
-    if (body.isFeatured !== undefined) payload.isFeatured = body.isFeatured;
-    if (body.categoryId !== undefined) payload.categoryId = body.categoryId;
-    if (body.brandId !== undefined) payload.brandId = body.brandId;
-    if (body.weight !== undefined) payload.weight = body.weight;
-    if (body.width !== undefined) payload.width = body.width;
-    if (body.height !== undefined) payload.height = body.height;
-    if (body.length !== undefined) payload.length = body.length;
+      payload.fullDescription = body.fullDescription
+    if (body.status !== undefined) payload.status = body.status
+    if (body.isPublished !== undefined) payload.isPublished = body.isPublished
+    if (body.isFeatured !== undefined) payload.isFeatured = body.isFeatured
+    if (body.categoryId !== undefined) payload.categoryId = body.categoryId
+    if (body.brandId !== undefined) payload.brandId = body.brandId
+    if (body.weight !== undefined) payload.weight = body.weight
+    if (body.width !== undefined) payload.width = body.width
+    if (body.height !== undefined) payload.height = body.height
+    if (body.length !== undefined) payload.length = body.length
     if (body.hasBatchControl !== undefined)
-      payload.hasBatchControl = body.hasBatchControl;
+      payload.hasBatchControl = body.hasBatchControl
     if (body.hasExpirationControl !== undefined)
-      payload.hasExpirationControl = body.hasExpirationControl;
+      payload.hasExpirationControl = body.hasExpirationControl
     if (body.isExpirationRequired !== undefined)
-      payload.isExpirationRequired = body.isExpirationRequired;
+      payload.isExpirationRequired = body.isExpirationRequired
     if (body.defaultShelfLifeDays !== undefined)
-      payload.defaultShelfLifeDays = body.defaultShelfLifeDays;
+      payload.defaultShelfLifeDays = body.defaultShelfLifeDays
     if (body.minReceivingShelfLifeDays !== undefined)
-      payload.minReceivingShelfLifeDays = body.minReceivingShelfLifeDays;
+      payload.minReceivingShelfLifeDays = body.minReceivingShelfLifeDays
     if (body.minDeliveryShelfLifeDays !== undefined)
-      payload.minDeliveryShelfLifeDays = body.minDeliveryShelfLifeDays;
+      payload.minDeliveryShelfLifeDays = body.minDeliveryShelfLifeDays
     if (body.warningShelfLifeDays !== undefined)
-      payload.warningShelfLifeDays = body.warningShelfLifeDays;
+      payload.warningShelfLifeDays = body.warningShelfLifeDays
 
     if (body.slug !== undefined) {
-      const finalSlug = slugify(body.slug);
+      const finalSlug = slugify(body.slug)
       if (finalSlug !== existing.slug) {
         const slugExists = await prisma.product.findUnique({
           where: {
@@ -478,28 +477,28 @@ export class ProductsService {
               slug: finalSlug,
             },
           },
-        });
+        })
         if (slugExists && slugExists.id !== id && !slugExists.deletedAt) {
           throw new AppError(
-            "VALIDATION_ERROR",
+            'VALIDATION_ERROR',
             `Já existe um produto com o slug "${finalSlug}" nesta loja`,
             400,
-          );
+          )
         }
-        payload.slug = finalSlug;
+        payload.slug = finalSlug
       }
     }
 
     await prisma.product.update({
       where: { id },
       data: payload,
-    });
+    })
 
     // If updating simple product price, promotionalPrice, costPrice, SKU or dimensions
-    if (existing.type === "simple") {
+    if (existing.type === 'simple') {
       const defaultVar = await prisma.productVariation.findFirst({
         where: { productId: id, isDefault: true },
-      });
+      })
       if (defaultVar) {
         await prisma.productVariation.update({
           where: { id: defaultVar.id },
@@ -517,7 +516,7 @@ export class ProductsService {
             ...(body.height !== undefined ? { height: body.height } : {}),
             ...(body.length !== undefined ? { length: body.length } : {}),
           },
-        });
+        })
       }
     }
 
@@ -525,25 +524,25 @@ export class ProductsService {
     if (body.mediaFileIds !== undefined) {
       const existingMedias = await prisma.productMedia.findMany({
         where: { productId: id },
-      });
+      })
 
-      const existingFileIds = existingMedias.map((m) => m.fileId);
-      const newFileIds = body.mediaFileIds.filter(Boolean);
+      const existingFileIds = existingMedias.map((m) => m.fileId)
+      const newFileIds = body.mediaFileIds.filter(Boolean)
       const removedFileIds = existingFileIds.filter(
         (fId) => !newFileIds.includes(fId),
-      );
+      )
 
       await prisma.productMedia.deleteMany({
         where: { productId: id },
-      });
+      })
 
       if (newFileIds.length > 0) {
         for (let idx = 0; idx < newFileIds.length; idx++) {
-          const fileId = newFileIds[idx];
-          if (!fileId) continue;
+          const fileId = newFileIds[idx]
+          if (!fileId) continue
           const isMain = body.mainMediaFileId
             ? fileId === body.mainMediaFileId
-            : idx === 0;
+            : idx === 0
           await prisma.productMedia.create({
             data: {
               productId: id,
@@ -551,7 +550,7 @@ export class ProductsService {
               isMain,
               position: idx,
             },
-          });
+          })
         }
       }
 
@@ -559,17 +558,17 @@ export class ProductsService {
       for (const removedFileId of removedFileIds) {
         const usageCount = await prisma.productMedia.count({
           where: { fileId: removedFileId },
-        });
+        })
         if (usageCount === 0) {
-          await UploadService.deleteFile(removedFileId);
+          await UploadService.deleteFile(removedFileId)
         }
       }
     }
 
     await logAudit({
       userId,
-      action: "UPDATE_PRODUCT",
-      entity: "Product",
+      action: 'UPDATE_PRODUCT',
+      entity: 'Product',
       entityId: id,
       oldValues: {
         name: existing.name,
@@ -578,12 +577,14 @@ export class ProductsService {
       },
       newValues: payload,
       req,
-    });
+    })
 
     // Sync Search Projection after update
-    await ProductSearchIndexService.syncProductSearchDocument(id).catch(() => {});
+    await ProductSearchIndexService.syncProductSearchDocument(id).catch(
+      () => {},
+    )
 
-    return this.getProduct(id);
+    return this.getProduct(id)
   }
 
   /**
@@ -594,37 +595,37 @@ export class ProductsService {
     userId: string,
     req?: FastifyRequest,
   ) {
-    const product = await this.getProduct(id);
+    const product = await this.getProduct(id)
 
     // Readiness Validation Rules:
     // 1. Store active
-    if (product.store.status !== "active") {
+    if (product.store.status !== 'active') {
       throw new AppError(
-        "VALIDATION_ERROR",
-        "Não é possível publicar o produto pois a loja vinculada está inativa ou em rascunho",
+        'VALIDATION_ERROR',
+        'Não é possível publicar o produto pois a loja vinculada está inativa ou em rascunho',
         400,
-      );
+      )
     }
 
     // 2. Product active
-    if (product.status !== "active") {
+    if (product.status !== 'active') {
       throw new AppError(
-        "VALIDATION_ERROR",
-        "Ative o cadastro do produto (status: active) antes de publicá-lo no Marketplace",
+        'VALIDATION_ERROR',
+        'Ative o cadastro do produto (status: active) antes de publicá-lo no Marketplace',
         400,
-      );
+      )
     }
 
     // 3. At least 1 active variation with price > 0
     const activeVariations = product.variations.filter(
-      (v) => v.status === "active" && Number(v.price) > 0,
-    );
+      (v) => v.status === 'active' && Number(v.price) > 0,
+    )
     if (activeVariations.length === 0) {
       throw new AppError(
-        "VALIDATION_ERROR",
-        "O produto deve ter pelo menos 1 variação ativa com preço de venda maior que zero para ser publicado",
+        'VALIDATION_ERROR',
+        'O produto deve ter pelo menos 1 variação ativa com preço de venda maior que zero para ser publicado',
         400,
-      );
+      )
     }
 
     await prisma.product.update({
@@ -633,21 +634,23 @@ export class ProductsService {
         isPublished: true,
         updatedBy: userId,
       },
-    });
+    })
 
     await logAudit({
       userId,
-      action: "PUBLISH_PRODUCT",
-      entity: "Product",
+      action: 'PUBLISH_PRODUCT',
+      entity: 'Product',
       entityId: id,
       newValues: { isPublished: true },
       req,
-    });
+    })
 
     // Sync Search Projection after publish (isPublished changed)
-    await ProductSearchIndexService.syncProductSearchDocument(id).catch(() => {});
+    await ProductSearchIndexService.syncProductSearchDocument(id).catch(
+      () => {},
+    )
 
-    return this.getProduct(id);
+    return this.getProduct(id)
   }
 
   /**
@@ -660,30 +663,30 @@ export class ProductsService {
   ) {
     const existing = await prisma.product.findFirst({
       where: { id, deletedAt: null },
-    });
+    })
 
     if (!existing) {
-      throw new AppError("NOT_FOUND", "Produto não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Produto não encontrado', 404)
     }
 
     await prisma.product.update({
       where: { id },
       data: {
-        status: "archived",
+        status: 'archived',
         isPublished: false,
         deletedAt: new Date(),
         deletedBy: userId,
       },
-    });
+    })
 
     await logAudit({
       userId,
-      action: "ARCHIVE_PRODUCT",
-      entity: "Product",
+      action: 'ARCHIVE_PRODUCT',
+      entity: 'Product',
       entityId: id,
       oldValues: { name: existing.name, status: existing.status },
       req,
-    });
+    })
 
     // Note: archiveProduct is a soft-delete (sets deletedAt/status/isPublished).
     // onDelete: Cascade on ProductSearchDocument only fires on physical deletion.
@@ -691,9 +694,8 @@ export class ProductsService {
     // always filters by { status: "active", isPublished: true, deletedAt: null },
     // so the archived product will never surface in any public Discovery result.
 
-    return { message: "Produto arquivado com sucesso" };
+    return { message: 'Produto arquivado com sucesso' }
   }
-
 
   /**
    * Resolve effective fiscal parameters (variation values override parent product defaults)
@@ -702,16 +704,19 @@ export class ProductsService {
     const variation = await prisma.productVariation.findUnique({
       where: { id: variationId },
       include: { product: true },
-    });
+    })
 
-    if (!variation) return null;
+    if (!variation) return null
 
     return {
       ncm: variation.ncm || variation.product.ncm || null,
       cest: variation.cest || variation.product.cest || null,
-      fiscalOrigin: variation.fiscalOrigin ?? variation.product.fiscalOrigin ?? 0,
-      commercialUnit: variation.commercialUnit || variation.product.commercialUnit || "UN",
-      taxableUnit: variation.taxableUnit || variation.product.taxableUnit || "UN",
-    };
+      fiscalOrigin:
+        variation.fiscalOrigin ?? variation.product.fiscalOrigin ?? 0,
+      commercialUnit:
+        variation.commercialUnit || variation.product.commercialUnit || 'UN',
+      taxableUnit:
+        variation.taxableUnit || variation.product.taxableUnit || 'UN',
+    }
   }
 }

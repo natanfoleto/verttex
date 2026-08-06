@@ -1,78 +1,79 @@
-import { FastifyReply } from "fastify";
-import { FastifyZodRequest } from "../../@types/fastify";
-import { AppError } from "../../shared/errors/app-error";
-import { LotsService } from "./lots.service";
+import { FastifyReply } from 'fastify'
+
+import { FastifyZodRequest } from '../../@types/fastify'
+import { AppError } from '../../shared/errors/app-error'
 import {
   CreateLotBody,
   ListLotsQuery,
   UpdateLotStatusBody,
-} from "./lots.schemas";
+} from './lots.schemas'
+import { LotsService } from './lots.service'
 
 export async function createLotController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const userId = request.userPayload?.id;
+  const userId = request.userPayload?.id
   if (!userId) {
-    throw new AppError("UNAUTHORIZED", "Usuário não autenticado", 401);
+    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
   }
 
-  const body = request.body as CreateLotBody;
-  const result = await LotsService.createLot(body, userId, request);
+  const body = request.body as CreateLotBody
+  const result = await LotsService.createLot(body, userId, request)
 
   return reply.status(201).send({
     success: true,
     data: result,
-  });
+  })
 }
 
 export async function listLotsController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const query = request.query as ListLotsQuery;
-  const result = await LotsService.listLots(query);
+  const query = request.query as ListLotsQuery
+  const result = await LotsService.listLots(query)
 
   return reply.send({
     success: true,
     ...result,
-  });
+  })
 }
 
 export async function getLotDetailsController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const params = request.params as { lotId: string };
-  const lot = await LotsService.getLotDetails(params.lotId);
+  const params = request.params as { lotId: string }
+  const lot = await LotsService.getLotDetails(params.lotId)
 
   return reply.send({
     success: true,
     data: lot,
-  });
+  })
 }
 
 export async function updateLotStatusController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const userId = request.userPayload?.id;
+  const userId = request.userPayload?.id
   if (!userId) {
-    throw new AppError("UNAUTHORIZED", "Usuário não autenticado", 401);
+    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
   }
 
-  const params = request.params as { lotId: string };
-  const body = request.body as UpdateLotStatusBody;
+  const params = request.params as { lotId: string }
+  const body = request.body as UpdateLotStatusBody
 
   const result = await LotsService.updateLotStatus(
     params.lotId,
     body,
     userId,
     request,
-  );
+  )
 
   return reply.send({
     success: true,
     data: result,
-  });
+  })
 }

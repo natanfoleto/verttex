@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatApiErrorMessage } from './format-api-error'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
@@ -59,13 +58,12 @@ export interface ApiClientOptions extends Omit<RequestInit, 'body'> {
   responseType?: 'json' | 'text' | 'blob'
 }
 
-export async function apiClient<T = any>(
+export async function apiClient<T = unknown>(
   endpoint: string,
   options: ApiClientOptions = {},
 ): Promise<T> {
   const { responseType = 'json', ...fetchOptions } = options
   const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`
-
   const isFormData =
     typeof FormData !== 'undefined' && fetchOptions.body instanceof FormData
 

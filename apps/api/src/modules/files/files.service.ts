@@ -1,12 +1,13 @@
-import { FastifyRequest } from "fastify";
-import { prisma } from "../../infrastructure/database/prisma";
+import { FastifyRequest } from 'fastify'
+
+import { prisma } from '../../infrastructure/database/prisma'
+import { r2Storage } from '../../infrastructure/storage/r2'
 import {
-  UploadService,
   DirectUploadParams,
-} from "../../shared/services/upload.service";
-import { FinalizeUploadParams, RequestUploadBody } from "./files.schemas";
-import { logAudit } from "../../shared/utils/audit";
-import { r2Storage } from "../../infrastructure/storage/r2";
+  UploadService,
+} from '../../shared/services/upload.service'
+import { logAudit } from '../../shared/utils/audit'
+import { FinalizeUploadParams, RequestUploadBody } from './files.schemas'
 
 export class FilesService {
   static async requestUpload(
@@ -21,12 +22,12 @@ export class FilesService {
       purpose: body.purpose,
       storeId: body.storeId,
       userId,
-    });
+    })
 
     await logAudit({
       userId,
-      action: "REQUEST_FILE_UPLOAD",
-      entity: "File",
+      action: 'REQUEST_FILE_UPLOAD',
+      entity: 'File',
       entityId: result.fileId,
       newValues: {
         fileName: body.fileName,
@@ -34,18 +35,18 @@ export class FilesService {
         purpose: body.purpose,
       },
       req,
-    });
+    })
 
-    return result;
+    return result
   }
 
   static async directUpload(params: DirectUploadParams, req?: FastifyRequest) {
-    const result = await UploadService.directUpload(params);
+    const result = await UploadService.directUpload(params)
 
     await logAudit({
       userId: params.userId || null,
-      action: "UPLOAD_FILE",
-      entity: "File",
+      action: 'UPLOAD_FILE',
+      entity: 'File',
       entityId: result.id,
       newValues: {
         fileName: params.fileName,
@@ -53,9 +54,9 @@ export class FilesService {
         purpose: params.purpose,
       },
       req,
-    });
+    })
 
-    return result;
+    return result
   }
 
   static async finalizeUpload(
@@ -63,18 +64,18 @@ export class FilesService {
     userId: string,
     req?: FastifyRequest,
   ) {
-    const file = await UploadService.finalizeUpload(params.fileId);
+    const file = await UploadService.finalizeUpload(params.fileId)
 
     await logAudit({
       userId,
-      action: "FINALIZE_FILE_UPLOAD",
-      entity: "File",
+      action: 'FINALIZE_FILE_UPLOAD',
+      entity: 'File',
       entityId: file.id,
       newValues: { status: file.status, checksum: file.checksum },
       req,
-    });
+    })
 
-    return file;
+    return file
   }
 
   static async getFile(fileId: string) {
@@ -83,14 +84,14 @@ export class FilesService {
         OR: [{ id: fileId }, { publicId: fileId }],
         deletedAt: null,
       },
-    });
+    })
 
-    if (!file) return null;
+    if (!file) return null
 
-    const publicUrl = await r2Storage.getFileUrl(file.objectKey);
+    const publicUrl = await r2Storage.getFileUrl(file.objectKey)
     return {
       ...file,
       publicUrl,
-    };
+    }
   }
 }

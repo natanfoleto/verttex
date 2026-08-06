@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const auditQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -8,6 +8,6 @@ export const auditQuerySchema = z.object({
   action: z.string().optional(),
   entity: z.string().optional(),
   entityId: z.string().optional(),
-});
+})
 
-export type AuditQuery = z.infer<typeof auditQuerySchema>;
+export type AuditQuery = z.infer<typeof auditQuerySchema>

@@ -47,8 +47,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "@verttex/eslint-config/react.js",
-      "next/core-web-vitals"
+      "@verttex/eslint-config/react.js"
     ]
   }
 }

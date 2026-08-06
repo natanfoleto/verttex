@@ -1,9 +1,10 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { isValidGtin } from "../../shared/utils/barcode-validator";
-import { ProductsService } from "./products.service";
-import { prisma } from "../../infrastructure/database/prisma";
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock("../../infrastructure/database/prisma", () => ({
+import { prisma } from '../../infrastructure/database/prisma'
+import { isValidGtin } from '../../shared/utils/barcode-validator'
+import { ProductsService } from './products.service'
+
+vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     store: {
       findFirst: vi.fn(),
@@ -32,154 +33,168 @@ vi.mock("../../infrastructure/database/prisma", () => ({
     },
     $transaction: vi.fn((callback) => callback(prisma)),
   },
-}));
+}))
 
-vi.mock("../../shared/utils/audit", () => ({
+vi.mock('../../shared/utils/audit', () => ({
   logAudit: vi.fn().mockResolvedValue(undefined),
-}));
+}))
 
-describe("Variant Integrity & GTIN Validation Tests (Fase 1)", () => {
+describe('Variant Integrity & GTIN Validation Tests (Fase 1)', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
-  describe("GS1 GTIN/EAN Modulo 10 Barcode Validation", () => {
-    it("should accept valid EAN-13 barcodes with correct checksum", () => {
-      expect(isValidGtin("7891000100103")).toBe(true);
-      expect(isValidGtin("7891234567895")).toBe(true);
-    });
+  describe('GS1 GTIN/EAN Modulo 10 Barcode Validation', () => {
+    it('should accept valid EAN-13 barcodes with correct checksum', () => {
+      expect(isValidGtin('7891000100103')).toBe(true)
+      expect(isValidGtin('7891234567895')).toBe(true)
+    })
 
-    it("should accept valid EAN-8 and GTIN-14 barcodes", () => {
-      expect(isValidGtin("96385074")).toBe(true);
-      expect(isValidGtin("17891234567892")).toBe(true);
-    });
+    it('should accept valid EAN-8 and GTIN-14 barcodes', () => {
+      expect(isValidGtin('96385074')).toBe(true)
+      expect(isValidGtin('17891234567892')).toBe(true)
+    })
 
-    it("should accept null or empty barcodes as optional", () => {
-      expect(isValidGtin(null)).toBe(true);
-      expect(isValidGtin("")).toBe(true);
-      expect(isValidGtin(undefined)).toBe(true);
-    });
+    it('should accept null or empty barcodes as optional', () => {
+      expect(isValidGtin(null)).toBe(true)
+      expect(isValidGtin('')).toBe(true)
+      expect(isValidGtin(undefined)).toBe(true)
+    })
 
-    it("should reject invalid barcode lengths or bad checksums", () => {
-      expect(isValidGtin("7891000100100")).toBe(false); // bad check digit
-      expect(isValidGtin("12345")).toBe(false); // bad length
-      expect(isValidGtin("abc1234567890")).toBe(false); // non-digits
-    });
-  });
+    it('should reject invalid barcode lengths or bad checksums', () => {
+      expect(isValidGtin('7891000100100')).toBe(false) // bad check digit
+      expect(isValidGtin('12345')).toBe(false) // bad length
+      expect(isValidGtin('abc1234567890')).toBe(false) // non-digits
+    })
+  })
 
-  describe("Product Variation Integrity", () => {
-    it("should throw error if simple product has invalid GTIN/EAN", async () => {
-      vi.mocked(prisma.store.findFirst).mockResolvedValue({ id: "store-1" } as any);
-      vi.mocked(prisma.category.findFirst).mockResolvedValue({ id: "cat-1" } as any);
+  describe('Product Variation Integrity', () => {
+    it('should throw error if simple product has invalid GTIN/EAN', async () => {
+      vi.mocked(prisma.store.findFirst).mockResolvedValue({
+        id: 'store-1',
+      } as unknown as Awaited<ReturnType<typeof prisma.store.findFirst>>)
+      vi.mocked(prisma.category.findFirst).mockResolvedValue({
+        id: 'cat-1',
+      } as unknown as Awaited<ReturnType<typeof prisma.category.findFirst>>)
 
       await expect(
         ProductsService.createProduct(
           {
-            storeId: "store-1",
-            categoryId: "cat-1",
-            name: "Queijo Teste",
-            type: "simple",
-            status: "active",
+            storeId: 'store-1',
+            categoryId: 'cat-1',
+            name: 'Queijo Teste',
+            type: 'simple',
+            status: 'active',
             isPublished: false,
             isFeatured: false,
             price: 50.0,
-            barcode: "1234567890123", // invalid GTIN checksum
-          } as any,
-          "user-1",
+            barcode: '1234567890123', // invalid GTIN checksum
+          } as Parameters<typeof ProductsService.createProduct>[0],
+          'user-1',
         ),
-      ).rejects.toThrow("Código de barras GTIN/EAN inválido");
-    });
+      ).rejects.toThrow('Código de barras GTIN/EAN inválido')
+    })
 
-    it("should throw error if variable product contains duplicate option combinations", async () => {
-      vi.mocked(prisma.store.findFirst).mockResolvedValue({ id: "store-1" } as any);
-      vi.mocked(prisma.category.findFirst).mockResolvedValue({ id: "cat-1" } as any);
+    it('should throw error if variable product contains duplicate option combinations', async () => {
+      vi.mocked(prisma.store.findFirst).mockResolvedValue({
+        id: 'store-1',
+      } as unknown as Awaited<ReturnType<typeof prisma.store.findFirst>>)
+      vi.mocked(prisma.category.findFirst).mockResolvedValue({
+        id: 'cat-1',
+      } as unknown as Awaited<ReturnType<typeof prisma.category.findFirst>>)
 
       await expect(
         ProductsService.createProduct(
           {
-            storeId: "store-1",
-            categoryId: "cat-1",
-            name: "Camiseta Verttex",
-            type: "variable",
-            status: "active",
+            storeId: 'store-1',
+            categoryId: 'cat-1',
+            name: 'Camiseta Verttex',
+            type: 'variable',
+            status: 'active',
             isPublished: false,
             isFeatured: false,
             options: [
-              { name: "Cor", values: ["Azul", "Preto"] },
-              { name: "Tamanho", values: ["M"] },
+              { name: 'Cor', values: ['Azul', 'Preto'] },
+              { name: 'Tamanho', values: ['M'] },
             ],
             variations: [
               {
-                sku: "TSHIRT-BLU-M-1",
+                sku: 'TSHIRT-BLU-M-1',
                 price: 79.9,
-                optionValues: { Cor: "Azul", Tamanho: "M" },
+                optionValues: { Cor: 'Azul', Tamanho: 'M' },
               },
               {
-                sku: "TSHIRT-BLU-M-2", // Duplicate option combination
+                sku: 'TSHIRT-BLU-M-2', // Duplicate option combination
                 price: 79.9,
-                optionValues: { Cor: "Azul", Tamanho: "M" },
+                optionValues: { Cor: 'Azul', Tamanho: 'M' },
               },
             ],
-          } as any,
-          "user-1",
+          } as unknown as Parameters<typeof ProductsService.createProduct>[0],
+          'user-1',
         ),
-      ).rejects.toThrow("Combinação de opções duplicada encontrada");
-    });
+      ).rejects.toThrow('Combinação de opções duplicada encontrada')
+    })
 
-    it("should resolve effective fiscal data inheriting from parent product when variation values are null", async () => {
+    it('should resolve effective fiscal data inheriting from parent product when variation values are null', async () => {
       vi.mocked(prisma.productVariation.findUnique).mockResolvedValue({
-        id: "var-1",
+        id: 'var-1',
         ncm: null,
         cest: null,
         fiscalOrigin: null,
         commercialUnit: null,
         taxableUnit: null,
         product: {
-          ncm: "0406.90.10",
-          cest: "17.001.00",
+          ncm: '0406.90.10',
+          cest: '17.001.00',
           fiscalOrigin: 0,
-          commercialUnit: "KG",
-          taxableUnit: "KG",
+          commercialUnit: 'KG',
+          taxableUnit: 'KG',
         },
-      } as any);
+      } as unknown as Awaited<
+        ReturnType<typeof prisma.productVariation.findFirst>
+      >)
 
-      const fiscalData = await ProductsService.resolveEffectiveFiscalData("var-1");
+      const fiscalData =
+        await ProductsService.resolveEffectiveFiscalData('var-1')
 
       expect(fiscalData).toEqual({
-        ncm: "0406.90.10",
-        cest: "17.001.00",
+        ncm: '0406.90.10',
+        cest: '17.001.00',
         fiscalOrigin: 0,
-        commercialUnit: "KG",
-        taxableUnit: "KG",
-      });
-    });
+        commercialUnit: 'KG',
+        taxableUnit: 'KG',
+      })
+    })
 
-    it("should allow variation to override parent product fiscal data", async () => {
+    it('should allow variation to override parent product fiscal data', async () => {
       vi.mocked(prisma.productVariation.findUnique).mockResolvedValue({
-        id: "var-2",
-        ncm: "8471.60.52",
-        cest: "21.002.00",
+        id: 'var-2',
+        ncm: '8471.60.52',
+        cest: '21.002.00',
         fiscalOrigin: 1,
-        commercialUnit: "UN",
-        taxableUnit: "UN",
+        commercialUnit: 'UN',
+        taxableUnit: 'UN',
         product: {
-          ncm: "0406.90.10",
-          cest: "17.001.00",
+          ncm: '0406.90.10',
+          cest: '17.001.00',
           fiscalOrigin: 0,
-          commercialUnit: "KG",
-          taxableUnit: "KG",
+          commercialUnit: 'KG',
+          taxableUnit: 'KG',
         },
-      } as any);
+      } as unknown as Awaited<
+        ReturnType<typeof prisma.productVariation.findFirst>
+      >)
 
-      const fiscalData = await ProductsService.resolveEffectiveFiscalData("var-2");
+      const fiscalData =
+        await ProductsService.resolveEffectiveFiscalData('var-2')
 
       expect(fiscalData).toEqual({
-        ncm: "8471.60.52",
-        cest: "21.002.00",
+        ncm: '8471.60.52',
+        cest: '21.002.00',
         fiscalOrigin: 1,
-        commercialUnit: "UN",
-        taxableUnit: "UN",
-      });
-    });
-  });
-});
+        commercialUnit: 'UN',
+        taxableUnit: 'UN',
+      })
+    })
+  })
+})

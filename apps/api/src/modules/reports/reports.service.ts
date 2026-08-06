@@ -1,24 +1,27 @@
-import { prisma } from "../../infrastructure/database/prisma";
-import { logAudit } from "../../shared/utils/audit";
-import { DateRangeQueryInput, ExportReportsQueryInput } from "./reports.schemas";
+import { Prisma } from '@prisma/client'
+
+import { prisma } from '../../infrastructure/database/prisma'
+import { logAudit } from '../../shared/utils/audit'
+import { DateRangeQueryInput, ExportReportsQueryInput } from './reports.schemas'
 
 export class ReportsService {
   /**
    * Calculates total sales revenue, order count, and average ticket size.
    */
   static async getSalesSummary(query: DateRangeQueryInput) {
-    const whereCondition: any = {
-      status: { in: ["PAID", "CONFIRMED", "SHIPPED", "DELIVERED"] },
-    };
+    const whereCondition: Prisma.OrderWhereInput = {
+      status: { in: ['PAID', 'CONFIRMED', 'SHIPPED', 'DELIVERED'] },
+    }
 
     if (query.storeId) {
-      whereCondition.storeId = query.storeId;
+      whereCondition.storeId = query.storeId
     }
 
     if (query.startDate || query.endDate) {
-      whereCondition.createdAt = {};
-      if (query.startDate) whereCondition.createdAt.gte = new Date(query.startDate);
-      if (query.endDate) whereCondition.createdAt.lte = new Date(query.endDate);
+      whereCondition.createdAt = {}
+      if (query.startDate)
+        whereCondition.createdAt.gte = new Date(query.startDate)
+      if (query.endDate) whereCondition.createdAt.lte = new Date(query.endDate)
     }
 
     const orders = await prisma.order.findMany({
@@ -26,32 +29,36 @@ export class ReportsService {
       select: {
         totalAmount: true,
       },
-    });
+    })
 
-    const orderCount = orders.length;
-    const totalRevenue = orders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
-    const averageTicket = orderCount > 0 ? Number((totalRevenue / orderCount).toFixed(2)) : 0;
+    const orderCount = orders.length
+    const totalRevenue = orders.reduce(
+      (sum, o) => sum + Number(o.totalAmount),
+      0,
+    )
+    const averageTicket =
+      orderCount > 0 ? Number((totalRevenue / orderCount).toFixed(2)) : 0
 
     return {
-      storeId: query.storeId || "ALL_STORES",
+      storeId: query.storeId || 'ALL_STORES',
       orderCount,
       totalRevenue: Number(totalRevenue.toFixed(2)),
       averageTicket,
-    };
+    }
   }
 
   /**
    * Calculates top selling products and classifies into ABC Curve (A: 80%, B: 15%, C: 5%).
    */
   static async getTopProductsAndAbc(query: DateRangeQueryInput) {
-    const whereCondition: any = {
+    const whereCondition: Prisma.OrderItemWhereInput = {
       order: {
-        status: { in: ["PAID", "CONFIRMED", "SHIPPED", "DELIVERED"] },
+        status: { in: ['PAID', 'CONFIRMED', 'SHIPPED', 'DELIVERED'] },
       },
-    };
+    }
 
-    if (query.storeId) {
-      whereCondition.order.storeId = query.storeId;
+    if (query.storeId && whereCondition.order) {
+      whereCondition.order.storeId = query.storeId
     }
 
     const items = await prisma.orderItem.findMany({
@@ -63,10 +70,19 @@ export class ReportsService {
         quantity: true,
         subtotal: true,
       },
-    });
+    })
 
     // Group items by productId
-    const map = new Map<string, { productId: string; name: string; sku: string; quantity: number; revenue: number }>();
+    const map = new Map<
+      string,
+      {
+        productId: string
+        name: string
+        sku: string
+        quantity: number
+        revenue: number
+      }
+    >()
 
     for (const item of items) {
       const existing = map.get(item.productId) || {
@@ -75,49 +91,55 @@ export class ReportsService {
         sku: item.sku,
         quantity: 0,
         revenue: 0,
-      };
-      existing.quantity += item.quantity;
-      existing.revenue += Number(item.subtotal);
-      map.set(item.productId, existing);
+      }
+      existing.quantity += item.quantity
+      existing.revenue += Number(item.subtotal)
+      map.set(item.productId, existing)
     }
 
-    const sortedProducts = Array.from(map.values()).sort((a, b) => b.revenue - a.revenue);
-    const grandTotalRevenue = sortedProducts.reduce((sum, p) => sum + p.revenue, 0);
+    const sortedProducts = Array.from(map.values()).sort(
+      (a, b) => b.revenue - a.revenue,
+    )
+    const grandTotalRevenue = sortedProducts.reduce(
+      (sum, p) => sum + p.revenue,
+      0,
+    )
 
-    let runningSum = 0;
+    let runningSum = 0
     const abcProducts = sortedProducts.map((p) => {
-      runningSum += p.revenue;
-      const cumulativePercent = grandTotalRevenue > 0 ? (runningSum / grandTotalRevenue) * 100 : 0;
-      let category: "A" | "B" | "C" = "C";
-      if (cumulativePercent <= 80) category = "A";
-      else if (cumulativePercent <= 95) category = "B";
+      runningSum += p.revenue
+      const cumulativePercent =
+        grandTotalRevenue > 0 ? (runningSum / grandTotalRevenue) * 100 : 0
+      let category: 'A' | 'B' | 'C' = 'C'
+      if (cumulativePercent <= 80) category = 'A'
+      else if (cumulativePercent <= 95) category = 'B'
 
       return {
         ...p,
         revenue: Number(p.revenue.toFixed(2)),
         cumulativePercent: Number(cumulativePercent.toFixed(1)),
         category,
-      };
-    });
+      }
+    })
 
     return {
-      storeId: query.storeId || "ALL_STORES",
+      storeId: query.storeId || 'ALL_STORES',
       totalProducts: abcProducts.length,
       grandTotalRevenue: Number(grandTotalRevenue.toFixed(2)),
       products: abcProducts,
-    };
+    }
   }
 
   /**
    * Generates inventory losses report aggregated by discard reason (Damage vs Expiration).
    */
   static async getInventoryLossesReport(query: DateRangeQueryInput) {
-    const whereCondition: any = {
-      type: { in: ["DAMAGE_DISCARD", "EXPIRATION_DISCARD"] },
-    };
+    const whereCondition: Prisma.StockMovementWhereInput = {
+      type: { in: ['DAMAGE_DISCARD', 'EXPIRATION_DISCARD'] },
+    }
 
     if (query.storeId) {
-      whereCondition.storeId = query.storeId;
+      whereCondition.storeId = query.storeId
     }
 
     const movements = await prisma.stockMovement.findMany({
@@ -128,61 +150,63 @@ export class ReportsService {
         reason: true,
         createdAt: true,
       },
-    });
+    })
 
     const damageTotal = movements
-      .filter((m) => m.type === "DAMAGE_DISCARD")
-      .reduce((sum, m) => sum + m.quantity, 0);
+      .filter((m) => m.type === 'DAMAGE_DISCARD')
+      .reduce((sum, m) => sum + m.quantity, 0)
 
     const expirationTotal = movements
-      .filter((m) => m.type === "EXPIRATION_DISCARD")
-      .reduce((sum, m) => sum + m.quantity, 0);
+      .filter((m) => m.type === 'EXPIRATION_DISCARD')
+      .reduce((sum, m) => sum + m.quantity, 0)
 
     return {
-      storeId: query.storeId || "ALL_STORES",
+      storeId: query.storeId || 'ALL_STORES',
       totalDiscardedQuantity: damageTotal + expirationTotal,
       byReason: {
         damageDiscard: damageTotal,
         expirationDiscard: expirationTotal,
       },
       movementsCount: movements.length,
-    };
+    }
   }
 
   /**
    * Exports consolidated report in CSV or JSON format with audit logging.
    */
   static async exportReport(userId: string, query: ExportReportsQueryInput) {
-    const sales = await this.getSalesSummary({ storeId: query.storeId });
-    const losses = await this.getInventoryLossesReport({ storeId: query.storeId });
+    const sales = await this.getSalesSummary({ storeId: query.storeId })
+    const losses = await this.getInventoryLossesReport({
+      storeId: query.storeId,
+    })
 
     await logAudit({
       userId,
-      action: "REPORT_EXPORT",
-      entity: "Report",
+      action: 'REPORT_EXPORT',
+      entity: 'Report',
       newValues: { format: query.format, storeId: query.storeId },
-    });
+    })
 
-    if (query.format === "csv") {
+    if (query.format === 'csv') {
       const csvLines = [
-        "Métrica,Valor",
+        'Métrica,Valor',
         `Faturamento Total R$,${sales.totalRevenue}`,
         `Total de Pedidos,${sales.orderCount}`,
         `Ticket Médio R$,${sales.averageTicket}`,
         `Descartes por Validade (Qtd),${losses.byReason.expirationDiscard}`,
         `Descartes por Avaria (Qtd),${losses.byReason.damageDiscard}`,
-      ];
+      ]
       return {
-        format: "csv",
-        contentType: "text/csv",
-        content: csvLines.join("\n"),
-      };
+        format: 'csv',
+        contentType: 'text/csv',
+        content: csvLines.join('\n'),
+      }
     }
 
     return {
-      format: "json",
-      contentType: "application/json",
+      format: 'json',
+      contentType: 'application/json',
       content: JSON.stringify({ sales, losses }, null, 2),
-    };
+    }
   }
 }

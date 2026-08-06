@@ -1,5 +1,5 @@
-import fp from "fastify-plugin";
-import multipart from "@fastify/multipart";
+import multipart from '@fastify/multipart'
+import fp from 'fastify-plugin'
 
 export const multipartPlugin = fp(async (app) => {
   await app.register(multipart, {
@@ -7,5 +7,5 @@ export const multipartPlugin = fp(async (app) => {
       fileSize: 10 * 1024 * 1024, // 10 MB limit per file
       files: 10,
     },
-  });
-});
+  })
+})

@@ -1,31 +1,32 @@
-import { FastifyRequest } from "fastify";
-import { Prisma } from "@prisma/client";
-import { prisma } from "../../infrastructure/database/prisma";
-import { AppError } from "../../shared/errors/app-error";
-import { logAudit } from "../../shared/utils/audit";
+import { Prisma } from '@prisma/client'
+import { FastifyRequest } from 'fastify'
+
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { logAudit } from '../../shared/utils/audit'
 import {
   CreateRoleBody,
-  UpdateRoleBody,
   RoleQuery,
+  UpdateRoleBody,
   UpdateRolePermissionsBody,
-} from "./roles.schemas";
+} from './roles.schemas'
 
 export class RolesService {
   async listRoles(query?: RoleQuery) {
-    const page = Math.max(1, query?.page || 1);
-    const perPage = Math.max(1, Math.min(100, query?.perPage || 20));
-    const skip = (page - 1) * perPage;
+    const page = Math.max(1, query?.page || 1)
+    const perPage = Math.max(1, Math.min(100, query?.perPage || 20))
+    const skip = (page - 1) * perPage
 
     const where: Prisma.RoleWhereInput = {
       deletedAt: null,
-    };
+    }
 
     if (query?.search) {
-      const search = query.search.trim();
+      const search = query.search.trim()
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { key: { contains: search, mode: "insensitive" } },
-      ];
+        { name: { contains: search, mode: 'insensitive' } },
+        { key: { contains: search, mode: 'insensitive' } },
+      ]
     }
 
     const [total, roles] = await Promise.all([
@@ -34,7 +35,7 @@ export class RolesService {
         where,
         skip,
         take: perPage,
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: 'asc' },
         include: {
           permissions: {
             include: {
@@ -46,9 +47,9 @@ export class RolesService {
           },
         },
       }),
-    ]);
+    ])
 
-    const totalPages = Math.ceil(total / perPage);
+    const totalPages = Math.ceil(total / perPage)
 
     return {
       data: roles,
@@ -60,7 +61,7 @@ export class RolesService {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
-    };
+    }
   }
 
   async createRole(
@@ -70,10 +71,10 @@ export class RolesService {
   ) {
     const existing = await prisma.role.findUnique({
       where: { key: data.key },
-    });
+    })
 
     if (existing) {
-      throw new AppError("CONFLICT", "Já existe um cargo com esta chave", 409);
+      throw new AppError('CONFLICT', 'Já existe um cargo com esta chave', 409)
     }
 
     const role = await prisma.role.create({
@@ -83,12 +84,12 @@ export class RolesService {
         description: data.description,
         isSystem: false,
       },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "CREATE",
-      entity: "Role",
+      action: 'CREATE',
+      entity: 'Role',
       entityId: role.id,
       newValues: {
         key: role.key,
@@ -96,9 +97,9 @@ export class RolesService {
         description: role.description,
       },
       req,
-    });
+    })
 
-    return role;
+    return role
   }
 
   async getRole(roleId: string) {
@@ -114,13 +115,13 @@ export class RolesService {
           select: { users: true },
         },
       },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
-    return role;
+    return role
   }
 
   async updateRole(
@@ -131,10 +132,10 @@ export class RolesService {
   ) {
     const previousRole = await prisma.role.findUnique({
       where: { id: roleId },
-    });
+    })
 
     if (!previousRole) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
     const updatedRole = await prisma.role.update({
@@ -144,12 +145,12 @@ export class RolesService {
         description: data.description,
         isActive: data.isActive,
       },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "UPDATE",
-      entity: "Role",
+      action: 'UPDATE',
+      entity: 'Role',
       entityId: roleId,
       oldValues: {
         name: previousRole.name,
@@ -162,9 +163,9 @@ export class RolesService {
         isActive: updatedRole.isActive,
       },
       req,
-    });
+    })
 
-    return updatedRole;
+    return updatedRole
   }
 
   async deleteRole(roleId: string, actorId?: string, req?: FastifyRequest) {
@@ -173,42 +174,42 @@ export class RolesService {
       include: {
         _count: { select: { users: true } },
       },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
     if (role.isSystem) {
       throw new AppError(
-        "FORBIDDEN",
-        "Cargos do sistema não podem ser excluídos",
+        'FORBIDDEN',
+        'Cargos do sistema não podem ser excluídos',
         403,
-      );
+      )
     }
 
     if (role._count.users > 0) {
       throw new AppError(
-        "CONFLICT",
-        "Não é possível excluir um cargo vinculado a usuários ativos",
+        'CONFLICT',
+        'Não é possível excluir um cargo vinculado a usuários ativos',
         400,
-      );
+      )
     }
 
     await prisma.role.delete({
       where: { id: roleId },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "DELETE",
-      entity: "Role",
+      action: 'DELETE',
+      entity: 'Role',
       entityId: roleId,
       oldValues: { key: role.key, name: role.name },
       req,
-    });
+    })
 
-    return { message: "Cargo excluído com sucesso" };
+    return { message: 'Cargo excluído com sucesso' }
   }
 
   async getRolePermissions(roleId: string) {
@@ -221,13 +222,13 @@ export class RolesService {
           },
         },
       },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
-    return role.permissions.map((rp) => rp.permission);
+    return role.permissions.map((rp) => rp.permission)
   }
 
   async updateRolePermissions(
@@ -238,38 +239,38 @@ export class RolesService {
   ) {
     const role = await prisma.role.findUnique({
       where: { id: roleId },
-    });
+    })
 
     if (!role) {
-      throw new AppError("NOT_FOUND", "Cargo não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Cargo não encontrado', 404)
     }
 
-    const { permissionIds, strategy = "ALL", targetUserIds = [] } = body;
-    const previousPermissions = await this.getRolePermissions(roleId);
-    const previousPermIds = new Set(previousPermissions.map((p) => p.id));
-    const newPermIds = new Set(permissionIds);
+    const { permissionIds, strategy = 'ALL', targetUserIds = [] } = body
+    const previousPermissions = await this.getRolePermissions(roleId)
+    const previousPermIds = new Set(previousPermissions.map((p) => p.id))
+    const newPermIds = new Set(permissionIds)
 
     // Identify permissions that were removed from the role
     const removedPermIds = Array.from(previousPermIds).filter(
       (id) => !newPermIds.has(id),
-    );
+    )
 
     await prisma.$transaction(async (tx) => {
       // Handle Preservation Strategies (B: PRESERVE_ALL and C: CUSTOM)
       if (
-        (strategy === "PRESERVE_ALL" || strategy === "CUSTOM") &&
+        (strategy === 'PRESERVE_ALL' || strategy === 'CUSTOM') &&
         removedPermIds.length > 0
       ) {
-        let usersToPreserve: string[] = [];
+        let usersToPreserve: string[] = []
 
-        if (strategy === "PRESERVE_ALL") {
+        if (strategy === 'PRESERVE_ALL') {
           const roleUsers = await tx.user.findMany({
             where: { roleId, deletedAt: null },
             select: { id: true },
-          });
-          usersToPreserve = roleUsers.map((u) => u.id);
-        } else if (strategy === "CUSTOM") {
-          usersToPreserve = targetUserIds;
+          })
+          usersToPreserve = roleUsers.map((u) => u.id)
+        } else if (strategy === 'CUSTOM') {
+          usersToPreserve = targetUserIds
         }
 
         // For each user preserving access, create an explicit ALLOW override if they don't already have an override
@@ -277,16 +278,16 @@ export class RolesService {
           for (const permId of removedPermIds) {
             const existingOverride = await tx.userPermission.findUnique({
               where: { userId_permissionId: { userId, permissionId: permId } },
-            });
+            })
 
             if (!existingOverride) {
               await tx.userPermission.create({
                 data: {
                   userId,
                   permissionId: permId,
-                  effect: "allow",
+                  effect: 'allow',
                 },
-              });
+              })
             }
           }
         }
@@ -295,7 +296,7 @@ export class RolesService {
       // Overwrite RolePermissions
       await tx.rolePermission.deleteMany({
         where: { roleId },
-      });
+      })
 
       if (permissionIds.length > 0) {
         await tx.rolePermission.createMany({
@@ -303,16 +304,16 @@ export class RolesService {
             roleId,
             permissionId,
           })),
-        });
+        })
       }
-    });
+    })
 
-    const newPermissions = await this.getRolePermissions(roleId);
+    const newPermissions = await this.getRolePermissions(roleId)
 
     await logAudit({
       userId: actorId ?? null,
-      action: "PERMISSION_CHANGE",
-      entity: "Role",
+      action: 'PERMISSION_CHANGE',
+      entity: 'Role',
       entityId: roleId,
       oldValues: { permissions: previousPermissions.map((p) => p.key) },
       newValues: {
@@ -321,8 +322,8 @@ export class RolesService {
         targetUserIdsCount: targetUserIds.length,
       },
       req,
-    });
+    })
 
-    return newPermissions;
+    return newPermissions
   }
 }

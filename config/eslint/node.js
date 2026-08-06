@@ -6,5 +6,6 @@ module.exports = {
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",
     camelcase: ["off"],
+    "@typescript-eslint/no-explicit-any": "error",
   },
 };

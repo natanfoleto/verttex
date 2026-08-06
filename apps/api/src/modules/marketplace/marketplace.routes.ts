@@ -1,39 +1,40 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
-import { requirePermission } from "../../shared/middlewares/require-permission";
-import { marketplaceController } from "./marketplace.controller";
-import { updateMarketplaceSettingsSchema } from "./marketplace.schemas";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
+
+import { requirePermission } from '../../shared/middlewares/require-permission'
+import { marketplaceController } from './marketplace.controller'
+import { updateMarketplaceSettingsSchema } from './marketplace.schemas'
 
 export async function marketplaceRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   // Obter configurações (Admin)
   typedApp.get(
-    "/settings",
+    '/settings',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("read", "Marketplace"),
+        requirePermission('read', 'Marketplace'),
       ],
     },
-    marketplaceController.getSettings
-  );
+    marketplaceController.getSettings,
+  )
 
   // Atualizar configurações (Admin)
   typedApp.put(
-    "/settings",
+    '/settings',
     {
       preHandler: [
         app.authenticateUser,
-        requirePermission("update", "Marketplace"),
+        requirePermission('update', 'Marketplace'),
       ],
       schema: { body: updateMarketplaceSettingsSchema },
     },
-    marketplaceController.updateSettings
-  );
+    marketplaceController.updateSettings,
+  )
 }
 
 export async function marketplacePublicRoutes(app: FastifyInstance) {
   // Configurações públicas do Marketplace
-  app.get("/settings", marketplaceController.getPublicSettings);
+  app.get('/settings', marketplaceController.getPublicSettings)
 }

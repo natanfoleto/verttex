@@ -1,10 +1,10 @@
-import { redisClient } from "../../infrastructure/redis/redis";
-import { prisma } from "../../infrastructure/database/prisma";
+import { prisma } from '../../infrastructure/database/prisma'
+import { redisClient } from '../../infrastructure/redis/redis'
 
 /**
  * Prefix used for revoked JWT IDs stored in Redis.
  */
-const REDIS_JTI_PREFIX = "revoked_jti:";
+const REDIS_JTI_PREFIX = 'revoked_jti:'
 
 /**
  * Adds a JWT ID (jti) to the denylist so that access tokens using this ID
@@ -22,14 +22,14 @@ export async function revokeJti(jti: string, expiresAt: Date): Promise<void> {
   const ttlSeconds = Math.max(
     1,
     Math.ceil((expiresAt.getTime() - Date.now()) / 1000),
-  );
+  )
 
   // 1. Store in Redis if available (sub-millisecond revocation lookup)
   if (redisClient) {
     try {
-      await redisClient.set(`${REDIS_JTI_PREFIX}${jti}`, "1", "EX", ttlSeconds);
+      await redisClient.set(`${REDIS_JTI_PREFIX}${jti}`, '1', 'EX', ttlSeconds)
     } catch (err) {
-      console.error("[DENYLIST] Erro ao registrar jti no Redis:", err);
+      console.error('[DENYLIST] Erro ao registrar jti no Redis:', err)
     }
   }
 
@@ -39,9 +39,9 @@ export async function revokeJti(jti: string, expiresAt: Date): Promise<void> {
       where: { jti },
       update: {},
       create: { jti, expiresAt },
-    });
+    })
   } catch (err) {
-    console.error("[DENYLIST] Erro ao registrar jti no PostgreSQL:", err);
+    console.error('[DENYLIST] Erro ao registrar jti no PostgreSQL:', err)
   }
 }
 
@@ -57,13 +57,13 @@ export async function isJtiRevoked(jti: string): Promise<boolean> {
   // 1. Check Redis first for fast path
   if (redisClient) {
     try {
-      const exists = await redisClient.exists(`${REDIS_JTI_PREFIX}${jti}`);
-      if (exists === 1) return true;
+      const exists = await redisClient.exists(`${REDIS_JTI_PREFIX}${jti}`)
+      if (exists === 1) return true
     } catch (err) {
       console.error(
-        "[DENYLIST] Erro ao consultar jti no Redis, fallback para DB:",
+        '[DENYLIST] Erro ao consultar jti no Redis, fallback para DB:',
         err,
-      );
+      )
     }
   }
 
@@ -72,10 +72,10 @@ export async function isJtiRevoked(jti: string): Promise<boolean> {
     const revoked = await prisma.revokedToken.findUnique({
       where: { jti },
       select: { jti: true },
-    });
-    return !!revoked;
+    })
+    return !!revoked
   } catch (err) {
-    console.error("[DENYLIST] Erro ao consultar jti no PostgreSQL:", err);
-    return false;
+    console.error('[DENYLIST] Erro ao consultar jti no PostgreSQL:', err)
+    return false
   }
 }

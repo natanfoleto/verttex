@@ -1,10 +1,10 @@
-import { prisma } from "../../infrastructure/database/prisma";
-import { logAudit } from "../../shared/utils/audit";
+import { prisma } from '../../infrastructure/database/prisma'
+import { logAudit } from '../../shared/utils/audit'
 import {
-  QuoteShippingInput,
   DispatchOrderInput,
+  QuoteShippingInput,
   UpdateTrackingInput,
-} from "./shipping.schemas";
+} from './shipping.schemas'
 
 export class ShippingService {
   /**
@@ -12,23 +12,23 @@ export class ShippingService {
    */
   static async quoteShipping(input: QuoteShippingInput) {
     // Standard mock calculation based on zipCode region
-    const prefix = Number(input.zipCode.substring(0, 2));
-    const isExpressEligible = prefix >= 10 && prefix <= 30; // Capital regions
+    const prefix = Number(input.zipCode.substring(0, 2))
+    const isExpressEligible = prefix >= 10 && prefix <= 30 // Capital regions
 
-    const standardDays = isExpressEligible ? 3 : 7;
-    const expressDays = isExpressEligible ? 1 : 3;
+    const standardDays = isExpressEligible ? 3 : 7
+    const expressDays = isExpressEligible ? 1 : 3
 
-    const baseWeight = input.items.reduce((acc, i) => acc + i.quantity, 0);
-    const standardPrice = Number((15 + baseWeight * 2.5).toFixed(2));
-    const expressPrice = Number((29.9 + baseWeight * 4.0).toFixed(2));
+    const baseWeight = input.items.reduce((acc, i) => acc + i.quantity, 0)
+    const standardPrice = Number((15 + baseWeight * 2.5).toFixed(2))
+    const expressPrice = Number((29.9 + baseWeight * 4.0).toFixed(2))
 
     return {
       zipCode: input.zipCode,
       options: [
         {
-          id: "standard",
-          name: "Entrega Padrão",
-          carrier: "VERTTEX Express",
+          id: 'standard',
+          name: 'Entrega Padrão',
+          carrier: 'VERTTEX Express',
           price: standardPrice,
           deliveryDays: standardDays,
           estimatedDeliveryDate: new Date(
@@ -36,9 +36,9 @@ export class ShippingService {
           ),
         },
         {
-          id: "express",
-          name: "Entrega Expressa Sanitária",
-          carrier: "VERTTEX Logística Climatizada",
+          id: 'express',
+          name: 'Entrega Expressa Sanitária',
+          carrier: 'VERTTEX Logística Climatizada',
           price: expressPrice,
           deliveryDays: expressDays,
           estimatedDeliveryDate: new Date(
@@ -46,7 +46,7 @@ export class ShippingService {
           ),
         },
       ],
-    };
+    }
   }
 
   /**
@@ -68,31 +68,36 @@ export class ShippingService {
         },
         items: true,
       },
-    });
+    })
 
     if (!order) {
-      throw new Error("Pedido não encontrado");
+      throw new Error('Pedido não encontrado')
     }
 
-    if (order.status !== "PAID" && order.status !== "CONFIRMED") {
+    if (order.status !== 'PAID' && order.status !== 'CONFIRMED') {
       throw new Error(
         `Não é possível despachar pedido com status '${order.status}'. Somente pedidos pagos/confirmados podem ser despachados`,
-      );
+      )
     }
 
     // Revalidate sanitary lot expiration vs minimum delivery shelf life (min 15 days by default)
-    const estimatedDeliveryDays = 3;
-    const minDeliveryShelfLifeDays = 15;
+    const estimatedDeliveryDays = 3
+    const minDeliveryShelfLifeDays = 15
     const minRequiredExpiration = new Date(
-      Date.now() + (estimatedDeliveryDays + minDeliveryShelfLifeDays) * 24 * 60 * 60 * 1000,
-    );
+      Date.now() +
+        (estimatedDeliveryDays + minDeliveryShelfLifeDays) *
+          24 *
+          60 *
+          60 *
+          1000,
+    )
 
     for (const res of order.stockReservations) {
       if (res.lot && res.lot.expirationDate) {
         if (res.lot.expirationDate < minRequiredExpiration) {
           throw new Error(
-            `Despacho bloqueado: O lote '${res.lot.lotNumber}' possui validade (${res.lot.expirationDate.toISOString().split("T")[0]}) inferior à margem sanitária mínima requerida para entrega (${minRequiredExpiration.toISOString().split("T")[0]})`,
-          );
+            `Despacho bloqueado: O lote '${res.lot.lotNumber}' possui validade (${res.lot.expirationDate.toISOString().split('T')[0]}) inferior à margem sanitária mínima requerida para entrega (${minRequiredExpiration.toISOString().split('T')[0]})`,
+          )
         }
       }
     }
@@ -102,18 +107,18 @@ export class ShippingService {
       const updated = await tx.order.update({
         where: { id: orderId },
         data: {
-          status: "SHIPPED",
-          notes: `Transportadora: ${input.carrierName} | Rastreio: ${input.trackingCode}${input.notes ? ` | ${input.notes}` : ""}`,
+          status: 'SHIPPED',
+          notes: `Transportadora: ${input.carrierName} | Rastreio: ${input.trackingCode}${input.notes ? ` | ${input.notes}` : ''}`,
         },
-      });
+      })
 
       // Record DISPATCH stock movements for each reserved lot
       for (const res of order.stockReservations) {
-        if (res.status === "ACTIVE") {
+        if (res.status === 'ACTIVE') {
           await tx.stockReservation.update({
             where: { id: res.id },
-            data: { status: "FULFILLED" },
-          });
+            data: { status: 'FULFILLED' },
+          })
 
           await tx.stockMovement.create({
             data: {
@@ -121,31 +126,31 @@ export class ShippingService {
               variationId: res.variationId,
               lotId: res.lotId,
               sourceLocationId: res.locationId,
-              type: "DISPATCH",
+              type: 'DISPATCH',
               quantity: res.reservedQuantity,
               reason: `Expedição de mercadoria do pedido ${order.code} (${input.carrierName})`,
               userId,
             },
-          });
+          })
         }
       }
 
-      return updated;
-    });
+      return updated
+    })
 
     await logAudit({
       userId,
-      action: "ORDER_DISPATCH",
-      entity: "Order",
+      action: 'ORDER_DISPATCH',
+      entity: 'Order',
       entityId: orderId,
       newValues: {
         code: order.code,
         carrierName: input.carrierName,
         trackingCode: input.trackingCode,
       },
-    });
+    })
 
-    return updatedOrder;
+    return updatedOrder
   }
 
   /**
@@ -158,26 +163,26 @@ export class ShippingService {
   ) {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-    });
+    })
 
     if (!order) {
-      throw new Error("Pedido não encontrado");
+      throw new Error('Pedido não encontrado')
     }
 
     await logAudit({
       userId,
-      action: "ORDER_TRACKING_UPDATE",
-      entity: "Order",
+      action: 'ORDER_TRACKING_UPDATE',
+      entity: 'Order',
       entityId: orderId,
       newValues: input,
-    });
+    })
 
     return {
       orderId,
       code: order.code,
       status: order.status,
       tracking: input,
-    };
+    }
   }
 
   /**
@@ -186,31 +191,33 @@ export class ShippingService {
   static async markAsDelivered(userId: string, orderId: string) {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-    });
+    })
 
     if (!order) {
-      throw new Error("Pedido não encontrado");
+      throw new Error('Pedido não encontrado')
     }
 
-    if (order.status !== "SHIPPED") {
-      throw new Error("Somente pedidos em trânsito (SHIPPED) podem ser marcados como entregues");
+    if (order.status !== 'SHIPPED') {
+      throw new Error(
+        'Somente pedidos em trânsito (SHIPPED) podem ser marcados como entregues',
+      )
     }
 
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
-        status: "DELIVERED",
+        status: 'DELIVERED',
       },
-    });
+    })
 
     await logAudit({
       userId,
-      action: "ORDER_DELIVERED",
-      entity: "Order",
+      action: 'ORDER_DELIVERED',
+      entity: 'Order',
       entityId: orderId,
       newValues: { code: order.code, deliveredAt: new Date() },
-    });
+    })
 
-    return updatedOrder;
+    return updatedOrder
   }
 }

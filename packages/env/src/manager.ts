@@ -1,6 +1,7 @@
-import "./load-env";
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import './load-env'
+
+import { createEnv } from '@t3-oss/env-nextjs'
+import { z } from 'zod'
 
 export const env = createEnv({
   client: {
@@ -11,6 +12,6 @@ export const env = createEnv({
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   emptyStringAsUndefined: true,
-});
-export type Env = typeof env;
-export { env as managerEnv };
+})
+export type Env = typeof env
+export { env as managerEnv }

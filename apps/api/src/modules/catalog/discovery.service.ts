@@ -1,143 +1,196 @@
-import { prisma } from "../../infrastructure/database/prisma";
-import { AppError } from "../../shared/errors/app-error";
-import { LotsService } from "../lots/lots.service";
-import { DiscoveryQuery } from "./discovery.schemas";
-import { normalizeSearchText, ProductSearchIndexService, tokenizeQuery } from "./product-search-index.service";
+import { Prisma } from '@prisma/client'
 
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { LotsService } from '../lots/lots.service'
+import { DiscoveryQuery } from './discovery.schemas'
+import {
+  normalizeSearchText,
+  ProductSearchIndexService,
+  tokenizeQuery,
+} from './product-search-index.service'
 
 export interface DiscoveryBreadcrumb {
-  name: string;
-  slug: string;
-  url: string;
+  name: string
+  slug: string
+  url: string
 }
 
 export interface DiscoveryFacetOption {
-  value: string;
-  label: string;
-  count: number;
+  value: string
+  label: string
+  count: number
 }
 
 export interface DiscoveryFacet {
-  key: string;
-  label: string;
-  options: DiscoveryFacetOption[];
+  key: string
+  label: string
+  options: DiscoveryFacetOption[]
 }
 
 export interface DiscoveryResponse {
   context: {
-    type: "search" | "category" | "store" | "brand" | "catalog";
-    title: string;
-    description: string | null;
-    query?: string;
-    category?: { id: string; name: string; slug: string } | null;
-    store?: { id: string; name: string; slug: string; logoUrl?: string | null } | null;
-    brand?: { id: string; name: string; slug: string } | null;
-    priceRange?: { min: number; max: number };
-  };
+    type: 'search' | 'category' | 'store' | 'brand' | 'catalog'
+    title: string
+    description: string | null
+    query?: string
+    category?: { id: string; name: string; slug: string } | null
+    store?: {
+      id: string
+      name: string
+      slug: string
+      logoUrl?: string | null
+    } | null
+    brand?: { id: string; name: string; slug: string } | null
+    priceRange?: { min: number; max: number }
+  }
   products: Array<{
-    id: string;
-    name: string;
-    slug: string;
-    shortDescription: string | null;
-    type: string;
-    isFeatured: boolean;
-    price: number;
-    promotionalPrice: number | null;
-    mainImageUrl: string | null;
-    store: { id: string; name: string; slug: string; logoUrl: string | null };
-    category: { id: string; name: string; slug: string };
-    brand: { id: string; name: string; slug: string } | null;
-    commercialStockAvailable: number;
-    isAvailable: boolean;
-    relevanceScore?: number;
-    matchedVariantId?: string;
-  }>;
+    id: string
+    name: string
+    slug: string
+    shortDescription: string | null
+    type: string
+    isFeatured: boolean
+    price: number
+    promotionalPrice: number | null
+    mainImageUrl: string | null
+    store: { id: string; name: string; slug: string; logoUrl: string | null }
+    category: { id: string; name: string; slug: string }
+    brand: { id: string; name: string; slug: string } | null
+    commercialStockAvailable: number
+    isAvailable: boolean
+    relevanceScore?: number
+    matchedVariantId?: string
+  }>
   pagination: {
-    page: number;
-    perPage: number;
-    total: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-  breadcrumbs: DiscoveryBreadcrumb[];
-  appliedFilters: Array<{ key: string; label: string; value: string }>;
-  availableFilters: DiscoveryFacet[];
-  sortOptions: Array<{ key: string; label: string }>;
+    page: number
+    perPage: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+  breadcrumbs: DiscoveryBreadcrumb[]
+  appliedFilters: Array<{ key: string; label: string; value: string }>
+  availableFilters: DiscoveryFacet[]
+  sortOptions: Array<{ key: string; label: string }>
   seo: {
-    title: string;
-    description: string;
-    canonicalUrl: string;
-  };
+    title: string
+    description: string
+    canonicalUrl: string
+  }
 }
 
-function calculateProductRelevance(prod: any, normalizedSearch: string): number {
-  if (!normalizedSearch) return 0;
+interface DiscoveryProductRecord {
+  name?: string
+  shortDescription?: string
+  fullDescription?: string
+  isFeatured?: boolean
+  category?: { name?: string }
+  brand?: { name?: string }
+  store?: { name?: string }
+  sku?: string
+  barcode?: string
+  variations?: Array<{
+    sku?: string | null
+    barcode?: string | null
+    values?: Array<{ optionValue?: { value?: string } }>
+  }>
+}
 
-  let score = 0;
-  const normName = normalizeSearchText(prod.name || "");
-  const normShort = normalizeSearchText(prod.shortDescription || "");
-  const normFull = normalizeSearchText(prod.fullDescription || "");
-  const normCat = normalizeSearchText(prod.category?.name || "");
-  const normBrand = normalizeSearchText(prod.brand?.name || "");
-  const normStore = normalizeSearchText(prod.store?.name || "");
+function calculateProductRelevance(
+  prod: DiscoveryProductRecord,
+  normalizedSearch: string,
+): number {
+  if (!normalizedSearch) return 0
+
+  let score = 0
+  const normName = normalizeSearchText(prod.name || '')
+  const normShort = normalizeSearchText(prod.shortDescription || '')
+  const normFull = normalizeSearchText(prod.fullDescription || '')
+  const normCat = normalizeSearchText(prod.category?.name || '')
+  const normBrand = normalizeSearchText(prod.brand?.name || '')
+  const normStore = normalizeSearchText(prod.store?.name || '')
 
   // 1. SKU / Barcode Exact Match (Highest Priority)
   const hasExactSkuOrBarcode =
     (prod.sku && normalizeSearchText(prod.sku) === normalizedSearch) ||
     (prod.barcode && normalizeSearchText(prod.barcode) === normalizedSearch) ||
-    prod.variations?.some((v: any) => {
-      const skuNorm = normalizeSearchText(v.sku || "");
-      const barcodeNorm = normalizeSearchText(v.barcode || "");
-      return skuNorm === normalizedSearch || barcodeNorm === normalizedSearch;
-    });
+    prod.variations?.some(
+      (v: { sku?: string | null; barcode?: string | null }) => {
+        const skuNorm = normalizeSearchText(v.sku || '')
+        const barcodeNorm = normalizeSearchText(v.barcode || '')
+        return skuNorm === normalizedSearch || barcodeNorm === normalizedSearch
+      },
+    )
 
   if (hasExactSkuOrBarcode) {
-    score += 1000;
+    score += 1000
   }
 
-  const queryTokens = tokenizeQuery(normalizedSearch);
-  const nameTokens = tokenizeQuery(normName);
-  const catTokens = tokenizeQuery(normCat);
-  const brandTokens = tokenizeQuery(normBrand);
-  const storeTokens = tokenizeQuery(normStore);
-  const shortTokens = tokenizeQuery(normShort);
-  const fullTokens = tokenizeQuery(normFull);
+  const queryTokens = tokenizeQuery(normalizedSearch)
+  const nameTokens = tokenizeQuery(normName)
+  const catTokens = tokenizeQuery(normCat)
+  const brandTokens = tokenizeQuery(normBrand)
+  const storeTokens = tokenizeQuery(normStore)
+  const shortTokens = tokenizeQuery(normShort)
+  const fullTokens = tokenizeQuery(normFull)
 
-  const attrTokens = (prod.variations || []).flatMap((v: any) =>
-    (v.values || []).flatMap((vv: any) => tokenizeQuery(vv.optionValue?.value || ""))
-  );
+  const attrTokens = (prod.variations || []).flatMap(
+    (v: { values?: Array<{ optionValue?: { value?: string } }> }) =>
+      (v.values || []).flatMap((vv) =>
+        tokenizeQuery(vv.optionValue?.value || ''),
+      ),
+  )
 
   for (const token of queryTokens) {
-    if (nameTokens.includes(token)) score += 500;
-    if (catTokens.includes(token) || brandTokens.includes(token) || storeTokens.includes(token)) score += 200;
-    if (attrTokens.includes(token)) score += 100;
-    if (shortTokens.includes(token) || fullTokens.includes(token)) score += 50;
+    if (nameTokens.includes(token)) score += 500
+    if (
+      catTokens.includes(token) ||
+      brandTokens.includes(token) ||
+      storeTokens.includes(token)
+    )
+      score += 300
+    if (attrTokens.includes(token)) score += 100
+    if (shortTokens.includes(token) || fullTokens.includes(token)) score += 50
   }
 
-  if (prod.isFeatured) score += 10;
+  if (prod.isFeatured) score += 10
 
-  return score;
+  return score
 }
 
 function variantMatchesAttributes(
-  variant: any,
-  attributeFilters: Record<string, string[]>,
+  variant: {
+    values?: Array<{
+      optionValue?: {
+        option?: { name?: string; slug?: string }
+        value?: string
+      }
+    }>
+  },
+  attrFilters: Record<string, string[]>,
 ): boolean {
-  for (const [optName, targetValues] of Object.entries(attributeFilters)) {
-    if (!targetValues || targetValues.length === 0) continue;
-    const hasMatchingValue = variant.values?.some((vv: any) => {
-      const optionName = vv.optionValue?.option?.name;
-      const optionVal = vv.optionValue?.value;
+  if (!variant || Object.keys(attrFilters).length === 0) return true
+
+  for (const [optName, selectedValues] of Object.entries(attrFilters)) {
+    if (!selectedValues || selectedValues.length === 0) continue
+
+    const hasMatchingValue = variant.values?.some((vv) => {
+      const optionName = vv.optionValue?.option?.name
+      const optionVal = vv.optionValue?.value
       return (
         optionName &&
         normalizeSearchText(optionName) === normalizeSearchText(optName) &&
-        targetValues.some((tv) => normalizeSearchText(tv) === normalizeSearchText(optionVal))
-      );
-    });
-    if (!hasMatchingValue) return false;
+        selectedValues.some(
+          (tv) =>
+            normalizeSearchText(tv) === normalizeSearchText(optionVal || ''),
+        )
+      )
+    })
+    if (!hasMatchingValue) return false
   }
-  return true;
+  return true
 }
 
 export class PublicDiscoveryService {
@@ -145,7 +198,7 @@ export class PublicDiscoveryService {
    * Refresh the Search Document Search Projection for a single product via 100% Prisma Client
    */
   static async refreshProductSearchDocument(productId: string): Promise<void> {
-    await ProductSearchIndexService.syncProductSearchDocument(productId);
+    await ProductSearchIndexService.syncProductSearchDocument(productId)
   }
 
   /**
@@ -161,40 +214,43 @@ export class PublicDiscoveryService {
     brandId?: string,
     storeId?: string,
   ): Promise<Map<string, number>> {
-    const rankMap = new Map<string, number>();
-    const tokens = tokenizeQuery(searchTerm);
+    const rankMap = new Map<string, number>()
+    const tokens = tokenizeQuery(searchTerm)
 
-    if (tokens.length === 0) return rankMap;
+    if (tokens.length === 0) return rankMap
 
-    const anchorToken = tokens[0]!;
+    const anchorToken = tokens[0]!
 
     const productFilter = {
-      status: "active",
+      status: 'active',
       isPublished: true,
       deletedAt: null,
-      store: { status: "active", deletedAt: null },
-      ...(categoryIdsToFilter.length > 0 ? { categoryId: { in: categoryIdsToFilter } } : {}),
+      store: { status: 'active', deletedAt: null },
+      ...(categoryIdsToFilter.length > 0
+        ? { categoryId: { in: categoryIdsToFilter } }
+        : {}),
       ...(brandId ? { brandId } : {}),
       ...(storeId ? { storeId } : {}),
-    };
+    }
 
     // 1. Exact SKU / Barcode lookup via ProductVariation in Prisma Client
-    const exactMatchingVariants = (await prisma.productVariation.findMany({
-      where: {
-        status: "active",
-        deletedAt: null,
-        product: productFilter,
-        OR: [
-          { sku: { equals: searchTerm, mode: "insensitive" } },
-          { barcode: { equals: searchTerm, mode: "insensitive" } },
-        ],
-      },
-      select: { productId: true },
-    })) || [];
+    const exactMatchingVariants =
+      (await prisma.productVariation.findMany({
+        where: {
+          status: 'active',
+          deletedAt: null,
+          product: productFilter,
+          OR: [
+            { sku: { equals: searchTerm, mode: 'insensitive' } },
+            { barcode: { equals: searchTerm, mode: 'insensitive' } },
+          ],
+        },
+        select: { productId: true },
+      })) || []
 
     if (Array.isArray(exactMatchingVariants)) {
       for (const v of exactMatchingVariants) {
-        rankMap.set(v.productId, 1000);
+        rankMap.set(v.productId, 1000)
       }
     }
 
@@ -212,56 +268,69 @@ export class PublicDiscoveryService {
         descriptionNormalized: true,
         searchTextNormalized: true,
       },
-    });
+    })
 
     // 3. AND-filter remaining tokens in JavaScript
     for (const doc of candidates) {
-      if (rankMap.has(doc.productId)) continue; // Keep SKU top score 1000
+      if (rankMap.has(doc.productId)) continue // Keep SKU top score 1000
 
-      const docTokens = tokenizeQuery(doc.searchTextNormalized);
-      const allTokensPresent = tokens.every((token) => docTokens.includes(token));
+      const docTokens = tokenizeQuery(doc.searchTextNormalized)
+      const allTokensPresent = tokens.every((token) =>
+        docTokens.includes(token),
+      )
 
-      if (!allTokensPresent) continue;
+      if (!allTokensPresent) continue
 
-      const titleTokens = tokenizeQuery(doc.titleNormalized);
-      const contextTokens = tokenizeQuery(doc.contextNormalized);
-      const attrTokens = tokenizeQuery(doc.attributesNormalized);
-      const descTokens = tokenizeQuery(doc.descriptionNormalized);
+      const titleTokens = tokenizeQuery(doc.titleNormalized)
+      const contextTokens = tokenizeQuery(doc.contextNormalized)
+      const attrTokens = tokenizeQuery(doc.attributesNormalized)
+      const descTokens = tokenizeQuery(doc.descriptionNormalized)
 
-      let fieldMatchScore = 0;
+      let fieldMatchScore = 0
 
       for (const token of tokens) {
-        if (titleTokens.includes(token)) fieldMatchScore += 500;
-        if (contextTokens.includes(token)) fieldMatchScore += 200;
-        if (attrTokens.includes(token)) fieldMatchScore += 100;
-        if (descTokens.includes(token)) fieldMatchScore += 50;
+        if (titleTokens.includes(token)) fieldMatchScore += 500
+        if (contextTokens.includes(token)) fieldMatchScore += 200
+        if (attrTokens.includes(token)) fieldMatchScore += 100
+        if (descTokens.includes(token)) fieldMatchScore += 50
       }
 
       if (fieldMatchScore > 0) {
-        rankMap.set(doc.productId, fieldMatchScore + 10);
+        rankMap.set(doc.productId, fieldMatchScore + 10)
       }
     }
 
-    return rankMap;
+    return rankMap
   }
-
 
   /**
    * Validate full category path chain (e.g. ['alimentos', 'doces', 'artesanais'])
    */
-  static async validateCategoryPathChain(slugs: string[]): Promise<any> {
-    if (slugs.length === 0) return null;
+  static async validateCategoryPathChain(slugs: string[]): Promise<unknown> {
+    if (slugs.length === 0) return null
 
-    let parentId: string | null = null;
-    let targetCategory: any = null;
+    let parentId: string | null = null
+    let targetCategory: {
+      id: string
+      name: string
+      slug: string
+      description: string | null
+      parentId: string | null
+    } | null = null
 
     for (let i = 0; i < slugs.length; i++) {
-      const slug = slugs[i];
-      const matchedCategory: any = await prisma.category.findFirst({
+      const slug = slugs[i]
+      const matchedCategory: {
+        id: string
+        name: string
+        slug: string
+        description: string | null
+        parentId: string | null
+      } | null = await prisma.category.findFirst({
         where: {
           slug,
           parentId,
-          status: "active",
+          status: 'active',
           deletedAt: null,
         },
         select: {
@@ -271,74 +340,74 @@ export class PublicDiscoveryService {
           description: true,
           parentId: true,
         },
-      });
+      })
 
       if (!matchedCategory) {
         throw new AppError(
-          "NOT_FOUND",
-          `Caminho de categoria inválido ou não encontrado: ${slugs.slice(0, i + 1).join("/")}`,
+          'NOT_FOUND',
+          `Caminho de categoria inválido ou não encontrado: ${slugs.slice(0, i + 1).join('/')}`,
           404,
-        );
+        )
       }
 
-      parentId = matchedCategory.id;
-      targetCategory = matchedCategory;
+      parentId = matchedCategory.id
+      targetCategory = matchedCategory
     }
 
-    return targetCategory;
+    return targetCategory
   }
 
   /**
    * Resolve all subcategory IDs recursively (parent, children, grandchildren)
    */
   static async getCategorySubtreeIds(categoryId: string): Promise<string[]> {
-    const allIds = new Set<string>([categoryId]);
-    const queue = [categoryId];
+    const allIds = new Set<string>([categoryId])
+    const queue = [categoryId]
 
     while (queue.length > 0) {
-      const currentId = queue.shift()!;
+      const currentId = queue.shift()!
       const children = await prisma.category.findMany({
-        where: { parentId: currentId, status: "active", deletedAt: null },
+        where: { parentId: currentId, status: 'active', deletedAt: null },
         select: { id: true },
-      });
+      })
       for (const child of children) {
         if (!allIds.has(child.id)) {
-          allIds.add(child.id);
-          queue.push(child.id);
+          allIds.add(child.id)
+          queue.push(child.id)
         }
       }
     }
 
-    return Array.from(allIds);
+    return Array.from(allIds)
   }
 
   /**
    * Build complete category breadcrumbs path recursively
    */
-  static async buildCategoryBreadcrumbs(category: any): Promise<DiscoveryBreadcrumb[]> {
-    const path: DiscoveryBreadcrumb[] = [];
-    let current = category;
+  static async buildCategoryBreadcrumbs(
+    category: { name: string; slug: string; parentId?: string | null } | null,
+  ): Promise<DiscoveryBreadcrumb[]> {
+    const path: DiscoveryBreadcrumb[] = []
+    let current = category
 
     while (current) {
       path.unshift({
         name: current.name,
         slug: current.slug,
         url: `/categoria/${current.slug}`,
-      });
+      })
 
       if (current.parentId) {
         current = await prisma.category.findFirst({
-          where: { id: current.parentId, status: "active", deletedAt: null },
+          where: { id: current.parentId, status: 'active', deletedAt: null },
           select: { id: true, name: true, slug: true, parentId: true },
-        });
-      } else if (current.parent) {
-        current = current.parent;
+        })
       } else {
-        current = null;
+        current = null
       }
     }
 
-    return path;
+    return path
   }
 
   /**
@@ -349,61 +418,67 @@ export class PublicDiscoveryService {
     variationIds: string[],
     minDeliveryDays: number = 15,
   ): Promise<Map<string, number>> {
-    if (variationIds.length === 0) return new Map();
+    if (variationIds.length === 0) return new Map()
 
     const stockItems = await prisma.stockItem.findMany({
       where: {
         storeId: { in: storeIds },
         variationId: { in: variationIds },
-        location: { status: "active" },
+        location: { status: 'active' },
       },
       include: { lot: true },
-    });
+    })
 
-    const resultMap = new Map<string, number>();
+    const resultMap = new Map<string, number>()
 
     for (const item of stockItems) {
-      if (!item.variationId) continue;
-      const netAvailable = Math.max(0, item.physicalQuantity - item.reservedQuantity);
-      if (netAvailable <= 0) continue;
+      if (!item.variationId) continue
+      const netAvailable = Math.max(
+        0,
+        item.physicalQuantity - item.reservedQuantity,
+      )
+      if (netAvailable <= 0) continue
 
-      let isEligible = true;
+      let isEligible = true
       if (item.lot) {
-        if (item.lot.status !== "available") {
-          isEligible = false;
+        if (item.lot.status !== 'available') {
+          isEligible = false
         }
 
         const expAnalysis = LotsService.calculateExpirationCondition(
           item.lot.expirationDate,
           minDeliveryDays,
           30,
-        );
+        )
 
         if (expAnalysis.isExpired) {
-          isEligible = false;
+          isEligible = false
         } else if (item.lot.expirationDate) {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const targetTime = today.getTime() + minDeliveryDays * 24 * 60 * 60 * 1000;
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const targetTime =
+            today.getTime() + minDeliveryDays * 24 * 60 * 60 * 1000
           if (new Date(item.lot.expirationDate).getTime() < targetTime) {
-            isEligible = false;
+            isEligible = false
           }
         }
       }
 
       if (isEligible) {
-        const current = resultMap.get(item.variationId) || 0;
-        resultMap.set(item.variationId, current + netAvailable);
+        const current = resultMap.get(item.variationId) || 0
+        resultMap.set(item.variationId, current + netAvailable)
       }
     }
 
-    return resultMap;
+    return resultMap
   }
 
   /**
    * Main entry point for the Product Discovery Engine
    */
-  static async discover(query: Partial<DiscoveryQuery>): Promise<DiscoveryResponse> {
+  static async discover(
+    query: Partial<DiscoveryQuery>,
+  ): Promise<DiscoveryResponse> {
     const {
       page,
       perPage,
@@ -420,137 +495,184 @@ export class PublicDiscoveryService {
       isOffer,
       sort,
       attributes: rawAttributes,
-    } = query;
+    } = query
 
-    const searchTerm = (searchInput || "").trim();
-    const normalizedSearch = normalizeSearchText(searchTerm);
+    const searchTerm = (searchInput || '').trim()
+    const normalizedSearch = normalizeSearchText(searchTerm)
 
     // Normalize attribute filters (split comma-separated values in URL query params)
-    const parsedAttributes: Record<string, string[]> = {};
+    const parsedAttributes: Record<string, string[]> = {}
     if (rawAttributes) {
       for (const [key, val] of Object.entries(rawAttributes)) {
         if (Array.isArray(val)) {
           parsedAttributes[key] = val
-            .flatMap((v) => (typeof v === "string" ? v.split(",") : [v]))
+            .flatMap((v) => (typeof v === 'string' ? v.split(',') : [v]))
             .map((v) => String(v).trim())
-            .filter(Boolean);
-        } else if (typeof val === "string" && val.trim()) {
+            .filter(Boolean)
+        } else if (typeof val === 'string' && val.trim()) {
           parsedAttributes[key] = val
-            .split(",")
+            .split(',')
             .map((v) => v.trim())
-            .filter(Boolean);
+            .filter(Boolean)
         }
       }
     }
 
     // 1. Resolve Context and Category Hierarchy
-    let contextType: "search" | "category" | "store" | "brand" | "catalog" = "catalog";
-    let contextTitle = "Catálogo de Produtos";
-    let contextDescription: string | null = "Explore o catálogo completo da VERTTEX";
-    let resolvedCategory: { id: string; name: string; slug: string } | null = null;
-    let resolvedStore: { id: string; name: string; slug: string; logoUrl?: string | null } | null = null;
-    let resolvedBrand: { id: string; name: string; slug: string } | null = null;
+    let contextType: 'search' | 'category' | 'store' | 'brand' | 'catalog' =
+      'catalog'
+    let contextTitle = 'Catálogo de Produtos'
+    let contextDescription: string | null =
+      'Explore o catálogo completo da VERTTEX'
+    let resolvedCategory: { id: string; name: string; slug: string } | null =
+      null
+    let resolvedStore: {
+      id: string
+      name: string
+      slug: string
+      logoUrl?: string | null
+    } | null = null
+    let resolvedBrand: { id: string; name: string; slug: string } | null = null
     const breadcrumbs: DiscoveryBreadcrumb[] = [
-      { name: "Início", slug: "inicio", url: "/" },
-    ];
+      { name: 'Início', slug: 'inicio', url: '/' },
+    ]
 
-    let categoryIdsToFilter: string[] = [];
+    let categoryIdsToFilter: string[] = []
 
     if (categorySlug || categoryId) {
-      let category: any = null;
+      let category: {
+        id: string
+        name: string
+        slug: string
+        description?: string | null
+        parentId?: string | null
+        parent?: { id: string; name: string; slug: string } | null
+      } | null = null
 
-      if (categorySlug && categorySlug.includes("/")) {
-        const pathSlugs = categorySlug.split("/").filter(Boolean);
-        category = await PublicDiscoveryService.validateCategoryPathChain(pathSlugs);
+      if (categorySlug && categorySlug.includes('/')) {
+        const pathSlugs = categorySlug.split('/').filter(Boolean)
+        category = (await PublicDiscoveryService.validateCategoryPathChain(
+          pathSlugs,
+        )) as typeof category
       } else {
         category = await prisma.category.findFirst({
           where: categoryId
-            ? { id: categoryId, status: "active", deletedAt: null }
-            : { slug: categorySlug, status: "active", deletedAt: null },
+            ? { id: categoryId, status: 'active', deletedAt: null }
+            : { slug: categorySlug, status: 'active', deletedAt: null },
           select: {
             id: true,
             name: true,
             slug: true,
             description: true,
             parentId: true,
-            parent: { select: { id: true, name: true, slug: true, parentId: true } },
+            parent: {
+              select: { id: true, name: true, slug: true, parentId: true },
+            },
           },
-        });
+        })
       }
 
       if (!category) {
-        throw new AppError("NOT_FOUND", "Categoria não encontrada ou indisponível", 404);
+        throw new AppError(
+          'NOT_FOUND',
+          'Categoria não encontrada ou indisponível',
+          404,
+        )
       }
 
-      resolvedCategory = { id: category.id, name: category.name, slug: category.slug };
-      contextType = "category";
-      contextTitle = category.name;
-      contextDescription = category.description || `Produtos da categoria ${category.name}`;
+      resolvedCategory = {
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+      }
+      contextType = 'category'
+      contextTitle = category.name
+      contextDescription =
+        category.description || `Produtos da categoria ${category.name}`
 
-      categoryIdsToFilter = await PublicDiscoveryService.getCategorySubtreeIds(category.id);
-      const categoryBreadcrumbs = await PublicDiscoveryService.buildCategoryBreadcrumbs(category);
-      breadcrumbs.push(...categoryBreadcrumbs);
+      categoryIdsToFilter = await PublicDiscoveryService.getCategorySubtreeIds(
+        category.id,
+      )
+      const categoryBreadcrumbs =
+        await PublicDiscoveryService.buildCategoryBreadcrumbs(category)
+      breadcrumbs.push(...categoryBreadcrumbs)
     }
 
     if (storeSlug || storeId) {
       const store = await prisma.store.findFirst({
         where: storeId
-          ? { id: storeId, status: "active", deletedAt: null }
-          : { slug: storeSlug, status: "active", deletedAt: null },
-        select: { id: true, name: true, slug: true, description: true, logoUrl: true },
-      });
+          ? { id: storeId, status: 'active', deletedAt: null }
+          : { slug: storeSlug, status: 'active', deletedAt: null },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          logoUrl: true,
+        },
+      })
 
       if (!store) {
-        throw new AppError("NOT_FOUND", "Produtor/Loja não encontrada ou indisponível", 404);
+        throw new AppError(
+          'NOT_FOUND',
+          'Produtor/Loja não encontrada ou indisponível',
+          404,
+        )
       }
 
-      resolvedStore = store;
-      if (contextType === "catalog") {
-        contextType = "store";
-        contextTitle = store.name;
-        contextDescription = store.description || `Produtos do produtor ${store.name}`;
+      resolvedStore = store
+      if (contextType === 'catalog') {
+        contextType = 'store'
+        contextTitle = store.name
+        contextDescription =
+          store.description || `Produtos do produtor ${store.name}`
       }
       breadcrumbs.push({
         name: store.name,
         slug: store.slug,
         url: `/produtor/${store.slug}`,
-      });
+      })
     }
 
     if (brandSlug || brandId) {
       const brand = await prisma.brand.findFirst({
         where: brandId
-          ? { id: brandId, status: "active", deletedAt: null }
-          : { slug: brandSlug, status: "active", deletedAt: null },
+          ? { id: brandId, status: 'active', deletedAt: null }
+          : { slug: brandSlug, status: 'active', deletedAt: null },
         select: { id: true, name: true, slug: true, description: true },
-      });
+      })
 
       if (!brand) {
-        throw new AppError("NOT_FOUND", "Marca não encontrada ou indisponível", 404);
+        throw new AppError(
+          'NOT_FOUND',
+          'Marca não encontrada ou indisponível',
+          404,
+        )
       }
 
-      resolvedBrand = brand;
-      if (contextType === "catalog") {
-        contextType = "brand";
-        contextTitle = brand.name;
-        contextDescription = brand.description || `Produtos da marca ${brand.name}`;
+      resolvedBrand = brand
+      if (contextType === 'catalog') {
+        contextType = 'brand'
+        contextTitle = brand.name
+        contextDescription =
+          brand.description || `Produtos da marca ${brand.name}`
       }
       breadcrumbs.push({
         name: brand.name,
         slug: brand.slug,
         url: `/marca/${brand.slug}`,
-      });
+      })
     }
 
     if (searchTerm) {
-      contextType = "search";
-      contextTitle = `Resultados para "${searchTerm}"`;
-      contextDescription = `Exibindo produtos para a busca "${searchTerm}"`;
+      contextType = 'search'
+      contextTitle = `Resultados para "${searchTerm}"`
+      contextDescription = `Exibindo produtos para a busca "${searchTerm}"`
       breadcrumbs.push({
         name: `Busca: ${searchTerm}`,
-        slug: "busca",
+        slug: 'busca',
         url: `/busca?q=${encodeURIComponent(searchTerm)}`,
-      });
+      })
     }
 
     // Attempt 100% Pure Prisma Client Search Rank
@@ -561,48 +683,48 @@ export class PublicDiscoveryService {
           resolvedBrand?.id,
           resolvedStore?.id,
         )
-      : new Map<string, number>();
+      : new Map<string, number>()
 
     // 2. Build Where Clause for Base Product Query
-    const where: any = {
-      status: "active",
+    const where: Prisma.ProductWhereInput = {
+      status: 'active',
       isPublished: true,
       deletedAt: null,
       store: {
-        status: "active",
+        status: 'active',
         deletedAt: null,
       },
-    };
+    }
 
     if (searchTerm) {
-      const searchRankProductIds = Array.from(prismaRankMap.keys());
-      where.id = { in: searchRankProductIds };
+      const searchRankProductIds = Array.from(prismaRankMap.keys())
+      where.id = { in: searchRankProductIds }
     }
 
     if (categoryIdsToFilter.length > 0) {
-      where.categoryId = { in: categoryIdsToFilter };
+      where.categoryId = { in: categoryIdsToFilter }
     }
 
     if (resolvedBrand) {
-      where.brandId = resolvedBrand.id;
+      where.brandId = resolvedBrand.id
     }
 
     if (resolvedStore) {
-      where.storeId = resolvedStore.id;
+      where.storeId = resolvedStore.id
     }
 
     if (isFeatured) {
-      where.isFeatured = true;
+      where.isFeatured = true
     }
 
     if (isOffer) {
       where.variations = {
         some: {
-          status: "active",
+          status: 'active',
           deletedAt: null,
           promotionalPrice: { not: null },
         },
-      };
+      }
     }
 
     // 3. Fetch Raw Products with all variation options and values
@@ -614,10 +736,10 @@ export class PublicDiscoveryService {
         brand: { select: { id: true, name: true, slug: true } },
         medias: {
           include: { file: true },
-          orderBy: [{ isMain: "desc" }, { position: "asc" }],
+          orderBy: [{ isMain: 'desc' }, { position: 'asc' }],
         },
         variations: {
-          where: { status: "active", deletedAt: null },
+          where: { status: 'active', deletedAt: null },
           include: {
             values: {
               include: {
@@ -629,47 +751,89 @@ export class PublicDiscoveryService {
               },
             },
           },
-          orderBy: [{ isDefault: "desc" }, { position: "asc" }],
+          orderBy: [{ isDefault: 'desc' }, { position: 'asc' }],
         },
       },
-    });
+    })
 
     // Batch calculate stock for all active variations
-    const allStoreIds = Array.from(new Set(rawProducts.map((p) => p.storeId)));
-    const allVariationIds = rawProducts.flatMap((p) => p.variations.map((v) => v.id));
+    const allStoreIds = Array.from(new Set(rawProducts.map((p) => p.storeId)))
+    const allVariationIds = rawProducts.flatMap((p) =>
+      p.variations.map((v) => v.id),
+    )
 
     const stockMap = await PublicDiscoveryService.calculateBatchCommercialStock(
       allStoreIds,
       allVariationIds,
-    );
+    )
 
     // Helper to evaluate eligibility of a product given attribute and price filters
-    const evaluateProductEligibility = (prod: any, attrFilters: Record<string, string[]>) => {
-      const availableVariations = prod.variations.filter((v: any) => {
-        const stock = stockMap.get(v.id) || 0;
-        return stock > 0;
-      });
+    const evaluateProductEligibility = (
+      prod: {
+        id: string
+        name: string
+        slug: string
+        shortDescription: string | null
+        type: string
+        isFeatured: boolean
+        storeId: string
+        variations: Array<{
+          id: string
+          price: string | number
+          promotionalPrice?: string | number | null
+          values?: Array<{
+            optionValue?: {
+              option?: { name?: string; slug?: string }
+              value?: string
+            }
+          }>
+        }>
+        medias: Array<{
+          isMain?: boolean
+          file?: { objectKey?: string }
+        }>
+        store?: {
+          id?: string
+          slug?: string
+          name?: string
+          logoUrl?: string | null
+        } | null
+        category?: { id?: string; slug?: string; name?: string } | null
+        brand?: { id?: string; slug?: string; name?: string } | null
+      },
+      attrFilters: Record<string, string[]>,
+    ) => {
+      const availableVariations = prod.variations.filter((v) => {
+        const stock = stockMap.get(v.id) || 0
+        return stock > 0
+      })
 
-      let matchedVariant = availableVariations.find((v: any) =>
-        variantMatchesAttributes(v, attrFilters),
-      );
+      let matchedVariant = availableVariations.find((v) =>
+        variantMatchesAttributes(v as Record<string, unknown>, attrFilters),
+      )
 
       if (!matchedVariant && Object.keys(attrFilters).length === 0) {
-        matchedVariant = prod.variations[0];
+        matchedVariant = prod.variations[0]
       }
 
-      const isAvailable = availableVariations.length > 0;
-      const defaultVar = matchedVariant || prod.variations[0];
-      const stock = defaultVar ? stockMap.get(defaultVar.id) || 0 : 0;
+      const isAvailable = availableVariations.length > 0
+      const defaultVar = matchedVariant || prod.variations[0]
+      const stock = defaultVar ? stockMap.get(defaultVar.id) || 0 : 0
 
-      const price = defaultVar ? Number(defaultVar.price) : 0;
+      const price = defaultVar ? Number(defaultVar.price) : 0
       const promotionalPrice = defaultVar?.promotionalPrice
         ? Number(defaultVar.promotionalPrice)
-        : null;
+        : null
 
       // Use 100% Prisma Client Search Rank or fallback to JS relevance
-      const prismaRank = prismaRankMap.get(prod.id);
-      const relevanceScore = prismaRank !== undefined ? prismaRank : calculateProductRelevance(prod, normalizedSearch);
+      const prismaRank = prismaRankMap.get(prod.id)
+      const relevanceScore =
+        prismaRank !== undefined
+          ? prismaRank
+          : calculateProductRelevance(
+              prod as DiscoveryProductRecord,
+              normalizedSearch,
+            )
 
       return {
         id: prod.id,
@@ -680,8 +844,9 @@ export class PublicDiscoveryService {
         isFeatured: prod.isFeatured,
         price,
         promotionalPrice,
-        mainImageUrl: (prod.medias.find((m: any) => m.isMain) || prod.medias[0])?.file?.objectKey
-          ? `${process.env.R2_PUBLIC_URL || ""}/${(prod.medias.find((m: any) => m.isMain) || prod.medias[0]).file.objectKey}`
+        mainImageUrl: (prod.medias.find((m) => m.isMain) || prod.medias[0])
+          ?.file?.objectKey
+          ? `${process.env.R2_PUBLIC_URL || ''}/${(prod.medias.find((m) => m.isMain) || prod.medias[0])!.file!.objectKey}`
           : null,
         store: prod.store,
         category: prod.category,
@@ -692,31 +857,39 @@ export class PublicDiscoveryService {
         matchedVariantId: defaultVar?.id,
         hasAttributeMatch: Boolean(matchedVariant),
         rawProd: prod,
-      };
-    };
+      }
+    }
 
     // 4. Process Base Products
     let processedProducts = rawProducts
-      .map((p) => evaluateProductEligibility(p, parsedAttributes))
+      .map((p) =>
+        evaluateProductEligibility(
+          p as unknown as Parameters<typeof evaluateProductEligibility>[0],
+          parsedAttributes,
+        ),
+      )
       .filter((prod) => {
         if (searchTerm && (!prod.relevanceScore || prod.relevanceScore <= 0)) {
-          return false;
+          return false
         }
-        if (Object.keys(parsedAttributes).length > 0 && !prod.hasAttributeMatch) {
-          return false;
+        if (
+          Object.keys(parsedAttributes).length > 0 &&
+          !prod.hasAttributeMatch
+        ) {
+          return false
         }
-        return true;
-      });
+        return true
+      })
 
     // Calculate Global Price Range
-    let globalMinPrice = Infinity;
-    let globalMaxPrice = -Infinity;
+    let globalMinPrice = Infinity
+    let globalMaxPrice = -Infinity
     for (const p of processedProducts) {
       if (p.isAvailable) {
-        const activePrice = p.promotionalPrice || p.price;
+        const activePrice = p.promotionalPrice || p.price
         if (activePrice > 0) {
-          if (activePrice < globalMinPrice) globalMinPrice = activePrice;
-          if (activePrice > globalMaxPrice) globalMaxPrice = activePrice;
+          if (activePrice < globalMinPrice) globalMinPrice = activePrice
+          if (activePrice > globalMaxPrice) globalMaxPrice = activePrice
         }
       }
     }
@@ -725,129 +898,155 @@ export class PublicDiscoveryService {
     if (minPrice !== undefined) {
       processedProducts = processedProducts.filter(
         (p) => (p.promotionalPrice || p.price) >= minPrice,
-      );
+      )
     }
     if (maxPrice !== undefined) {
       processedProducts = processedProducts.filter(
         (p) => (p.promotionalPrice || p.price) <= maxPrice,
-      );
+      )
     }
 
     // Apply outOfStockBehavior with deterministic tie-breaker (id DESC)
-    const marketplaceSettings = await prisma.marketplaceSettings.findFirst();
-    const outOfStockBehavior = marketplaceSettings?.outOfStockBehavior || "show_badge";
+    const marketplaceSettings = await prisma.marketplaceSettings.findFirst()
+    const outOfStockBehavior =
+      marketplaceSettings?.outOfStockBehavior || 'show_badge'
 
-    const sortFn = (a: any, b: any) => {
-      if (sort === "price_asc") {
-        const diff = (a.promotionalPrice || a.price) - (b.promotionalPrice || b.price);
-        return diff !== 0 ? diff : b.id.localeCompare(a.id);
+    const sortFn = (
+      a: (typeof processedProducts)[number],
+      b: (typeof processedProducts)[number],
+    ) => {
+      if (sort === 'price_asc') {
+        const diff =
+          (a.promotionalPrice || a.price) - (b.promotionalPrice || b.price)
+        return diff !== 0 ? diff : b.id.localeCompare(a.id)
       }
-      if (sort === "price_desc") {
-        const diff = (b.promotionalPrice || b.price) - (a.promotionalPrice || a.price);
-        return diff !== 0 ? diff : b.id.localeCompare(a.id);
+      if (sort === 'price_desc') {
+        const diff =
+          (b.promotionalPrice || b.price) - (a.promotionalPrice || a.price)
+        return diff !== 0 ? diff : b.id.localeCompare(a.id)
       }
-      if (sort === "newest") {
-        return b.id.localeCompare(a.id);
+      if (sort === 'newest') {
+        return b.id.localeCompare(a.id)
       }
-      const relDiff = (b.relevanceScore || 0) - (a.relevanceScore || 0);
-      return relDiff !== 0 ? relDiff : b.id.localeCompare(a.id);
-    };
+      const relDiff = (b.relevanceScore || 0) - (a.relevanceScore || 0)
+      return relDiff !== 0 ? relDiff : b.id.localeCompare(a.id)
+    }
 
-    if (outOfStockBehavior === "hide_product") {
-      processedProducts = processedProducts.filter((p) => p.isAvailable);
-      processedProducts.sort(sortFn);
-    } else if (outOfStockBehavior === "move_to_end") {
-      const available = processedProducts.filter((p) => p.isAvailable);
-      const unavailable = processedProducts.filter((p) => !p.isAvailable);
+    if (outOfStockBehavior === 'hide_product') {
+      processedProducts = processedProducts.filter((p) => p.isAvailable)
+      processedProducts.sort(sortFn)
+    } else if (outOfStockBehavior === 'move_to_end') {
+      const available = processedProducts.filter((p) => p.isAvailable)
+      const unavailable = processedProducts.filter((p) => !p.isAvailable)
 
-      available.sort(sortFn);
-      unavailable.sort(sortFn);
-      processedProducts = [...available, ...unavailable];
+      available.sort(sortFn)
+      unavailable.sort(sortFn)
+      processedProducts = [...available, ...unavailable]
     } else {
-      processedProducts.sort(sortFn);
+      processedProducts.sort(sortFn)
     }
 
     // 5. Calculate TRUE Disjunctive Facets (COUNT DISTINCT productId with self-excluding counts)
-    const brandCounts = new Map<string, { label: string; productIds: Set<string> }>();
-    const storeCounts = new Map<string, { label: string; productIds: Set<string> }>();
+    const brandCounts = new Map<
+      string,
+      { label: string; productIds: Set<string> }
+    >()
+    const storeCounts = new Map<
+      string,
+      { label: string; productIds: Set<string> }
+    >()
     const attributeFacetCounts = new Map<
       string,
       Map<string, { label: string; productIds: Set<string> }>
-    >();
+    >()
 
     // For brand counts (self-excluding brand filter)
-    const productsForBrandFacets = rawProducts.map((p) => evaluateProductEligibility(p, parsedAttributes));
+    const productsForBrandFacets = rawProducts.map((p) =>
+      evaluateProductEligibility(
+        p as unknown as Parameters<typeof evaluateProductEligibility>[0],
+        parsedAttributes,
+      ),
+    )
     for (const prod of productsForBrandFacets) {
       if (prod.brand) {
-        const existing = brandCounts.get(prod.brand.slug) || {
-          label: prod.brand.name,
+        const b = prod.brand as { slug: string; name: string }
+        const existing = brandCounts.get(b.slug) || {
+          label: b.name,
           productIds: new Set<string>(),
-        };
-        existing.productIds.add(prod.id);
-        brandCounts.set(prod.brand.slug, existing);
+        }
+        existing.productIds.add(prod.id)
+        brandCounts.set(b.slug, existing)
       }
     }
 
     // For store counts (self-excluding store filter)
-    const productsForStoreFacets = rawProducts.map((p) => evaluateProductEligibility(p, parsedAttributes));
+    const productsForStoreFacets = rawProducts.map((p) =>
+      evaluateProductEligibility(
+        p as unknown as Parameters<typeof evaluateProductEligibility>[0],
+        parsedAttributes,
+      ),
+    )
     for (const prod of productsForStoreFacets) {
       if (prod.store) {
-        const existing = storeCounts.get(prod.store.slug) || {
-          label: prod.store.name,
+        const s = prod.store as { slug: string; name: string }
+        const existing = storeCounts.get(s.slug) || {
+          label: s.name,
           productIds: new Set<string>(),
-        };
-        existing.productIds.add(prod.id);
-        storeCounts.set(prod.store.slug, existing);
+        }
+        existing.productIds.add(prod.id)
+        storeCounts.set(s.slug, existing)
       }
     }
 
     // For attribute counts (self-excluding per attribute group)
     for (const prod of processedProducts) {
       for (const v of prod.rawProd.variations) {
-        for (const vv of v.values) {
-          const optName = vv.optionValue?.option?.name;
-          const optVal = vv.optionValue?.value;
+        for (const vv of v.values ?? []) {
+          const optName = (
+            vv.optionValue?.option as { name?: string } | undefined
+          )?.name
+          const optVal = vv.optionValue?.value
           if (optName && optVal) {
-            let optMap = attributeFacetCounts.get(optName);
+            let optMap = attributeFacetCounts.get(optName)
             if (!optMap) {
-              optMap = new Map();
-              attributeFacetCounts.set(optName, optMap);
+              optMap = new Map()
+              attributeFacetCounts.set(optName, optMap)
             }
             const valEntry = optMap.get(optVal) || {
               label: optVal,
               productIds: new Set<string>(),
-            };
-            valEntry.productIds.add(prod.id);
-            optMap.set(optVal, valEntry);
+            }
+            valEntry.productIds.add(prod.id)
+            optMap.set(optVal, valEntry)
           }
         }
       }
     }
 
-    const availableFilters: DiscoveryFacet[] = [];
+    const availableFilters: DiscoveryFacet[] = []
 
     if (brandCounts.size > 0) {
       availableFilters.push({
-        key: "brand",
-        label: "Marcas",
+        key: 'brand',
+        label: 'Marcas',
         options: Array.from(brandCounts.entries()).map(([slug, data]) => ({
           value: slug,
           label: data.label,
           count: data.productIds.size,
         })),
-      });
+      })
     }
 
     if (storeCounts.size > 0) {
       availableFilters.push({
-        key: "store",
-        label: "Produtores & Lojas",
+        key: 'store',
+        label: 'Produtores & Lojas',
         options: Array.from(storeCounts.entries()).map(([slug, data]) => ({
           value: slug,
           label: data.label,
           count: data.productIds.size,
         })),
-      });
+      })
     }
 
     for (const [optName, valMap] of attributeFacetCounts.entries()) {
@@ -859,60 +1058,61 @@ export class PublicDiscoveryService {
           label: data.label,
           count: data.productIds.size,
         })),
-      });
+      })
     }
 
     // 6. Paginate Results
-    const pageNum = Number(page) || 1;
-    const perPageNum = Math.min(100, Math.max(1, Number(perPage) || 50));
-    const total = processedProducts.length;
-    const totalPages = Math.ceil(total / perPageNum) || 1;
-    const skip = (pageNum - 1) * perPageNum;
-    const paginatedProducts = processedProducts.slice(skip, skip + perPageNum);
+    const pageNum = Number(page) || 1
+    const perPageNum = Math.min(100, Math.max(1, Number(perPage) || 50))
+    const total = processedProducts.length
+    const totalPages = Math.ceil(total / perPageNum) || 1
+    const skip = (pageNum - 1) * perPageNum
+    const paginatedProducts = processedProducts.slice(skip, skip + perPageNum)
 
     // Applied Filters Summary
-    const appliedFilters: Array<{ key: string; label: string; value: string }> = [];
+    const appliedFilters: Array<{ key: string; label: string; value: string }> =
+      []
     if (resolvedCategory) {
       appliedFilters.push({
-        key: "categorySlug",
-        label: "Categoria",
+        key: 'categorySlug',
+        label: 'Categoria',
         value: resolvedCategory.name,
-      });
+      })
     }
     if (resolvedBrand) {
       appliedFilters.push({
-        key: "brandSlug",
-        label: "Marca",
+        key: 'brandSlug',
+        label: 'Marca',
         value: resolvedBrand.name,
-      });
+      })
     }
     if (resolvedStore) {
       appliedFilters.push({
-        key: "storeSlug",
-        label: "Produtor",
+        key: 'storeSlug',
+        label: 'Produtor',
         value: resolvedStore.name,
-      });
+      })
     }
     if (searchTerm) {
       appliedFilters.push({
-        key: "query",
-        label: "Busca",
+        key: 'query',
+        label: 'Busca',
         value: searchTerm,
-      });
+      })
     }
     if (isOffer) {
       appliedFilters.push({
-        key: "isOffer",
-        label: "Filtro",
-        value: "Ofertas & Promoções",
-      });
+        key: 'isOffer',
+        label: 'Filtro',
+        value: 'Ofertas & Promoções',
+      })
     }
     for (const [optName, vals] of Object.entries(parsedAttributes)) {
       appliedFilters.push({
         key: `attr_${normalizeSearchText(optName)}`,
         label: optName,
-        value: vals.join(", "),
-      });
+        value: vals.join(', '),
+      })
     }
 
     // SEO Data
@@ -923,10 +1123,10 @@ export class PublicDiscoveryService {
         : resolvedBrand
           ? `/marca/${resolvedBrand.slug}`
           : searchTerm
-            ? "/busca"
+            ? '/busca'
             : isOffer
-              ? "/ofertas"
-              : "/produtos";
+              ? '/ofertas'
+              : '/produtos'
 
     return {
       context: {
@@ -942,7 +1142,10 @@ export class PublicDiscoveryService {
           max: globalMaxPrice === -Infinity ? 0 : globalMaxPrice,
         },
       },
-      products: paginatedProducts,
+      products: paginatedProducts.map(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ({ rawProd, hasAttributeMatch, ...rest }) => rest,
+      ) as DiscoveryResponse['products'],
       pagination: {
         page: Number(page) || 1,
         perPage: Math.min(100, Math.max(1, Number(perPage) || 50)),
@@ -955,17 +1158,18 @@ export class PublicDiscoveryService {
       appliedFilters,
       availableFilters,
       sortOptions: [
-        { key: "relevance", label: "Relevância" },
-        { key: "price_asc", label: "Menor Preço" },
-        { key: "price_desc", label: "Maior Preço" },
-        { key: "newest", label: "Lançamentos" },
+        { key: 'relevance', label: 'Relevância' },
+        { key: 'price_asc', label: 'Menor Preço' },
+        { key: 'price_desc', label: 'Maior Preço' },
+        { key: 'newest', label: 'Lançamentos' },
       ],
       seo: {
         title: `${contextTitle} | VERTTEX Marketplace`,
         description:
-          contextDescription || "Descubra os melhores produtos artesanais no VERTTEX",
+          contextDescription ||
+          'Descubra os melhores produtos artesanais no VERTTEX',
         canonicalUrl,
       },
-    };
+    }
   }
 }

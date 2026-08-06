@@ -1,39 +1,39 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const addItemToCartBodySchema = z
   .object({
-    variationId: z.string().min(1, "ID da variação é obrigatório"),
-    quantity: z.number().int().min(1, "Quantidade deve ser de no mínimo 1"),
+    variationId: z.string().min(1, 'ID da variação é obrigatório'),
+    quantity: z.number().int().min(1, 'Quantidade deve ser de no mínimo 1'),
   })
-  .strict();
+  .strict()
 
-export type AddItemToCartBody = z.infer<typeof addItemToCartBodySchema>;
+export type AddItemToCartBody = z.infer<typeof addItemToCartBodySchema>
 
 export const updateCartItemQuantityBodySchema = z
   .object({
-    quantity: z.number().int().min(1, "Quantidade deve ser de no mínimo 1"),
+    quantity: z.number().int().min(1, 'Quantidade deve ser de no mínimo 1'),
   })
-  .strict();
+  .strict()
 
 export type UpdateCartItemQuantityBody = z.infer<
   typeof updateCartItemQuantityBodySchema
->;
+>
 
 export const applyCouponBodySchema = z
   .object({
     code: z
       .string()
-      .min(1, "Código do cupom é obrigatório")
+      .min(1, 'Código do cupom é obrigatório')
       .transform((val) => val.trim().toUpperCase()),
   })
-  .strict();
+  .strict()
 
-export type ApplyCouponBody = z.infer<typeof applyCouponBodySchema>;
+export type ApplyCouponBody = z.infer<typeof applyCouponBodySchema>
 
 export const syncCartBodySchema = z
   .object({
-    anonymousSessionId: z.string().min(1, "ID da sessão anônima é obrigatório"),
+    anonymousSessionId: z.string().min(1, 'ID da sessão anônima é obrigatório'),
   })
-  .strict();
+  .strict()
 
-export type SyncCartBody = z.infer<typeof syncCartBodySchema>;
+export type SyncCartBody = z.infer<typeof syncCartBodySchema>

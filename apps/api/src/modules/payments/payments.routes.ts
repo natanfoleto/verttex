@@ -1,62 +1,67 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
+
 import {
   createChargeController,
-  webhookController,
   getPaymentStatusController,
-} from "./payments.controller";
-import { createPaymentChargeSchema, webhookEventSchema } from "./payments.schemas";
+  webhookController,
+} from './payments.controller'
+import {
+  createPaymentChargeSchema,
+  webhookEventSchema,
+} from './payments.schemas'
 
-const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
 
 export async function paymentsRoutes(app: FastifyInstance) {
-  const typedApp = app.withTypeProvider<ZodTypeProvider>();
+  const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
   // POST /payments/charge — Protected for Customers
   typedApp.post(
-    "/charge",
+    '/charge',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Payments"],
-        summary: "Gerar cobrança Pix/Cartão para um pedido",
+        tags: ['Payments'],
+        summary: 'Gerar cobrança Pix/Cartão para um pedido',
         security: [{ bearerAuth: [] }],
         body: createPaymentChargeSchema,
       },
     },
     createChargeController,
-  );
+  )
 
   // POST /payments/webhook — Gateway Webhook (Unauthenticated endpoint with rate limit and signature verification)
   typedApp.post(
-    "/webhook",
+    '/webhook',
     {
       config: {
         rateLimit: {
           max: 60,
-          timeWindow: "1 minute",
+          timeWindow: '1 minute',
           keyGenerator: (req) => `webhook:ip:${req.ip}`,
           allowList: () => isDev,
         },
       },
       schema: {
-        tags: ["Payments"],
-        summary: "Receber notificações assíncronas de webhook do gateway de pagamento",
+        tags: ['Payments'],
+        summary:
+          'Receber notificações assíncronas de webhook do gateway de pagamento',
         body: webhookEventSchema,
       },
     },
     webhookController,
-  );
+  )
 
   // GET /payments/order/:orderId — Protected for Customers
   typedApp.get(
-    "/order/:orderId",
+    '/order/:orderId',
     {
       preHandler: [app.authenticateCustomer],
       schema: {
-        tags: ["Payments"],
-        summary: "Consultar status de pagamento de um pedido",
+        tags: ['Payments'],
+        summary: 'Consultar status de pagamento de um pedido',
         security: [{ bearerAuth: [] }],
         params: z.object({
           orderId: z.string(),
@@ -64,5 +69,5 @@ export async function paymentsRoutes(app: FastifyInstance) {
       },
     },
     getPaymentStatusController,
-  );
+  )
 }

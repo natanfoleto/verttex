@@ -1,59 +1,59 @@
-import { FastifyRequest } from "fastify";
-import { Prisma } from "@prisma/client";
-import { prisma } from "../../infrastructure/database/prisma";
-import { AppError } from "../../shared/errors/app-error";
-import { logAudit } from "../../shared/utils/audit";
+import { Prisma } from '@prisma/client'
+import { FastifyRequest } from 'fastify'
+
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { logAudit } from '../../shared/utils/audit'
+import { ProductSearchIndexService } from '../catalog/product-search-index.service'
 import {
   CategoryQuery,
   CreateCategoryBody,
-  UpdateCategoryBody,
   ReorderCategoriesBody,
-} from "./categories.schemas";
-import { ProductSearchIndexService } from "../catalog/product-search-index.service";
-
+  UpdateCategoryBody,
+} from './categories.schemas'
 
 export function normalizeSlug(text: string): string {
   return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
 }
 
 export class CategoriesService {
   async listCategories(query: CategoryQuery) {
-    const page = Math.max(1, query.page || 1);
-    const perPage = Math.max(1, Math.min(100, query.perPage || 20));
-    const skip = (page - 1) * perPage;
+    const page = Math.max(1, query.page || 1)
+    const perPage = Math.max(1, Math.min(100, query.perPage || 20))
+    const skip = (page - 1) * perPage
 
     const where: Prisma.CategoryWhereInput = {
       deletedAt: null,
-    };
+    }
 
     if (query.search) {
-      const search = query.search.trim();
+      const search = query.search.trim()
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { slug: { contains: search, mode: "insensitive" } },
-      ];
+        { name: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ]
     }
 
     if (query.parentId !== undefined) {
       where.parentId =
-        query.parentId === "null" || query.parentId === ""
+        query.parentId === 'null' || query.parentId === ''
           ? null
-          : query.parentId;
+          : query.parentId
     }
 
     if (query.status) {
-      where.status = query.status;
+      where.status = query.status
     }
 
     if (query.isVisible !== undefined) {
-      where.isVisible = query.isVisible;
+      where.isVisible = query.isVisible
     }
 
     const [total, categories] = await Promise.all([
@@ -62,7 +62,7 @@ export class CategoriesService {
         where,
         skip,
         take: perPage,
-        orderBy: [{ position: "asc" }, { name: "asc" }],
+        orderBy: [{ position: 'asc' }, { name: 'asc' }],
         include: {
           parent: {
             select: { id: true, name: true, slug: true },
@@ -72,9 +72,9 @@ export class CategoriesService {
           },
         },
       }),
-    ]);
+    ])
 
-    const totalPages = Math.ceil(total / perPage);
+    const totalPages = Math.ceil(total / perPage)
 
     return {
       data: categories,
@@ -86,25 +86,27 @@ export class CategoriesService {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
-    };
+    }
   }
 
   async getCategoryTree() {
     const allCategories = await prisma.category.findMany({
-      where: { deletedAt: null, status: "active" },
-      orderBy: [{ position: "asc" }, { name: "asc" }],
-    });
+      where: { deletedAt: null, status: 'active' },
+      orderBy: [{ position: 'asc' }, { name: 'asc' }],
+    })
 
-    const buildTree = (parentId: string | null = null): any[] => {
+    const buildTree = (
+      parentId: string | null = null,
+    ): Array<(typeof allCategories)[number] & { children: unknown[] }> => {
       return allCategories
         .filter((cat) => cat.parentId === parentId)
         .map((cat) => ({
           ...cat,
           children: buildTree(cat.id),
-        }));
-    };
+        }))
+    }
 
-    return buildTree(null);
+    return buildTree(null)
   }
 
   async getCategoryById(id: string) {
@@ -116,13 +118,13 @@ export class CategoriesService {
           where: { deletedAt: null },
         },
       },
-    });
+    })
 
     if (!category) {
-      throw new AppError("NOT_FOUND", "Categoria não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Categoria não encontrada', 404)
     }
 
-    return category;
+    return category
   }
 
   async createCategory(
@@ -130,30 +132,30 @@ export class CategoriesService {
     actorId?: string,
     req?: FastifyRequest,
   ) {
-    const slug = normalizeSlug(data.slug || data.name);
+    const slug = normalizeSlug(data.slug || data.name)
 
     if (!slug) {
-      throw new AppError("VALIDATION_ERROR", "Slug de categoria inválido", 400);
+      throw new AppError('VALIDATION_ERROR', 'Slug de categoria inválido', 400)
     }
 
     const existing = await prisma.category.findFirst({
       where: { slug, deletedAt: null },
-    });
+    })
 
     if (existing) {
       throw new AppError(
-        "CONFLICT",
-        "Já existe uma categoria com este slug",
+        'CONFLICT',
+        'Já existe uma categoria com este slug',
         409,
-      );
+      )
     }
 
     if (data.parentId) {
       const parent = await prisma.category.findFirst({
         where: { id: data.parentId, deletedAt: null },
-      });
+      })
       if (!parent) {
-        throw new AppError("NOT_FOUND", "Categoria pai não encontrada", 404);
+        throw new AppError('NOT_FOUND', 'Categoria pai não encontrada', 404)
       }
     }
 
@@ -166,24 +168,24 @@ export class CategoriesService {
         iconUrl: data.iconUrl,
         parentId: data.parentId || null,
         position: data.position ?? 0,
-        status: data.status || "active",
+        status: data.status || 'active',
         isVisible: data.isVisible ?? true,
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
         createdBy: actorId || null,
       },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "CREATE_CATEGORY",
-      entity: "Category",
+      action: 'CREATE_CATEGORY',
+      entity: 'Category',
       entityId: category.id,
       newValues: category,
       req,
-    });
+    })
 
-    return category;
+    return category
   }
 
   async updateCategory(
@@ -194,25 +196,25 @@ export class CategoriesService {
   ) {
     const previousCategory = await prisma.category.findFirst({
       where: { id, deletedAt: null },
-    });
+    })
 
     if (!previousCategory) {
-      throw new AppError("NOT_FOUND", "Categoria não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Categoria não encontrada', 404)
     }
 
-    let newSlug: string | undefined;
+    let newSlug: string | undefined
     if (data.slug || data.name) {
-      newSlug = normalizeSlug(data.slug || data.name || previousCategory.name);
+      newSlug = normalizeSlug(data.slug || data.name || previousCategory.name)
       if (newSlug !== previousCategory.slug) {
         const existing = await prisma.category.findFirst({
           where: { slug: newSlug, deletedAt: null, id: { not: id } },
-        });
+        })
         if (existing) {
           throw new AppError(
-            "CONFLICT",
-            "Já existe uma categoria com este slug",
+            'CONFLICT',
+            'Já existe uma categoria com este slug',
             409,
-          );
+          )
         }
       }
     }
@@ -220,12 +222,12 @@ export class CategoriesService {
     if (data.parentId !== undefined && data.parentId !== null) {
       if (data.parentId === id) {
         throw new AppError(
-          "VALIDATION_ERROR",
-          "Uma categoria não pode ser definida como pai de si mesma",
+          'VALIDATION_ERROR',
+          'Uma categoria não pode ser definida como pai de si mesma',
           400,
-        );
+        )
       }
-      await this.validateNoCycle(id, data.parentId);
+      await this.validateNoCycle(id, data.parentId)
     }
 
     const updatedCategory = await prisma.category.update({
@@ -244,22 +246,22 @@ export class CategoriesService {
         metaDescription: data.metaDescription,
         updatedBy: actorId || null,
       },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "UPDATE_CATEGORY",
-      entity: "Category",
+      action: 'UPDATE_CATEGORY',
+      entity: 'Category',
       entityId: id,
       oldValues: previousCategory,
       newValues: updatedCategory,
       req,
-    });
+    })
 
     // Sync Search Documents for all products of this category (name may have changed)
-    await ProductSearchIndexService.refreshByCategory(id).catch(() => {});
+    await ProductSearchIndexService.refreshByCategory(id).catch(() => {})
 
-    return updatedCategory;
+    return updatedCategory
   }
 
   async deleteCategory(id: string, actorId?: string, req?: FastifyRequest) {
@@ -270,40 +272,40 @@ export class CategoriesService {
           where: { deletedAt: null },
         },
       },
-    });
+    })
 
     if (!category) {
-      throw new AppError("NOT_FOUND", "Categoria não encontrada", 404);
+      throw new AppError('NOT_FOUND', 'Categoria não encontrada', 404)
     }
 
     if (category.children.length > 0) {
       throw new AppError(
-        "CONFLICT",
-        "Não é possível excluir uma categoria que possui subcategorias vinculadas",
+        'CONFLICT',
+        'Não é possível excluir uma categoria que possui subcategorias vinculadas',
         409,
-      );
+      )
     }
 
     const archived = await prisma.category.update({
       where: { id },
       data: {
-        status: "inactive",
+        status: 'inactive',
         deletedAt: new Date(),
         deletedBy: actorId || null,
       },
-    });
+    })
 
     await logAudit({
       userId: actorId ?? null,
-      action: "ARCHIVE_CATEGORY",
-      entity: "Category",
+      action: 'ARCHIVE_CATEGORY',
+      entity: 'Category',
       entityId: id,
       oldValues: category,
       newValues: archived,
       req,
-    });
+    })
 
-    return { message: "Categoria arquivada com sucesso" };
+    return { message: 'Categoria arquivada com sucesso' }
   }
 
   async reorderCategories(
@@ -318,40 +320,40 @@ export class CategoriesService {
           data: { position: item.position },
         }),
       ),
-    );
+    )
 
     await logAudit({
       userId: actorId ?? null,
-      action: "REORDER_CATEGORIES",
-      entity: "Category",
+      action: 'REORDER_CATEGORIES',
+      entity: 'Category',
       newValues: body.items,
       req,
-    });
+    })
 
-    return { message: "Ordem das categorias atualizada com sucesso" };
+    return { message: 'Ordem das categorias atualizada com sucesso' }
   }
 
   private async validateNoCycle(categoryId: string, targetParentId: string) {
-    let currentId: string | null = targetParentId;
+    let currentId: string | null = targetParentId
 
     while (currentId) {
       if (currentId === categoryId) {
         throw new AppError(
-          "VALIDATION_ERROR",
-          "Não é possível mover uma categoria para ser subcategoria de um dos seus descendentes (ciclo detectado)",
+          'VALIDATION_ERROR',
+          'Não é possível mover uma categoria para ser subcategoria de um dos seus descendentes (ciclo detectado)',
           400,
-        );
+        )
       }
 
       const parentCategory: { parentId: string | null } | null =
         await prisma.category.findUnique({
           where: { id: currentId },
           select: { parentId: true },
-        });
+        })
 
-      currentId = parentCategory?.parentId || null;
+      currentId = parentCategory?.parentId || null
     }
   }
 }
 
-export const categoriesService = new CategoriesService();
+export const categoriesService = new CategoriesService()

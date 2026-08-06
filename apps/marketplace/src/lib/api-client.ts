@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatApiErrorMessage } from './format-api-error'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'

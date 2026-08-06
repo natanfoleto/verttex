@@ -1,12 +1,14 @@
-import { FastifyRequest } from "fastify";
-import { AppError } from "../../shared/errors/app-error";
-import { prisma } from "../../infrastructure/database/prisma";
-import { logAudit } from "../../shared/utils/audit";
+import { Prisma } from '@prisma/client'
+import { FastifyRequest } from 'fastify'
+
+import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import { logAudit } from '../../shared/utils/audit'
 import {
   CreateLotBody,
   ListLotsQuery,
   UpdateLotStatusBody,
-} from "./lots.schemas";
+} from './lots.schemas'
 
 export class LotsService {
   /**
@@ -19,50 +21,50 @@ export class LotsService {
   ) {
     if (!expirationDate) {
       return {
-        condition: "valid" as const,
+        condition: 'valid' as const,
         daysRemaining: null,
         isExpired: false,
-      };
+      }
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
-    const exp = new Date(expirationDate);
-    exp.setHours(23, 59, 59, 999);
+    const exp = new Date(expirationDate)
+    exp.setHours(23, 59, 59, 999)
 
-    const diffTime = exp.getTime() - today.getTime();
-    const daysRemaining = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffTime = exp.getTime() - today.getTime()
+    const daysRemaining = Math.floor(diffTime / (1000 * 60 * 60 * 24))
 
     if (daysRemaining < 0) {
       return {
-        condition: "expired" as const,
+        condition: 'expired' as const,
         daysRemaining,
         isExpired: true,
-      };
+      }
     }
 
     if (daysRemaining < minDeliveryDays) {
       return {
-        condition: "insufficient" as const,
+        condition: 'insufficient' as const,
         daysRemaining,
         isExpired: false,
-      };
+      }
     }
 
     if (daysRemaining <= warningDays) {
       return {
-        condition: "warning" as const,
+        condition: 'warning' as const,
         daysRemaining,
         isExpired: false,
-      };
+      }
     }
 
     return {
-      condition: "valid" as const,
+      condition: 'valid' as const,
       daysRemaining,
       isExpired: false,
-    };
+    }
   }
 
   /**
@@ -75,23 +77,23 @@ export class LotsService {
   ) {
     // Validate manufacturing vs expiration dates
     if (body.manufacturingDate && body.expirationDate) {
-      const mfg = new Date(body.manufacturingDate);
-      const exp = new Date(body.expirationDate);
+      const mfg = new Date(body.manufacturingDate)
+      const exp = new Date(body.expirationDate)
       if (mfg > exp) {
         throw new AppError(
-          "VALIDATION_ERROR",
-          "Data de fabricação não pode ser posterior à data de validade",
+          'VALIDATION_ERROR',
+          'Data de fabricação não pode ser posterior à data de validade',
           400,
-        );
+        )
       }
     }
 
     // Verify product exists and matches store
     const product = await prisma.product.findFirst({
       where: { id: body.productId, storeId: body.storeId, deletedAt: null },
-    });
+    })
     if (!product) {
-      throw new AppError("NOT_FOUND", "Produto não encontrado na loja", 404);
+      throw new AppError('NOT_FOUND', 'Produto não encontrado na loja', 404)
     }
 
     // Check unique lot per (store, product, variation, lotNumber)
@@ -102,14 +104,14 @@ export class LotsService {
         variationId: body.variationId || null,
         lotNumber: body.lotNumber.trim(),
       },
-    });
+    })
 
     if (existing) {
       throw new AppError(
-        "VALIDATION_ERROR",
+        'VALIDATION_ERROR',
         `Já existe um lote cadastrado com o código "${body.lotNumber}" para este produto nesta loja`,
         400,
-      );
+      )
     }
 
     const lot = await prisma.productLot.create({
@@ -134,12 +136,12 @@ export class LotsService {
         product: { select: { id: true, name: true, slug: true } },
         variation: { select: { id: true, sku: true } },
       },
-    });
+    })
 
     await logAudit({
       userId,
-      action: "CREATE_LOT",
-      entity: "ProductLot",
+      action: 'CREATE_LOT',
+      entity: 'ProductLot',
       entityId: lot.id,
       newValues: {
         lotNumber: lot.lotNumber,
@@ -147,9 +149,9 @@ export class LotsService {
         expirationDate: lot.expirationDate,
       },
       req,
-    });
+    })
 
-    return lot;
+    return lot
   }
 
   /**
@@ -165,22 +167,22 @@ export class LotsService {
       search,
       page,
       limit,
-    } = query;
-    const skip = (page - 1) * limit;
+    } = query
+    const skip = (page - 1) * limit
 
-    const where: any = {};
-    if (storeId) where.storeId = storeId;
-    if (productId) where.productId = productId;
-    if (variationId) where.variationId = variationId;
-    if (status !== "all") where.status = status;
+    const where: Prisma.ProductLotWhereInput = {}
+    if (storeId) where.storeId = storeId
+    if (productId) where.productId = productId
+    if (variationId) where.variationId = variationId
+    if (status !== 'all') where.status = status
 
     if (search) {
       where.OR = [
-        { lotNumber: { contains: search, mode: "insensitive" } },
-        { manufacturer: { contains: search, mode: "insensitive" } },
-        { supplier: { contains: search, mode: "insensitive" } },
-        { product: { name: { contains: search, mode: "insensitive" } } },
-      ];
+        { lotNumber: { contains: search, mode: 'insensitive' } },
+        { manufacturer: { contains: search, mode: 'insensitive' } },
+        { supplier: { contains: search, mode: 'insensitive' } },
+        { product: { name: { contains: search, mode: 'insensitive' } } },
+      ]
     }
 
     const [rawItems, total] = await Promise.all([
@@ -204,30 +206,30 @@ export class LotsService {
             },
           },
         },
-        orderBy: [{ expirationDate: "asc" }, { createdAt: "desc" }],
+        orderBy: [{ expirationDate: 'asc' }, { createdAt: 'desc' }],
         skip,
         take: limit,
       }),
       prisma.productLot.count({ where }),
-    ]);
+    ])
 
     const items = rawItems.map((lot) => {
-      const minDeliveryDays = lot.product.minDeliveryShelfLifeDays || 15;
-      const warningDays = lot.product.warningShelfLifeDays || 30;
+      const minDeliveryDays = lot.product.minDeliveryShelfLifeDays || 15
+      const warningDays = lot.product.warningShelfLifeDays || 30
       const expAnalysis = LotsService.calculateExpirationCondition(
         lot.expirationDate,
         minDeliveryDays,
         warningDays,
-      );
+      )
 
       const totalPhysical = lot.stockItems.reduce(
         (acc, s) => acc + s.physicalQuantity,
         0,
-      );
+      )
       const totalReserved = lot.stockItems.reduce(
         (acc, s) => acc + s.reservedQuantity,
         0,
-      );
+      )
 
       return {
         ...lot,
@@ -236,20 +238,20 @@ export class LotsService {
           physicalQuantity: totalPhysical,
           reservedQuantity: totalReserved,
           availableQuantity:
-            lot.status === "available" && !expAnalysis.isExpired
+            lot.status === 'available' && !expAnalysis.isExpired
               ? Math.max(0, totalPhysical - totalReserved)
               : 0,
         },
-      };
-    });
+      }
+    })
 
     // Filter by expiration condition if provided
     const filteredItems =
-      expirationCondition === "all"
+      expirationCondition === 'all'
         ? items
         : items.filter(
             (item) => item.expirationAnalysis.condition === expirationCondition,
-          );
+          )
 
     return {
       data: filteredItems,
@@ -259,7 +261,7 @@ export class LotsService {
         total,
         totalPages: Math.ceil(total / limit),
       },
-    };
+    }
   }
 
   /**
@@ -285,26 +287,26 @@ export class LotsService {
         },
         stockMovements: {
           include: { user: { select: { id: true, name: true, email: true } } },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
           take: 50,
         },
       },
-    });
+    })
 
     if (!lot) {
-      throw new AppError("NOT_FOUND", "Lote não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Lote não encontrado', 404)
     }
 
     const expAnalysis = LotsService.calculateExpirationCondition(
       lot.expirationDate,
       lot.product.minDeliveryShelfLifeDays || 15,
       lot.product.warningShelfLifeDays || 30,
-    );
+    )
 
     return {
       ...lot,
       expirationAnalysis: expAnalysis,
-    };
+    }
   }
 
   /**
@@ -318,43 +320,43 @@ export class LotsService {
   ) {
     const lot = await prisma.productLot.findUnique({
       where: { id: lotId },
-    });
+    })
 
     if (!lot) {
-      throw new AppError("NOT_FOUND", "Lote não encontrado", 404);
+      throw new AppError('NOT_FOUND', 'Lote não encontrado', 404)
     }
 
-    const previousStatus = lot.status;
+    const previousStatus = lot.status
     const updatedLot = await prisma.productLot.update({
       where: { id: lotId },
       data: {
         status: body.status,
         updatedBy: userId,
       },
-    });
+    })
 
     await logAudit({
       userId,
       action: `LOT_STATUS_CHANGE_${body.status.toUpperCase()}`,
-      entity: "ProductLot",
+      entity: 'ProductLot',
       entityId: lot.id,
       oldValues: { status: previousStatus },
       newValues: { status: body.status, reason: body.reason },
       req,
-    });
+    })
 
-    return updatedLot;
+    return updatedLot
   }
 
   /**
    * Generates a unique internal lot number in format INT-YYYYMMDD-XXXX
    */
   static generateInternalLotNumber(): string {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    const random = Math.floor(1000 + Math.random() * 9000);
-    return `INT-${yyyy}${mm}${dd}-${random}`;
+    const today = new Date()
+    const yyyy = today.getFullYear()
+    const mm = String(today.getMonth() + 1).padStart(2, '0')
+    const dd = String(today.getDate()).padStart(2, '0')
+    const random = Math.floor(1000 + Math.random() * 9000)
+    return `INT-${yyyy}${mm}${dd}-${random}`
   }
 }

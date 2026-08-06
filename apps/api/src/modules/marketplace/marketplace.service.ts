@@ -1,44 +1,49 @@
-import { prisma } from "../../infrastructure/database/prisma";
-import { r2Storage } from "../../infrastructure/storage/r2";
+import { prisma } from '../../infrastructure/database/prisma'
+import { r2Storage } from '../../infrastructure/storage/r2'
 
 export class MarketplaceService {
   /**
    * Obtém o registro singleton de configurações do marketplace (cria com padrões se não existir)
    */
   async getSettings() {
-    let settings = await prisma.marketplaceSettings.findFirst();
+    let settings = await prisma.marketplaceSettings.findFirst()
     if (!settings) {
       settings = await prisma.marketplaceSettings.create({
         data: {
-          publicName: "VERTTEX",
+          publicName: 'VERTTEX',
           announcementActive: false,
-          outOfStockBehavior: "show_badge",
+          outOfStockBehavior: 'show_badge',
           carouselAutoplay: true,
           carouselIntervalSeconds: 5,
-          carouselTitlePosition: "NONE",
+          carouselTitlePosition: 'NONE',
         },
-
-      });
+      })
     }
 
     // Resolver URLs dos arquivos se existirem
-    const logoUrl = settings.logoFileId ? await this.getFilePublicUrl(settings.logoFileId) : null;
-    const faviconUrl = settings.faviconFileId ? await this.getFilePublicUrl(settings.faviconFileId) : null;
-    const ogImageUrl = settings.ogImageFileId ? await this.getFilePublicUrl(settings.ogImageFileId) : null;
+    const logoUrl = settings.logoFileId
+      ? await this.getFilePublicUrl(settings.logoFileId)
+      : null
+    const faviconUrl = settings.faviconFileId
+      ? await this.getFilePublicUrl(settings.faviconFileId)
+      : null
+    const ogImageUrl = settings.ogImageFileId
+      ? await this.getFilePublicUrl(settings.ogImageFileId)
+      : null
 
     return {
       ...settings,
       logoUrl,
       faviconUrl,
       ogImageUrl,
-    };
+    }
   }
 
   /**
    * Obtém as configurações públicas seguras para o Marketplace (sem expor campos de auditoria)
    */
   async getPublicSettings() {
-    const settings = await this.getSettings();
+    const settings = await this.getSettings()
     return {
       publicName: settings.publicName,
       logoUrl: settings.logoUrl,
@@ -60,27 +65,40 @@ export class MarketplaceService {
       carouselIntervalSeconds: settings.carouselIntervalSeconds,
       carouselTitlePosition: settings.carouselTitlePosition,
       carouselTitleHAlign: settings.carouselTitleHAlign,
-    };
+    }
   }
 
   /**
    * Atualiza o registro singleton de configurações
    */
-  async updateSettings(data: any, userId: string) {
-    const current = await this.getSettings();
+  async updateSettings(data: Record<string, unknown>, userId: string) {
+    const current = await this.getSettings()
 
     // Separar campos virtuais/computados (logoUrl, faviconUrl, ogImageUrl) dos campos persistidos no banco
-    const { logoUrl, faviconUrl, ogImageUrl, ...persistableData } = data;
+    const persistableData = { ...data }
+    delete persistableData.ogImageUrl
 
     // Limpeza de arquivos substituídos no R2
-    if (persistableData.logoFileId !== undefined && persistableData.logoFileId !== current.logoFileId && current.logoFileId) {
-      await this.cleanupFile(current.logoFileId);
+    if (
+      persistableData.logoFileId !== undefined &&
+      persistableData.logoFileId !== current.logoFileId &&
+      current.logoFileId
+    ) {
+      await this.cleanupFile(current.logoFileId)
     }
-    if (persistableData.faviconFileId !== undefined && persistableData.faviconFileId !== current.faviconFileId && current.faviconFileId) {
-      await this.cleanupFile(current.faviconFileId);
+    if (
+      persistableData.faviconFileId !== undefined &&
+      persistableData.faviconFileId !== current.faviconFileId &&
+      current.faviconFileId
+    ) {
+      await this.cleanupFile(current.faviconFileId)
     }
-    if (persistableData.ogImageFileId !== undefined && persistableData.ogImageFileId !== current.ogImageFileId && current.ogImageFileId) {
-      await this.cleanupFile(current.ogImageFileId);
+    if (
+      persistableData.ogImageFileId !== undefined &&
+      persistableData.ogImageFileId !== current.ogImageFileId &&
+      current.ogImageFileId
+    ) {
+      await this.cleanupFile(current.ogImageFileId)
     }
 
     await prisma.marketplaceSettings.update({
@@ -89,28 +107,31 @@ export class MarketplaceService {
         ...persistableData,
         updatedBy: userId,
       },
-    });
+    })
 
-    return this.getSettings();
+    return this.getSettings()
   }
 
   private async getFilePublicUrl(fileId: string): Promise<string | null> {
-    const file = await prisma.file.findUnique({ where: { id: fileId } });
-    if (!file) return null;
-    return r2Storage.getFileUrl(file.objectKey);
+    const file = await prisma.file.findUnique({ where: { id: fileId } })
+    if (!file) return null
+    return r2Storage.getFileUrl(file.objectKey)
   }
 
   private async cleanupFile(fileId: string) {
     try {
-      const file = await prisma.file.findUnique({ where: { id: fileId } });
+      const file = await prisma.file.findUnique({ where: { id: fileId } })
       if (file) {
-        await r2Storage.deleteFile(file.objectKey);
-        await prisma.file.delete({ where: { id: fileId } }).catch(() => null);
+        await r2Storage.deleteFile(file.objectKey)
+        await prisma.file.delete({ where: { id: fileId } }).catch(() => null)
       }
     } catch (err) {
-      console.warn("Falha ao limpar arquivo substituído nas configurações do marketplace:", err);
+      console.warn(
+        'Falha ao limpar arquivo substituído nas configurações do marketplace:',
+        err,
+      )
     }
   }
 }
 
-export const marketplaceService = new MarketplaceService();
+export const marketplaceService = new MarketplaceService()

@@ -1,14 +1,14 @@
-import { prisma } from "../../infrastructure/database/prisma";
+import { prisma } from '../../infrastructure/database/prisma'
 
 export function normalizeSearchText(text: string): string {
-  if (!text) return "";
+  if (!text) return ''
   return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/[^a-z0-9\s]/g, ' ')
     .trim()
-    .replace(/\s+/g, " ");
+    .replace(/\s+/g, ' ')
 }
 
 /**
@@ -17,11 +17,11 @@ export function normalizeSearchText(text: string): string {
  * "  Cachaça   Artesanal  " → ["cachaca", "artesanal"]
  */
 export function tokenizeQuery(query: string): string[] {
-  const normalized = normalizeSearchText(query);
+  const normalized = normalizeSearchText(query)
   return normalized
-    .split(" ")
+    .split(' ')
     .map((t) => t.trim())
-    .filter((t) => t.length >= 1);
+    .filter((t) => t.length >= 1)
 }
 
 export class ProductSearchIndexService {
@@ -36,7 +36,7 @@ export class ProductSearchIndexService {
         brand: { select: { name: true } },
         store: { select: { name: true } },
         variations: {
-          where: { status: "active", deletedAt: null },
+          where: { status: 'active', deletedAt: null },
           include: {
             values: {
               include: {
@@ -46,34 +46,38 @@ export class ProductSearchIndexService {
           },
         },
       },
-    });
+    })
 
-    if (!product) return null;
+    if (!product) return null
 
-    const titleNormalized = normalizeSearchText(product.name);
-    const descriptionNormalized = normalizeSearchText(product.shortDescription || "");
+    const titleNormalized = normalizeSearchText(product.name)
+    const descriptionNormalized = normalizeSearchText(
+      product.shortDescription || '',
+    )
 
     const contextParts = [
-      product.category?.name || "",
-      product.brand?.name || "",
-      product.store?.name || "",
+      product.category?.name || '',
+      product.brand?.name || '',
+      product.store?.name || '',
     ]
       .filter(Boolean)
-      .join(" ");
+      .join(' ')
 
-    const contextNormalized = normalizeSearchText(contextParts);
+    const contextNormalized = normalizeSearchText(contextParts)
 
     // Extract unique variant attribute values (deduplication by Set)
-    const attributeValues = new Set<string>();
+    const attributeValues = new Set<string>()
     for (const v of product.variations) {
       for (const vv of v.values) {
         if (vv.optionValue?.value) {
-          attributeValues.add(vv.optionValue.value);
+          attributeValues.add(vv.optionValue.value)
         }
       }
     }
 
-    const attributesNormalized = normalizeSearchText(Array.from(attributeValues).join(" "));
+    const attributesNormalized = normalizeSearchText(
+      Array.from(attributeValues).join(' '),
+    )
 
     // searchTextNormalized is the full concatenated string for initial candidate selection
     const searchTextNormalized = [
@@ -83,7 +87,7 @@ export class ProductSearchIndexService {
       descriptionNormalized,
     ]
       .filter(Boolean)
-      .join(" ");
+      .join(' ')
 
     return {
       productId: product.id,
@@ -92,7 +96,7 @@ export class ProductSearchIndexService {
       attributesNormalized,
       descriptionNormalized,
       searchTextNormalized,
-    };
+    }
   }
 
   /**
@@ -100,8 +104,9 @@ export class ProductSearchIndexService {
    */
   static async syncProductSearchDocument(productId: string): Promise<void> {
     try {
-      const data = await ProductSearchIndexService.buildSearchDocumentData(productId);
-      if (!data) return;
+      const data =
+        await ProductSearchIndexService.buildSearchDocumentData(productId)
+      if (!data) return
 
       await prisma.productSearchDocument.upsert({
         where: { productId: data.productId },
@@ -113,9 +118,12 @@ export class ProductSearchIndexService {
           descriptionNormalized: data.descriptionNormalized,
           searchTextNormalized: data.searchTextNormalized,
         },
-      });
+      })
     } catch (error) {
-      console.error(`[ProductSearchIndexService] Failed to sync document for product ${productId}:`, error);
+      console.error(
+        `[ProductSearchIndexService] Failed to sync document for product ${productId}:`,
+        error,
+      )
     }
   }
 
@@ -128,12 +136,15 @@ export class ProductSearchIndexService {
       const productIds = await prisma.product.findMany({
         where: { brandId, deletedAt: null },
         select: { id: true },
-      });
+      })
       for (const p of productIds) {
-        await ProductSearchIndexService.syncProductSearchDocument(p.id);
+        await ProductSearchIndexService.syncProductSearchDocument(p.id)
       }
     } catch (error) {
-      console.error(`[ProductSearchIndexService] Error refreshing brand ${brandId}:`, error);
+      console.error(
+        `[ProductSearchIndexService] Error refreshing brand ${brandId}:`,
+        error,
+      )
     }
   }
 
@@ -146,12 +157,15 @@ export class ProductSearchIndexService {
       const productIds = await prisma.product.findMany({
         where: { categoryId, deletedAt: null },
         select: { id: true },
-      });
+      })
       for (const p of productIds) {
-        await ProductSearchIndexService.syncProductSearchDocument(p.id);
+        await ProductSearchIndexService.syncProductSearchDocument(p.id)
       }
     } catch (error) {
-      console.error(`[ProductSearchIndexService] Error refreshing category ${categoryId}:`, error);
+      console.error(
+        `[ProductSearchIndexService] Error refreshing category ${categoryId}:`,
+        error,
+      )
     }
   }
 
@@ -164,12 +178,15 @@ export class ProductSearchIndexService {
       const productIds = await prisma.product.findMany({
         where: { storeId, deletedAt: null },
         select: { id: true },
-      });
+      })
       for (const p of productIds) {
-        await ProductSearchIndexService.syncProductSearchDocument(p.id);
+        await ProductSearchIndexService.syncProductSearchDocument(p.id)
       }
     } catch (error) {
-      console.error(`[ProductSearchIndexService] Error refreshing store ${storeId}:`, error);
+      console.error(
+        `[ProductSearchIndexService] Error refreshing store ${storeId}:`,
+        error,
+      )
     }
   }
 
@@ -179,9 +196,9 @@ export class ProductSearchIndexService {
    * Idempotent: safe to run multiple times.
    */
   static async rebuildAllSearchDocuments(): Promise<number> {
-    const BATCH_SIZE = 100;
-    let skip = 0;
-    let count = 0;
+    const BATCH_SIZE = 100
+    let skip = 0
+    let count = 0
 
     while (true) {
       const batch = await prisma.product.findMany({
@@ -189,20 +206,20 @@ export class ProductSearchIndexService {
         select: { id: true },
         take: BATCH_SIZE,
         skip,
-        orderBy: { id: "asc" },
-      });
+        orderBy: { id: 'asc' },
+      })
 
-      if (batch.length === 0) break;
+      if (batch.length === 0) break
 
       for (const p of batch) {
-        await ProductSearchIndexService.syncProductSearchDocument(p.id);
-        count++;
+        await ProductSearchIndexService.syncProductSearchDocument(p.id)
+        count++
       }
 
-      skip += BATCH_SIZE;
+      skip += BATCH_SIZE
     }
 
-    return count;
+    return count
   }
 
   /**
@@ -210,36 +227,36 @@ export class ProductSearchIndexService {
    * Identifies missing documents for active products and orphan documents for deleted products.
    */
   static async getDiscrepancyReport(): Promise<{
-    totalActiveProducts: number;
-    totalSearchDocuments: number;
-    missingDocumentProductIds: string[];
-    orphanDocumentProductIds: string[];
+    totalActiveProducts: number
+    totalSearchDocuments: number
+    missingDocumentProductIds: string[]
+    orphanDocumentProductIds: string[]
   }> {
     const activeProducts = await prisma.product.findMany({
       where: { deletedAt: null },
       select: { id: true },
-    });
+    })
 
     const searchDocs = await prisma.productSearchDocument.findMany({
       select: { productId: true },
-    });
+    })
 
-    const activeProductSet = new Set(activeProducts.map((p) => p.id));
-    const searchDocSet = new Set(searchDocs.map((d) => d.productId));
+    const activeProductSet = new Set(activeProducts.map((p) => p.id))
+    const searchDocSet = new Set(searchDocs.map((d) => d.productId))
 
     const missingDocumentProductIds = activeProducts
       .filter((p) => !searchDocSet.has(p.id))
-      .map((p) => p.id);
+      .map((p) => p.id)
 
     const orphanDocumentProductIds = searchDocs
       .filter((d) => !activeProductSet.has(d.productId))
-      .map((d) => d.productId);
+      .map((d) => d.productId)
 
     return {
       totalActiveProducts: activeProducts.length,
       totalSearchDocuments: searchDocs.length,
       missingDocumentProductIds,
       orphanDocumentProductIds,
-    };
+    }
   }
 }
