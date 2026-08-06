@@ -74,6 +74,15 @@ export function AuthDialog({
         toast.success('Conta criada com sucesso!')
       }
 
+      try {
+        await apiClient('/customer/merge-anonymous-session', {
+          method: 'POST',
+        })
+      } catch (mergeErr) {
+        // Non-blocking merge error handling
+        console.warn('Falha ao mesclar sessão anônima:', mergeErr)
+      }
+
       refetchCustomer()
       onOpenChange(false)
       // Reset form

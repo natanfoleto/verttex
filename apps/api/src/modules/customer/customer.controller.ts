@@ -10,6 +10,7 @@ import {
   UpdateCustomerProfileBody,
 } from './customer-addresses.schemas'
 import { CustomerAddressesService } from './customer-addresses.service'
+import { PersonalizationIdentityService } from './personalization-identity.service'
 
 function getCustomerId(req: FastifyZodRequest): string {
   const customerId = req.customerPayload?.id || req.customer?.id
@@ -157,5 +158,22 @@ export async function updateCustomerProfileExtendedController(
   return reply.status(200).send({
     success: true,
     data: updatedCustomer,
+  })
+}
+
+export async function mergeAnonymousSessionController(
+  req: FastifyZodRequest,
+  reply: FastifyReply,
+) {
+  const customerId = getCustomerId(req)
+  const result = await PersonalizationIdentityService.mergeAnonymousSession(
+    customerId,
+    req,
+    reply,
+  )
+
+  return reply.status(200).send({
+    success: true,
+    data: result,
   })
 }

@@ -151,6 +151,7 @@ model Customer {
   addresses           CustomerAddress[]
   carts               Cart[]
   orders              Order[]
+  personalizationProfile PersonalizationProfile?
   emailVerifiedAt     DateTime?
   lastLoginAt         DateTime?
   deletedAt           DateTime?
@@ -891,5 +892,21 @@ model CarouselBanner {
   @@index([position])
   @@index([isActive])
   @@map("carousel_banners")
+}
+
+model PersonalizationProfile {
+  id                     String    @id @default(uuid())
+  customerId             String?   @unique
+  customer               Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  visitorKeyHash         String?   @unique
+  personalizationEnabled Boolean   @default(true)
+  lastSeenAt             DateTime  @default(now())
+  expiresAt              DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([visitorKeyHash])
+  @@index([customerId])
+  @@map("personalization_profiles")
 }
 

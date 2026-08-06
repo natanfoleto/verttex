@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
+import { PersonalizationIdentityService } from '../customer/personalization-identity.service'
 import {
   AddItemToCartBody,
   ApplyCouponBody,
@@ -8,24 +9,25 @@ import {
 } from './cart.schemas'
 import { CartOwner, CartService } from './cart.service'
 
-function extractCartOwner(req: FastifyRequest): CartOwner {
+export async function extractCartOwner(
+  req: FastifyRequest,
+  reply?: FastifyReply,
+): Promise<CartOwner> {
   const customerId = req.customerPayload?.id || req.customer?.id
-  const sessionId =
-    (req.headers['x-session-id'] as string) ||
-    (req.headers['x-cart-token'] as string) ||
-    'default-guest-session'
-
-  return {
-    customerId: customerId || undefined,
-    sessionId: !customerId ? sessionId : undefined,
+  if (customerId) {
+    return { customerId }
   }
+
+  const { profile } =
+    await PersonalizationIdentityService.resolveProfileFromRequest(req, reply)
+  return { sessionId: profile.id }
 }
 
 export async function getCartController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const owner = extractCartOwner(req)
+  const owner = await extractCartOwner(req, reply)
   const summary = await CartService.getCartSummary(owner)
   return reply.status(200).send({
     success: true,
@@ -37,7 +39,7 @@ export async function addItemToCartController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const owner = extractCartOwner(req)
+  const owner = await extractCartOwner(req, reply)
   const { variationId, quantity } = req.body as AddItemToCartBody
   const summary = await CartService.addItem(owner, variationId, quantity)
   return reply.status(200).send({
@@ -50,7 +52,7 @@ export async function updateCartItemQuantityController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const owner = extractCartOwner(req)
+  const owner = await extractCartOwner(req, reply)
   const { quantity } = req.body as UpdateCartItemQuantityBody
   const params = req.params as { id: string }
   const summary = await CartService.updateItemQuantity(
@@ -68,7 +70,7 @@ export async function removeCartItemController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const owner = extractCartOwner(req)
+  const owner = await extractCartOwner(req, reply)
   const params = req.params as { id: string }
   const summary = await CartService.removeItem(owner, params.id)
   return reply.status(200).send({
@@ -81,7 +83,7 @@ export async function clearCartController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const owner = extractCartOwner(req)
+  const owner = await extractCartOwner(req, reply)
   const summary = await CartService.clearCart(owner)
   return reply.status(200).send({
     success: true,
@@ -93,7 +95,7 @@ export async function applyCouponController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const owner = extractCartOwner(req)
+  const owner = await extractCartOwner(req, reply)
   const body = req.body as ApplyCouponBody
   const summary = await CartService.applyCoupon(owner, body.code)
   return reply.status(200).send({
@@ -106,7 +108,7 @@ export async function removeCouponController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const owner = extractCartOwner(req)
+  const owner = await extractCartOwner(req, reply)
   const params = req.params as { code: string }
   const summary = await CartService.removeCoupon(owner, params.code)
   return reply.status(200).send({

@@ -9,6 +9,7 @@ import {
   getAddressDetailsController,
   listAddressesController,
   lookupCepController,
+  mergeAnonymousSessionController,
   setDefaultAddressController,
   updateAddressController,
   updateCustomerProfileExtendedController,
@@ -21,6 +22,30 @@ import {
 
 export async function customerRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>()
+
+  // Anonymous Session Merge Endpoint
+  typedApp.post(
+    '/merge-anonymous-session',
+    {
+      preHandler: [app.authenticateCustomer],
+      schema: {
+        tags: ['Customer Personalization'],
+        summary:
+          'Mesclar carrinho e perfil anônimo na conta do cliente autenticado',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: z.object({
+            success: z.literal(true),
+            data: z.object({
+              success: z.literal(true),
+              merged: z.boolean(),
+            }),
+          }),
+        },
+      },
+    },
+    mergeAnonymousSessionController,
+  )
 
   // Profile Endpoints
   typedApp.get(

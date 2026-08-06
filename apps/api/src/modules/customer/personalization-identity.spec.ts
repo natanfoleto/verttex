@@ -1,0 +1,299 @@
+import { FastifyReply, FastifyRequest } from 'fastify'
+import { describe, expect, it, vi } from 'vitest'
+
+import {
+  PersonalizationIdentityService,
+  VISITOR_COOKIE_NAME,
+} from './personalization-identity.service'
+
+interface MockProfile {
+  id: string
+  customerId: string | null
+  visitorKeyHash: string | null
+  personalizationEnabled: boolean
+  lastSeenAt: Date
+  expiresAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface MockCart {
+  id: string
+  customerId: string | null
+  sessionId: string | null
+  status: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface MockCartItem {
+  id: string
+  cartId: string
+  variationId: string
+  storeId: string
+  quantity: number
+  unitPrice: number
+}
+
+// Mock prisma for unit tests
+const mockProfiles: Record<string, MockProfile> = {}
+const mockCarts: Record<string, MockCart> = {}
+const mockCartItems: Record<string, MockCartItem> = {}
+
+vi.mock('../../infrastructure/database/prisma', () => ({
+  prisma: {
+    personalizationProfile: {
+      findUnique: vi.fn().mockImplementation(async ({ where }) => {
+        if (where.customerId) {
+          return (
+            Object.values(mockProfiles).find(
+              (p) => p.customerId === where.customerId,
+            ) || null
+          )
+        }
+        if (where.visitorKeyHash) {
+          return (
+            Object.values(mockProfiles).find(
+              (p) => p.visitorKeyHash === where.visitorKeyHash,
+            ) || null
+          )
+        }
+        if (where.id) {
+          return mockProfiles[where.id] || null
+        }
+        return null
+      }),
+      create: vi.fn().mockImplementation(async ({ data }) => {
+        const id = `prof_${Math.random().toString(36).substring(2, 9)}`
+        const profile: MockProfile = {
+          id,
+          customerId: data.customerId || null,
+          visitorKeyHash: data.visitorKeyHash || null,
+          personalizationEnabled: data.personalizationEnabled ?? true,
+          lastSeenAt: data.lastSeenAt || new Date(),
+          expiresAt: data.expiresAt || null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+        mockProfiles[id] = profile
+        return profile
+      }),
+      update: vi.fn().mockImplementation(async ({ where, data }) => {
+        const profile = mockProfiles[where.id]
+        if (!profile) throw new Error('Profile not found')
+        Object.assign(profile, data, { updatedAt: new Date() })
+        return profile
+      }),
+      delete: vi.fn().mockImplementation(async ({ where }) => {
+        const profile = mockProfiles[where.id]
+        if (profile) delete mockProfiles[where.id]
+        return profile
+      }),
+    },
+    cart: {
+      findUnique: vi.fn().mockImplementation(async ({ where }) => {
+        const cart = mockCarts[where.id]
+        if (!cart) return null
+        return { ...cart, items: [], coupons: [] }
+      }),
+      findFirst: vi.fn().mockImplementation(async ({ where }) => {
+        return (
+          Object.values(mockCarts).find((c) => {
+            if (c.status !== where.status) return false
+            if (where.customerId) return c.customerId === where.customerId
+            if (where.sessionId) return c.sessionId === where.sessionId
+            return false
+          }) || null
+        )
+      }),
+      create: vi.fn().mockImplementation(async ({ data }) => {
+        const id = `cart_${Math.random().toString(36).substring(2, 9)}`
+        const cart: MockCart = {
+          id,
+          customerId: data.customerId || null,
+          sessionId: data.sessionId || null,
+          status: data.status || 'active',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+        mockCarts[id] = cart
+        return cart
+      }),
+      update: vi.fn().mockImplementation(async ({ where, data }) => {
+        const cart = mockCarts[where.id]
+        if (cart) Object.assign(cart, data)
+        return cart
+      }),
+    },
+    cartItem: {
+      findFirst: vi.fn().mockImplementation(async ({ where }) => {
+        return (
+          Object.values(mockCartItems).find(
+            (i) =>
+              i.cartId === where.cartId && i.variationId === where.variationId,
+          ) || null
+        )
+      }),
+      create: vi.fn().mockImplementation(async ({ data }) => {
+        const id = `item_${Math.random().toString(36).substring(2, 9)}`
+        const item: MockCartItem = { id, ...data }
+        mockCartItems[id] = item
+        return item
+      }),
+      update: vi.fn().mockImplementation(async ({ where, data }) => {
+        const item = mockCartItems[where.id]
+        if (item) Object.assign(item, data)
+        return item
+      }),
+    },
+  },
+}))
+
+describe('PersonalizationIdentityService', () => {
+  it('generates a 256-bit (64 hex char) random raw visitor token', () => {
+    const token = PersonalizationIdentityService.generateRawVisitorToken()
+    expect(token).toHaveLength(64)
+    expect(token).toMatch(/^[0-9a-f]{64}$/)
+  })
+
+  it('correctly signs and verifies a valid visitor token', () => {
+    const rawToken = PersonalizationIdentityService.generateRawVisitorToken()
+    const signedValue =
+      PersonalizationIdentityService.signVisitorToken(rawToken)
+
+    expect(signedValue).toContain(rawToken)
+    expect(signedValue).toContain('.')
+
+    const verified =
+      PersonalizationIdentityService.verifyVisitorToken(signedValue)
+    expect(verified).toBe(rawToken)
+  })
+
+  it('rejects tampered or malformed signed tokens', () => {
+    const rawToken = PersonalizationIdentityService.generateRawVisitorToken()
+    const signedValue =
+      PersonalizationIdentityService.signVisitorToken(rawToken)
+
+    const tamperedToken = 'a' + signedValue.substring(1)
+    expect(
+      PersonalizationIdentityService.verifyVisitorToken(tamperedToken),
+    ).toBeNull()
+
+    const tamperedSig = signedValue.substring(0, signedValue.length - 2) + '00'
+    expect(
+      PersonalizationIdentityService.verifyVisitorToken(tamperedSig),
+    ).toBeNull()
+
+    expect(
+      PersonalizationIdentityService.verifyVisitorToken('invalid'),
+    ).toBeNull()
+    expect(PersonalizationIdentityService.verifyVisitorToken('')).toBeNull()
+    expect(
+      PersonalizationIdentityService.verifyVisitorToken(
+        undefined as unknown as string,
+      ),
+    ).toBeNull()
+  })
+
+  it('produces a deterministic domain-salted storage hash from raw token', () => {
+    const rawToken = PersonalizationIdentityService.generateRawVisitorToken()
+    const hash1 =
+      PersonalizationIdentityService.hashVisitorTokenForStorage(rawToken)
+    const hash2 =
+      PersonalizationIdentityService.hashVisitorTokenForStorage(rawToken)
+
+    expect(hash1).toHaveLength(64)
+    expect(hash1).toBe(hash2)
+    expect(hash1).not.toBe(rawToken)
+  })
+
+  it('resolves distinct isolated profiles for two different visitors', async () => {
+    const tokenA = PersonalizationIdentityService.generateRawVisitorToken()
+    const tokenB = PersonalizationIdentityService.generateRawVisitorToken()
+
+    const reqA = {
+      cookies: {
+        [VISITOR_COOKIE_NAME]:
+          PersonalizationIdentityService.signVisitorToken(tokenA),
+      },
+    } as unknown as FastifyRequest
+
+    const reqB = {
+      cookies: {
+        [VISITOR_COOKIE_NAME]:
+          PersonalizationIdentityService.signVisitorToken(tokenB),
+      },
+    } as unknown as FastifyRequest
+
+    const identityA =
+      await PersonalizationIdentityService.resolveProfileFromRequest(reqA)
+    const identityB =
+      await PersonalizationIdentityService.resolveProfileFromRequest(reqB)
+
+    expect(identityA.profile.id).not.toBe(identityB.profile.id)
+    expect(identityA.profile.visitorKeyHash).not.toBe(
+      identityB.profile.visitorKeyHash,
+    )
+    expect(identityA.isCustomer).toBe(false)
+    expect(identityB.isCustomer).toBe(false)
+  })
+
+  it('resolves authenticated customer profile and enforces customerId exclusivity', async () => {
+    const reqCustomer = {
+      customerPayload: { id: 'cust_123' },
+      cookies: {},
+    } as unknown as FastifyRequest
+
+    const identity =
+      await PersonalizationIdentityService.resolveProfileFromRequest(
+        reqCustomer,
+      )
+
+    expect(identity.isCustomer).toBe(true)
+    expect(identity.customerId).toBe('cust_123')
+    expect(identity.profile.customerId).toBe('cust_123')
+    expect(identity.profile.visitorKeyHash).toBeNull()
+  })
+
+  it('merges anonymous visitor session into customer profile and rotates visitor cookie', async () => {
+    const rawVisitorToken =
+      PersonalizationIdentityService.generateRawVisitorToken()
+    const signedValue =
+      PersonalizationIdentityService.signVisitorToken(rawVisitorToken)
+
+    const reqVisitor = {
+      cookies: { [VISITOR_COOKIE_NAME]: signedValue },
+    } as unknown as FastifyRequest
+
+    const visitorIdentity =
+      await PersonalizationIdentityService.resolveProfileFromRequest(reqVisitor)
+    expect(visitorIdentity.profile).toBeDefined()
+
+    let setCookieCall: { name: string; val: string; opts: unknown } | null =
+      null
+    const mockReply = {
+      setCookie: (name: string, val: string, opts: unknown) => {
+        setCookieCall = { name, val, opts }
+      },
+    } as unknown as FastifyReply
+
+    const result = await PersonalizationIdentityService.mergeAnonymousSession(
+      'cust_456',
+      reqVisitor,
+      mockReply,
+    )
+
+    expect(result.success).toBe(true)
+    expect(result.merged).toBe(true)
+    expect(setCookieCall).not.toBeNull()
+    if (setCookieCall) {
+      const record = setCookieCall as {
+        name: string
+        val: string
+        opts: unknown
+      }
+      expect(record.name).toBe(VISITOR_COOKIE_NAME)
+      expect(record.val).not.toBe(signedValue)
+    }
+  })
+})
