@@ -4,6 +4,7 @@ import { apiEnv } from '@verttex/env/api'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 import { prisma } from '../../infrastructure/database/prisma'
+import { logAudit } from '../../shared/utils/audit'
 import { CartService } from '../cart/cart.service'
 
 export const VISITOR_COOKIE_NAME = 'vt_visitor'
@@ -26,7 +27,7 @@ export interface ResolvedIdentity {
 
 export class PersonalizationIdentityService {
   private static getSecretKey(): string {
-    return apiEnv.COOKIE_SECRET || apiEnv.JWT_SECRET || 'verttex-secret-key'
+    return apiEnv.COOKIE_SECRET
   }
 
   /**
@@ -88,9 +89,23 @@ export class PersonalizationIdentityService {
   }
 
   /**
+   * Sets a fresh signed visitor cookie on reply with strict security attributes
+   */
+  static setVisitorCookie(reply: FastifyReply, rawToken: string) {
+    const signedValue = this.signVisitorToken(rawToken)
+    reply.setCookie(VISITOR_COOKIE_NAME, signedValue, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: VISITOR_COOKIE_TTL_SECONDS,
+    })
+  }
+
+  /**
    * Resolves or creates a PersonalizationProfile for the request.
    * If customer is authenticated, returns Customer Profile.
-   * If anonymous, returns Visitor Profile (handling cookie validation, issue and rotation).
+   * If anonymous, returns Visitor Profile (handling cookie validation, revocation and issuance).
    */
   static async resolveProfileFromRequest(
     req: FastifyRequest,
@@ -127,127 +142,159 @@ export class PersonalizationIdentityService {
 
     // Anonymous visitor resolution
     const cookieValue = req.cookies[VISITOR_COOKIE_NAME]
-    let rawToken = this.verifyVisitorToken(cookieValue)
-    let shouldIssueCookie = false
-
-    if (!rawToken) {
-      rawToken = this.generateRawVisitorToken()
-      shouldIssueCookie = true
-    }
-
-    const visitorKeyHash = this.hashVisitorTokenForStorage(rawToken)
-    let profile = await prisma.personalizationProfile.findUnique({
-      where: { visitorKeyHash },
-    })
-
+    const verifiedRawToken = this.verifyVisitorToken(cookieValue)
     const now = new Date()
 
-    if (!profile || (profile.expiresAt && profile.expiresAt <= now)) {
-      if (profile) {
-        await prisma.personalizationProfile.delete({
-          where: { id: profile.id },
-        })
-      }
+    if (verifiedRawToken) {
+      const existingHash = this.hashVisitorTokenForStorage(verifiedRawToken)
+      const existingProfile = await prisma.personalizationProfile.findUnique({
+        where: { visitorKeyHash: existingHash },
+      })
 
-      const expiresAt = new Date(
-        now.getTime() + VISITOR_COOKIE_TTL_SECONDS * 1000,
-      )
-      profile = await prisma.personalizationProfile.create({
-        data: {
-          visitorKeyHash,
-          personalizationEnabled: true,
-          lastSeenAt: now,
-          expiresAt,
-        },
-      })
-      shouldIssueCookie = true
-    } else {
-      await prisma.personalizationProfile.update({
-        where: { id: profile.id },
-        data: { lastSeenAt: now },
-      })
+      // Active visitor profile exists
+      if (
+        existingProfile &&
+        !existingProfile.customerId &&
+        (!existingProfile.expiresAt || existingProfile.expiresAt > now)
+      ) {
+        await prisma.personalizationProfile.update({
+          where: { id: existingProfile.id },
+          data: { lastSeenAt: now },
+        })
+
+        return {
+          profile: existingProfile,
+          isCustomer: false,
+          rawToken: verifiedRawToken,
+        }
+      }
     }
 
-    if (shouldIssueCookie && reply) {
-      const signedValue = this.signVisitorToken(rawToken)
-      reply.setCookie(VISITOR_COOKIE_NAME, signedValue, {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: VISITOR_COOKIE_TTL_SECONDS,
-      })
+    // Cookie missing, signature tampered, expired or revoked (consumed by merge):
+    // MUST NOT reuse old token/hash! Issue BRAND NEW random token and profile!
+    const newRawToken = this.generateRawVisitorToken()
+    const newVisitorKeyHash = this.hashVisitorTokenForStorage(newRawToken)
+    const expiresAt = new Date(
+      now.getTime() + VISITOR_COOKIE_TTL_SECONDS * 1000,
+    )
+
+    const profile = await prisma.personalizationProfile.create({
+      data: {
+        visitorKeyHash: newVisitorKeyHash,
+        personalizationEnabled: true,
+        lastSeenAt: now,
+        expiresAt,
+      },
+    })
+
+    if (reply) {
+      this.setVisitorCookie(reply, newRawToken)
     }
 
     return {
       profile,
       isCustomer: false,
-      rawToken,
+      rawToken: newRawToken,
     }
   }
 
   /**
-   * Merges an anonymous session into a logged-in customer profile safely and idempotently.
-   * Merges cart items, deletes/deactivates old visitor profile, and issues a fresh rotated visitor cookie.
+   * Merges an anonymous session into a logged-in customer profile safely, transactionally and idempotently.
+   * Executed inside a single Prisma transaction with full rollback.
+   * Always rotates visitor cookie after execution.
    */
   static async mergeAnonymousSession(
     customerId: string,
     req: FastifyRequest,
     reply?: FastifyReply,
-  ) {
+  ): Promise<{ success: boolean; merged: boolean }> {
     const rawToken = this.verifyVisitorToken(req.cookies[VISITOR_COOKIE_NAME])
+
+    let merged = false
 
     if (rawToken) {
       const visitorKeyHash = this.hashVisitorTokenForStorage(rawToken)
-      const visitorProfile = await prisma.personalizationProfile.findUnique({
-        where: { visitorKeyHash },
-      })
 
-      if (visitorProfile && !visitorProfile.customerId) {
-        // Merge guest cart items into customer cart
+      merged = await prisma.$transaction(async (tx) => {
+        // 1. Atomic claim of anonymous profile inside transaction
+        const visitorProfile = await tx.personalizationProfile.findUnique({
+          where: { visitorKeyHash },
+        })
+
+        if (!visitorProfile || visitorProfile.customerId) {
+          return false
+        }
+
+        // 2. Consume/delete identity inside transaction to prevent concurrent reuse
+        await tx.personalizationProfile.delete({
+          where: { id: visitorProfile.id },
+        })
+
+        // 3. Sync guest cart inside transaction (marks cart completed even when empty)
         await CartService.syncAnonymousCartToCustomer(
           customerId,
           visitorProfile.id,
+          tx,
         )
 
-        // Delete anonymous visitor profile to prevent cross-account leaks
-        await prisma.personalizationProfile.delete({
-          where: { id: visitorProfile.id },
+        // 4. Concurrency-safe customer profile creation/update inside transaction
+        let customerProfile = await tx.personalizationProfile.findUnique({
+          where: { customerId },
+        })
+
+        if (!customerProfile) {
+          customerProfile = await tx.personalizationProfile.create({
+            data: {
+              customerId,
+              personalizationEnabled: true,
+              lastSeenAt: new Date(),
+            },
+          })
+        } else {
+          await tx.personalizationProfile.update({
+            where: { id: customerProfile.id },
+            data: { lastSeenAt: new Date() },
+          })
+        }
+
+        // 5. Audit log (sanitized, no tokens, no cookies, no user ID mismatch)
+        await logAudit({
+          userId: null,
+          action: 'MERGE_ANONYMOUS_SESSION',
+          entity: 'Customer',
+          entityId: customerId,
+          newValues: { merged: true },
+          req,
+        })
+
+        return true
+      })
+    } else {
+      // Ensure customer profile exists even when no visitor cookie present
+      const customerProfile = await prisma.personalizationProfile.findUnique({
+        where: { customerId },
+      })
+
+      if (!customerProfile) {
+        await prisma.personalizationProfile.create({
+          data: {
+            customerId,
+            personalizationEnabled: true,
+            lastSeenAt: new Date(),
+          },
         })
       }
     }
 
-    // Ensure customer profile exists
-    let customerProfile = await prisma.personalizationProfile.findUnique({
-      where: { customerId },
-    })
-
-    if (!customerProfile) {
-      customerProfile = await prisma.personalizationProfile.create({
-        data: {
-          customerId,
-          personalizationEnabled: true,
-          lastSeenAt: new Date(),
-        },
-      })
-    }
-
-    // Always issue a fresh rotated visitor cookie after login
+    // Always issue a fresh rotated visitor cookie on success
     if (reply) {
       const freshRawToken = this.generateRawVisitorToken()
-      const signedValue = this.signVisitorToken(freshRawToken)
-      reply.setCookie(VISITOR_COOKIE_NAME, signedValue, {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: VISITOR_COOKIE_TTL_SECONDS,
-      })
+      this.setVisitorCookie(reply, freshRawToken)
     }
 
     return {
       success: true,
-      merged: true,
+      merged,
     }
   }
 }

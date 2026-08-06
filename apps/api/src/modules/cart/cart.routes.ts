@@ -9,25 +9,33 @@ import {
   getCartController,
   removeCartItemController,
   removeCouponController,
-  syncCartController,
   updateCartItemQuantityController,
 } from './cart.controller'
 import {
   addItemToCartBodySchema,
   applyCouponBodySchema,
-  syncCartBodySchema,
   updateCartItemQuantityBodySchema,
 } from './cart.schemas'
 
 export async function cartRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
-  // Optional customer auth hook (does not reject anonymous requests)
-  const optionalAuth = async (req: FastifyRequest) => {
+  // Classified optional customer auth hook (Requirement 3)
+  const optionalAuth = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-      await app.authenticateCustomer(req, {} as FastifyReply)
-    } catch {
-      // Continue as guest
+      await app.authenticateCustomer(req, reply)
+    } catch (err) {
+      // 1. If explicit Authorization header (Bearer) was sent and failed -> throw 401
+      if (req.headers.authorization) {
+        throw err
+      }
+
+      // 2. If customer_access_token cookie was sent but is invalid/expired -> clear cookie and continue as visitor
+      if (req.cookies.customer_access_token) {
+        reply.clearCookie('customer_access_token', { path: '/' })
+      }
+
+      // 3. Absence of credentials or cleared cookie -> continue as visitor
     }
   }
 
@@ -119,20 +127,5 @@ export async function cartRoutes(app: FastifyInstance) {
       },
     },
     removeCouponController,
-  )
-
-  typedApp.post(
-    '/sync',
-    {
-      preHandler: [app.authenticateCustomer],
-      schema: {
-        tags: ['Cart'],
-        summary:
-          'Sincronizar/mesclar carrinho anônimo para a conta do cliente ao realizar login',
-        security: [{ bearerAuth: [] }],
-        body: syncCartBodySchema,
-      },
-    },
-    syncCartController,
   )
 }

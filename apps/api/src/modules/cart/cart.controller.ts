@@ -4,7 +4,6 @@ import { PersonalizationIdentityService } from '../customer/personalization-iden
 import {
   AddItemToCartBody,
   ApplyCouponBody,
-  SyncCartBody,
   UpdateCartItemQuantityBody,
 } from './cart.schemas'
 import { CartOwner, CartService } from './cart.service'
@@ -111,31 +110,6 @@ export async function removeCouponController(
   const owner = await extractCartOwner(req, reply)
   const params = req.params as { code: string }
   const summary = await CartService.removeCoupon(owner, params.code)
-  return reply.status(200).send({
-    success: true,
-    data: summary,
-  })
-}
-
-export async function syncCartController(
-  req: FastifyRequest,
-  reply: FastifyReply,
-) {
-  const customerId = req.customerPayload?.id || req.customer?.id
-  if (!customerId) {
-    return reply.status(401).send({
-      success: false,
-      error: { code: 'UNAUTHORIZED', message: 'Cliente não autenticado' },
-    })
-  }
-
-  const { anonymousSessionId } = req.body as SyncCartBody
-
-  const summary = await CartService.syncAnonymousCartToCustomer(
-    customerId,
-    anonymousSessionId,
-  )
-
   return reply.status(200).send({
     success: true,
     data: summary,

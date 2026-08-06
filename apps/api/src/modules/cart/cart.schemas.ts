@@ -29,11 +29,3 @@ export const applyCouponBodySchema = z
   .strict()
 
 export type ApplyCouponBody = z.infer<typeof applyCouponBodySchema>
-
-export const syncCartBodySchema = z
-  .object({
-    anonymousSessionId: z.string().min(1, 'ID da sessão anônima é obrigatório'),
-  })
-  .strict()
-
-export type SyncCartBody = z.infer<typeof syncCartBodySchema>

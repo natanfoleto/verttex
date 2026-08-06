@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client'
+
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
 import { logAudit } from '../../shared/utils/audit'
@@ -465,52 +467,69 @@ export class CartService {
   }
 
   /**
-   * Merge anonymous cart into logged-in customer cart
+   * Merge anonymous cart into logged-in customer cart using a Prisma transaction client.
+   * Marks anonymous cart as completed EVEN WHEN EMPTY.
    */
   static async syncAnonymousCartToCustomer(
     customerId: string,
     anonymousSessionId: string,
+    tx?: Prisma.TransactionClient,
   ) {
-    const anonCart = await prisma.cart.findFirst({
+    const client = tx || prisma
+
+    const anonCart = await client.cart.findFirst({
       where: { sessionId: anonymousSessionId, status: 'active' },
       include: { items: true },
     })
 
-    if (!anonCart || anonCart.items.length === 0) {
-      return this.getCartSummary({ customerId })
+    if (!anonCart) {
+      return { mergedItemCount: 0 }
     }
 
-    const customerCart = await this.getOrCreateCart({ customerId })
+    let customerCart = await client.cart.findFirst({
+      where: { customerId, status: 'active' },
+    })
 
-    for (const item of anonCart.items) {
-      const existing = await prisma.cartItem.findFirst({
-        where: { cartId: customerCart.id, variationId: item.variationId },
+    if (!customerCart) {
+      customerCart = await client.cart.create({
+        data: {
+          customerId,
+          status: 'active',
+        },
       })
+    }
 
-      if (existing) {
-        await prisma.cartItem.update({
-          where: { id: existing.id },
-          data: { quantity: existing.quantity + item.quantity },
+    if (anonCart.items && anonCart.items.length > 0) {
+      for (const item of anonCart.items) {
+        const existing = await client.cartItem.findFirst({
+          where: { cartId: customerCart.id, variationId: item.variationId },
         })
-      } else {
-        await prisma.cartItem.create({
-          data: {
-            cartId: customerCart.id,
-            variationId: item.variationId,
-            storeId: item.storeId,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-          },
-        })
+
+        if (existing) {
+          await client.cartItem.update({
+            where: { id: existing.id },
+            data: { quantity: existing.quantity + item.quantity },
+          })
+        } else {
+          await client.cartItem.create({
+            data: {
+              cartId: customerCart.id,
+              variationId: item.variationId,
+              storeId: item.storeId,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+            },
+          })
+        }
       }
     }
 
-    // Mark anonymous cart as completed / merged
-    await prisma.cart.update({
+    // Mark anonymous cart as completed EVEN WHEN EMPTY
+    await client.cart.update({
       where: { id: anonCart.id },
       data: { status: 'completed' },
     })
 
-    return this.getCartSummary({ customerId })
+    return { mergedItemCount: anonCart.items ? anonCart.items.length : 0 }
   }
 }
