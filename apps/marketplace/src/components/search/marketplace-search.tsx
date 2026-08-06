@@ -1,6 +1,6 @@
 'use client'
 
-import { History, Loader2, Search, Trash2, X } from 'lucide-react'
+import { Clock, Loader2, Search, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   FormEvent,
@@ -31,6 +31,34 @@ function normalizeSearchText(text: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim()
+}
+
+function renderHighlightedSuggestion(text: string, query: string) {
+  const normText = normalizeSearchText(text)
+  const normQuery = normalizeSearchText(query)
+
+  if (!normQuery) {
+    return <span className="truncate font-bold">{text}</span>
+  }
+
+  const matchIndex = normText.indexOf(normQuery)
+
+  if (matchIndex === -1) {
+    return <span className="truncate font-bold">{text}</span>
+  }
+
+  const matchLength = normQuery.length
+  const before = text.slice(0, matchIndex)
+  const matched = text.slice(matchIndex, matchIndex + matchLength)
+  const after = text.slice(matchIndex + matchLength)
+
+  return (
+    <span className="truncate">
+      {before && <span className="font-bold">{before}</span>}
+      <span className="font-normal">{matched}</span>
+      {after && <span className="font-bold">{after}</span>}
+    </span>
+  )
 }
 
 export function MarketplaceSearch({
@@ -69,8 +97,7 @@ export function MarketplaceSearch({
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { recentSearches, addSearch, removeSearch, clearSearches } =
-    useRecentSearches()
+  const { recentSearches, addSearch, removeSearch } = useRecentSearches()
 
   // Reset active index whenever typed query changes
   const handleQueryChange = (newVal: string) => {
@@ -277,7 +304,7 @@ export function MarketplaceSearch({
         onSubmit={handleSubmit}
         className="relative flex w-full items-center"
       >
-        <div className="relative flex w-full items-center overflow-hidden rounded-md border border-stone-200 bg-white shadow-sm focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600">
+        <div className="relative flex w-full items-center overflow-hidden rounded-xs border bg-white focus-within:border-emerald-600">
           <Input
             ref={inputRef}
             type="text"
@@ -293,24 +320,6 @@ export function MarketplaceSearch({
             aria-controls={isListboxRendered ? listboxId : undefined}
             aria-activedescendant={activeOptionId}
           />
-
-          {query && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                setQuery('')
-                setDebouncedQuery('')
-                setActiveIndex(-1)
-                inputRef.current?.focus()
-              }}
-              className="mr-1 h-7 w-7 cursor-pointer p-0 text-stone-400 transition-colors hover:bg-transparent hover:text-stone-700"
-              aria-label="Limpar texto"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
 
           <div className="h-5 w-px shrink-0 bg-stone-200" />
 
@@ -328,27 +337,10 @@ export function MarketplaceSearch({
 
       {/* Dropdown Overlay Container */}
       {shouldRenderDropdown && (
-        <div className="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-lg">
+        <div className="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-xs border border-stone-200 bg-white shadow-md">
           {/* Mode 1: Recent Searches */}
           {showRecentDropdown && (
-            <div className="p-2">
-              {/* Header outside listbox */}
-              <div className="mb-1 flex items-center justify-between px-2 text-xs font-semibold text-stone-500">
-                <span className="flex items-center gap-1.5">
-                  <History className="h-3.5 w-3.5 text-stone-400" />
-                  Pesquisas recentes
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => clearSearches()}
-                  className="h-auto cursor-pointer p-0 text-xs font-normal text-stone-400 hover:bg-transparent hover:text-stone-700"
-                >
-                  Limpar
-                </Button>
-              </div>
-
+            <div className="py-2">
               {/* Recent Searches Container */}
               <div className="relative flex flex-col">
                 {/* Listbox containing ONLY role="option" elements */}
@@ -364,12 +356,13 @@ export function MarketplaceSearch({
                         aria-selected={isSelected}
                         onClick={() => executeSearch(item)}
                         onMouseEnter={() => setActiveIndex(index)}
-                        className={`flex h-8 cursor-pointer items-center justify-between rounded-sm pr-9 pl-2.5 text-sm transition-colors ${
+                        className={`flex h-8 cursor-pointer items-center gap-2.5 rounded-sm pr-9 pl-4 text-sm transition-colors ${
                           isSelected
-                            ? 'bg-stone-100 font-medium text-emerald-800'
+                            ? 'bg-stone-100 text-emerald-800'
                             : 'text-stone-700 hover:bg-stone-50'
                         }`}
                       >
+                        <Clock className="h-3.5 w-3.5" />
                         <span className="truncate">{item}</span>
                       </div>
                     )
@@ -377,7 +370,7 @@ export function MarketplaceSearch({
                 </div>
 
                 {/* Removal buttons container - OUTSIDE role="listbox" */}
-                <div className="pointer-events-none absolute top-0 right-0 left-0 flex flex-col">
+                <div className="pointer-events-none absolute top-0 right-1 left-0 flex flex-col">
                   {recentSearches.map((item, index) => (
                     <div
                       key={`recent-del-${item}-${index}`}
@@ -395,7 +388,7 @@ export function MarketplaceSearch({
                         title="Remover das pesquisas recentes"
                         aria-label={`Remover ${item} das pesquisas recentes`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <X className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   ))}
@@ -406,11 +399,11 @@ export function MarketplaceSearch({
 
           {/* Mode 2: Autocomplete Text Suggestions */}
           {isAutocompleteMode && (
-            <div className="p-2">
+            <div className="py-2">
               {showLoadingState && (
                 <div className="flex items-center justify-center gap-2 py-4 text-xs text-stone-400">
                   <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-                  <span>Buscando sugestões...</span>
+                  <span>Buscando sugestões</span>
                 </div>
               )}
 
@@ -439,14 +432,14 @@ export function MarketplaceSearch({
                         aria-selected={isSelected}
                         onClick={() => executeSearch(sug.text)}
                         onMouseEnter={() => setActiveIndex(index)}
-                        className={`flex cursor-pointer items-center gap-2.5 rounded-sm px-2.5 py-2 text-sm transition-colors ${
+                        className={`flex h-8 cursor-pointer items-center gap-2.5 rounded-sm pr-9 pl-4 text-sm transition-colors ${
                           isSelected
-                            ? 'bg-emerald-50 font-semibold text-emerald-900'
+                            ? 'bg-stone-100 text-emerald-800'
                             : 'text-stone-700 hover:bg-stone-50'
                         }`}
                       >
-                        <Search className="h-3.5 w-3.5 shrink-0 text-stone-400" />
-                        <span className="truncate">{sug.text}</span>
+                        <Search className="h-3.5 w-3.5 shrink-0" />
+                        {renderHighlightedSuggestion(sug.text, query)}
                       </div>
                     )
                   })}

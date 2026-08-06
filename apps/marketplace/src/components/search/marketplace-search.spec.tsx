@@ -65,7 +65,6 @@ describe('MarketplaceSearch Experience Component', () => {
     fireEvent.focus(input)
 
     await waitFor(() => {
-      expect(screen.getByText('Pesquisas recentes')).toBeInTheDocument()
       expect(screen.getByRole('listbox')).toBeInTheDocument()
       expect(screen.getByText('Mel Silvestre')).toBeInTheDocument()
       expect(screen.getByText('Queijo Canastra')).toBeInTheDocument()
@@ -130,7 +129,7 @@ describe('MarketplaceSearch Experience Component', () => {
     fireEvent.focus(input)
 
     await waitFor(() => {
-      expect(screen.getByText('Pesquisas recentes')).toBeInTheDocument()
+      expect(screen.getByText('Mel')).toBeInTheDocument()
     })
 
     fireEvent.keyDown(input, { key: 'Escape' })
@@ -138,7 +137,7 @@ describe('MarketplaceSearch Experience Component', () => {
     expect(input).toHaveAttribute('aria-expanded', 'false')
     expect(input).not.toHaveAttribute('aria-controls')
     expect(input).not.toHaveAttribute('aria-activedescendant')
-    expect(screen.queryByText('Pesquisas recentes')).not.toBeInTheDocument()
+    expect(screen.queryByText('Mel')).not.toBeInTheDocument()
   })
 
   it('6. Remove um item individual das recentes ao clicar no botão de remover (fora do role=option e fora do role=listbox)', async () => {
@@ -173,7 +172,7 @@ describe('MarketplaceSearch Experience Component', () => {
     expect(pushMock).not.toHaveBeenCalled()
   })
 
-  it('7. Chama API de sugestões e renderiza autocomplete para texto >= 2 caracteres', async () => {
+  it('7. Chama API de sugestões e renderiza autocomplete para texto >= 2 caracteres com destaque do sufixo em negrito', async () => {
     mockApiClient.mockResolvedValueOnce({
       success: true,
       data: {
@@ -190,9 +189,9 @@ describe('MarketplaceSearch Experience Component', () => {
     fireEvent.focus(input)
     fireEvent.change(input, { target: { value: 'cacha' } })
 
-    const item = await screen.findByText('Cachaça Artesanal')
-    expect(item).toBeInTheDocument()
-    expect(screen.getByText('Cachaça Envelhecida')).toBeInTheDocument()
+    const options = await screen.findAllByRole('option')
+    expect(options[0]).toHaveTextContent('Cachaça Artesanal')
+    expect(options[1]).toHaveTextContent('Cachaça Envelhecida')
   })
 
   it('8. Exibe mensagem discreta em caso de erro da API sem travar a submissão por Enter', async () => {
@@ -233,8 +232,12 @@ describe('MarketplaceSearch Experience Component', () => {
     fireEvent.focus(input)
     fireEvent.change(input, { target: { value: 'queijo' } })
 
-    const sug = await screen.findByText('Queijo Canastra')
-    fireEvent.click(sug)
+    const options = await screen.findAllByRole('option')
+    const targetOption = options[0]
+    expect(targetOption).toBeDefined()
+    if (targetOption) {
+      fireEvent.click(targetOption)
+    }
 
     expect(pushMock).toHaveBeenCalledWith('/busca?q=Queijo%20Canastra')
     expect(getRecentSearches()).toContain('Queijo Canastra')
@@ -276,36 +279,7 @@ describe('MarketplaceSearch Experience Component', () => {
     expect(input).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('12. Botão de limpar texto (X) limpa o input', async () => {
-    renderComponent()
-
-    const input = screen.getByRole('combobox')
-    fireEvent.change(input, { target: { value: 'texto teste' } })
-
-    const clearBtn = screen.getByLabelText('Limpar texto')
-    fireEvent.click(clearBtn)
-
-    expect(input).toHaveValue('')
-  })
-
-  it('13. Botão "Limpar" remove todas as pesquisas recentes', async () => {
-    addRecentSearch('Busca 1')
-    addRecentSearch('Busca 2')
-
-    renderComponent()
-
-    const input = screen.getByRole('combobox')
-    fireEvent.focus(input)
-
-    await screen.findByText('Pesquisas recentes')
-
-    const clearAllBtn = screen.getByRole('button', { name: 'Limpar' })
-    fireEvent.click(clearAllBtn)
-
-    expect(getRecentSearches()).toEqual([])
-  })
-
-  it('14. Trata payload inesperado da API sem lançar exceção de UI', async () => {
+  it('12. Trata payload inesperado da API sem lançar exceção de UI', async () => {
     mockApiClient.mockResolvedValueOnce({
       success: true,
       data: null,

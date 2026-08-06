@@ -103,8 +103,8 @@ describe('MarketplaceSearch Debounce & Race Condition Tests', () => {
       vi.advanceTimersByTime(200)
     })
 
-    const suggestionItem = await screen.findByText('cachaça artesanal')
-    expect(suggestionItem).toBeInTheDocument()
+    const options = await screen.findAllByRole('option')
+    expect(options[0]).toHaveTextContent('cachaça artesanal')
 
     // Altera o input para novo texto
     fireEvent.change(input, { target: { value: 'cachaca especial' } })
@@ -147,8 +147,9 @@ describe('MarketplaceSearch Debounce & Race Condition Tests', () => {
     })
 
     // A segunda query é resolvida primeiro
-    await waitFor(() => {
-      expect(screen.getByText('queijo canastra')).toBeInTheDocument()
+    await waitFor(async () => {
+      const options = await screen.findAllByRole('option')
+      expect(options[0]).toHaveTextContent('queijo canastra')
     })
 
     // Resolve tardiamente a primeira query "cacha"
@@ -163,7 +164,8 @@ describe('MarketplaceSearch Debounce & Race Condition Tests', () => {
 
     // Confirma que a resposta tardia NÃO sobrescreve o resultado da query mais recente
     expect(screen.queryByText('cachaça antiga tardia')).not.toBeInTheDocument()
-    expect(screen.getByText('queijo canastra')).toBeInTheDocument()
+    const options = await screen.findAllByRole('option')
+    expect(options[0]).toHaveTextContent('queijo canastra')
   })
 
   it('5. Regressão Obrigatória: Pressionar Enter com input alterado antes do debounce executa a query digitada e NÃO a sugestão anterior', async () => {
@@ -187,13 +189,12 @@ describe('MarketplaceSearch Debounce & Race Condition Tests', () => {
       vi.advanceTimersByTime(200)
     })
 
-    const sug1 = await screen.findByText('cachaça artesanal')
-    expect(sug1).toBeInTheDocument()
+    const options = await screen.findAllByRole('option')
+    expect(options[0]).toHaveTextContent('cachaça artesanal')
 
     // ArrowDown seleciona a sugestão 0
     fireEvent.keyDown(input, { key: 'ArrowDown' })
-    const opt0 = sug1.closest('[role="option"]')
-    expect(opt0).toHaveAttribute('aria-selected', 'true')
+    expect(options[0]).toHaveAttribute('aria-selected', 'true')
 
     // Altera o input para "cachaca" (sem acento)
     fireEvent.change(input, { target: { value: 'cachaca' } })
