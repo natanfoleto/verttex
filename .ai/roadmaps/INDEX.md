@@ -37,6 +37,7 @@
 | 025 | Relatórios Comerciais e Operacionais                 | `completed` | medium     | 019, 020      | [`completed/025-commercial-and-operational-reports.md`](.ai/roadmaps/completed/025-commercial-and-operational-reports.md)                     |
 | 026 | Integração e Consolidação Completa dos Front-ends    | `completed` | high       | 019 a 025     | [`completed/026-frontend-integration-and-completeness.md`](.ai/roadmaps/completed/026-frontend-integration-and-completeness.md)               |
 | 027 | Product Discovery & Product Listing Engine           | `completed` | critical   | 012, 013, 015 | [`completed/027-product-discovery-engine.md`](.ai/roadmaps/completed/027-product-discovery-engine.md)                                         |
+| 028 | Search Experience (Autocomplete & Pesquisas Recentes)| `completed` | high       | 027           | [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md)                                      |
 
 ---
 
@@ -44,7 +45,7 @@
 
 | Status      | Quantidade | Observação                                |
 | :---------- | :--------- | :---------------------------------------- |
-| `completed` | 27         | Roadmaps 001 a 027 concluídos e validados |
+| `completed` | 28         | Roadmaps 001 a 028 concluídos e validados |
 | `active`    | 0          | Nenhum roadmap ativo                      |
 | `planned`   | 0          | Nenhum roadmap pendente                   |
 | `archived`  | 0          | Nenhum roadmap arquivado                  |

@@ -215,6 +215,15 @@ Authorization is always **double-validated**: frontend for UX, backend for secur
 - **Limpeza Compensatória**: A substituição de foto exclui a foto antiga no Cloudflare R2 sem deixar registros órfãos.
 - **Validação de Mídia**: Restrito a JPEG, PNG e WebP até 5 MB; SVGs e executáveis são rejeitados.
 
+### 5.11 Catalog, Product Discovery & Search Suggestions
+
+| Method | Path                                | Auth   | Description                                                           |
+| ------ | ----------------------------------- | ------ | --------------------------------------------------------------------- |
+| GET    | `/public/catalog/discover`          | Public | Engine completo de busca, ranking, facetas, paginação e estoque FEFO  |
+| GET    | `/public/catalog/search-suggestions` | Public | Autocomplete textual de termos candidatos (Take 50, nomes originais)  |
+
+- **Referência Canônica Completa:** Consulte [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](../domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md) para detalhes técnicos de ranking, projeção `ProductSearchDocument`, facetas e normalização.
+
 ---
 
 ## 6. Global Plugins & Configurations

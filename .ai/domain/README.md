@@ -10,6 +10,7 @@ Esta pasta documenta o coração da aplicação VERTTEX NF: entidades de negóci
 ## Documentos Vigentes (Fontes de Verdade)
 
 - [BUSINESS_RULES.md](./BUSINESS_RULES.md) — Regras de negócio por módulo (Lojas, Usuários, Cargos, Produtos, Estoque).
+- [PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md](./PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md) — Referência canônica do motor de busca, ranking, facetas, FEFO, autocomplete e pesquisas recentes.
 - [PERMISSIONS.md](./PERMISSIONS.md) — Modelo funcional de cargos, permissões e precedência de overrides.
 - [WORKFLOWS.md](./WORKFLOWS.md) — Fluxos de trabalho do usuário e passos operacionais.
 
