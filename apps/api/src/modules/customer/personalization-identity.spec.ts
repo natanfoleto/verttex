@@ -426,6 +426,7 @@ describe('PersonalizationIdentityService (Push 1B Hardened)', () => {
 
     expect(result.success).toBe(true)
     expect(result.merged).toBe(true)
+    expect(result.mergedItemCount).toBe(1)
     expect(mergeCookieCall!.val).not.toBe(issuedSignedCookie)
 
     // Verify guest cart is marked completed

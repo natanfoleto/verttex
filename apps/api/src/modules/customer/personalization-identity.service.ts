@@ -193,20 +193,21 @@ export class PersonalizationIdentityService {
   /**
    * Merges an anonymous session into a logged-in customer profile safely, transactionally and idempotently.
    * Atomically claims identity using deleteMany(count === 1) and upsert for customer profile serialisation.
+   * Transaction returns { merged: boolean, mergedItemCount: number }.
    */
   static async mergeAnonymousSession(
     customerId: string,
     req: FastifyRequest,
     reply?: FastifyReply,
-  ): Promise<{ success: boolean; merged: boolean }> {
+  ): Promise<{ success: boolean; merged: boolean; mergedItemCount: number }> {
     const rawToken = this.verifyVisitorToken(req.cookies[VISITOR_COOKIE_NAME])
 
-    let merged = false
+    let result = { merged: false, mergedItemCount: 0 }
 
     if (rawToken) {
       const visitorKeyHash = this.hashVisitorTokenForStorage(rawToken)
 
-      merged = await prisma.$transaction(async (tx) => {
+      result = await prisma.$transaction(async (tx) => {
         const now = new Date()
 
         // 1. Locate visitor profile by hash to obtain ID and check validity
@@ -219,7 +220,7 @@ export class PersonalizationIdentityService {
           visitorProfile.customerId ||
           (visitorProfile.expiresAt && visitorProfile.expiresAt <= now)
         ) {
-          return false
+          return { merged: false, mergedItemCount: 0 }
         }
 
         // 2. Atomic claim via deleteMany with strict conditions
@@ -233,7 +234,7 @@ export class PersonalizationIdentityService {
         })
 
         if (deleted.count !== 1) {
-          return false
+          return { merged: false, mergedItemCount: 0 }
         }
 
         // 3. Establish/update customer profile inside tx BEFORE cart manipulation (serialisation point)
@@ -250,11 +251,12 @@ export class PersonalizationIdentityService {
         })
 
         // 4. Sync guest cart inside tx (marks cart completed even when empty)
-        await CartService.syncAnonymousCartToCustomer(
-          tx,
-          customerId,
-          visitorProfile.id,
-        )
+        const { mergedItemCount } =
+          await CartService.syncAnonymousCartToCustomer(
+            tx,
+            customerId,
+            visitorProfile.id,
+          )
 
         // 5. Audit log (sanitized, no tokens, no cookies)
         await logAudit({
@@ -262,11 +264,11 @@ export class PersonalizationIdentityService {
           action: 'MERGE_ANONYMOUS_SESSION',
           entity: 'Customer',
           entityId: customerId,
-          newValues: { merged: true },
+          newValues: { merged: true, mergedItemCount },
           req,
         })
 
-        return true
+        return { merged: true, mergedItemCount }
       })
     } else {
       // Ensure customer profile exists via upsert even when no visitor cookie present
@@ -291,7 +293,8 @@ export class PersonalizationIdentityService {
 
     return {
       success: true,
-      merged,
+      merged: result.merged,
+      mergedItemCount: result.mergedItemCount,
     }
   }
 }

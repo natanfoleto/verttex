@@ -496,10 +496,17 @@ export class CartService {
             status: 'active',
           },
         })
-      } catch {
-        customerCart = await tx.cart.findFirstOrThrow({
-          where: { customerId, status: 'active' },
-        })
+      } catch (err) {
+        if (
+          err instanceof Prisma.PrismaClientKnownRequestError &&
+          err.code === 'P2002'
+        ) {
+          customerCart = await tx.cart.findFirstOrThrow({
+            where: { customerId, status: 'active' },
+          })
+        } else {
+          throw err
+        }
       }
     }
 
