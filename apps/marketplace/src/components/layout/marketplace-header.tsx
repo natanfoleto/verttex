@@ -197,7 +197,7 @@ export function MarketplaceHeader() {
           {/* Banner Promocional no Topo Direita (Coluna 9 a 12 - 4 colunas) */}
           <div className="4xl:flex col-span-4 hidden items-center justify-end text-xs font-semibold">
             <Link
-              href="/produtos"
+              href="/ofertas"
               className="inline-flex items-center space-x-2 transition-opacity hover:opacity-90"
             >
               <RiDiscountPercentLine className="h-5 w-5" />
@@ -338,7 +338,7 @@ export function MarketplaceHeader() {
               </HoverDropdown>
 
               <Link
-                href="/produtos"
+                href="/ofertas"
                 className="transition-opacity hover:text-emerald-600"
               >
                 Ofertas

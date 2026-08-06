@@ -5,6 +5,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { LuArrowRight } from 'react-icons/lu'
 import {
   RiArrowDownSLine,
   RiArrowLeftSLine,
@@ -390,7 +391,7 @@ export function ProductDiscoveryView({
                   />
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="link"
                     size="sm"
                     onClick={() =>
                       updateUrl({
@@ -398,9 +399,9 @@ export function ProductDiscoveryView({
                         maxPrice: inputMaxPrice || null,
                       })
                     }
-                    className="cursor-pointer border-stone-300 bg-white px-2 py-1 text-xs"
+                    className="cursor-pointer border-stone-300 bg-white pl-1! text-xs transition-colors hover:text-emerald-700"
                   >
-                    OK
+                    <LuArrowRight className="h-3 w-3" />
                   </Button>
                 </div>
                 {context?.priceRange &&

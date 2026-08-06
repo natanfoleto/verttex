@@ -182,7 +182,7 @@ export function MobileMenuDrawer({
         )}
 
         <Link
-          href="/produtos"
+          href="/ofertas"
           onClick={onClose}
           className="flex items-center space-x-3.5 px-5 py-3 text-sm font-semibold text-stone-800 transition-colors hover:bg-stone-50"
         >
