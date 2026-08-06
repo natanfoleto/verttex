@@ -3,14 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { prisma } from '../../infrastructure/database/prisma'
 import { SearchSuggestionsService } from './search-suggestions.service'
 
-vi.mock('../../infrastructure/database/prisma', () => ({
-  prisma: {
-    productSearchDocument: {
-      findMany: vi.fn(),
-    },
-  },
-}))
-
 type MockCandidate = {
   productId: string
   product: {
@@ -22,11 +14,17 @@ type MockCandidate = {
   } | null
 }
 
-function mockPrismaDocs(docs: MockCandidate[]) {
-  vi.mocked(prisma.productSearchDocument.findMany).mockResolvedValueOnce(
-    docs as never,
-  )
-}
+const { mockFindMany } = vi.hoisted(() => ({
+  mockFindMany: vi.fn<() => Promise<MockCandidate[]>>(),
+}))
+
+vi.mock('../../infrastructure/database/prisma', () => ({
+  prisma: {
+    productSearchDocument: {
+      findMany: mockFindMany,
+    },
+  },
+}))
 
 describe('SearchSuggestionsService Unit Tests', () => {
   beforeEach(() => {
@@ -52,7 +50,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
   })
 
   it('3. Chama Prisma com filtros de produto/loja ativos, take 50 e orderBy productId asc para query >= 2 caracteres', async () => {
-    mockPrismaDocs([])
+    mockFindMany.mockResolvedValueOnce([])
 
     await SearchSuggestionsService.getSuggestions({ q: '  cachaça  ' })
 
@@ -113,7 +111,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    mockPrismaDocs(docs)
+    mockFindMany.mockResolvedValueOnce(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({ q: 'cachaca' })
 
@@ -135,7 +133,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    mockPrismaDocs(docs)
+    mockFindMany.mockResolvedValueOnce(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({ q: 'cachaca' })
 
@@ -188,7 +186,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    mockPrismaDocs(docs)
+    mockFindMany.mockResolvedValueOnce(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({ q: 'mel' })
 
@@ -215,21 +213,21 @@ describe('SearchSuggestionsService Unit Tests', () => {
       }),
     )
 
-    mockPrismaDocs(mockCandidates)
+    mockFindMany.mockResolvedValueOnce(mockCandidates)
 
     const resDefault = await SearchSuggestionsService.getSuggestions({
       q: 'mel',
     })
     expect(resDefault.suggestions).toHaveLength(8)
 
-    mockPrismaDocs(mockCandidates)
+    mockFindMany.mockResolvedValueOnce(mockCandidates)
     const resCustom = await SearchSuggestionsService.getSuggestions({
       q: 'mel',
       limit: 3,
     })
     expect(resCustom.suggestions).toHaveLength(3)
 
-    mockPrismaDocs(mockCandidates)
+    mockFindMany.mockResolvedValueOnce(mockCandidates)
     const resMax = await SearchSuggestionsService.getSuggestions({
       q: 'mel',
       limit: 50,
@@ -250,7 +248,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
         },
       },
     ]
-    mockPrismaDocs(docs)
+    mockFindMany.mockResolvedValueOnce(docs)
 
     const res = await SearchSuggestionsService.getSuggestions({
       q: 'xyz-inexistente',
@@ -272,7 +270,7 @@ describe('SearchSuggestionsService Unit Tests', () => {
       },
     ]
 
-    mockPrismaDocs(docs)
+    mockFindMany.mockResolvedValueOnce(docs)
 
     // Consulta com hífen, acento e caixa alta ("DOCE-DE-LEITE")
     const resHyphen = await SearchSuggestionsService.getSuggestions({

@@ -141,8 +141,9 @@ describe('MarketplaceSearch Experience Component', () => {
     expect(screen.queryByText('Pesquisas recentes')).not.toBeInTheDocument()
   })
 
-  it('6. Remove um item individual das recentes ao clicar no botão de remover (que fica fora do role=option)', async () => {
+  it('6. Remove um item individual das recentes ao clicar no botão de remover (fora do role=option e fora do role=listbox)', async () => {
     addRecentSearch('Mel Silvestre')
+    addRecentSearch('Queijo Canastra')
 
     renderComponent()
 
@@ -153,16 +154,22 @@ describe('MarketplaceSearch Experience Component', () => {
       expect(screen.getByText('Mel Silvestre')).toBeInTheDocument()
     })
 
+    const optMel = screen.getByText('Mel Silvestre').closest('[role="option"]')
+    expect(optMel).not.toBeNull()
+    expect(optMel?.closest('[role="listbox"]')).not.toBeNull()
+
     const removeBtn = screen.getByLabelText(
       'Remover Mel Silvestre das pesquisas recentes',
     )
 
-    // Confirma que o botão de remover NÃO está dentro do elemento com role="option"
+    // Confirma rigorosamente que o botão de remover NÃO é descendente nem de option nem de listbox
     expect(removeBtn.closest('[role="option"]')).toBeNull()
+    expect(removeBtn.closest('[role="listbox"]')).toBeNull()
 
     fireEvent.click(removeBtn)
 
     expect(screen.queryByText('Mel Silvestre')).not.toBeInTheDocument()
+    expect(screen.getByText('Queijo Canastra')).toBeInTheDocument()
     expect(pushMock).not.toHaveBeenCalled()
   })
 

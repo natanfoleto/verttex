@@ -349,32 +349,40 @@ export function MarketplaceSearch({
                 </Button>
               </div>
 
-              {/* Listbox */}
-              <div id={listboxId} role="listbox" className="flex flex-col">
-                {recentSearches.map((item, index) => {
-                  const isSelected = index === activeIndex
-                  const itemOptionId = `${baseId}-option-${index}`
-                  return (
-                    <div
-                      key={`recent-${item}-${index}`}
-                      className={`group flex items-center justify-between rounded-sm px-2.5 py-1.5 transition-colors ${
-                        isSelected ? 'bg-stone-100' : 'hover:bg-stone-50'
-                      }`}
-                    >
+              {/* Recent Searches Container */}
+              <div className="relative flex flex-col">
+                {/* Listbox containing ONLY role="option" elements */}
+                <div id={listboxId} role="listbox" className="flex flex-col">
+                  {recentSearches.map((item, index) => {
+                    const isSelected = index === activeIndex
+                    const itemOptionId = `${baseId}-option-${index}`
+                    return (
                       <div
+                        key={`recent-${item}-${index}`}
                         id={itemOptionId}
                         role="option"
                         aria-selected={isSelected}
                         onClick={() => executeSearch(item)}
                         onMouseEnter={() => setActiveIndex(index)}
-                        className={`flex-1 cursor-pointer text-sm ${
+                        className={`flex h-8 cursor-pointer items-center justify-between rounded-sm pr-9 pl-2.5 text-sm transition-colors ${
                           isSelected
-                            ? 'font-medium text-emerald-800'
-                            : 'text-stone-700'
+                            ? 'bg-stone-100 font-medium text-emerald-800'
+                            : 'text-stone-700 hover:bg-stone-50'
                         }`}
                       >
                         <span className="truncate">{item}</span>
                       </div>
+                    )
+                  })}
+                </div>
+
+                {/* Removal buttons container - OUTSIDE role="listbox" */}
+                <div className="pointer-events-none absolute top-0 right-0 left-0 flex flex-col">
+                  {recentSearches.map((item, index) => (
+                    <div
+                      key={`recent-del-${item}-${index}`}
+                      className="flex h-8 items-center justify-end pr-1.5"
+                    >
                       <Button
                         type="button"
                         variant="ghost"
@@ -383,15 +391,15 @@ export function MarketplaceSearch({
                           e.stopPropagation()
                           removeSearch(item)
                         }}
-                        className="h-6 w-6 cursor-pointer p-0 text-stone-300 transition-colors hover:bg-transparent hover:text-red-500"
+                        className="pointer-events-auto h-6 w-6 cursor-pointer p-0 text-stone-300 transition-colors hover:bg-transparent hover:text-red-500"
                         title="Remover das pesquisas recentes"
                         aria-label={`Remover ${item} das pesquisas recentes`}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
-                  )
-                })}
+                  ))}
+                </div>
               </div>
             </div>
           )}
