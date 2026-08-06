@@ -104,34 +104,27 @@ export class PersonalizationIdentityService {
 
   /**
    * Resolves or creates a PersonalizationProfile for the request.
-   * If customer is authenticated, returns Customer Profile.
-   * If anonymous, returns Visitor Profile (handling cookie validation, revocation and issuance).
+   * Uses upsert for concurrency safety.
    */
   static async resolveProfileFromRequest(
     req: FastifyRequest,
     reply?: FastifyReply,
   ): Promise<ResolvedIdentity> {
     const customerId = req.customerPayload?.id || req.customer?.id
+    const now = new Date()
 
     if (customerId) {
-      let profile = await prisma.personalizationProfile.findUnique({
+      const profile = await prisma.personalizationProfile.upsert({
         where: { customerId },
+        create: {
+          customerId,
+          personalizationEnabled: true,
+          lastSeenAt: now,
+        },
+        update: {
+          lastSeenAt: now,
+        },
       })
-
-      if (!profile) {
-        profile = await prisma.personalizationProfile.create({
-          data: {
-            customerId,
-            personalizationEnabled: true,
-            lastSeenAt: new Date(),
-          },
-        })
-      } else {
-        await prisma.personalizationProfile.update({
-          where: { id: profile.id },
-          data: { lastSeenAt: new Date() },
-        })
-      }
 
       return {
         profile,
@@ -143,7 +136,6 @@ export class PersonalizationIdentityService {
     // Anonymous visitor resolution
     const cookieValue = req.cookies[VISITOR_COOKIE_NAME]
     const verifiedRawToken = this.verifyVisitorToken(cookieValue)
-    const now = new Date()
 
     if (verifiedRawToken) {
       const existingHash = this.hashVisitorTokenForStorage(verifiedRawToken)
@@ -200,8 +192,7 @@ export class PersonalizationIdentityService {
 
   /**
    * Merges an anonymous session into a logged-in customer profile safely, transactionally and idempotently.
-   * Executed inside a single Prisma transaction with full rollback.
-   * Always rotates visitor cookie after execution.
+   * Atomically claims identity using deleteMany(count === 1) and upsert for customer profile serialisation.
    */
   static async mergeAnonymousSession(
     customerId: string,
@@ -216,48 +207,56 @@ export class PersonalizationIdentityService {
       const visitorKeyHash = this.hashVisitorTokenForStorage(rawToken)
 
       merged = await prisma.$transaction(async (tx) => {
-        // 1. Atomic claim of anonymous profile inside transaction
+        const now = new Date()
+
+        // 1. Locate visitor profile by hash to obtain ID and check validity
         const visitorProfile = await tx.personalizationProfile.findUnique({
           where: { visitorKeyHash },
         })
 
-        if (!visitorProfile || visitorProfile.customerId) {
+        if (
+          !visitorProfile ||
+          visitorProfile.customerId ||
+          (visitorProfile.expiresAt && visitorProfile.expiresAt <= now)
+        ) {
           return false
         }
 
-        // 2. Consume/delete identity inside transaction to prevent concurrent reuse
-        await tx.personalizationProfile.delete({
-          where: { id: visitorProfile.id },
+        // 2. Atomic claim via deleteMany with strict conditions
+        const deleted = await tx.personalizationProfile.deleteMany({
+          where: {
+            id: visitorProfile.id,
+            visitorKeyHash,
+            customerId: null,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
         })
 
-        // 3. Sync guest cart inside transaction (marks cart completed even when empty)
-        await CartService.syncAnonymousCartToCustomer(
-          customerId,
-          visitorProfile.id,
-          tx,
-        )
-
-        // 4. Concurrency-safe customer profile creation/update inside transaction
-        let customerProfile = await tx.personalizationProfile.findUnique({
-          where: { customerId },
-        })
-
-        if (!customerProfile) {
-          customerProfile = await tx.personalizationProfile.create({
-            data: {
-              customerId,
-              personalizationEnabled: true,
-              lastSeenAt: new Date(),
-            },
-          })
-        } else {
-          await tx.personalizationProfile.update({
-            where: { id: customerProfile.id },
-            data: { lastSeenAt: new Date() },
-          })
+        if (deleted.count !== 1) {
+          return false
         }
 
-        // 5. Audit log (sanitized, no tokens, no cookies, no user ID mismatch)
+        // 3. Establish/update customer profile inside tx BEFORE cart manipulation (serialisation point)
+        await tx.personalizationProfile.upsert({
+          where: { customerId },
+          create: {
+            customerId,
+            personalizationEnabled: true,
+            lastSeenAt: now,
+          },
+          update: {
+            lastSeenAt: now,
+          },
+        })
+
+        // 4. Sync guest cart inside tx (marks cart completed even when empty)
+        await CartService.syncAnonymousCartToCustomer(
+          tx,
+          customerId,
+          visitorProfile.id,
+        )
+
+        // 5. Audit log (sanitized, no tokens, no cookies)
         await logAudit({
           userId: null,
           action: 'MERGE_ANONYMOUS_SESSION',
@@ -270,20 +269,18 @@ export class PersonalizationIdentityService {
         return true
       })
     } else {
-      // Ensure customer profile exists even when no visitor cookie present
-      const customerProfile = await prisma.personalizationProfile.findUnique({
+      // Ensure customer profile exists via upsert even when no visitor cookie present
+      await prisma.personalizationProfile.upsert({
         where: { customerId },
+        create: {
+          customerId,
+          personalizationEnabled: true,
+          lastSeenAt: new Date(),
+        },
+        update: {
+          lastSeenAt: new Date(),
+        },
       })
-
-      if (!customerProfile) {
-        await prisma.personalizationProfile.create({
-          data: {
-            customerId,
-            personalizationEnabled: true,
-            lastSeenAt: new Date(),
-          },
-        })
-      }
     }
 
     // Always issue a fresh rotated visitor cookie on success

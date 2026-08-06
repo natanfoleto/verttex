@@ -467,17 +467,15 @@ export class CartService {
   }
 
   /**
-   * Merge anonymous cart into logged-in customer cart using a Prisma transaction client.
+   * Merge anonymous cart into logged-in customer cart using a mandatory Prisma transaction client.
    * Marks anonymous cart as completed EVEN WHEN EMPTY.
    */
   static async syncAnonymousCartToCustomer(
+    tx: Prisma.TransactionClient,
     customerId: string,
     anonymousSessionId: string,
-    tx?: Prisma.TransactionClient,
-  ) {
-    const client = tx || prisma
-
-    const anonCart = await client.cart.findFirst({
+  ): Promise<{ mergedItemCount: number }> {
+    const anonCart = await tx.cart.findFirst({
       where: { sessionId: anonymousSessionId, status: 'active' },
       include: { items: true },
     })
@@ -486,32 +484,38 @@ export class CartService {
       return { mergedItemCount: 0 }
     }
 
-    let customerCart = await client.cart.findFirst({
+    let customerCart = await tx.cart.findFirst({
       where: { customerId, status: 'active' },
     })
 
     if (!customerCart) {
-      customerCart = await client.cart.create({
-        data: {
-          customerId,
-          status: 'active',
-        },
-      })
+      try {
+        customerCart = await tx.cart.create({
+          data: {
+            customerId,
+            status: 'active',
+          },
+        })
+      } catch {
+        customerCart = await tx.cart.findFirstOrThrow({
+          where: { customerId, status: 'active' },
+        })
+      }
     }
 
     if (anonCart.items && anonCart.items.length > 0) {
       for (const item of anonCart.items) {
-        const existing = await client.cartItem.findFirst({
+        const existing = await tx.cartItem.findFirst({
           where: { cartId: customerCart.id, variationId: item.variationId },
         })
 
         if (existing) {
-          await client.cartItem.update({
+          await tx.cartItem.update({
             where: { id: existing.id },
             data: { quantity: existing.quantity + item.quantity },
           })
         } else {
-          await client.cartItem.create({
+          await tx.cartItem.create({
             data: {
               cartId: customerCart.id,
               variationId: item.variationId,
@@ -525,7 +529,7 @@ export class CartService {
     }
 
     // Mark anonymous cart as completed EVEN WHEN EMPTY
-    await client.cart.update({
+    await tx.cart.update({
       where: { id: anonCart.id },
       data: { status: 'completed' },
     })

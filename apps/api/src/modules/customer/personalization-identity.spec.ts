@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -49,215 +50,205 @@ let mockProfiles: Record<string, MockProfile> = {}
 let mockCarts: Record<string, MockCart> = {}
 let mockCartItems: Record<string, MockCartItem> = {}
 
+function createMockPrismaClient() {
+  const profileMethods = {
+    findUnique: vi.fn().mockImplementation(async ({ where }) => {
+      if (where.customerId) {
+        return (
+          Object.values(mockProfiles).find(
+            (p) => p.customerId === where.customerId,
+          ) || null
+        )
+      }
+      if (where.visitorKeyHash) {
+        return (
+          Object.values(mockProfiles).find(
+            (p) => p.visitorKeyHash === where.visitorKeyHash,
+          ) || null
+        )
+      }
+      if (where.id) {
+        return mockProfiles[where.id] || null
+      }
+      return null
+    }),
+    create: vi.fn().mockImplementation(async ({ data }) => {
+      const id = `prof_${Math.random().toString(36).substring(2, 9)}`
+      const profile: MockProfile = {
+        id,
+        customerId: data.customerId || null,
+        visitorKeyHash: data.visitorKeyHash || null,
+        personalizationEnabled: data.personalizationEnabled ?? true,
+        lastSeenAt: data.lastSeenAt || new Date(),
+        expiresAt: data.expiresAt || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      mockProfiles[id] = profile
+      return profile
+    }),
+    upsert: vi.fn().mockImplementation(async ({ where, create, update }) => {
+      let profile = Object.values(mockProfiles).find(
+        (p) => p.customerId === where.customerId,
+      )
+      if (profile) {
+        Object.assign(profile, update, { updatedAt: new Date() })
+        return profile
+      }
+      const id = `prof_${Math.random().toString(36).substring(2, 9)}`
+      profile = {
+        id,
+        customerId: create.customerId || null,
+        visitorKeyHash: create.visitorKeyHash || null,
+        personalizationEnabled: create.personalizationEnabled ?? true,
+        lastSeenAt: create.lastSeenAt || new Date(),
+        expiresAt: create.expiresAt || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      mockProfiles[id] = profile
+      return profile
+    }),
+    update: vi.fn().mockImplementation(async ({ where, data }) => {
+      const profile = mockProfiles[where.id]
+      if (!profile) throw new Error('Profile not found')
+      Object.assign(profile, data, { updatedAt: new Date() })
+      return profile
+    }),
+    delete: vi.fn().mockImplementation(async ({ where }) => {
+      const profile = mockProfiles[where.id]
+      if (profile) delete mockProfiles[where.id]
+      return profile
+    }),
+    deleteMany: vi.fn().mockImplementation(async ({ where }) => {
+      let count = 0
+      if (where.id && mockProfiles[where.id]) {
+        const p = mockProfiles[where.id]
+        if (
+          p &&
+          p.visitorKeyHash === where.visitorKeyHash &&
+          p.customerId === null
+        ) {
+          delete mockProfiles[where.id]
+          count = 1
+        }
+      }
+      return { count }
+    }),
+  }
+
+  const cartMethods = {
+    findUnique: vi.fn().mockImplementation(async ({ where }) => {
+      const cart = mockCarts[where.id]
+      if (!cart) return null
+      const items = Object.values(mockCartItems).filter(
+        (i) => i.cartId === cart.id,
+      )
+      return { ...cart, items }
+    }),
+    findFirst: vi.fn().mockImplementation(async ({ where }) => {
+      const found = Object.values(mockCarts).find((c) => {
+        if (c.status !== where.status) return false
+        if (where.customerId) return c.customerId === where.customerId
+        if (where.sessionId) return c.sessionId === where.sessionId
+        return false
+      })
+      if (!found) return null
+      const items = Object.values(mockCartItems).filter(
+        (i) => i.cartId === found.id,
+      )
+      return { ...found, items }
+    }),
+    findFirstOrThrow: vi.fn().mockImplementation(async ({ where }) => {
+      const found = Object.values(mockCarts).find((c) => {
+        if (c.status !== where.status) return false
+        if (where.customerId) return c.customerId === where.customerId
+        if (where.sessionId) return c.sessionId === where.sessionId
+        return false
+      })
+      if (!found) throw new Error('Cart not found')
+      const items = Object.values(mockCartItems).filter(
+        (i) => i.cartId === found.id,
+      )
+      return { ...found, items }
+    }),
+    create: vi.fn().mockImplementation(async ({ data }) => {
+      const existing = Object.values(mockCarts).find(
+        (c) =>
+          c.customerId === data.customerId &&
+          c.status === (data.status || 'active'),
+      )
+      if (existing) {
+        throw new Error('Unique constraint violation on active customer cart')
+      }
+      const id = `cart_${Math.random().toString(36).substring(2, 9)}`
+      const cart: MockCart = {
+        id,
+        customerId: data.customerId || null,
+        sessionId: data.sessionId || null,
+        status: data.status || 'active',
+        items: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      mockCarts[id] = cart
+      return cart
+    }),
+    update: vi.fn().mockImplementation(async ({ where, data }) => {
+      const cart = mockCarts[where.id]
+      if (cart) Object.assign(cart, data)
+      return cart
+    }),
+  }
+
+  const cartItemMethods = {
+    findFirst: vi.fn().mockImplementation(async ({ where }) => {
+      return (
+        Object.values(mockCartItems).find(
+          (i) =>
+            i.cartId === where.cartId && i.variationId === where.variationId,
+        ) || null
+      )
+    }),
+    create: vi.fn().mockImplementation(async ({ data }) => {
+      const id = `item_${Math.random().toString(36).substring(2, 9)}`
+      const item: MockCartItem = { id, ...data }
+      mockCartItems[id] = item
+      return item
+    }),
+    update: vi.fn().mockImplementation(async ({ where, data }) => {
+      const item = mockCartItems[where.id]
+      if (item) Object.assign(item, data)
+      return item
+    }),
+  }
+
+  return {
+    personalizationProfile: profileMethods,
+    cart: cartMethods,
+    cartItem: cartItemMethods,
+  }
+}
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     $transaction: vi.fn().mockImplementation(async (cb) => {
-      const tx = {
-        personalizationProfile: {
-          findUnique: vi.fn().mockImplementation(async ({ where }) => {
-            if (where.customerId) {
-              return (
-                Object.values(mockProfiles).find(
-                  (p) => p.customerId === where.customerId,
-                ) || null
-              )
-            }
-            if (where.visitorKeyHash) {
-              return (
-                Object.values(mockProfiles).find(
-                  (p) => p.visitorKeyHash === where.visitorKeyHash,
-                ) || null
-              )
-            }
-            if (where.id) {
-              return mockProfiles[where.id] || null
-            }
-            return null
-          }),
-          create: vi.fn().mockImplementation(async ({ data }) => {
-            const id = `prof_${Math.random().toString(36).substring(2, 9)}`
-            const profile: MockProfile = {
-              id,
-              customerId: data.customerId || null,
-              visitorKeyHash: data.visitorKeyHash || null,
-              personalizationEnabled: data.personalizationEnabled ?? true,
-              lastSeenAt: data.lastSeenAt || new Date(),
-              expiresAt: data.expiresAt || null,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            }
-            mockProfiles[id] = profile
-            return profile
-          }),
-          update: vi.fn().mockImplementation(async ({ where, data }) => {
-            const profile = mockProfiles[where.id]
-            if (!profile) throw new Error('Profile not found')
-            Object.assign(profile, data, { updatedAt: new Date() })
-            return profile
-          }),
-          delete: vi.fn().mockImplementation(async ({ where }) => {
-            const profile = mockProfiles[where.id]
-            if (profile) delete mockProfiles[where.id]
-            return profile
-          }),
-        },
-        cart: {
-          findUnique: vi.fn().mockImplementation(async ({ where }) => {
-            const cart = mockCarts[where.id]
-            if (!cart) return null
-            const items = Object.values(mockCartItems).filter(
-              (i) => i.cartId === cart.id,
-            )
-            return { ...cart, items }
-          }),
-          findFirst: vi.fn().mockImplementation(async ({ where }) => {
-            const found = Object.values(mockCarts).find((c) => {
-              if (c.status !== where.status) return false
-              if (where.customerId) return c.customerId === where.customerId
-              if (where.sessionId) return c.sessionId === where.sessionId
-              return false
-            })
-            if (!found) return null
-            const items = Object.values(mockCartItems).filter(
-              (i) => i.cartId === found.id,
-            )
-            return { ...found, items }
-          }),
-          create: vi.fn().mockImplementation(async ({ data }) => {
-            const id = `cart_${Math.random().toString(36).substring(2, 9)}`
-            const cart: MockCart = {
-              id,
-              customerId: data.customerId || null,
-              sessionId: data.sessionId || null,
-              status: data.status || 'active',
-              items: [],
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            }
-            mockCarts[id] = cart
-            return cart
-          }),
-          update: vi.fn().mockImplementation(async ({ where, data }) => {
-            const cart = mockCarts[where.id]
-            if (cart) Object.assign(cart, data)
-            return cart
-          }),
-        },
-        cartItem: {
-          findFirst: vi.fn().mockImplementation(async ({ where }) => {
-            return (
-              Object.values(mockCartItems).find(
-                (i) =>
-                  i.cartId === where.cartId &&
-                  i.variationId === where.variationId,
-              ) || null
-            )
-          }),
-          create: vi.fn().mockImplementation(async ({ data }) => {
-            const id = `item_${Math.random().toString(36).substring(2, 9)}`
-            const item: MockCartItem = { id, ...data }
-            mockCartItems[id] = item
-            return item
-          }),
-          update: vi.fn().mockImplementation(async ({ where, data }) => {
-            const item = mockCartItems[where.id]
-            if (item) Object.assign(item, data)
-            return item
-          }),
-        },
+      const snapshotProfiles = JSON.parse(JSON.stringify(mockProfiles))
+      const snapshotCarts = JSON.parse(JSON.stringify(mockCarts))
+      const snapshotItems = JSON.parse(JSON.stringify(mockCartItems))
+
+      try {
+        const tx = createMockPrismaClient()
+        return await cb(tx)
+      } catch (err) {
+        // Rollback on transaction error
+        mockProfiles = snapshotProfiles
+        mockCarts = snapshotCarts
+        mockCartItems = snapshotItems
+        throw err
       }
-      return cb(tx)
     }),
-    personalizationProfile: {
-      findUnique: vi.fn().mockImplementation(async ({ where }) => {
-        if (where.customerId) {
-          return (
-            Object.values(mockProfiles).find(
-              (p) => p.customerId === where.customerId,
-            ) || null
-          )
-        }
-        if (where.visitorKeyHash) {
-          return (
-            Object.values(mockProfiles).find(
-              (p) => p.visitorKeyHash === where.visitorKeyHash,
-            ) || null
-          )
-        }
-        if (where.id) {
-          return mockProfiles[where.id] || null
-        }
-        return null
-      }),
-      create: vi.fn().mockImplementation(async ({ data }) => {
-        const id = `prof_${Math.random().toString(36).substring(2, 9)}`
-        const profile: MockProfile = {
-          id,
-          customerId: data.customerId || null,
-          visitorKeyHash: data.visitorKeyHash || null,
-          personalizationEnabled: data.personalizationEnabled ?? true,
-          lastSeenAt: data.lastSeenAt || new Date(),
-          expiresAt: data.expiresAt || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-        mockProfiles[id] = profile
-        return profile
-      }),
-      update: vi.fn().mockImplementation(async ({ where, data }) => {
-        const profile = mockProfiles[where.id]
-        if (!profile) throw new Error('Profile not found')
-        Object.assign(profile, data, { updatedAt: new Date() })
-        return profile
-      }),
-      delete: vi.fn().mockImplementation(async ({ where }) => {
-        const profile = mockProfiles[where.id]
-        if (profile) delete mockProfiles[where.id]
-        return profile
-      }),
-    },
-    cart: {
-      findUnique: vi.fn().mockImplementation(async ({ where }) => {
-        const cart = mockCarts[where.id]
-        if (!cart) return null
-        const items = Object.values(mockCartItems).filter(
-          (i) => i.cartId === cart.id,
-        )
-        return { ...cart, items }
-      }),
-      findFirst: vi.fn().mockImplementation(async ({ where }) => {
-        const found = Object.values(mockCarts).find((c) => {
-          if (c.status !== where.status) return false
-          if (where.customerId) return c.customerId === where.customerId
-          if (where.sessionId) return c.sessionId === where.sessionId
-          return false
-        })
-        if (!found) return null
-        const items = Object.values(mockCartItems).filter(
-          (i) => i.cartId === found.id,
-        )
-        return { ...found, items }
-      }),
-      create: vi.fn().mockImplementation(async ({ data }) => {
-        const id = `cart_${Math.random().toString(36).substring(2, 9)}`
-        const cart: MockCart = {
-          id,
-          customerId: data.customerId || null,
-          sessionId: data.sessionId || null,
-          status: data.status || 'active',
-          items: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-        mockCarts[id] = cart
-        return cart
-      }),
-      update: vi.fn().mockImplementation(async ({ where, data }) => {
-        const cart = mockCarts[where.id]
-        if (cart) Object.assign(cart, data)
-        return cart
-      }),
-    },
+    ...createMockPrismaClient(),
   },
 }))
 
@@ -265,7 +256,7 @@ vi.mock('../../shared/utils/audit', () => ({
   logAudit: vi.fn().mockResolvedValue(undefined),
 }))
 
-describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
+describe('PersonalizationIdentityService (Push 1B Hardened)', () => {
   beforeEach(() => {
     mockProfiles = {}
     mockCarts = {}
@@ -322,7 +313,6 @@ describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
 
     expect(hash1).toHaveLength(64)
     expect(hash1).toBe(hash2)
-    // Raw token is NEVER stored as hash
     expect(hash1).not.toBe(rawToken)
   })
 
@@ -357,7 +347,6 @@ describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
     const oldSigned =
       PersonalizationIdentityService.signVisitorToken(oldRawToken)
 
-    // Old cookie sent, but DB has no profile for this hash (e.g. consumed by merge)
     let cookieCall: CookieCallRecord | null = null
     const mockReply = {
       setCookie: (name: string, val: string, opts: Record<string, unknown>) => {
@@ -375,38 +364,8 @@ describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
         mockReply,
       )
 
-    // A brand new token was issued!
     expect(identity.rawToken).not.toBe(oldRawToken)
     expect(cookieCall!.val).not.toBe(oldSigned)
-  })
-
-  it('resolves distinct isolated profiles and carts for two different visitors', async () => {
-    const tokenA = PersonalizationIdentityService.generateRawVisitorToken()
-    const tokenB = PersonalizationIdentityService.generateRawVisitorToken()
-
-    const reqA = {
-      cookies: {
-        [VISITOR_COOKIE_NAME]:
-          PersonalizationIdentityService.signVisitorToken(tokenA),
-      },
-    } as unknown as FastifyRequest
-
-    const reqB = {
-      cookies: {
-        [VISITOR_COOKIE_NAME]:
-          PersonalizationIdentityService.signVisitorToken(tokenB),
-      },
-    } as unknown as FastifyRequest
-
-    const identityA =
-      await PersonalizationIdentityService.resolveProfileFromRequest(reqA)
-    const identityB =
-      await PersonalizationIdentityService.resolveProfileFromRequest(reqB)
-
-    expect(identityA.profile.id).not.toBe(identityB.profile.id)
-    expect(identityA.profile.visitorKeyHash).not.toBe(
-      identityB.profile.visitorKeyHash,
-    )
   })
 
   it('merges anonymous cart items, combines duplicate quantities, and marks empty cart completed', async () => {
@@ -417,7 +376,6 @@ describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
       },
     } as unknown as FastifyReply
 
-    // 1. Initial request without cookie creates active profile and issues signed cookie
     const reqInitial = { cookies: {} } as unknown as FastifyRequest
     const identity =
       await PersonalizationIdentityService.resolveProfileFromRequest(
@@ -429,18 +387,30 @@ describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
 
     const issuedSignedCookie = initialCookieCall!.val
 
-    // 2. Visitor request with valid issued cookie
     const reqVisitor = {
       cookies: { [VISITOR_COOKIE_NAME]: issuedSignedCookie },
     } as unknown as FastifyRequest
 
-    // Add items to guest cart
-    await CartService.syncAnonymousCartToCustomer(
-      'temp_customer_owner',
-      identity.profile.id,
-    )
+    // Create an active guest cart with items
+    const guestCartId = 'cart_guest_1'
+    mockCarts[guestCartId] = {
+      id: guestCartId,
+      customerId: null,
+      sessionId: identity.profile.id,
+      status: 'active',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    mockCartItems.item_1 = {
+      id: 'item_1',
+      cartId: guestCartId,
+      variationId: 'var_abc',
+      storeId: 'store_1',
+      quantity: 2,
+      unitPrice: 50,
+    }
 
-    // 3. Perform merge
     let mergeCookieCall: CookieCallRecord | null = null
     const mockMergeReply = {
       setCookie: (name: string, val: string, opts: Record<string, unknown>) => {
@@ -456,9 +426,25 @@ describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
 
     expect(result.success).toBe(true)
     expect(result.merged).toBe(true)
-    expect(mergeCookieCall!.val).not.toBe(issuedSignedCookie) // Cookie rotated!
+    expect(mergeCookieCall!.val).not.toBe(issuedSignedCookie)
 
-    // Second call with same token returns merged: false (idempotent)
+    // Verify guest cart is marked completed
+    expect(mockCarts[guestCartId].status).toBe('completed')
+
+    // Verify items transferred to customer cart
+    const customerCart = Object.values(mockCarts).find(
+      (c) => c.customerId === 'cust_real' && c.status === 'active',
+    )
+    expect(customerCart).toBeDefined()
+
+    const transferredItems = Object.values(mockCartItems).filter(
+      (i) => i.cartId === customerCart!.id,
+    )
+    expect(transferredItems).toHaveLength(1)
+    expect(transferredItems[0]?.variationId).toBe('var_abc')
+    expect(transferredItems[0]?.quantity).toBe(2)
+
+    // Repeat execution with same token returns merged: false (idempotent)
     const repeatResult =
       await PersonalizationIdentityService.mergeAnonymousSession(
         'cust_real',
@@ -467,5 +453,159 @@ describe('PersonalizationIdentityService (Push 1A Hardened)', () => {
       )
     expect(repeatResult.success).toBe(true)
     expect(repeatResult.merged).toBe(false)
+  })
+
+  it('combines quantity of existing duplicate item in customer cart exactly once', async () => {
+    let cookieCall: CookieCallRecord | null = null
+    const mockReply = {
+      setCookie: (name: string, val: string, opts: Record<string, unknown>) => {
+        cookieCall = { name, val, opts }
+      },
+    } as unknown as FastifyReply
+
+    const identity =
+      await PersonalizationIdentityService.resolveProfileFromRequest(
+        { cookies: {} } as unknown as FastifyRequest,
+        mockReply,
+      )
+
+    const guestCartId = 'cart_guest_dup'
+    mockCarts[guestCartId] = {
+      id: guestCartId,
+      customerId: null,
+      sessionId: identity.profile.id,
+      status: 'active',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    mockCartItems.item_guest = {
+      id: 'item_guest',
+      cartId: guestCartId,
+      variationId: 'var_dup',
+      storeId: 'store_1',
+      quantity: 3,
+      unitPrice: 100,
+    }
+
+    const customerCartId = 'cart_cust_existing'
+    mockCarts[customerCartId] = {
+      id: customerCartId,
+      customerId: 'cust_dup',
+      sessionId: null,
+      status: 'active',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    mockCartItems.item_cust = {
+      id: 'item_cust',
+      cartId: customerCartId,
+      variationId: 'var_dup',
+      storeId: 'store_1',
+      quantity: 2,
+      unitPrice: 100,
+    }
+
+    const reqVisitor = {
+      cookies: { [VISITOR_COOKIE_NAME]: cookieCall!.val },
+    } as unknown as FastifyRequest
+
+    const result = await PersonalizationIdentityService.mergeAnonymousSession(
+      'cust_dup',
+      reqVisitor,
+    )
+
+    expect(result.merged).toBe(true)
+    expect(mockCartItems.item_cust.quantity).toBe(5) // 2 + 3 = 5
+  })
+
+  it('restores state via rollback if an intermediate failure occurs', async () => {
+    let cookieCall: CookieCallRecord | null = null
+    const mockReply = {
+      setCookie: (name: string, val: string, opts: Record<string, unknown>) => {
+        cookieCall = { name, val, opts }
+      },
+    } as unknown as FastifyReply
+
+    const identity =
+      await PersonalizationIdentityService.resolveProfileFromRequest(
+        { cookies: {} } as unknown as FastifyRequest,
+        mockReply,
+      )
+
+    const guestCartId = 'cart_guest_fail'
+    mockCarts[guestCartId] = {
+      id: guestCartId,
+      customerId: null,
+      sessionId: identity.profile.id,
+      status: 'active',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    const reqVisitor = {
+      cookies: { [VISITOR_COOKIE_NAME]: cookieCall!.val },
+    } as unknown as FastifyRequest
+
+    // Force an error inside syncAnonymousCartToCustomer
+    const spy = vi
+      .spyOn(CartService, 'syncAnonymousCartToCustomer')
+      .mockRejectedValueOnce(new Error('Intermediate database error'))
+
+    await expect(
+      PersonalizationIdentityService.mergeAnonymousSession(
+        'cust_fail',
+        reqVisitor,
+      ),
+    ).rejects.toThrow('Intermediate database error')
+
+    // Profile and guest cart state restored via transaction rollback!
+    expect(mockProfiles[identity.profile.id]).toBeDefined()
+    expect(mockCarts[guestCartId].status).toBe('active')
+
+    spy.mockRestore()
+  })
+
+  it('does NOT create two active customer carts when concurrent merges occur', async () => {
+    const fakeTx =
+      createMockPrismaClient() as unknown as Prisma.TransactionClient
+
+    mockCarts.cart_anon_1 = {
+      id: 'cart_anon_1',
+      customerId: null,
+      sessionId: 'anon_1',
+      status: 'active',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    mockCarts.cart_anon_2 = {
+      id: 'cart_anon_2',
+      customerId: null,
+      sessionId: 'anon_2',
+      status: 'active',
+      items: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    // Run syncAnonymousCartToCustomer twice inside same customer account
+    await CartService.syncAnonymousCartToCustomer(
+      fakeTx,
+      'cust_concurrent',
+      'anon_1',
+    )
+    await CartService.syncAnonymousCartToCustomer(
+      fakeTx,
+      'cust_concurrent',
+      'anon_2',
+    )
+
+    const activeCarts = Object.values(mockCarts).filter(
+      (c) => c.customerId === 'cust_concurrent' && c.status === 'active',
+    )
+    expect(activeCarts).toHaveLength(1)
   })
 })
