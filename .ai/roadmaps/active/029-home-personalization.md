@@ -1,0 +1,86 @@
+# Roadmap 029 — Home Personalizada, Ofertas Reais e Recomendações Explicáveis
+
+> **Status:** `active`  
+> **Prioridade:** `high`  
+> **Dependências:** Roadmaps 004, 018, 027, 028  
+> **Módulo:** `apps/api` (`modules/catalog`, `modules/customer`, `modules/cart`) & `apps/marketplace`  
+> **Data de Criação:** 2026-08-06  
+> **Caminho:** `.ai/roadmaps/active/029-home-personalization.md`
+
+---
+
+## 🎯 Objetivo
+
+Implementar a personalização determinística e transparente da página inicial (Home) do Marketplace VERTTEX, eliminando dados fabricados/falsos (descontos, parcelamento, frete grátis, avaliações fictícias e fallbacks genéricos de móveis) e oferecendo três vitrines distintas:
+
+1. **Vistos por último:** Histórico real do usuário baseada em `PRODUCT_VIEW` válidos.
+2. **Ofertas e Descontos Imperdíveis:** Apenas promoções reais onde `promotionalPrice !== null AND promotionalPrice < price`.
+3. **Recomendados para Você:** Algoritmo híbrido determinístico (`home-v1`) com controle de afinidade, popularidade, frescor e diversidade.
+
+---
+
+## 🏗️ Requisitos Funcionais e Regras de Negócio
+
+### 1. Ausência de Dados Fabricados
+- Nenhuma seção pode inventar parcelamento, benefício de frete, avaliações ou selos promocionais não respaldados pelo banco de dados.
+- Se uma seção não tiver itens elegíveis suficientes, ela deve ser omitida ou degradada explicitamente (nunca exibir produtos demonstrativos/falsos).
+
+### 2. Oferta Real (Correção de Falso Positivo)
+- Uma oferta válida **DEVE obrigatoriamente** satisfazer: `promotionalPrice !== null AND promotionalPrice < price`.
+- Variações em que `promotionalPrice >= price` devem ser filtradas no servidor.
+
+### 3. Identidade Anônima e Isolamento
+- Eliminação do fallback inseguro `default-guest-session`.
+- Visitantes anônimos recebem cookie `vt_visitor` assinado (first-party, HttpOnly, SameSite=Lax, Secure em produção, validade de 90 dias).
+- Persistência apenas do HMAC-SHA-256 do valor do cookie (`visitorKeyHash`).
+- Merge idempotente da sessão anônima pós-login via `POST /customer/merge-anonymous-session`.
+
+### 4. Privacidade, Opt-Out e Exclusão
+- Retenção de 90 dias para interações e vistos recentes.
+- Endpoints de controle do cliente: `GET /customer/personalization`, `PATCH /customer/personalization` (opt-in/opt-out), `DELETE /customer/personalization/history`.
+- Em caso de opt-out, a Home degrada para fallback global não personalizado.
+
+### 5. Algoritmo de Ranking Determinístico `home-v1`
+- **Recomendados com Histórico:** `0.70 * affinity + 0.20 * popularity + 0.10 * freshness`
+- **Ofertas com Histórico:** `0.55 * affinity + 0.25 * discountDepth + 0.15 * popularity + 0.05 * freshness`
+- **Cold Start Recomendados:** `0.60 * popularity + 0.40 * freshness`
+- **Cold Start Ofertas:** `0.50 * discountDepth + 0.30 * popularity + 0.20 * freshness`
+- **Diversidade:** Máximo de 2 itens da mesma loja, 2 da mesma marca e 3 da mesma categoria por seção na primeira passagem.
+
+---
+
+## 📋 Plano de Execução (Pushes Fechados)
+
+### Push 0 — Roadmap e Revalidação da Baseline `[EM EXECUÇÃO]`
+- **Escopo:** Criação deste roadmap em `active/`, atualização do índice em `.ai/roadmaps/INDEX.md`, execução e diagnóstico da baseline do Quality Gate (`pnpm verify`).
+- **Artefatos:** `.ai/roadmaps/active/029-home-personalization.md`, `.ai/roadmaps/INDEX.md`.
+
+### Push 1 — Identidade Anônima e Isolamento do Carrinho
+- **Escopo:** Modelo `PersonalizationProfile`, cookie assinado `vt_visitor`, hash HMAC-SHA-256, remoção de `default-guest-session`, merge pós-login `POST /customer/merge-anonymous-session`.
+
+### Push 2 — Fronteira Canônica do Catálogo e Oferta Real
+- **Escopo:** Extração de fronteira interna reutilizável no `PublicDiscoveryService`, correção da regra de oferta real (`promotionalPrice < price`), eliminação de duplicação HTTP interna.
+
+### Push 3 — Eventos, Histórico, Merge e Privacidade
+- **Escopo:** Modelos `ProductInteraction` e `RecentlyViewedProduct`, rotas de registro de eventos públicos/servidor, opt-out e purge de histórico, `PersonalizationRetentionService`.
+
+### Push 4 — Ranking e API Unificada da Home
+- **Escopo:** Motor `home-v1`, geradores de candidatos, endpoint `GET /public/home/sections`, headers de cache privado (`private, no-store, Vary: Cookie`), Zod schemas.
+
+### Push 5 — Integração Visual e Tracking no Marketplace
+- **Escopo:** Integração de `apps/marketplace/src/app/page.tsx` com `GET /public/home/sections`, remoção de dados estáticos/falsos, tracking assíncrono de impressoes/cliques.
+
+### Push 6 — Hardening, Observabilidade e Performance
+- **Escopo:** Rate limits, otimização contra N+1, logs estruturados sem PII, job de limpeza de retenção, benchmark de desempenho.
+
+### Push 7 — Recertificação Final
+- **Escopo:** Suíte completa de testes unitários/integração com PostgreSQL e Redis reais, verificação de migrations em banco limpo, Quality Gate `pnpm verify` 100% verde.
+
+---
+
+## 🔒 Quality Gate & Verificação Canônica
+Toda etapa deve ser validada executando:
+```bash
+pnpm verify
+```
+Garantindo que `lint`, `typecheck`, `test` e `build` passem sem alterações residuais no working tree (`git diff --exit-code`).

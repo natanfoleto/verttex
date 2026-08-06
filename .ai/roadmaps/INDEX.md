@@ -38,6 +38,7 @@
 | 026 | Integração e Consolidação Completa dos Front-ends    | `completed` | high       | 019 a 025     | [`completed/026-frontend-integration-and-completeness.md`](.ai/roadmaps/completed/026-frontend-integration-and-completeness.md)               |
 | 027 | Product Discovery & Product Listing Engine           | `completed` | critical   | 012, 013, 015 | [`completed/027-product-discovery-engine.md`](.ai/roadmaps/completed/027-product-discovery-engine.md)                                         |
 | 028 | Search Experience (Autocomplete & Pesquisas Recentes)| `completed` | high       | 027           | [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md)                                      |
+| 029 | Home Personalizada, Ofertas Reais e Recomendações   | `active`    | high       | 004, 018, 027 | [`active/029-home-personalization.md`](.ai/roadmaps/active/029-home-personalization.md)                                                        |
 
 ---
 
@@ -46,7 +47,7 @@
 | Status      | Quantidade | Observação                                |
 | :---------- | :--------- | :---------------------------------------- |
 | `completed` | 28         | Roadmaps 001 a 028 concluídos e validados |
-| `active`    | 0          | Nenhum roadmap ativo                      |
+| `active`    | 1          | Roadmap 029 em execução                   |
 | `planned`   | 0          | Nenhum roadmap pendente                   |
 | `archived`  | 0          | Nenhum roadmap arquivado                  |
 
