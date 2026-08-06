@@ -4,6 +4,8 @@ import { PublicProductListQuery, PublicStoreListQuery } from './catalog.schemas'
 import { PublicCatalogService } from './catalog.service'
 import { DiscoveryQuery } from './discovery.schemas'
 import { PublicDiscoveryService } from './discovery.service'
+import { SearchSuggestionsQuery } from './search-suggestions.schemas'
+import { SearchSuggestionsService } from './search-suggestions.service'
 
 export async function listPublicProductsController(
   req: FastifyRequest<{ Querystring: PublicProductListQuery }>,
@@ -122,5 +124,16 @@ export async function getPublicStoreDetailsController(
   return reply.status(200).send({
     success: true,
     data: store,
+  })
+}
+
+export async function getSearchSuggestionsController(
+  req: FastifyRequest<{ Querystring: SearchSuggestionsQuery }>,
+  reply: FastifyReply,
+) {
+  const result = await SearchSuggestionsService.getSuggestions(req.query)
+  return reply.status(200).send({
+    success: true,
+    data: result,
   })
 }

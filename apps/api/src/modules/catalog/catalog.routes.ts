@@ -6,6 +6,7 @@ import {
   discoverPublicProductsController,
   getPublicProductDetailsController,
   getPublicStoreDetailsController,
+  getSearchSuggestionsController,
   listPublicBrandsController,
   listPublicCategoriesController,
   listPublicProductsController,
@@ -16,6 +17,7 @@ import {
   publicStoreListQuerySchema,
 } from './catalog.schemas'
 import { discoveryQuerySchema } from './discovery.schemas'
+import { searchSuggestionsQuerySchema } from './search-suggestions.schemas'
 
 export async function catalogRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>()
@@ -110,5 +112,19 @@ export async function catalogRoutes(app: FastifyInstance) {
       },
     },
     getPublicStoreDetailsController,
+  )
+
+  // Public Search Suggestions (Autocomplete Textual)
+  typedApp.get(
+    '/search-suggestions',
+    {
+      schema: {
+        tags: ['Public Catalog — Marketplace'],
+        summary:
+          'Sugestões de busca textual e autocomplete baseado no catálogo real',
+        querystring: searchSuggestionsQuerySchema,
+      },
+    },
+    getSearchSuggestionsController,
   )
 }

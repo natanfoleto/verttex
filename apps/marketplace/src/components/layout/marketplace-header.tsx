@@ -3,26 +3,24 @@
 import { useQuery } from '@tanstack/react-query'
 import { Menu, ShoppingBag, X } from 'lucide-react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   RiArrowDownSLine,
   RiArrowRightSLine,
   RiCloseLine,
   RiDiscountPercentLine,
   RiMapPinLine,
-  RiSearchLine,
 } from 'react-icons/ri'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { HoverDropdown } from '@/components/ui/hover-dropdown'
-import { Input } from '@/components/ui/input'
 
 import { apiClient } from '../../lib/api-client'
 import { useCustomer } from '../../providers/customer-auth-provider'
 import { CartSheet } from '../cart/cart-sheet'
+import { MarketplaceSearch } from '../search/marketplace-search'
 import { MobileMenuDrawer } from './mobile-menu-drawer'
 
 interface PublicCategory {
@@ -56,15 +54,9 @@ interface CartSummaryData {
 
 export function MarketplaceHeader() {
   const { customer, logout, openAuthModal } = useCustomer()
-  const searchParams = useSearchParams()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [announcementDismissed, setAnnouncementDismissed] = useState(false)
-
-  useEffect(() => {
-    setSearchQuery(searchParams.get('q') || '')
-  }, [searchParams])
 
   // Fetch marketplace settings
   const { data: settings } = useQuery<MarketplaceHeaderSettings>({
@@ -127,12 +119,6 @@ export function MarketplaceHeader() {
 
   const displayCategories =
     rootCategories.length > 0 ? rootCategories : categories || []
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchQuery.trim()) return
-    window.location.href = `/busca?q=${encodeURIComponent(searchQuery)}`
-  }
 
   return (
     <header className="w-full bg-stone-50 font-sans antialiased">
@@ -203,41 +189,10 @@ export function MarketplaceHeader() {
             </Link>
           </div>
 
-          {/* Input de Busca Alinhado na Coluna 3 a 8 (6 colunas) */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="4xl:flex col-span-6 hidden items-center"
-          >
-            <div className="relative flex w-full items-center overflow-hidden rounded-md bg-white shadow-sm">
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar produtos, marcas e muito mais..."
-                className="w-full border-none bg-transparent px-4 py-2.5 text-sm placeholder:text-stone-500 focus:outline-none focus-visible:ring-0"
-              />
-              {searchQuery && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSearchQuery('')}
-                  className="mr-1 h-7 w-7 cursor-pointer p-0 text-stone-400 transition-colors hover:bg-transparent hover:text-stone-700"
-                >
-                  <RiCloseLine className="h-4 w-4" />
-                </Button>
-              )}
-              <div className="h-5 w-px shrink-0 bg-stone-200" />
-              <Button
-                type="submit"
-                variant="ghost"
-                className="h-auto cursor-pointer px-3.5 py-2.5 text-stone-500 transition-colors hover:bg-transparent hover:text-emerald-600"
-                title="Buscar"
-              >
-                <RiSearchLine className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
+          {/* Input de Busca Alinhado (Desktop: Coluna 3 a 8 / Mobile: Largura completa) */}
+          <div className="4xl:col-span-6 4xl:order-0 order-last col-span-12 flex items-center">
+            <MarketplaceSearch />
+          </div>
 
           {/* Banner Promocional no Topo Direita (Coluna 9 a 12 - 4 colunas) */}
           <div className="4xl:flex col-span-4 hidden items-center justify-end text-xs font-semibold">
