@@ -187,4 +187,20 @@ describe('Product Discovery Engine — Fastify HTTP + Prisma Real Integration', 
     expect(body.data.context.query).toBe('queijo')
     expect(body.data.products.length).toBe(20)
   })
+
+  it('9. Resposta HTTP do Discovery NÃO expõe campos internos (rawProd, hasAttributeMatch)', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/public/catalog/discover?q=mel',
+    })
+
+    expect(res.statusCode).toBe(200)
+    const body = res.json()
+    expect(body.success).toBe(true)
+
+    for (const prod of body.data.products) {
+      expect(prod).not.toHaveProperty('rawProd')
+      expect(prod).not.toHaveProperty('hasAttributeMatch')
+    }
+  })
 })

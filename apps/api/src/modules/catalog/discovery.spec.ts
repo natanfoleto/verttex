@@ -290,4 +290,22 @@ describe('Product Discovery Engine (PublicDiscoveryService)', () => {
       }),
     ).rejects.toThrow(AppError)
   })
+
+  it('should build breadcrumbs correctly when parent relation is pre-loaded on category object', async () => {
+    const rootCat = { name: 'Alimentos', slug: 'alimentos', parentId: null }
+    const childCat = {
+      name: 'Doces',
+      slug: 'doces',
+      parentId: null, // parent relation loaded in memory without parentId query
+      parent: rootCat,
+    }
+
+    const breadcrumbs =
+      await PublicDiscoveryService.buildCategoryBreadcrumbs(childCat)
+
+    expect(breadcrumbs).toEqual([
+      { name: 'Alimentos', slug: 'alimentos', url: '/categoria/alimentos' },
+      { name: 'Doces', slug: 'doces', url: '/categoria/doces' },
+    ])
+  })
 })

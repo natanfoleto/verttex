@@ -98,6 +98,21 @@ interface DiscoveryProductRecord {
   }>
 }
 
+const SEARCH_FIELD_WEIGHTS = {
+  exact: 1000,
+  title: 500,
+  context: 200,
+  attributes: 100,
+  description: 50,
+} as const
+
+interface CategoryBreadcrumbInput {
+  name: string
+  slug: string
+  parentId?: string | null
+  parent?: CategoryBreadcrumbInput | null
+}
+
 function calculateProductRelevance(
   prod: DiscoveryProductRecord,
   normalizedSearch: string,
@@ -125,7 +140,7 @@ function calculateProductRelevance(
     )
 
   if (hasExactSkuOrBarcode) {
-    score += 1000
+    score += SEARCH_FIELD_WEIGHTS.exact
   }
 
   const queryTokens = tokenizeQuery(normalizedSearch)
@@ -144,15 +159,16 @@ function calculateProductRelevance(
   )
 
   for (const token of queryTokens) {
-    if (nameTokens.includes(token)) score += 500
+    if (nameTokens.includes(token)) score += SEARCH_FIELD_WEIGHTS.title
     if (
       catTokens.includes(token) ||
       brandTokens.includes(token) ||
       storeTokens.includes(token)
     )
-      score += 300
-    if (attrTokens.includes(token)) score += 100
-    if (shortTokens.includes(token) || fullTokens.includes(token)) score += 50
+      score += SEARCH_FIELD_WEIGHTS.context
+    if (attrTokens.includes(token)) score += SEARCH_FIELD_WEIGHTS.attributes
+    if (shortTokens.includes(token) || fullTokens.includes(token))
+      score += SEARCH_FIELD_WEIGHTS.description
   }
 
   if (prod.isFeatured) score += 10
@@ -289,10 +305,14 @@ export class PublicDiscoveryService {
       let fieldMatchScore = 0
 
       for (const token of tokens) {
-        if (titleTokens.includes(token)) fieldMatchScore += 500
-        if (contextTokens.includes(token)) fieldMatchScore += 200
-        if (attrTokens.includes(token)) fieldMatchScore += 100
-        if (descTokens.includes(token)) fieldMatchScore += 50
+        if (titleTokens.includes(token))
+          fieldMatchScore += SEARCH_FIELD_WEIGHTS.title
+        if (contextTokens.includes(token))
+          fieldMatchScore += SEARCH_FIELD_WEIGHTS.context
+        if (attrTokens.includes(token))
+          fieldMatchScore += SEARCH_FIELD_WEIGHTS.attributes
+        if (descTokens.includes(token))
+          fieldMatchScore += SEARCH_FIELD_WEIGHTS.description
       }
 
       if (fieldMatchScore > 0) {
@@ -385,10 +405,10 @@ export class PublicDiscoveryService {
    * Build complete category breadcrumbs path recursively
    */
   static async buildCategoryBreadcrumbs(
-    category: { name: string; slug: string; parentId?: string | null } | null,
+    category: CategoryBreadcrumbInput | null,
   ): Promise<DiscoveryBreadcrumb[]> {
     const path: DiscoveryBreadcrumb[] = []
-    let current = category
+    let current: CategoryBreadcrumbInput | null = category
 
     while (current) {
       path.unshift({
@@ -402,6 +422,8 @@ export class PublicDiscoveryService {
           where: { id: current.parentId, status: 'active', deletedAt: null },
           select: { id: true, name: true, slug: true, parentId: true },
         })
+      } else if (current.parent) {
+        current = current.parent
       } else {
         current = null
       }
@@ -848,9 +870,28 @@ export class PublicDiscoveryService {
           ?.file?.objectKey
           ? `${process.env.R2_PUBLIC_URL || ''}/${(prod.medias.find((m) => m.isMain) || prod.medias[0])!.file!.objectKey}`
           : null,
-        store: prod.store,
-        category: prod.category,
-        brand: prod.brand,
+        store: prod.store
+          ? {
+              id: prod.store.id || '',
+              name: prod.store.name || '',
+              slug: prod.store.slug || '',
+              logoUrl: prod.store.logoUrl ?? null,
+            }
+          : { id: '', name: '', slug: '', logoUrl: null },
+        category: prod.category
+          ? {
+              id: prod.category.id || '',
+              name: prod.category.name || '',
+              slug: prod.category.slug || '',
+            }
+          : { id: '', name: '', slug: '' },
+        brand: prod.brand
+          ? {
+              id: prod.brand.id || '',
+              name: prod.brand.name || '',
+              slug: prod.brand.slug || '',
+            }
+          : null,
         commercialStockAvailable: stock,
         isAvailable,
         relevanceScore,
@@ -1142,10 +1183,24 @@ export class PublicDiscoveryService {
           max: globalMaxPrice === -Infinity ? 0 : globalMaxPrice,
         },
       },
-      products: paginatedProducts.map(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ({ rawProd, hasAttributeMatch, ...rest }) => rest,
-      ) as DiscoveryResponse['products'],
+      products: paginatedProducts.map((prod) => ({
+        id: prod.id,
+        name: prod.name,
+        slug: prod.slug,
+        shortDescription: prod.shortDescription,
+        type: prod.type,
+        isFeatured: prod.isFeatured,
+        price: prod.price,
+        promotionalPrice: prod.promotionalPrice,
+        mainImageUrl: prod.mainImageUrl,
+        store: prod.store,
+        category: prod.category,
+        brand: prod.brand,
+        commercialStockAvailable: prod.commercialStockAvailable,
+        isAvailable: prod.isAvailable,
+        relevanceScore: prod.relevanceScore,
+        matchedVariantId: prod.matchedVariantId,
+      })),
       pagination: {
         page: Number(page) || 1,
         perPage: Math.min(100, Math.max(1, Number(perPage) || 50)),
