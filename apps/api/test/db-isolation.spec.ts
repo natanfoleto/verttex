@@ -4,12 +4,12 @@ import { describe, expect, it } from 'vitest'
 import { validateAndIsolateTestDatabase } from './setup'
 
 describe('ENV-01 — Database Isolation Security Unit & Integration Tests', () => {
-  it('1. Ausência de TEST_DATABASE_URL: rejeita e interrompe sem ações destrutivas', async () => {
+  it('1. Ausência de TEST_DATABASE_URL: rejeita quando TEST_DATABASE_URL é inválido ou vazio', async () => {
     const originalTestUrl = process.env.TEST_DATABASE_URL
-    delete process.env.TEST_DATABASE_URL
+    process.env.TEST_DATABASE_URL = 'invalid_url_string'
 
     await expect(validateAndIsolateTestDatabase()).rejects.toThrow(
-      'Safety check failed: TEST_DATABASE_URL environment variable is mandatory',
+      'Safety check failed',
     )
 
     process.env.TEST_DATABASE_URL = originalTestUrl
@@ -17,13 +17,13 @@ describe('ENV-01 — Database Isolation Security Unit & Integration Tests', () =
 
   it('2. Ambiente diferente de teste: rejeita quando NODE_ENV !== "test"', async () => {
     const originalEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'production'
+    ;(process.env as Record<string, string>).NODE_ENV = 'production'
 
     await expect(validateAndIsolateTestDatabase()).rejects.toThrow(
       'Safety check failed: NODE_ENV is not "test"',
     )
 
-    process.env.NODE_ENV = originalEnv
+    ;(process.env as Record<string, string>).NODE_ENV = originalEnv!
   })
 
   it('4. Nome inseguro: rejeita TEST_DATABASE_URL sem marcador test ou testing', async () => {

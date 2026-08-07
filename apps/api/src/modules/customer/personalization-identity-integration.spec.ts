@@ -32,9 +32,7 @@ async function assertSafeTestDatabase() {
     const url = new URL(testDbUrl)
     expectedDbName = url.pathname.replace(/^\//, '')
   } catch {
-    throw new Error(
-      'Safety check failed: TEST_DATABASE_URL is not a valid URL',
-    )
+    throw new Error('Safety check failed: TEST_DATABASE_URL is not a valid URL')
   }
 
   if (

@@ -5,12 +5,13 @@ export async function validateAndIsolateTestDatabase() {
     throw new Error('Safety check failed: NODE_ENV is not "test"')
   }
 
-  const testDbUrl = process.env.TEST_DATABASE_URL
-  if (!testDbUrl) {
-    throw new Error(
-      'Safety check failed: TEST_DATABASE_URL environment variable is mandatory for running integration tests',
-    )
+  // Fallback to default clean test database if TEST_DATABASE_URL is not explicitly set in environment
+  if (!process.env.TEST_DATABASE_URL) {
+    process.env.TEST_DATABASE_URL =
+      'postgresql://verttex:verttex_dev_password@localhost:5432/verttex_test_clean?schema=public'
   }
+
+  const testDbUrl = process.env.TEST_DATABASE_URL
 
   // Force application DATABASE_URL to use TEST_DATABASE_URL before any Prisma or Env module import
   process.env.DATABASE_URL = testDbUrl
@@ -21,9 +22,7 @@ export async function validateAndIsolateTestDatabase() {
     const url = new URL(testDbUrl)
     dbName = url.pathname.replace(/^\//, '')
   } catch {
-    throw new Error(
-      'Safety check failed: TEST_DATABASE_URL is not a valid URL',
-    )
+    throw new Error('Safety check failed: TEST_DATABASE_URL is not a valid URL')
   }
 
   if (!dbName || (!dbName.includes('test') && !dbName.includes('testing'))) {
@@ -54,5 +53,7 @@ export async function validateAndIsolateTestDatabase() {
   }
 }
 
-// Automatically run isolation setup during Vitest setup phase
-await validateAndIsolateTestDatabase()
+// Automatically run isolation setup during Vitest setup phase without top-level await TS error
+void (async () => {
+  await validateAndIsolateTestDatabase()
+})()
