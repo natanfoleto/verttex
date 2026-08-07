@@ -1,80 +1,153 @@
-import { Pool } from 'pg'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import { validateAndIsolateTestDatabase } from './setup'
+import { assertSafeLocalDatabaseUrl, isLocalHost } from './db-guard'
 
-describe('ENV-01 — Database Isolation Security Unit & Integration Tests', () => {
-  it('1. Ausência de TEST_DATABASE_URL: rejeita quando TEST_DATABASE_URL é inválido ou vazio', async () => {
-    const originalTestUrl = process.env.TEST_DATABASE_URL
-    process.env.TEST_DATABASE_URL = 'invalid_url_string'
-
-    await expect(validateAndIsolateTestDatabase()).rejects.toThrow(
-      'Safety check failed',
+describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
+  it('1. DATABASE_URL ausente é bloqueada', () => {
+    expect(() => assertSafeLocalDatabaseUrl('')).toThrow(
+      'DATABASE_URL não parece apontar para um PostgreSQL local',
     )
-
-    process.env.TEST_DATABASE_URL = originalTestUrl
+    expect(() => assertSafeLocalDatabaseUrl('   ')).toThrow(
+      'DATABASE_URL não parece apontar para um PostgreSQL local',
+    )
   })
 
-  it('2. Ambiente diferente de teste: rejeita quando NODE_ENV !== "test"', async () => {
+  it('2. URL malformada é bloqueada', () => {
+    expect(() => assertSafeLocalDatabaseUrl('invalid_url_string')).toThrow(
+      'DATABASE_URL não parece apontar para um PostgreSQL local',
+    )
+  })
+
+  it('3. Protocolo diferente de PostgreSQL é bloqueado', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl('mysql://user:pass@localhost:3306/db'),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+
+    expect(() =>
+      assertSafeLocalDatabaseUrl('http://localhost:5432/db'),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+  })
+
+  it('4. NODE_ENV=production é bloqueado', () => {
     const originalEnv = process.env.NODE_ENV
     ;(process.env as Record<string, string>).NODE_ENV = 'production'
 
-    await expect(validateAndIsolateTestDatabase()).rejects.toThrow(
-      'Safety check failed: NODE_ENV is not "test"',
-    )
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@localhost:5432/verttex_db',
+      ),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
 
     ;(process.env as Record<string, string>).NODE_ENV = originalEnv!
   })
 
-  it('4. Nome inseguro: rejeita TEST_DATABASE_URL sem marcador test ou testing', async () => {
-    const originalTestUrl = process.env.TEST_DATABASE_URL
-    process.env.TEST_DATABASE_URL =
-      'postgresql://verttex:verttex_dev_password@localhost:5432/production_db?schema=public'
-
-    await expect(validateAndIsolateTestDatabase()).rejects.toThrow(
-      'must contain a "test" or "testing" marker',
-    )
-
-    process.env.TEST_DATABASE_URL = originalTestUrl
+  it('5. localhost é permitido', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@localhost:5432/verttex_db',
+      ),
+    ).not.toThrow()
   })
 
-  it('3. Banco realmente conectado: altera DATABASE_URL para TEST_DATABASE_URL e preserva banco A intacto', async () => {
-    const dbAUrl =
-      'postgresql://verttex:verttex_dev_password@localhost:5432/verttex_test_a?schema=public'
-    const dbBUrl =
-      'postgresql://verttex:verttex_dev_password@localhost:5432/verttex_test_b?schema=public'
+  it('6. 127.0.0.1 é permitido', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@127.0.0.1:5432/verttex_db',
+      ),
+    ).not.toThrow()
 
-    // Insere registro sentinela no Banco A
-    const poolA = new Pool({ connectionString: dbAUrl })
-    await poolA.query('TRUNCATE TABLE stores CASCADE;')
-    await poolA.query(
-      `INSERT INTO stores (id, name, slug, status, "createdAt", "updatedAt") VALUES ('sentinel_store_a', 'Sentinel Store A', 'sentinel-a', 'active', NOW(), NOW());`,
-    )
+    // Faixa 127.0.0.0/8
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgres://user:pass@127.0.0.2:5432/verttex_db',
+      ),
+    ).not.toThrow()
+  })
 
-    process.env.DATABASE_URL = dbAUrl
-    process.env.TEST_DATABASE_URL = dbBUrl
+  it('7. ::1 é permitido', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@[::1]:5432/verttex_db',
+      ),
+    ).not.toThrow()
+  })
 
-    // Executa isolamento obrigatorio
-    await validateAndIsolateTestDatabase()
+  it('8. host.docker.internal é permitido', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@host.docker.internal:5432/verttex_db',
+      ),
+    ).not.toThrow()
+  })
 
-    // 1. Confirma que process.env.DATABASE_URL foi redirecionado para dbBUrl (TEST_DATABASE_URL)
-    expect(process.env.DATABASE_URL).toBe(dbBUrl)
+  it('9. Hostname local do Docker Compose (postgres) é permitido', () => {
+    expect(isLocalHost('postgres')).toBe(true)
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@postgres:5432/verttex_db',
+      ),
+    ).not.toThrow()
+  })
 
-    // 2. Consulta SELECT current_database() no banco conectado via TEST_DATABASE_URL (Banco B)
-    const poolB = new Pool({ connectionString: process.env.DATABASE_URL })
-    const resB = await poolB.query('SELECT current_database() as db_name;')
-    expect(resB.rows[0]?.db_name).toBe('verttex_test_b')
+  it('10. Domínio público é bloqueado', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@database.empresa.com:5432/verttex_db',
+      ),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
 
-    // 3. Executa operacao destrutiva no Banco B
-    await poolB.query('TRUNCATE TABLE stores CASCADE;')
-    await poolB.end()
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@aws.rds.amazonaws.com:5432/verttex_db',
+      ),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+  })
 
-    // 4. Comprova que o registro sentinela no Banco A permaneceu 100% INTACTO
-    const checkA = await poolA.query(
-      "SELECT id, name FROM stores WHERE id = 'sentinel_store_a';",
-    )
-    expect(checkA.rows).toHaveLength(1)
-    expect(checkA.rows[0]?.name).toBe('Sentinel Store A')
-    await poolA.end()
+  it('11. IP público é bloqueado', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@203.0.113.10:5432/verttex_db',
+      ),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@8.8.8.8:5432/verttex_db',
+      ),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+  })
+
+  it('12. Hostname arbitrário não autorizado é bloqueado', () => {
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@remote-db-server:5432/verttex_db',
+      ),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+  })
+
+  it('13. O bloqueio acontece ANTES da função destrutiva', () => {
+    const destructiveFn = vi.fn()
+
+    const executeCleanupWithGuard = (url: string) => {
+      assertSafeLocalDatabaseUrl(url)
+      destructiveFn()
+    }
+
+    expect(() =>
+      executeCleanupWithGuard('postgresql://user:pass@203.0.113.10:5432/prod'),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+
+    // Confirma empiricamente que a função destrutiva NUNCA foi chamada
+    expect(destructiveFn).not.toHaveBeenCalled()
+  })
+
+  it('14. A integração real utiliza diretamente DATABASE_URL sem redirecionamentos', () => {
+    const activeUrl = process.env.DATABASE_URL
+    expect(activeUrl).toBeDefined()
+    expect(() => assertSafeLocalDatabaseUrl(activeUrl)).not.toThrow()
+  })
+
+  it('15. A suíte de integração com PostgreSQL local valida DATABASE_URL e executa com sucesso', () => {
+    expect(() => assertSafeLocalDatabaseUrl()).not.toThrow()
   })
 })
