@@ -49,19 +49,25 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     ).not.toThrow()
   })
 
-  it('6. 127.0.0.1 é permitido', () => {
+  it('6. 127.0.0.1 é permitido, mas outros IPs do intervalo 127.x.x.x são bloqueados', () => {
     expect(() =>
       assertSafeLocalDatabaseUrl(
         'postgresql://user:pass@127.0.0.1:5432/verttex_db',
       ),
     ).not.toThrow()
 
-    // Faixa 127.0.0.0/8
+    // 127.0.0.2, 127.1.2.3, 127.255.255.255 devem ser bloqueados pela allowlist estrita
     expect(() =>
       assertSafeLocalDatabaseUrl(
         'postgres://user:pass@127.0.0.2:5432/verttex_db',
       ),
-    ).not.toThrow()
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
+
+    expect(() =>
+      assertSafeLocalDatabaseUrl(
+        'postgres://user:pass@127.1.2.3:5432/verttex_db',
+      ),
+    ).toThrow('DATABASE_URL não parece apontar para um PostgreSQL local')
   })
 
   it('7. ::1 é permitido', () => {
@@ -152,13 +158,17 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
   })
 
   it('16. A limpeza local permitida executa a validação do guard antes de qualquer instrução Prisma', async () => {
-    expect(() => assertSafeLocalDatabaseUrl(process.env.DATABASE_URL)).not.toThrow()
+    expect(() =>
+      assertSafeLocalDatabaseUrl(process.env.DATABASE_URL),
+    ).not.toThrow()
   })
 
   it('17. O Prisma é desconectado no bloco finally mesmo quando a limpeza falha', async () => {
     const disconnectFn = vi.fn().mockResolvedValue(undefined)
     try {
-      assertSafeLocalDatabaseUrl('postgresql://user:pass@203.0.113.10:5432/invalid')
+      assertSafeLocalDatabaseUrl(
+        'postgresql://user:pass@203.0.113.10:5432/invalid',
+      )
     } catch {
       // Guard blocked
     } finally {
@@ -168,7 +178,8 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
   })
 
   it('18. Nenhuma credencial ou URL completa é exposta na mensagem de erro do guard', () => {
-    const secretUrl = 'postgresql://sensitive_user:super_secret_password_123@203.0.113.10:5432/sensitive_db?sslmode=require'
+    const secretUrl =
+      'postgresql://sensitive_user:super_secret_password_123@203.0.113.10:5432/sensitive_db?sslmode=require'
     let caughtMessage = ''
     try {
       assertSafeLocalDatabaseUrl(secretUrl)

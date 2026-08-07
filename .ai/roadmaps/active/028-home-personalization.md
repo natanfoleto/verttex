@@ -1,11 +1,11 @@
-# Roadmap 029 — Home Personalizada, Ofertas Reais e Recomendações Explicáveis
+# Roadmap 028 — Home Personalizada, Ofertas Reais e Recomendações Explicáveis
 
 > **Status:** `active`  
 > **Prioridade:** `high`  
-> **Dependências:** Roadmaps 004, 018, 027, 028  
+> **Dependências:** Roadmaps 004, 018, 027
 > **Módulo:** `apps/api` (`modules/catalog`, `modules/customer`, `modules/cart`) & `apps/marketplace`  
 > **Data de Criação:** 2026-08-06  
-> **Caminho:** `.ai/roadmaps/active/029-home-personalization.md`
+> **Caminho:** `.ai/roadmaps/active/028-home-personalization.md`
 
 ---
 
@@ -55,9 +55,9 @@ Implementar a personalização determinística e transparente da página inicial
 - **Escopo:** Criação deste roadmap em `active/`, atualização do índice em `.ai/roadmaps/INDEX.md`, execução e diagnóstico da baseline do Quality Gate (`pnpm verify`).
 - **Status:** Concluído em 2026-08-06.
 
-### Push 1 — Identidade Anônima e Isolamento do Carrinho `[CONCLUÍDO E APROVADO]`
-- **Escopo:** Modelo `PersonalizationProfile`, cookie assinado `vt_visitor` (HMAC-SHA-256), hashing `visitorKeyHash`, exclusão de `default-guest-session`, merge transacional/idempotente `POST /customer/merge-anonymous-session` com isolamento `Serializable`, retry loop para conflitos de serialização (`P2034`/`P2002`), auditoria pós-commit, constraints PostgreSQL (XOR e índices parciais de carrinho ativo), proteção do `db:clean` e serialização dos testes da API.
-- **Status:** Concluído, auditado e certificado em 2026-08-07.
+### Push 1 — Identidade Anônima e Isolamento do Carrinho `[CONCLUÍDO E CERTIFICADO]`
+- **Escopo:** Modelo `PersonalizationProfile`, cookie assinado `vt_visitor` (HMAC-SHA-256), hashing `visitorKeyHash`, exclusão de `default-guest-session`, merge transacional/idempotente `POST /customer/merge-anonymous-session` com isolamento `Serializable`, retry loop para conflitos de serialização (`P2034`/`P2002`), auditoria pós-commit, Check Constraints XOR no PostgreSQL (`personalization_profiles_xor_identity_check` e `carts_xor_owner_check`), índices parciais de carrinho ativo, proteção estrita do `db:clean` (allowlist exata) e testes de integração HTTP reais por `app.inject()`.
+- **Status:** Concluído, auditado e certificado em 2026-08-07. SHA-base: `71b19a57c27493d7c2fe3401e7554cbd2bf56117`. Referência de Evidências: [`PUSH_1F_EVIDENCE.md`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/PUSH_1F_EVIDENCE.md).
 
 ### Push 2 — Fronteira Canônica do Catálogo e Oferta Real `[LIBERADO — PRÓXIMO]`
 - **Status:** Push 2 liberado para início (não iniciado nesta rodada).

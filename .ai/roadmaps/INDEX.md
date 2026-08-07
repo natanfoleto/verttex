@@ -37,8 +37,8 @@
 | 025 | Relatórios Comerciais e Operacionais                 | `completed` | medium     | 019, 020      | [`completed/025-commercial-and-operational-reports.md`](.ai/roadmaps/completed/025-commercial-and-operational-reports.md)                     |
 | 026 | Integração e Consolidação Completa dos Front-ends    | `completed` | high       | 019 a 025     | [`completed/026-frontend-integration-and-completeness.md`](.ai/roadmaps/completed/026-frontend-integration-and-completeness.md)               |
 | 027 | Product Discovery & Product Listing Engine           | `completed` | critical   | 012, 013, 015 | [`completed/027-product-discovery-engine.md`](.ai/roadmaps/completed/027-product-discovery-engine.md)                                         |
-| 028 | Search Experience (Autocomplete & Pesquisas Recentes)| `completed` | high       | 027           | [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md)                                      |
-| 029 | Home Personalizada, Ofertas Reais e Recomendações   | `active`    | high       | 004, 018, 027 | [`active/029-home-personalization.md`](.ai/roadmaps/active/029-home-personalization.md)                                                        |
+| 028 | Home Personalizada, Ofertas Reais e Recomendações   | `active`    | high       | 004, 018, 027 | [`active/028-home-personalization.md`](.ai/roadmaps/active/028-home-personalization.md)                                                        |
+| 029 | Search Experience (Autocomplete & Pesquisas Recentes)| `completed` | high       | 027           | [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md)                                      |
 
 ---
 
@@ -46,8 +46,8 @@
 
 | Status      | Quantidade | Observação                                |
 | :---------- | :--------- | :---------------------------------------- |
-| `completed` | 28         | Roadmaps 001 a 028 concluídos e validados |
-| `active`    | 1          | Roadmap 029 em execução                   |
+| `completed` | 28         | Roadmaps 001 a 027 e 029 concluídos e validados |
+| `active`    | 1          | Roadmap 028 em execução                   |
 | `planned`   | 0          | Nenhum roadmap pendente                   |
 | `archived`  | 0          | Nenhum roadmap arquivado                  |
 

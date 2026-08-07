@@ -106,11 +106,10 @@ export class AuthCustomersService {
     })
 
     await logAudit({
-      userId: customer.id,
       action: 'CUSTOMER_LOGIN',
       entity: 'CustomerSession',
       entityId: session.id,
-      newValues: { ipAddress, userAgent },
+      newValues: { customerId: customer.id, ipAddress, userAgent },
     })
 
     const accessToken = app.jwt.sign(

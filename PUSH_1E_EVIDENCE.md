@@ -1,5 +1,18 @@
 # RELATÓRIO DE AUDITORIA CONSOLIDADA E CERTIFICAÇÃO — PUSH 1
 
+> [!CAUTION]
+> **ERRATA / REPROVAÇÃO TÉCNICA HISTÓRICA:**
+> Esta rodada de evidências (`PUSH_1E_EVIDENCE.md`) foi formalmente reprovada em auditoria posterior.
+> **Motivos da reprovação:**
+> 1. Ausência de Check Constraint XOR na tabela `carts` no PostgreSQL;
+> 2. Testes insuficientes do módulo `db:clean`;
+> 3. Ausência de integração real pelos roteamentos HTTP Fastify de Login e Cadastro;
+> 4. Migrations não validadas nos cenários de banco vazio e banco existente;
+> 5. Classificação incorreta do Redis em módulos transacionais do PostgreSQL;
+> 6. Banco persistente de desenvolvimento descrito incorretamente como descartável.
+>
+> **Certificação Substituta Oficial:** Consulte [`PUSH_1F_EVIDENCE.md`](PUSH_1F_EVIDENCE.md) para a certificação aprovada.
+
 ---
 
 ## 1. Identificação do Ambiente e Registro de Execução

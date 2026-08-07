@@ -10,7 +10,9 @@ import {
 } from 'vitest'
 
 import { assertSafeLocalDatabaseUrl } from '../../../test/db-guard'
+import { buildApp } from '../../app'
 import { prisma } from '../../infrastructure/database/prisma'
+import { hashPassword } from '../../shared/utils/crypto'
 import { CartService } from '../cart/cart.service'
 import {
   PersonalizationIdentityService,
@@ -18,6 +20,7 @@ import {
 } from './personalization-identity.service'
 
 describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Push 1E Spec)', () => {
+  let app: ReturnType<typeof buildApp>
   let testStoreId: string
   let testCategoryId: string
   let testProductId: string
@@ -26,6 +29,8 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
   beforeAll(async () => {
     // Mandated destructive protection check
     assertSafeLocalDatabaseUrl()
+    app = buildApp()
+    await app.ready()
 
     // Clean transactional identity database tables before integration suite
     await prisma.$executeRaw`TRUNCATE TABLE carts, cart_items, personalization_profiles, customers, customer_sessions, audit_logs CASCADE`
@@ -107,6 +112,39 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
     await expect(
       prisma.$executeRaw`INSERT INTO personalization_profiles (id, "customerId", "visitorKeyHash", "personalizationEnabled", "lastSeenAt", "createdAt", "updatedAt") VALUES ('p_err_both', ${customer.id}, 'hash_xor_val', true, NOW(), NOW(), NOW())`,
     ).rejects.toThrow()
+  })
+
+  it('proves carts XOR constraint rejects both customerId and sessionId NULL in PostgreSQL', async () => {
+    await expect(
+      prisma.$executeRaw`INSERT INTO carts (id, status, "createdAt", "updatedAt") VALUES ('c_err_null', 'active', NOW(), NOW())`,
+    ).rejects.toThrow()
+  })
+
+  it('proves carts XOR constraint rejects both customerId and sessionId filled in PostgreSQL', async () => {
+    const customer = await prisma.customer.create({
+      data: {
+        name: 'Cart XOR Customer',
+        email: `cart-xor-both-${Date.now()}@example.com`,
+        passwordHash: 'hash',
+      },
+    })
+
+    await expect(
+      prisma.$executeRaw`INSERT INTO carts (id, "customerId", "sessionId", status, "createdAt", "updatedAt") VALUES ('c_err_both', ${customer.id}, 'sess_both_err', 'active', NOW(), NOW())`,
+    ).rejects.toThrow()
+  })
+
+  it('proves carts_xor_owner_check is registered in pg_constraint and indexes in pg_indexes', async () => {
+    const constraints = await prisma.$queryRaw<Array<{ conname: string }>>`
+      SELECT conname FROM pg_constraint WHERE conname = 'carts_xor_owner_check'
+    `
+    expect(constraints.length).toBe(1)
+    expect(constraints[0]?.conname).toBe('carts_xor_owner_check')
+
+    const indexes = await prisma.$queryRaw<Array<{ indexname: string }>>`
+      SELECT indexname FROM pg_indexes WHERE tablename = 'carts' AND indexname IN ('carts_unique_active_customer_id', 'carts_unique_active_session_id')
+    `
+    expect(indexes.length).toBe(2)
   })
 
   it('proves XOR constraint accepts valid customer profile and valid visitor profile', async () => {
@@ -679,5 +717,132 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
     expect(activeCarts[0]?.items).toHaveLength(1)
     expect(activeCarts[0]?.items[0]?.quantity).toBe(4)
     expect(cartFromGetOrCreate.id).toBe(activeCarts[0]?.id)
+  })
+
+  it('executes cart merge through real POST /auth/customers/register HTTP endpoint', async () => {
+    // 1. Create visitor profile & guest cart with item
+    const rawToken = PersonalizationIdentityService.generateRawVisitorToken()
+    const signedCookie =
+      PersonalizationIdentityService.signVisitorToken(rawToken)
+    const hash =
+      PersonalizationIdentityService.hashVisitorTokenForStorage(rawToken)
+
+    const visitorProfile = await prisma.personalizationProfile.create({
+      data: { visitorKeyHash: hash },
+    })
+
+    const guestCart = await prisma.cart.create({
+      data: { sessionId: visitorProfile.id, status: 'active' },
+    })
+    await prisma.cartItem.create({
+      data: {
+        cartId: guestCart.id,
+        variationId: testVariationId,
+        storeId: testStoreId,
+        quantity: 3,
+        unitPrice: 50.0,
+      },
+    })
+
+    // 2. Call real Fastify HTTP registration endpoint with vt_visitor cookie
+    const regEmail = `http-reg-${Date.now()}@example.com`
+    const res = await app.inject({
+      method: 'POST',
+      url: '/auth/customers/register',
+      remoteAddress: `127.0.${Math.floor(Math.random() * 200)}.${Math.floor(Math.random() * 200) + 1}`,
+      cookies: { [VISITOR_COOKIE_NAME]: signedCookie },
+      payload: {
+        name: 'HTTP Reg Customer',
+        email: regEmail,
+        password: 'Password123!',
+      },
+    })
+
+    expect(res.statusCode).toBe(201)
+    const body = res.json()
+    expect(body.success).toBe(true)
+    const customerId = body.data.customer.id
+
+    // 3. Confirm anonymous cart is completed and items are transferred to customer's active cart
+    const completedGuestCart = await prisma.cart.findUnique({
+      where: { id: guestCart.id },
+    })
+    expect(completedGuestCart?.status).toBe('completed')
+
+    const customerCart = await prisma.cart.findFirst({
+      where: { customerId, status: 'active' },
+      include: { items: true },
+    })
+    expect(customerCart).not.toBeNull()
+    expect(customerCart?.items).toHaveLength(1)
+    expect(customerCart?.items[0]?.quantity).toBe(3)
+  })
+
+  it('executes cart merge through real POST /auth/customers/login HTTP endpoint', async () => {
+    // 1. Pre-register customer
+    const loginEmail = `http-login-${Date.now()}@example.com`
+    const passwordHash = await hashPassword('Password123!')
+    await prisma.customer.create({
+      data: {
+        name: 'HTTP Login Customer',
+        email: loginEmail,
+        passwordHash,
+      },
+    })
+
+    // 2. Create visitor profile & guest cart with item
+    const rawToken = PersonalizationIdentityService.generateRawVisitorToken()
+    const signedCookie =
+      PersonalizationIdentityService.signVisitorToken(rawToken)
+    const hash =
+      PersonalizationIdentityService.hashVisitorTokenForStorage(rawToken)
+
+    const visitorProfile = await prisma.personalizationProfile.create({
+      data: { visitorKeyHash: hash },
+    })
+
+    const guestCart = await prisma.cart.create({
+      data: { sessionId: visitorProfile.id, status: 'active' },
+    })
+    await prisma.cartItem.create({
+      data: {
+        cartId: guestCart.id,
+        variationId: testVariationId,
+        storeId: testStoreId,
+        quantity: 5,
+        unitPrice: 50.0,
+      },
+    })
+
+    // 3. Call real Fastify HTTP login endpoint with vt_visitor cookie
+    const res = await app.inject({
+      method: 'POST',
+      url: '/auth/customers/login',
+      remoteAddress: `127.0.${Math.floor(Math.random() * 200)}.${Math.floor(Math.random() * 200) + 1}`,
+      cookies: { [VISITOR_COOKIE_NAME]: signedCookie },
+      payload: {
+        email: loginEmail,
+        password: 'Password123!',
+      },
+    })
+
+    expect(res.statusCode).toBe(200)
+    const body = res.json()
+    expect(body.success).toBe(true)
+    const customerId = body.data.customer.id
+
+    // 4. Confirm anonymous cart is completed and items are transferred to customer's active cart
+    const completedGuestCart = await prisma.cart.findUnique({
+      where: { id: guestCart.id },
+    })
+    expect(completedGuestCart?.status).toBe('completed')
+
+    const customerCart = await prisma.cart.findFirst({
+      where: { customerId, status: 'active' },
+      include: { items: true },
+    })
+    expect(customerCart).not.toBeNull()
+    expect(customerCart?.items).toHaveLength(1)
+    expect(customerCart?.items[0]?.quantity).toBe(5)
   })
 })

@@ -224,7 +224,7 @@ Authorization is always **double-validated**: frontend for UX, backend for secur
 
 - **Referência Canônica Completa:** Consulte [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](../domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md) para detalhes técnicos de ranking, projeção `ProductSearchDocument`, facetas e normalização.
 
-### 5.1 Customer Personalization & Anonymous Merge API (Roadmap 029)
+### 5.1 Customer Personalization & Anonymous Merge API (Roadmap 028)
 
 | Method | Path                                   | Auth     | Description                                                                              |
 | ------ | -------------------------------------- | -------- | ---------------------------------------------------------------------------------------- |

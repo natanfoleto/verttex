@@ -320,7 +320,7 @@ Adicionar o label em `apps/manager/src/app/(dashboard)/auditoria/page.tsx`:
 
 ---
 
-## 12. Regras de Auditoria para Mescla de Sessão Anônima (Roadmap 029)
+## 12. Regras de Auditoria para Mescla de Sessão Anônima (Roadmap 028)
 
 Para operações automatizadas de mescla de carrinho/perfil anônimo pós-autenticação do cliente:
 
