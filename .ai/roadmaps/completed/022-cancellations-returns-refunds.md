@@ -11,6 +11,8 @@
 
 ---
 
+> **Maturidade factual (baseline 2026-08-07):** protótipo funcional, não pronto para produção. Solicitações de devolução e seu fluxo operacional são mantidos em memória do processo; não há persistência própria nem reembolso em provedor financeiro real. `completed` indica apenas encerramento do escopo histórico.
+
 ## 1. Objetivo Geral
 
 Gerenciar devoluções de clientes, solicitações de reembolso e inspeção sanitária de itens retornados no VERTTEX.

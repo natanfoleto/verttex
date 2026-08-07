@@ -2,7 +2,7 @@ import { prisma } from '../../infrastructure/database/prisma'
 import { logAudit } from '../../shared/utils/audit'
 import { CreatePaymentChargeInput, WebhookEventInput } from './payments.schemas'
 
-// In-memory processed event set for webhook idempotency (backed by Redis in production when REDIS_URL is configured)
+// Development prototype only: process-local idempotency, not shared or durable.
 const processedWebhooks = new Set<string>()
 
 export class PaymentsService {

@@ -213,22 +213,22 @@ Authorization is always **double-validated**: frontend for UX, backend for secur
 
 - **Modelagem**: Relação relacional `Store.logoFileId` apontando para a entidade centralizada `File`.
 - **Limpeza Compensatória**: A substituição de foto exclui a foto antiga no Cloudflare R2 sem deixar registros órfãos.
-- **Validação de Mídia**: Restrito a JPEG, PNG e WebP até 5 MB; SVGs e executáveis são rejeitados.
+- **Validação de Mídia**: Restrito a JPEG, PNG e WebP até 5 MB. A leitura do R2 também é limitada durante o streaming. O binário real é decodificado com `sharp`, limitado a 25 MP, reencodado sem metadados e identificado por SHA-256; discrepâncias de MIME, imagens animadas, SVGs e executáveis são rejeitados.
 
 ### 5.11 Catalog, Product Discovery & Search Suggestions
 
-| Method | Path                                | Auth   | Description                                                           |
-| ------ | ----------------------------------- | ------ | --------------------------------------------------------------------- |
-| GET    | `/public/catalog/discover`          | Public | Engine completo de busca, ranking, facetas, paginação e estoque FEFO  |
-| GET    | `/public/catalog/search-suggestions` | Public | Autocomplete textual de termos candidatos (Take 50, nomes originais)  |
+| Method | Path                                 | Auth   | Description                                                          |
+| ------ | ------------------------------------ | ------ | -------------------------------------------------------------------- |
+| GET    | `/public/catalog/discover`           | Public | Engine completo de busca, ranking, facetas, paginação e estoque FEFO |
+| GET    | `/public/catalog/search-suggestions` | Public | Autocomplete textual de termos candidatos (Take 50, nomes originais) |
 
 - **Referência Canônica Completa:** Consulte [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](../domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md) para detalhes técnicos de ranking, projeção `ProductSearchDocument`, facetas e normalização.
 
-### 5.1 Customer Personalization & Anonymous Merge API (Roadmap 028)
+### 5.12 Customer Personalization & Anonymous Merge API (Roadmap 028)
 
-| Method | Path                                   | Auth     | Description                                                                              |
-| ------ | -------------------------------------- | -------- | ---------------------------------------------------------------------------------------- |
-| POST   | `/customer/merge-anonymous-session`    | Customer | Mescla carrinho anônimo do visitante no carrinho do cliente autenticado e rotaciona o cookie `vt_visitor`. |
+| Method | Path                                | Auth     | Description                                                                                                |
+| ------ | ----------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
+| POST   | `/customer/merge-anonymous-session` | Customer | Mescla carrinho anônimo do visitante no carrinho do cliente autenticado e rotaciona o cookie `vt_visitor`. |
 
 - **Origem Exclusiva de Identidade:** O `customerId` é derivado unicamente da sessão JWT autenticada. A identidade anônima é derivada unicamente do cookie assinado `vt_visitor`. Qualquer ID recebido no body/query/header é ignorado.
 - **Contrato de Resposta (200 OK):**
@@ -263,7 +263,7 @@ The API boots via `app.ts` and runs via `server.ts` implementing:
 
 Storage functions must be decoupled in `apps/api/src/infrastructure/storage/r2.ts`:
 
-- Implements actions: `uploadFile`, `getFileUrl`, `deleteFile`.
+- Implements actions: `uploadFile`, `downloadFile`, `getFileUrl`, `deleteFile`.
 - Uses client wrapper compatible with AWS S3 SDK.
 - Resolves configuration details using environment values.
 

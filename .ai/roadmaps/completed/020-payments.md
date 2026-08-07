@@ -11,6 +11,8 @@
 
 ---
 
+> **Maturidade factual (baseline 2026-08-07):** protótipo funcional, não pronto para produção. Não existe integração com gateway/adquirente real; a cobrança Pix é gerada localmente e a idempotência de webhooks usa memória do processo, sendo perdida em reinícios e não compartilhada entre réplicas. `completed` indica apenas encerramento do escopo histórico.
+
 ## 1. Objetivo Geral
 
 Integrar o módulo de pagamentos no VERTTEX com suporte a transações Pix e Cartão de Crédito, **processamento assíncrono idempotente via Webhooks**, alteração automática de status de pedido e emissão de eventos de auditoria.

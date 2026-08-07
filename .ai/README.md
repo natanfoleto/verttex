@@ -13,17 +13,18 @@ Bem-vindo à central oficial de documentação do projeto VERTTEX NF. Toda a doc
 
 Quando for necessário ler ou consultar informações sobre o projeto, siga esta hierarquia oficial (da maior prioridade para a menor):
 
-1. [`.ai/AGENT.md`](./AGENT.md) — Diretrizes globais e regras para IAs e desenvolvedores
-2. [`.ai/security/`](./security/README.md) — Políticas e regras técnicas de segurança (prioridade máxima sobre conveniência de código)
-3. **Roadmap ativo** em [`.ai/roadmaps/active/`](./roadmaps/active/) — O que está sendo desenvolvido no momento
-4. [`.ai/roadmaps/INDEX.md`](./roadmaps/INDEX.md) — Índice consolidado de todos os roadmaps
-5. [`.ai/architecture/`](./architecture/README.md) — Arquitetura vigente, topologia e ADRs
-6. [`.ai/domain/`](./domain/README.md) — Regras de negócio, modelos de dados, permissões e fluxos
-7. [`.ai/backend/`](./backend/README.md) e [`.ai/frontend/FRONTEND_UI.md`](./frontend/FRONTEND_UI.md) — Documentação técnica de API e UI (contendo a **Regra Canônica de Uso do Shadcn UI §10.13**)
-8. [`.ai/observability/`](./observability/README.md) — Regras de auditoria e logging
-9. [`.ai/technical-debt/`](./technical-debt/TECHNICAL_DEBT.md) — Catálogo oficial de Débitos Técnicos e Oportunidades de Melhoria (`TECHNICAL_DEBT.md` e `IMPROVEMENTS.md`)
-10. [`.ai/planning/`](./planning/README.md) — Planejamento preliminar e estudos não formalizados como roadmap
-11. [`.ai/archive/`](./archive/README.md) — Documentos descontinuados ou substituídos
+1. [`.ai/BASELINE.md`](./BASELINE.md) — Snapshot canônico da implementação e maturidade atuais
+2. [`.ai/AGENT.md`](./AGENT.md) — Diretrizes globais e regras para IAs e desenvolvedores
+3. [`.ai/security/`](./security/README.md) — Políticas e regras técnicas de segurança (prioridade máxima sobre conveniência de código)
+4. **Roadmap ativo** em [`.ai/roadmaps/active/`](./roadmaps/active/) — O que está sendo desenvolvido no momento
+5. [`.ai/roadmaps/INDEX.md`](./roadmaps/INDEX.md) — Índice consolidado de todos os roadmaps
+6. [`.ai/architecture/`](./architecture/README.md) — Arquitetura vigente, topologia e ADRs
+7. [`.ai/domain/`](./domain/README.md) — Regras de negócio, modelos de dados, permissões e fluxos
+8. [`.ai/backend/`](./backend/README.md) e [`.ai/frontend/FRONTEND_UI.md`](./frontend/FRONTEND_UI.md) — Documentação técnica de API e UI
+9. [`.ai/observability/`](./observability/README.md) — Regras de auditoria e logging
+10. [`.ai/technical-debt/`](./technical-debt/TECHNICAL_DEBT.md) — Catálogo oficial de débitos técnicos e oportunidades de melhoria
+11. [`.ai/planning/`](./planning/README.md) — Planejamento preliminar e estudos não formalizados como roadmap
+12. [`.ai/archive/`](./archive/README.md) — Documentos descontinuados ou substituídos
 
 ---
 

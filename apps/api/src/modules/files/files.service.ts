@@ -64,7 +64,7 @@ export class FilesService {
     userId: string,
     req?: FastifyRequest,
   ) {
-    const file = await UploadService.finalizeUpload(params.fileId)
+    const file = await UploadService.finalizeUpload(params.fileId, userId)
 
     await logAudit({
       userId,

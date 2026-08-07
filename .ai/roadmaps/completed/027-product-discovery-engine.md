@@ -92,7 +92,7 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 ### Etapa 8: Auditoria Final de Testes, Observabilidade & Benchmark `[CONCLUÍDA & VALIDADA]`
 
 - **Status:** `completed`
-- **Artefatos:** Benchmark com datasets de 1k, 5k e 10k produtos (< 20ms), hardening Zod (`page max 500`, `perPage max 100`), observabilidade de exceção com logger estruturado (`[SearchIndexRefreshError]`), `getDiscrepancyReport()`.
+- **Artefatos:** Microbenchmark do algoritmo com datasets sintéticos/mocks de 1k, 5k e 10k produtos, hardening Zod (`page max 500`, `perPage max 100`), observabilidade de exceção com logger estruturado (`[SearchIndexRefreshError]`), `getDiscrepancyReport()`.
 
 ### Post-validation Bugfix — Frontend Response Rendering `[CONCLUÍDO & VALIDADO]`
 
@@ -107,6 +107,6 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
 1. **Segurança Permanente:** 100% Prisma Client em runtime. Zero `$queryRaw`, zero `$executeRaw`, zero TypedSQL.
 2. **Projeção de Busca:** `ProductSearchDocument` mantém relação 1:1 exata por `productId` com 0 discrepâncias e recuperação idempotente via `rebuildAllSearchDocuments()`.
 3. **Validação EAN/GTIN:** Todos os códigos de barras da seed e do catálogo cumprem o algoritmo GS1 Modulo 10 de checksum.
-4. **Performance Comprovada:** O benchmark mediu o motor atual com 10.000 produtos obtendo latência inferior a 20ms. `pg_trgm` ou `FTS` não são necessários no momento.
+4. **Performance ainda não comprovada em produção:** O resultado histórico inferior a 20 ms mede lógica com dados simulados e não inclui PostgreSQL, rede, hidratação relacional, FEFO ou concorrência real. A decisão atual permanece Prisma-only, mas qualquer SLO ou dispensa definitiva de `pg_trgm`/FTS exige benchmark integrado representativo.
 5. **SEO & Next.js Production Build:** Produção compilada com 0 erros de rotas, metadados App Router e sitemap/robots nativos.
 6. **Frontend Rendering Fix:** Correção da desestruturação do contrato no `ProductDiscoveryView`, garantindo exibição de cards em todas as rotas públicas de listagem.

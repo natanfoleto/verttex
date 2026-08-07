@@ -26,6 +26,51 @@ export function slugify(text: string): string {
 }
 
 export class ProductsService {
+  private static async validateProductMedia(
+    fileIds: string[],
+    mainMediaFileId: string | null | undefined,
+    storeId: string,
+  ) {
+    const uniqueFileIds = [...new Set(fileIds)]
+
+    if (uniqueFileIds.length !== fileIds.length) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'A lista de mídias do produto contém arquivos duplicados',
+        400,
+      )
+    }
+
+    if (mainMediaFileId && !uniqueFileIds.includes(mainMediaFileId)) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'A imagem principal deve fazer parte da lista de mídias do produto',
+        400,
+      )
+    }
+
+    if (uniqueFileIds.length === 0) return
+
+    const eligibleFiles = await prisma.file.count({
+      where: {
+        id: { in: uniqueFileIds },
+        deletedAt: null,
+        mimeType: { in: ['image/jpeg', 'image/png', 'image/webp'] },
+        purpose: 'product_image',
+        status: 'approved',
+        storeId,
+      },
+    })
+
+    if (eligibleFiles !== uniqueFileIds.length) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'Toda mídia do produto deve ser uma imagem aprovada e vinculada à mesma loja',
+        400,
+      )
+    }
+  }
+
   /**
    * List products with pagination, store isolation and filters
    */
@@ -126,7 +171,16 @@ export class ProductsService {
       where,
       include: {
         store: { select: { id: true, name: true, slug: true, status: true } },
-        category: { select: { id: true, name: true, slug: true } },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            status: true,
+            isVisible: true,
+            deletedAt: true,
+          },
+        },
         brand: { select: { id: true, name: true, slug: true } },
         options: {
           include: { values: { orderBy: { position: 'asc' } } },
@@ -167,6 +221,14 @@ export class ProductsService {
     userId: string,
     req?: FastifyRequest,
   ) {
+    if (body.isPublished) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'Use a ação de publicação para publicar um produto',
+        400,
+      )
+    }
+
     // 1. Verify Store exists
     const store = await prisma.store.findFirst({
       where: { id: body.storeId, deletedAt: null },
@@ -210,6 +272,12 @@ export class ProductsService {
       )
     }
 
+    await this.validateProductMedia(
+      body.mediaFileIds ?? [],
+      body.mainMediaFileId,
+      body.storeId,
+    )
+
     // 4. Create Product with options & variations in a transaction
     const product = await prisma.$transaction(async (tx) => {
       const createdProduct = await tx.product.create({
@@ -223,7 +291,7 @@ export class ProductsService {
           fullDescription: body.fullDescription || null,
           type: body.type,
           status: body.status,
-          isPublished: body.isPublished,
+          isPublished: false,
           isFeatured: body.isFeatured,
           weight: body.weight || null,
           width: body.width || null,
@@ -434,6 +502,22 @@ export class ProductsService {
       throw new AppError('NOT_FOUND', 'Produto não encontrado', 404)
     }
 
+    if (body.isPublished && !existing.isPublished) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'Use a ação de publicação para publicar um produto',
+        400,
+      )
+    }
+
+    if (body.mediaFileIds !== undefined) {
+      await this.validateProductMedia(
+        body.mediaFileIds,
+        body.mainMediaFileId,
+        existing.storeId,
+      )
+    }
+
     const payload: Record<string, unknown> = {
       updatedBy: userId,
     }
@@ -444,7 +528,7 @@ export class ProductsService {
     if (body.fullDescription !== undefined)
       payload.fullDescription = body.fullDescription
     if (body.status !== undefined) payload.status = body.status
-    if (body.isPublished !== undefined) payload.isPublished = body.isPublished
+    if (body.isPublished === false) payload.isPublished = false
     if (body.isFeatured !== undefined) payload.isFeatured = body.isFeatured
     if (body.categoryId !== undefined) payload.categoryId = body.categoryId
     if (body.brandId !== undefined) payload.brandId = body.brandId
@@ -616,7 +700,20 @@ export class ProductsService {
       )
     }
 
-    // 3. At least 1 active variation with price > 0
+    // 3. Category active and visible
+    if (
+      product.category.status !== 'active' ||
+      !product.category.isVisible ||
+      product.category.deletedAt
+    ) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'A categoria vinculada deve estar ativa e visível antes da publicação',
+        400,
+      )
+    }
+
+    // 4. At least 1 active variation with price > 0
     const activeVariations = product.variations.filter(
       (v) => v.status === 'active' && Number(v.price) > 0,
     )
@@ -624,6 +721,23 @@ export class ProductsService {
       throw new AppError(
         'VALIDATION_ERROR',
         'O produto deve ter pelo menos 1 variação ativa com preço de venda maior que zero para ser publicado',
+        400,
+      )
+    }
+
+    // 5. At least one approved main image
+    const hasApprovedMainImage = product.medias.some(
+      (media) =>
+        media.isMain &&
+        media.file.status === 'approved' &&
+        media.file.purpose === 'product_image' &&
+        media.file.storeId === product.store.id &&
+        media.file.deletedAt === null,
+    )
+    if (!hasApprovedMainImage) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'O produto deve possuir uma imagem principal aprovada antes da publicação',
         400,
       )
     }

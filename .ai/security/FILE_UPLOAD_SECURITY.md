@@ -1,13 +1,15 @@
 # Segurança de Upload de Arquivos — VERTTEX
 
-> **Versão:** 1.0 — 2026-07-22  
-> **Status:** Não implementado — planejado para fase futura
+> **Versão:** 1.1 — 2026-08-07
+> **Status:** Implementado e recertificado localmente para imagens JPEG/PNG/WebP
 
 ---
 
 ## 1. Estado Atual
 
-O SDK `@aws-sdk/client-s3` está instalado mas **nenhum endpoint de upload está implementado**. Este documento define os requisitos de segurança que devem ser seguidos quando o upload for implementado.
+Existem fluxos multipart controlados e de URL pré-assinada sobre Cloudflare R2. Antes de aprovar um `File`, a API baixa o objeto com limite de streaming de 5 MB ou recebe o binário, decodifica-o com `sharp`, valida formato, MIME, tamanho e dimensões, reencoda a imagem sem metadados e persiste SHA-256 e dimensões. O conteúdo consolidado passou no Quality Gate em 2026-08-07.
+
+> A topologia atual usa uma chave temporária no mesmo storage antes da normalização, e não dois buckets físicos separados. A separação por buckets descrita abaixo permanece como hardening futuro para produção.
 
 ---
 
@@ -53,7 +55,7 @@ Novos formatos somente após análise de ameaça documentada e testes.
 | Tipo              | Limite de Tamanho | Pixels máx | Por usuário/dia |
 | :---------------- | :---------------- | :--------- | :-------------- |
 | Avatar            | 5 MB              | 25 MP      | 10 uploads      |
-| Imagem de produto | 10 MB             | 25 MP      | 100 uploads     |
+| Imagem de produto | 5 MB              | 25 MP      | 100 uploads     |
 
 ---
 

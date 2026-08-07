@@ -63,8 +63,8 @@ Roles are **not rigid enums** in code. The system must support new roles in the 
 
 - Can view and edit store data
 - Can assist suppliers
-- Access scope: **TBD** — either global across all stores, or limited to linked stores
-  > ⚠️ **Pending decision**: must be confirmed before definitive implementation
+- Store routes currently require an active `StoreUser` link for non-admin users.
+- The same store-scope policy is not yet applied uniformly to every tenant-scoped module; see `DEBT-003` in `.ai/technical-debt/TECHNICAL_DEBT.md`.
 
 ### 3.3 Supplier
 
@@ -100,7 +100,7 @@ All permissions follow the `resource.action` pattern. See `.ai/domain/PERMISSION
 4. Permission granted by the role
 5. Access denied by default (no rule = no access)
 
-> ⚠️ **Pending decision**: final precedence order must be confirmed before implementation.
+This precedence is implemented by `buildUserAbilities()`: role grants and individual grants are evaluated before explicit denials, so denial wins. The admin short-circuit remains unrestricted.
 
 ### 4.4 Store-Level Scope
 
@@ -109,7 +109,7 @@ Holding a functional permission is **not sufficient**. The system must also veri
 Authorization is composed of: **Functional permission + Store scope**
 
 - **Admin**: global scope across all stores
-- **Employee**: TBD (global or store-linked) — pending decision
+- **Employee**: store-linked on Store routes; cross-module enforcement remains incomplete (`DEBT-003`)
 - **Supplier**: limited to linked stores only
 
 ---
@@ -173,7 +173,9 @@ A store can optionally register a custom domain (e.g., `engenhojaborandi.com.br`
 
 ---
 
-## 8. In-Scope for Phase 1
+## 8. Historical Phase 1 Scope
+
+The following list records the original foundation scope. It is not the current product boundary; later roadmaps have already introduced catalog, inventory, cart, orders and other modules.
 
 - User and customer authentication (login, logout, refresh, password recovery)
 - Role and permission management (CRUD + individual overrides)
@@ -183,13 +185,13 @@ A store can optionally register a custom domain (e.g., `engenhojaborandi.com.br`
 - Marketplace customer auth screens (`apps/marketplace`)
 - Audit log foundation
 
-## 9. Out-of-Scope for Phase 1
+## 9. Historical Phase 1 Exclusions
 
-Do NOT implement without a confirmed follow-up specification:
+These items were excluded only from the original Phase 1. Later implementations require their own roadmap and current baseline evidence; this list must not be interpreted as contradicting modules that now exist.
 
-- Products, Categories, Inventory
-- Cart, Checkout, Orders, Payments, Shipping
-- Promotions, Coupons, Ratings, Reviews
+- Products, Categories, Inventory (subsequently introduced)
+- Cart, Checkout, Orders, Payments, Shipping (subsequently introduced with different maturity levels)
+- Promotions, Coupons, Ratings, Reviews (partially introduced; verify maturity in `.ai/BASELINE.md`)
 - CMS, Full custom store pages
 - DNS automation, SSL, Cloudflare for SaaS
 - Payment gateways, Fiscal documents, Real shipping

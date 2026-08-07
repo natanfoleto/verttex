@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3'
@@ -88,6 +89,42 @@ export class R2Storage {
     )
 
     return this.getFileUrl(cleanKey)
+  }
+
+  async downloadFile(key: string, maxBytes = 5 * 1024 * 1024): Promise<Buffer> {
+    const cleanKey = key.replace(/^\//, '')
+
+    if (!this.s3) {
+      throw new Error('R2 não configurado para leitura do arquivo')
+    }
+
+    const response = await this.s3.send(
+      new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: cleanKey,
+      }),
+    )
+
+    if (!response.Body) {
+      throw new Error('Objeto não encontrado no R2')
+    }
+
+    if (response.ContentLength && response.ContentLength > maxBytes) {
+      throw new Error('Objeto no R2 excede o limite permitido')
+    }
+
+    const chunks: Buffer[] = []
+    let totalBytes = 0
+    for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
+      const buffer = Buffer.from(chunk)
+      totalBytes += buffer.length
+      if (totalBytes > maxBytes) {
+        throw new Error('Objeto no R2 excede o limite permitido')
+      }
+      chunks.push(buffer)
+    }
+
+    return Buffer.concat(chunks, totalBytes)
   }
 
   async getFileUrl(key: string): Promise<string> {

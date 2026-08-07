@@ -26,6 +26,7 @@ Este documento registra oportunidades de evolução arquitetural, melhorias de p
 
 - **Descrição:** Extrair componentes visuais atômicos agnósticos de domínio (ex: `Button`, `Input`, `PriceInput`, `AlertDialog`, `Dialog`, `Badge`) de `apps/manager` e `apps/marketplace` para o pacote workspace `@verttex/ui` em `packages/ui`.
 - **Benefício:** Garantia absoluta de consistência visual entre o painel gestor e o marketplace público, reduzindo duplicação de componentes primitivos.
+- **Decisão atual:** apenas oportunidade futura. O estado canônico permanece com componentes Shadcn locais em cada aplicação; nenhum código deve importar `@verttex/ui` enquanto o pacote não existir e esta decisão não for aprovada.
 
 ### IMP-002 — Métricas Prometheus & Tracing OpenTelemetry na API
 

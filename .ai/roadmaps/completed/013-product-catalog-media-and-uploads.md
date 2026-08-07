@@ -2,11 +2,11 @@
 
 ## Metadata
 
-- Status: Active
+- Status: completed (escopo histórico; hardening recertificado localmente em 2026-08-07)
 - Priority: High
 - Created at: 2026-07-23
 - Started at: 2026-07-23
-- Completed at: Em aberto
+- Completed at: 2026-08-07
 - Dependencies: [`completed/011-core-consolidation.md`](.ai/roadmaps/completed/011-core-consolidation.md), [`completed/012-categories-and-brands.md`](.ai/roadmaps/completed/012-categories-and-brands.md)
 - Related documents: `.ai/architecture/ARCHITECTURE.md`, `.ai/security/FILE_UPLOAD_SECURITY.md`, `.ai/domain/BUSINESS_RULES.md`
 
@@ -144,6 +144,16 @@ O **Catálogo de Produtos** é o coração comercial do ecossistema VERTTEX. Ele
 2. **Autorização & Validação:** API valida tamanho (máx 5 MB), extensão (allowlist: `jpg`, `png`, `webp`) e gera uma URL pré-assinada PUT direta para o Cloudflare R2 com expiração de 15 minutos.
 3. **Upload Direto:** Frontend faz PUT diretamente no R2 sem sobrecarregar a memória da API Node.js.
 4. **Finalização Server-Side:** Frontend chama POST `/files/:fileId/finalize`. A API lê os primeiros bytes do arquivo no R2, valida a **assinatura binária (Magic Bytes)**, extrai dimensões, remove metadados EXIF e altera o status para `approved`.
+
+### Correção de baseline — 2026-08-07
+
+- A finalização não confia apenas em cabeçalhos ou extensão: baixa o objeto com limite de streaming de 5 MB, decodifica-o com `sharp` e exige correspondência entre formato real e MIME declarado.
+- JPEG, PNG e WebP são limitados a 5 MB e 25 MP; imagens animadas/multipágina são rejeitadas.
+- A imagem é reencodada com orientação aplicada e sem metadados/EXIF. O binário aprovado recebe SHA-256, largura e altura persistidos.
+- O solicitante só pode finalizar o próprio upload; falhas marcam o arquivo como `rejected` e removem o objeto do R2.
+- A associação de mídia aceita apenas `product_image` aprovada e pertencente à mesma loja; a publicação exige categoria ativa/visível e imagem principal elegível.
+- Criação e atualização não podem elevar `isPublished`; somente a ação canônica de publicação aplica essa transição.
+- Correção recertificada por `pnpm verify` em 2026-08-07 (372/372 testes).
 
 ---
 

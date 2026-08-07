@@ -11,6 +11,8 @@
 
 ---
 
+> **Maturidade factual (baseline 2026-08-07):** protótipo funcional, não pronto para produção. A cotação é simulada e não há integração com transportadora, geração de etiqueta ou consulta externa de rastreio. `completed` indica apenas encerramento do escopo histórico.
+
 ## 1. Objetivo Geral
 
 Gerenciar fretes, expedição de mercadorias e rastreamento de entregas aos compradores no VERTTEX.

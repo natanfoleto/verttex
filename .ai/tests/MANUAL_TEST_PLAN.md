@@ -6,7 +6,7 @@ Este documento fornece um roteiro completo de testes manuais para homologação 
 
 ## 🔑 Credenciais de Acesso de Teste (Seed Atualizada)
 
-- **URL do Manager**: `http://localhost:3002/login`
+- **URL do Manager**: `http://localhost:3000/login`
 - **Administrador Global (Acesso Completo)**:
   - **E-mail**: `admin@verttexloja.com.br`
   - **Senha**: `SenhaSegura123!`

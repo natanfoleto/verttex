@@ -14,7 +14,7 @@ Todo arquivo ou mídia enviado para a plataforma VERTTEX através do Cloudflare 
 
 1. **Sem Pastas Genéricas ou Ambiguidade**: É estritamente proibido utilizar uma finalidade genérica (`store_logo`, `product_image`) para arquivos de outros domínios (ex: favicons ou logos institucionais do Marketplace).
 2. **Mapeamento Deterministico no Backend**: O serviço `UploadService` do backend mapeia cada valor do enum `UploadPurpose` para o seu diretório relativo correspondente no bucket R2.
-3. **Imutabilidade e Chaves Não Adivinháveis**: Todos os arquivos armazenados usam sufixos alfanuméricos únicos (`uniqueId`) para evitar sobreescritas acidentais ou adivinhação de URLs.
+3. **Imutabilidade e Chaves Não Adivinháveis**: Todos os arquivos armazenados usam identificadores UUID para evitar sobreescritas acidentais ou adivinhação de URLs.
 
 ---
 
@@ -63,4 +63,10 @@ Todo arquivo ou mídia enviado para a plataforma VERTTEX através do Cloudflare 
 
 - **Formatos Permitidos**: Apenas `JPEG`, `PNG` e `WebP`.
 - **Tamanho Máximo**: 5 MB por arquivo.
-- **Validação MIME**: Verificada via Content-Type e sufixo de extensão seguro.
+- **Leitura Limitada**: A finalização interrompe o stream do R2 assim que ultrapassa 5 MB, inclusive quando `Content-Length` está ausente.
+- **Validação de Conteúdo**: O backend decodifica a imagem com `sharp`, identifica o formato real e rejeita discrepâncias entre magic bytes e MIME declarado.
+- **Dimensões**: Máximo de 25 megapixels; imagens animadas ou com múltiplas páginas são rejeitadas.
+- **Normalização**: O arquivo é reencodado antes da aprovação, com orientação aplicada e metadados/EXIF removidos.
+- **Integridade**: A entidade `File` aprovada registra SHA-256, largura, altura, MIME e tamanho do binário normalizado.
+- **Falha Segura**: Arquivos inválidos são marcados como `rejected` e removidos do R2; falhas de persistência também disparam limpeza compensatória.
+- **Associação a Produto**: Apenas `product_image` aprovada e vinculada à mesma loja pode ser associada como mídia de produto.

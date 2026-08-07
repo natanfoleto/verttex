@@ -95,6 +95,9 @@ importers:
       resend:
         specifier: ^6.18.0
         version: 6.18.0
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
       zod:
         specifier: ^3.24.1
         version: 3.25.76

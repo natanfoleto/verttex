@@ -56,9 +56,11 @@ export async function directUploadController(
     'user_avatar',
   ] as const
 
-  const purpose = (validPurposes as readonly string[]).includes(rawPurpose)
-    ? (rawPurpose as (typeof validPurposes)[number])
-    : 'product_image'
+  if (!(validPurposes as readonly string[]).includes(rawPurpose)) {
+    throw new AppError('VALIDATION_ERROR', 'Finalidade de upload inválida', 400)
+  }
+
+  const purpose = rawPurpose as (typeof validPurposes)[number]
 
   const result = await FilesService.directUpload(
     {

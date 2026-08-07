@@ -57,14 +57,14 @@ Both frontends utilize Next.js App Router.
 
 - `src/app/` contains routing configurations.
 - `src/features/` holds domain-specific assets, hooks, components.
-- Common visual components are resolved from the workspace package `@verttex/ui`.
+- Common visual components are maintained locally in each app under `src/components/ui/`; there is no active `@verttex/ui` workspace package.
 - Server components fetch data directly, client components utilize `@tanstack/react-query` to fetch from the Fastify API.
 
 ---
 
-## 4. Data Model Overview (Phase 1)
+## 4. Data Model Overview
 
-Main entities planned for Phase 1:
+The Prisma schema is the authority for the current data model. The initial foundation includes:
 
 ```
 User                 — Management user (admin, employee, supplier)
@@ -81,13 +81,7 @@ UserPasswordResetToken
 CustomerPasswordResetToken
 ```
 
-Optional entities to consider:
-
-```
-UserEmailVerificationToken
-CustomerEmailVerificationToken
-AuditLog
-```
+The project has expanded beyond this initial list with catalog, inventory, cart, orders, media and personalization entities. `AuditLog` is implemented. Consult `apps/api/prisma/schema.prisma`, migrations and [`.ai/BASELINE.md`](../BASELINE.md) instead of treating the Phase 1 list as exhaustive.
 
 ---
 

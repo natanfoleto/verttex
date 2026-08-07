@@ -2,6 +2,8 @@
 
 This document is the authoritative reference for all permissions, naming conventions, and the authorization model used in the Verttex platform.
 
+> **Baseline 2026-08-07:** a taxonomia ainda diverge entre este documento, `packages/auth`, seeds e alguns guards. Até a resolução de `DEBT-006`, decisões de autorização devem ser confirmadas no guard e no `PERMISSION_MAP` reais; não presuma que uma chave documentada esteja aplicada em todas as rotas.
+
 ## 1. Naming Convention
 
 All permissions follow the `resource.action` pattern:
@@ -51,7 +53,7 @@ Examples: `users.read`, `stores.create`, `permissions.manage`
 | `stores.delete`         | Deactivate stores                 |
 | `stores.manage-members` | Link/unlink users to stores       |
 
-### Products (future)
+### Products
 
 | Permission        | Description     |
 | ----------------- | --------------- |
@@ -81,7 +83,7 @@ Examples: `users.read`, `stores.create`, `permissions.manage`
 | `stock.adjust`   | Realizar ajustes manuais de inventário                    |
 | `stock.discard`  | Realizar descarte formal por vencimento ou dano auditados |
 
-### Sales & Reports (future)
+### Sales & Reports
 
 | Permission     | Description     |
 | -------------- | --------------- |
@@ -161,7 +163,7 @@ The effective access for a user is calculated in this order:
 4. **Role default permission** (`RolePermission`): grants access if assigned
 5. **Default deny**: no rule = no access
 
-> ⚠️ **Pending decision**: the final precedence order must be confirmed before implementation (see `.ai/AGENT.md` — Pending Decisions #5).
+> Esta precedência está implementada no núcleo atual, mas a cobertura de políticas CASL por módulo deve continuar sendo conferida contra os guards reais da API.
 
 ---
 
@@ -175,11 +177,11 @@ Functional permission (e.g., stores.read) AND store-level access (user is linked
 
 ### Scope by Role
 
-| Role       | Store Scope                                     |
-| ---------- | ----------------------------------------------- |
-| `admin`    | Global — all stores                             |
-| `employee` | TBD — global or store-linked (pending decision) |
-| `supplier` | Limited — linked stores only                    |
+| Role       | Store Scope                                                                   |
+| ---------- | ----------------------------------------------------------------------------- |
+| `admin`    | Global — all stores                                                           |
+| `employee` | Verificar no guard do módulo; a política global ainda precisa ser formalizada |
+| `supplier` | Limited — linked stores only                                                  |
 
 ### StoreUser
 

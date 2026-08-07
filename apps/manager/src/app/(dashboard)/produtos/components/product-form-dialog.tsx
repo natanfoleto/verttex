@@ -545,7 +545,7 @@ export function ProductFormDialog({
           }>('/files/presigned-url', {
             method: 'POST',
             body: JSON.stringify({
-              filename: file.name,
+              fileName: file.name,
               mimeType: file.type,
               size: file.size,
               purpose: 'product_image',

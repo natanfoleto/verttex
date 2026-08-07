@@ -18,7 +18,7 @@ export const env = createEnv({
     REDIS_URL: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().default('Verttex <no-reply@verttexloja.com.br>'),
-    MANAGER_APP_URL: z.string().url().default('http://localhost:3002'),
+    MANAGER_APP_URL: z.string().url().default('http://localhost:3000'),
     MARKETPLACE_APP_URL: z.string().url().default('http://localhost:3001'),
   },
   runtimeEnv: {

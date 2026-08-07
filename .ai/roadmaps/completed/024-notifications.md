@@ -11,6 +11,8 @@
 
 ---
 
+> **Maturidade factual (baseline 2026-08-07):** protótipo funcional, não pronto para produção. Notificações e chaves de desduplicação ficam em memória, incluindo dados iniciais demonstrativos; não há entrega real por e-mail, push ou mensageria. `completed` indica apenas encerramento do escopo histórico.
+
 ## 1. Objetivo Geral
 
 Central de notificações transacionais e alertas sanitários de validade/vencimento de lotes no VERTTEX.

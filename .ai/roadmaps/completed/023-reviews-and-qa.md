@@ -11,6 +11,8 @@
 
 ---
 
+> **Maturidade factual (baseline 2026-08-07):** protótipo funcional, não pronto para produção. Avaliações, perguntas e respostas são mantidas em memória do processo, portanto não sobrevivem a reinícios nem funcionam corretamente em múltiplas réplicas. `completed` indica apenas encerramento do escopo histórico.
+
 ## 1. Objetivo Geral
 
 Permitir que clientes que efetuaram a compra avaliem os produtos (nota de 1 a 5 estrelas e comentário com compra verificada) e que visitantes realizem perguntas sobre itens do catálogo nas páginas do Marketplace.
