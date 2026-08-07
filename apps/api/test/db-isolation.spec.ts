@@ -133,7 +133,6 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
   })
 
   it('13. assertSafeLocalDatabaseUrl lança ANTES de qualquer efeito colateral downstream', () => {
-    // Verifica que a função lança imediatamente sem depender de contexto externo
     const unsafeUrls = [
       'postgresql://user:pass@203.0.113.10:5432/prod',
       'postgresql://user:pass@aws.rds.amazonaws.com:5432/db',
@@ -145,7 +144,6 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
       let sideEffectReached = false
       try {
         assertSafeLocalDatabaseUrl(url)
-        // This line must never execute for unsafe URLs
         sideEffectReached = true
       } catch {
         guardFired = true
@@ -165,17 +163,31 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     expect(() => assertSafeLocalDatabaseUrl()).not.toThrow()
   })
 
-  it('16. URL insegura bloqueia no guard e encerra CLI real com exit code != 0 sem expor credenciais', async () => {
-    // 1. Invocação direta da função de orquestração com URL insegura
+  it('16. Spies explícitos comprovam que NENHUMA operação (factory, cliente, $connect, limpeza, operação destrutiva, $disconnect) é iniciada quando a URL é insegura', async () => {
     const originalUrl = process.env.DATABASE_URL
     const secretUnsafeUrl =
-      'postgresql://unsafe_user:secret_password_123@203.0.113.10:5432/prod_db'
+      'postgresql://usuario-secreto:senha-secreta@host-secreto:5432/banco_prod'
     ;(process.env as Record<string, string>).DATABASE_URL = secretUnsafeUrl
+
     const { cleanDatabase } = await import('../prisma/clean.js')
+
+    const connectSpy = vi.fn().mockResolvedValue(undefined)
+    const cleanSpy = vi.fn().mockResolvedValue({ count: 0 })
+    const destructiveOperationSpy = vi.fn().mockResolvedValue({ count: 0 })
+    const disconnectSpy = vi.fn().mockResolvedValue(undefined)
+
+    const mockPrismaClient = {
+      $connect: connectSpy,
+      $disconnect: disconnectSpy,
+      stockMovement: { deleteMany: cleanSpy },
+      customer: { deleteMany: destructiveOperationSpy },
+    }
+
+    const createPrismaClient = vi.fn().mockResolvedValue(mockPrismaClient)
 
     let errorCaught: Error | null = null
     try {
-      await cleanDatabase()
+      await cleanDatabase({ prismaClientFactory: createPrismaClient })
     } catch (e: unknown) {
       errorCaught = e as Error
     } finally {
@@ -186,15 +198,24 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     expect(errorCaught?.message).toContain(
       'DATABASE_URL não parece apontar para um PostgreSQL local',
     )
-    expect(errorCaught?.message).not.toContain('secret_password_123')
-    expect(errorCaught?.message).not.toContain('unsafe_user')
-    expect(errorCaught?.message).not.toContain('203.0.113.10')
 
-    // 2. Invocação do CLI real via processo separado com shell: false
+    // Asserções explícitas exigidas pela Rodada J
+    expect(createPrismaClient).not.toHaveBeenCalled()
+    expect(connectSpy).not.toHaveBeenCalled()
+    expect(cleanSpy).not.toHaveBeenCalled()
+    expect(destructiveOperationSpy).not.toHaveBeenCalled()
+    expect(disconnectSpy).not.toHaveBeenCalled()
+  })
+
+  it('17. URL insegura bloqueia no guard e encerra CLI real em subprocesso (shell: false) com exit code != 0 sem expor credenciais em stdout/stderr', async () => {
+    const secretUnsafeUrl =
+      'postgresql://usuario-secreto:senha-secreta@host-secreto:5432/banco_prod'
+
     let cliExitCode: number | null = 0
-    let cliCombinedOutput = ''
+    let cliStdout = ''
+    let cliStderr = ''
     try {
-      cliCombinedOutput = execFileSync(
+      cliStdout = execFileSync(
         'node',
         ['--import', 'tsx/esm', 'prisma/clean.ts'],
         {
@@ -209,21 +230,102 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
         },
       )
     } catch (err: unknown) {
-      const execError = err as { status?: number; stderr?: string; stdout?: string }
+      const execError = err as {
+        status?: number
+        stderr?: string
+        stdout?: string
+      }
       cliExitCode = execError.status ?? 1
-      cliCombinedOutput = `${execError.stdout || ''}\n${execError.stderr || ''}`
+      cliStdout = execError.stdout || ''
+      cliStderr = execError.stderr || ''
     }
 
     expect(cliExitCode).not.toBe(0)
-    expect(cliCombinedOutput).toContain(
-      'DATABASE_URL não parece apontar para um PostgreSQL local',
+    const combinedOutput = `${cliStdout}\n${cliStderr}`
+
+    expect(combinedOutput).toContain(
+      'Falha ao executar a limpeza do banco.',
     )
-    expect(cliCombinedOutput).not.toContain('secret_password_123')
-    expect(cliCombinedOutput).not.toContain('unsafe_user')
-    expect(cliCombinedOutput).not.toContain('203.0.113.10')
+    expect(combinedOutput).not.toContain('usuario-secreto')
+    expect(combinedOutput).not.toContain('senha-secreta')
+    expect(combinedOutput).not.toContain('host-secreto')
+    expect(combinedOutput).not.toContain('banco_prod')
   })
 
-  it('17. Sucesso real da limpeza em banco local remove dados reais, preserva utilidade do schema e chama $disconnect() no finally', async () => {
+  it('18. Testes com sentinelas comprovam que credenciais e mensagens de erros arbitrários nunca são impressos em stdout/stderr/console em nenhum cenário', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const sentinelSecret = 'SENHA_NAO_PODE_APARECER_SECRET_12345'
+    const secretUrl = `postgresql://usuario-secreto:${sentinelSecret}@host-secreto/banco`
+
+    const { cleanDatabase } = await import('../prisma/clean.js')
+
+    // Cenário 1: Falha na limpeza com mensagem contendo credencial
+    const cleanupErrorWithCredential = new Error(
+      `Erro de banco contendo ${sentinelSecret} e ${secretUrl}`,
+    )
+    const mockPrismaCleanupFail = {
+      $disconnect: vi.fn().mockResolvedValue(undefined),
+      stockMovement: {
+        deleteMany: vi.fn().mockRejectedValue(cleanupErrorWithCredential),
+      },
+    }
+
+    let caught1: Error | null = null
+    try {
+      await cleanDatabase({
+        prismaClientFactory: async () => mockPrismaCleanupFail,
+      })
+    } catch (e: unknown) {
+      caught1 = e as Error
+    }
+    expect(caught1).toBe(cleanupErrorWithCredential)
+
+    // Cenário 2: Falha dupla (limpeza + desconexão) com mensagens contendo credenciais
+    const disconnectErrorWithCredential = new Error(
+      `Erro no $disconnect contendo ${sentinelSecret}`,
+    )
+    const mockPrismaDoubleFail = {
+      $disconnect: vi.fn().mockRejectedValue(disconnectErrorWithCredential),
+      stockMovement: {
+        deleteMany: vi.fn().mockRejectedValue(cleanupErrorWithCredential),
+      },
+    }
+
+    let caught2: Error | null = null
+    try {
+      await cleanDatabase({
+        prismaClientFactory: async () => mockPrismaDoubleFail,
+      })
+    } catch (e: unknown) {
+      caught2 = e as Error
+    }
+    expect(caught2).toBe(cleanupErrorWithCredential)
+
+    // Valida que NENHUM log/error/warn continha os trechos sensíveis ou mensagens arbitrárias
+    const allConsoleCalls = [
+      ...consoleErrorSpy.mock.calls,
+      ...consoleLogSpy.mock.calls,
+      ...consoleWarnSpy.mock.calls,
+    ].flatMap((call) => call.map((arg) => String(arg)))
+
+    for (const logLine of allConsoleCalls) {
+      expect(logLine).not.toContain(sentinelSecret)
+      expect(logLine).not.toContain('usuario-secreto')
+      expect(logLine).not.toContain('host-secreto')
+      expect(logLine).not.toContain(secretUrl)
+      expect(logLine).not.toContain('Erro de banco contendo')
+      expect(logLine).not.toContain('Erro no $disconnect contendo')
+    }
+
+    consoleErrorSpy.mockRestore()
+    consoleLogSpy.mockRestore()
+    consoleWarnSpy.mockRestore()
+  })
+
+  it('19. Sucesso real da limpeza em banco local remove dados reais, preserva utilidade do schema e chama $disconnect() no finally', async () => {
     assertSafeLocalDatabaseUrl()
     const { cleanDatabase } = await import('../prisma/clean.js')
     const { prisma } = await import('../src/infrastructure/database/prisma.js')
@@ -276,7 +378,7 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     expect(roleCount).toBeGreaterThan(0)
   })
 
-  it('18. Cenário 2 — Falha da limpeza com desconexão bem-sucedida propaga exatamente o erro da limpeza e chama $disconnect() 1x', async () => {
+  it('20. Cenário 2 — Falha da limpeza com desconexão bem-sucedida propaga exatamente a mesma instância do erro da limpeza e chama $disconnect() 1x', async () => {
     assertSafeLocalDatabaseUrl()
     const { cleanDatabase } = await import('../prisma/clean.js')
     const { prisma } = await import('../src/infrastructure/database/prisma.js')
@@ -305,7 +407,7 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     disconnectSpy.mockRestore()
   })
 
-  it('19. Cenário 3 — Limpeza bem-sucedida com falha da desconexão propaga o erro da desconexão e chama $disconnect() 1x', async () => {
+  it('21. Cenário 3 — Limpeza bem-sucedida com falha da desconexão propaga o erro da desconexão e chama $disconnect() 1x', async () => {
     assertSafeLocalDatabaseUrl()
     const { cleanDatabase } = await import('../prisma/clean.js')
     const { prisma } = await import('../src/infrastructure/database/prisma.js')
@@ -329,7 +431,7 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     disconnectSpy.mockRestore()
   })
 
-  it('20. Cenário 4 — Falha da limpeza E falha da desconexão simultaneamente preservam a instância do erro original da limpeza', async () => {
+  it('22. Cenário 4 — Falha da limpeza E falha da desconexão simultaneamente preservam a instância original do erro da limpeza, chamam $disconnect() 1x e não imprimem mensagens arbitrárias', async () => {
     assertSafeLocalDatabaseUrl()
     const { cleanDatabase } = await import('../prisma/clean.js')
     const { prisma } = await import('../src/infrastructure/database/prisma.js')
@@ -362,7 +464,7 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     disconnectSpy.mockRestore()
   })
 
-  it('21. Nenhuma credencial é exposta no erro do guard e o seed do catálogo de desenvolvimento é restaurado', async () => {
+  it('23. Nenhuma credencial é exposta no erro do guard e o seed do catálogo de desenvolvimento é restaurado', async () => {
     const secretUrl =
       'postgresql://sensitive_user:super_secret_password_123@203.0.113.10:5432/sensitive_db?sslmode=require'
     let caughtMessage = ''

@@ -204,12 +204,22 @@ const permissionsData = [
   },
 ]
 
-export async function cleanDatabase() {
+export type PrismaClientFactory = () => Promise<any>
+
+export async function defaultPrismaClientFactory() {
+  const { prisma } = await import('../src/infrastructure/database/prisma.js')
+  return prisma
+}
+
+export async function cleanDatabase(options?: {
+  prismaClientFactory?: PrismaClientFactory
+}) {
   // 1. Validate DATABASE_URL BEFORE instantiating Prisma or connecting
   assertSafeLocalDatabaseUrl()
 
   // 2. Dynamically import Prisma and dependencies ONLY AFTER guard validation passes
-  const { prisma } = await import('../src/infrastructure/database/prisma.js')
+  const getPrisma = options?.prismaClientFactory ?? defaultPrismaClientFactory
+  const prisma = await getPrisma()
   const { hashPassword } = await import('../src/shared/utils/crypto.js')
   const { clearReturnsStore } =
     await import('../src/modules/returns/returns.service.js')
@@ -351,13 +361,12 @@ export async function cleanDatabase() {
     cleanupError = err
   } finally {
     try {
-      await prisma.$disconnect()
+      if (prisma && typeof prisma.$disconnect === 'function') {
+        await prisma.$disconnect()
+      }
     } catch (disconnectErr) {
       if (cleanupError) {
-        console.error(
-          '⚠️ Erro secundário ignorado no $disconnect():',
-          (disconnectErr as Error)?.message || disconnectErr,
-        )
+        console.error('Falha adicional ao encerrar a conexão.')
       } else {
         throw disconnectErr
       }
@@ -374,8 +383,8 @@ if (
   process.argv[1] &&
   (process.argv[1].endsWith('clean.ts') || process.argv[1].endsWith('clean.js'))
 ) {
-  cleanDatabase().catch((e) => {
-    console.error('❌ Erro ao executar a limpeza do banco:', e?.message || e)
+  cleanDatabase().catch(() => {
+    console.error('Falha ao executar a limpeza do banco.')
     process.exit(1)
   })
 }

@@ -18,12 +18,18 @@
 
 ## 2. Erratas de Certificações Anteriores
 
+> [!CAUTION]
+> **ERRATA DA RODADA I (INVALIDADA PELA RODADA J):** A certificação e a conclusão do relatório `PUSH_1I_EVIDENCE.md` foram oficialmente **invalidadas** pelos seguintes motivos objetivos:
+> 1. Faltavam spies explícitos no teste da URL insegura;
+> 2. Mensagens arbitrárias de erros ainda podiam ser impressas;
+> 3. O inventário da Rodada I estava incorreto;
+> 4. A allowlist SQL-only estava incompleta;
+> 5. Faltavam comandos, saídas, horários e exit codes;
+> 6. As exceções das buscas Markdown não foram registradas;
+> 7. O uso de Redis foi declarado sem prova.
+
 > [!WARNING]
-> **ERRATA DAS RODADAS F, G E H:** As conclusões dos relatórios históricos `PUSH_1F_EVIDENCE.md`, `PUSH_1G_EVIDENCE.md` e `PUSH_1H_EVIDENCE.md` foram oficialmente **invalidadas** devido a bloqueadores identificados e sanados nesta Rodada I:
-> 1. Fluxo de `cleanDatabase()` que podia substituir o erro original da limpeza por um erro secundário do `$disconnect()`;
-> 2. Teste funcional `db-isolation.spec.ts` contendo chamadas a `$queryRaw`;
-> 3. Documentação Markdown com links em sintaxe corrompida (`]` seguido de backtick);
-> 4. Inconsistência na data de atualização do índice do Roadmap 029.
+> **ERRATA DAS RODADAS F, G E H:** As conclusões dos relatórios históricos `PUSH_1F_EVIDENCE.md`, `PUSH_1G_EVIDENCE.md` e `PUSH_1H_EVIDENCE.md` foram oficialmente **invalidadas** devido a bloqueadores identificados e sanados em rodadas anteriores.
 
 ---
 
