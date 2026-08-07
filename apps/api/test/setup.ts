@@ -53,7 +53,5 @@ export async function validateAndIsolateTestDatabase() {
   }
 }
 
-// Automatically run isolation setup during Vitest setup phase without top-level await TS error
-void (async () => {
-  await validateAndIsolateTestDatabase()
-})()
+// Automatically run isolation setup during Vitest setup phase
+await validateAndIsolateTestDatabase()
