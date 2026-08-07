@@ -16,7 +16,7 @@ import {
   VISITOR_COOKIE_NAME,
 } from './personalization-identity.service'
 
-function assertSafeTestDatabase() {
+async function assertSafeTestDatabase() {
   if (process.env.NODE_ENV !== 'test') {
     throw new Error('Safety check failed: NODE_ENV is not "test"')
   }
@@ -26,18 +26,34 @@ function assertSafeTestDatabase() {
       'Safety check failed: TEST_DATABASE_URL environment variable is mandatory for running integration tests',
     )
   }
-  if (!testDbUrl.includes('test') && !testDbUrl.includes('testing')) {
+
+  let expectedDbName = ''
+  try {
+    const url = new URL(testDbUrl)
+    expectedDbName = url.pathname.replace(/^\//, '')
+  } catch {
     throw new Error(
-      'Safety check failed: TEST_DATABASE_URL must contain a "test" or "testing" marker in database name',
+      'Safety check failed: TEST_DATABASE_URL is not a valid URL',
     )
   }
+
   if (
-    process.env.DATABASE_URL &&
-    process.env.DATABASE_URL === testDbUrl &&
-    !process.env.ALLOW_TEST_DB_OVERRIDE
+    !expectedDbName ||
+    (!expectedDbName.includes('test') && !expectedDbName.includes('testing'))
   ) {
     throw new Error(
-      'Safety check failed: TEST_DATABASE_URL must be distinct from standard application DATABASE_URL',
+      `Safety check failed: Database name "${expectedDbName}" in TEST_DATABASE_URL must contain a "test" or "testing" marker`,
+    )
+  }
+
+  const res = await prisma.$queryRaw<
+    Array<{ current_database: string }>
+  >`SELECT current_database();`
+  const activeDbName = res[0]?.current_database
+
+  if (activeDbName !== expectedDbName) {
+    throw new Error(
+      `Safety check failed: Active Prisma Client is connected to database "${activeDbName}", but TEST_DATABASE_URL is "${expectedDbName}"`,
     )
   }
 }
@@ -50,7 +66,7 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
 
   beforeAll(async () => {
     // Mandated destructive protection check
-    assertSafeTestDatabase()
+    await assertSafeTestDatabase()
 
     // Clean database tables before integration suite
     await prisma.$executeRaw`TRUNCATE TABLE carts, cart_items, personalization_profiles, customers, customer_sessions, audit_logs, products, product_variations, categories, stores CASCADE`
@@ -97,7 +113,7 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
   })
 
   beforeEach(async () => {
-    assertSafeTestDatabase()
+    await assertSafeTestDatabase()
 
     // Clean transactional data between tests
     await prisma.cartItem.deleteMany()

@@ -97,13 +97,13 @@
 ## 6. Migrations e Ambientes
 
 ### Teste em Banco Limpo (Cenário A)
-- **Comando:** `DATABASE_URL="..." pnpm --filter @verttex/api exec prisma migrate deploy`
+- **Comando:** `DATABASE_URL="[REDACTED]" pnpm --filter @verttex/api exec prisma migrate deploy`
 - **Exit Code:** `0`
 - **Resumo:** 6/6 migrations aplicadas do zero com sucesso.
 - **Resultado XOR & Índices:** Constraints PostgreSQL ativas e operantes.
 
 ### Teste sobre Baseline Anterior (Cenário B)
-- **Comando:** `DATABASE_URL="..." pnpm --filter @verttex/api exec tsx` (Scenario B deployment)
+- **Comando:** `DATABASE_URL="[REDACTED]" pnpm --filter @verttex/api exec tsx` (Scenario B deployment)
 - **Exit Code:** `0`
 - **Resumo:** Migrations aplicadas sobre baseline legada com preservação total dos dados existentes.
 - **Consultas de Duplicidade:** `Customer Cart Dupes: []`, `Session Cart Dupes: []`
@@ -119,7 +119,7 @@
 - **Resultado:** `PONG`
 
 ### 2. Suíte de Testes Direcionada (Push 1E)
-- **Comando:** `TEST_DATABASE_URL="postgresql://verttex:verttex_dev_password@localhost:5432/verttex_test_clean?schema=public" ALLOW_TEST_DB_OVERRIDE=true pnpm --filter @verttex/api exec vitest run src/modules/customer/personalization-identity.spec.ts src/modules/customer/personalization-identity-integration.spec.ts`
+- **Comando:** `TEST_DATABASE_URL="[REDACTED]" ALLOW_TEST_DB_OVERRIDE=true pnpm --filter @verttex/api exec vitest run src/modules/customer/personalization-identity.spec.ts src/modules/customer/personalization-identity-integration.spec.ts`
 - **Data/Hora:** `2026-08-06T23:44:15-03:00`
 - **Exit Code:** `0`
 - **Resultado:** `24 passed (24)`
@@ -157,3 +157,35 @@
 
 - Nenhuma limitação encontrada. Todos os requisitos da Spec Push 1E foram implementados, testados contra infraestrutura real e validados no Quality Gate.
 - Nenhum workflow ou arquivo em `.github/workflows` foi criado ou alterado.
+
+---
+
+## 10. Correção ENV-01 — Isolamento do Banco de Integração
+
+- **SHA-base Desta Rodada:** `bfbe247ddf0963c40e5aac26127f2fb230033cb0`
+- **Arquivos Alterados:**
+  - `apps/api/vitest.config.ts`
+  - `apps/api/test/setup.ts`
+  - `apps/api/test/db-isolation.spec.ts`
+  - `apps/api/src/modules/customer/personalization-identity-integration.spec.ts`
+  - `PUSH_1E_EVIDENCE.md`
+- **Abordagem Escolhida:**
+  Configurado o arquivo de setup exclusivo do Vitest (`apps/api/test/setup.ts`) registrado em `apps/api/vitest.config.ts`. Este script executa durante a fase de setup da suíte — antes de qualquer módulo ESM ou instância do `PrismaClient` ser importado — e força a reatribuição `process.env.DATABASE_URL = process.env.TEST_DATABASE_URL`. Além disso, consulta diretamente `SELECT current_database()` via `pg.Pool` e `prisma.$queryRaw` para validar a presença do marcador `test` ou `testing` e a correspondência exata do nome do banco.
+
+- **Inventário dos 5 Testes Obrigatórios de Isolamento ENV-01:**
+
+| Teste | Comando Executado | Exit Code | Banco Conectado Sanitizado | Resultado de `SELECT current_database()` | Status |
+| ----- | ----------------- | --------- | -------------------------- | --------------------------------------- | ------ |
+| **1. Ausência de `TEST_DATABASE_URL`** | `pnpm --filter @verttex/api exec vitest run test/db-isolation.spec.ts` | `0` | N/A (Bloqueado na validação) | N/A | **PASS** |
+| **2. Ambiente diferente de `test`** | `pnpm --filter @verttex/api exec vitest run test/db-isolation.spec.ts` | `0` | N/A (Bloqueado na validação) | N/A | **PASS** |
+| **3. Banco realmente conectado & Sentinela** | `pnpm --filter @verttex/api exec vitest run test/db-isolation.spec.ts` | `0` | `[REDACTED_TEST_B]` | `[REDACTED_TEST_B]` | **PASS** (Sentinela no Banco A `[REDACTED_TEST_A]` permaneceu intacto) |
+| **4. Nome inseguro** | `pnpm --filter @verttex/api exec vitest run test/db-isolation.spec.ts` | `0` | N/A (Bloqueado no parser) | N/A | **PASS** |
+| **5. Teste direcionado real** | `NODE_ENV=test TEST_DATABASE_URL="[REDACTED_TEST_B]" pnpm --filter @verttex/api exec vitest run src/modules/customer/personalization-identity-integration.spec.ts` | `0` | `[REDACTED_TEST_B]` | `[REDACTED_TEST_B]` | **PASS** (14/14 testes de integração aprovados com `TRUNCATE` no Banco B) |
+
+- **Confirmação de Integridade do Banco A:** **CONFIRMADO** (O registro sentinela `sentinel_store_a` no banco A `verttex_test_a` foi consultado após a execução destrutiva no banco B `verttex_test_b` e mantido inalterado).
+- **Resultado de `git diff --check`:** `0`
+- **Resultado de `git status --short`:** `clean`
+
+> **Aviso Obrigatório Escopo ENV-01:**
+> Esta rodada validou somente o bloqueador ENV-01.
+> Os demais gates do Push 1E não foram reavaliados e continuam bloqueados.
