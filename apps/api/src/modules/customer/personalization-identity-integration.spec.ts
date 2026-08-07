@@ -16,13 +16,42 @@ import {
   VISITOR_COOKIE_NAME,
 } from './personalization-identity.service'
 
-describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (G5 Spec)', () => {
+function assertSafeTestDatabase() {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('Safety check failed: NODE_ENV is not "test"')
+  }
+  const testDbUrl = process.env.TEST_DATABASE_URL
+  if (!testDbUrl) {
+    throw new Error(
+      'Safety check failed: TEST_DATABASE_URL environment variable is mandatory for running integration tests',
+    )
+  }
+  if (!testDbUrl.includes('test') && !testDbUrl.includes('testing')) {
+    throw new Error(
+      'Safety check failed: TEST_DATABASE_URL must contain a "test" or "testing" marker in database name',
+    )
+  }
+  if (
+    process.env.DATABASE_URL &&
+    process.env.DATABASE_URL === testDbUrl &&
+    !process.env.ALLOW_TEST_DB_OVERRIDE
+  ) {
+    throw new Error(
+      'Safety check failed: TEST_DATABASE_URL must be distinct from standard application DATABASE_URL',
+    )
+  }
+}
+
+describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Push 1E Spec)', () => {
   let testStoreId: string
   let testCategoryId: string
   let testProductId: string
   let testVariationId: string
 
   beforeAll(async () => {
+    // Mandated destructive protection check
+    assertSafeTestDatabase()
+
     // Clean database tables before integration suite
     await prisma.$executeRaw`TRUNCATE TABLE carts, cart_items, personalization_profiles, customers, customer_sessions, audit_logs, products, product_variations, categories, stores CASCADE`
 
@@ -68,6 +97,8 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (G5
   })
 
   beforeEach(async () => {
+    assertSafeTestDatabase()
+
     // Clean transactional data between tests
     await prisma.cartItem.deleteMany()
     await prisma.cart.deleteMany()
@@ -180,7 +211,47 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (G5
 
   // --- 2. Real Merge & Rollback Integration ---
 
-  it('completes empty anonymous cart and transfers real items into customer cart', async () => {
+  it('handles empty anonymous cart cleanly', async () => {
+    const customer = await prisma.customer.create({
+      data: {
+        name: 'Empty Cart Customer',
+        email: `empty-cust-${Date.now()}@example.com`,
+        passwordHash: 'hash',
+      },
+    })
+
+    const rawToken = PersonalizationIdentityService.generateRawVisitorToken()
+    const signedCookie =
+      PersonalizationIdentityService.signVisitorToken(rawToken)
+    const visitorHash =
+      PersonalizationIdentityService.hashVisitorTokenForStorage(rawToken)
+
+    const visitorProfile = await prisma.personalizationProfile.create({
+      data: { visitorKeyHash: visitorHash },
+    })
+
+    // Empty guest cart with NO items created
+    await prisma.cart.create({
+      data: { sessionId: visitorProfile.id, status: 'active' },
+    })
+
+    const mockReq = {
+      cookies: { [VISITOR_COOKIE_NAME]: signedCookie },
+      headers: {},
+      ip: '127.0.0.1',
+    } as unknown as FastifyRequest
+
+    const result = await PersonalizationIdentityService.mergeAnonymousSession(
+      customer.id,
+      mockReq,
+    )
+
+    expect(result.success).toBe(true)
+    expect(result.merged).toBe(true)
+    expect(result.mergedItemCount).toBe(0)
+  })
+
+  it('completes anonymous cart and transfers real items into customer cart', async () => {
     const customer = await prisma.customer.create({
       data: {
         name: 'Merge Customer',
@@ -564,23 +635,44 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (G5
     expect(activeCarts[0]?.items[0]?.quantity).toBe(5)
   })
 
-  it('handles simultaneous merge and getOrCreateCart with Promise.all without unhandled P2002', async () => {
+  it('handles simultaneous real merge (with guest cart item) and getOrCreateCart with Promise.all without unhandled P2002 (Push 1E Spec 2.3)', async () => {
     const customer = await prisma.customer.create({
       data: {
-        name: 'Simultaneous Customer',
-        email: `simultaneous-${Date.now()}@example.com`,
+        name: 'Simultaneous Customer Spec 2.3',
+        email: `simultaneous-23-${Date.now()}@example.com`,
         passwordHash: 'hash',
       },
     })
 
+    // 1. Create valid visitor profile
     const rawToken = PersonalizationIdentityService.generateRawVisitorToken()
     const signedCookie =
       PersonalizationIdentityService.signVisitorToken(rawToken)
     const hash =
       PersonalizationIdentityService.hashVisitorTokenForStorage(rawToken)
-    await prisma.personalizationProfile.create({
+    const visitorProfile = await prisma.personalizationProfile.create({
       data: { visitorKeyHash: hash },
     })
+
+    // 2. Create session / guest cart with REAL item
+    const guestCart = await prisma.cart.create({
+      data: { sessionId: visitorProfile.id, status: 'active' },
+    })
+    await prisma.cartItem.create({
+      data: {
+        cartId: guestCart.id,
+        variationId: testVariationId,
+        storeId: testStoreId,
+        quantity: 4,
+        unitPrice: 100.0,
+      },
+    })
+
+    // 3. Confirm customer does NOT have an active cart yet
+    const preCart = await prisma.cart.findFirst({
+      where: { customerId: customer.id, status: 'active' },
+    })
+    expect(preCart).toBeNull()
 
     const mockReq = {
       cookies: { [VISITOR_COOKIE_NAME]: signedCookie },
@@ -588,20 +680,29 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (G5
       ip: '127.0.0.1',
     } as unknown as FastifyRequest
 
-    const [mergeRes, cartSummary] = await Promise.all([
+    // 4. Execute simultaneously with Promise.all: real merge and getOrCreateCart
+    const [mergeRes, cartFromGetOrCreate] = await Promise.all([
       PersonalizationIdentityService.mergeAnonymousSession(
         customer.id,
         mockReq,
       ),
-      CartService.getCartSummary({ customerId: customer.id }),
+      CartService.getOrCreateCart({ customerId: customer.id }),
     ])
 
+    // 5. Confirm results
     expect(mergeRes.success).toBe(true)
-    expect(cartSummary).toBeDefined()
+    expect(mergeRes.merged).toBe(true)
+    expect(mergeRes.mergedItemCount).toBe(1)
+    expect(cartFromGetOrCreate).toBeDefined()
 
+    // Single active cart in PostgreSQL with item quantity 4 transferred exactly once!
     const activeCarts = await prisma.cart.findMany({
       where: { customerId: customer.id, status: 'active' },
+      include: { items: true },
     })
     expect(activeCarts).toHaveLength(1)
+    expect(activeCarts[0]?.items).toHaveLength(1)
+    expect(activeCarts[0]?.items[0]?.quantity).toBe(4)
+    expect(cartFromGetOrCreate.id).toBe(activeCarts[0]?.id)
   })
 })

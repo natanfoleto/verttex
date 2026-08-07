@@ -38,7 +38,10 @@ export class CartService {
   /**
    * Helper to find or create an active cart for customer or anonymous session
    */
-  static async getOrCreateCart(owner: CartOwner) {
+  static async getOrCreateCart(
+    owner: CartOwner,
+    tx?: Prisma.TransactionClient,
+  ) {
     if (!owner.customerId && !owner.sessionId) {
       throw new AppError(
         'VALIDATION_ERROR',
@@ -47,7 +50,9 @@ export class CartService {
       )
     }
 
-    let cart = await prisma.cart.findFirst({
+    const client = tx || prisma
+
+    let cart = await client.cart.findFirst({
       where: {
         status: 'active',
         ...(owner.customerId
@@ -57,13 +62,64 @@ export class CartService {
     })
 
     if (!cart) {
-      cart = await prisma.cart.create({
-        data: {
-          customerId: owner.customerId || null,
-          sessionId: owner.sessionId || null,
-          status: 'active',
-        },
-      })
+      if (tx) {
+        // Inside transaction: create directly. Do NOT catch P2002 inside transaction; let error escape to outer retry loop!
+        cart = await tx.cart.create({
+          data: {
+            customerId: owner.customerId || null,
+            sessionId: owner.sessionId || null,
+            status: 'active',
+          },
+        })
+      } else {
+        // Outside transaction: attempt creation and recover specifically from concurrent P2002 active cart index conflict
+        try {
+          cart = await prisma.cart.create({
+            data: {
+              customerId: owner.customerId || null,
+              sessionId: owner.sessionId || null,
+              status: 'active',
+            },
+          })
+        } catch (err) {
+          if (
+            err instanceof Prisma.PrismaClientKnownRequestError &&
+            err.code === 'P2002'
+          ) {
+            const meta = err.meta as { target?: string | string[] } | undefined
+            const targets = Array.isArray(meta?.target)
+              ? meta?.target
+              : meta?.target
+                ? [meta.target]
+                : []
+
+            const isCartActiveIndex =
+              targets.length === 0 ||
+              targets.some(
+                (t) =>
+                  t === 'carts_unique_active_customer_id' ||
+                  t === 'carts_unique_active_session_id' ||
+                  t === 'customerId' ||
+                  t === 'sessionId',
+              )
+
+            if (isCartActiveIndex) {
+              cart = await prisma.cart.findFirstOrThrow({
+                where: {
+                  status: 'active',
+                  ...(owner.customerId
+                    ? { customerId: owner.customerId }
+                    : { sessionId: owner.sessionId, customerId: null }),
+                },
+              })
+            } else {
+              throw err
+            }
+          } else {
+            throw err
+          }
+        }
+      }
     }
 
     return cart
@@ -489,25 +545,12 @@ export class CartService {
     })
 
     if (!customerCart) {
-      try {
-        customerCart = await tx.cart.create({
-          data: {
-            customerId,
-            status: 'active',
-          },
-        })
-      } catch (err) {
-        if (
-          err instanceof Prisma.PrismaClientKnownRequestError &&
-          err.code === 'P2002'
-        ) {
-          customerCart = await tx.cart.findFirstOrThrow({
-            where: { customerId, status: 'active' },
-          })
-        } else {
-          throw err
-        }
-      }
+      customerCart = await tx.cart.create({
+        data: {
+          customerId,
+          status: 'active',
+        },
+      })
     }
 
     if (anonCart.items && anonCart.items.length > 0) {

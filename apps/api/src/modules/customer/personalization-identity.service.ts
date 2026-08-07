@@ -26,7 +26,7 @@ export interface ResolvedIdentity {
   rawToken?: string
 }
 
-function isRetryableMergeConflict(error: unknown): boolean {
+export function isRetryableMergeConflict(error: unknown): boolean {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     // Transaction failed due to write conflict or deadlock in Serializable isolation mode
     if (error.code === 'P2034') {
@@ -36,9 +36,12 @@ function isRetryableMergeConflict(error: unknown): boolean {
     // Unique constraint violation
     if (error.code === 'P2002') {
       const meta = error.meta as { target?: string | string[] } | undefined
-      if (!meta?.target) return false
+      const targets = Array.isArray(meta?.target)
+        ? meta?.target
+        : meta?.target
+          ? [meta.target]
+          : []
 
-      const targets = Array.isArray(meta.target) ? meta.target : [meta.target]
       const retryableTargets = new Set([
         'customerId',
         'visitorKeyHash',
@@ -47,6 +50,17 @@ function isRetryableMergeConflict(error: unknown): boolean {
         'personalization_profiles_customerId_key',
         'personalization_profiles_visitorKeyHash_key',
       ])
+
+      if (targets.length === 0) {
+        const message = error.message || ''
+        return (
+          message.includes('customerId') ||
+          message.includes('visitorKeyHash') ||
+          message.includes('carts_unique_active') ||
+          message.includes('personalization_profiles') ||
+          message.includes('carts')
+        )
+      }
 
       return targets.some((t) => retryableTargets.has(t))
     }

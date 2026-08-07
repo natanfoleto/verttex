@@ -2,6 +2,7 @@ import { FastifyReply } from 'fastify'
 
 import { FastifyZodRequest } from '../../@types/fastify'
 import { AppError } from '../../shared/errors/app-error'
+import { PersonalizationIdentityService } from '../customer/personalization-identity.service'
 import {
   CustomerChangePasswordBody,
   CustomerForgotPasswordBody,
@@ -42,6 +43,20 @@ export async function registerCustomerController(
       maxAge: 7 * 24 * 60 * 60,
     })
 
+  // Non-blocking anonymous session merge trigger in backend
+  try {
+    await PersonalizationIdentityService.mergeAnonymousSession(
+      result.customer.id,
+      request,
+      reply,
+    )
+  } catch (mergeErr) {
+    request.log.warn(
+      { customerId: result.customer.id, err: mergeErr },
+      'Non-blocking mergeAnonymousSession failed during registration',
+    )
+  }
+
   return reply.status(201).send({
     success: true,
     data: result,
@@ -74,6 +89,20 @@ export async function loginCustomerController(
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60,
     })
+
+  // Non-blocking anonymous session merge trigger in backend
+  try {
+    await PersonalizationIdentityService.mergeAnonymousSession(
+      result.customer.id,
+      request,
+      reply,
+    )
+  } catch (mergeErr) {
+    request.log.warn(
+      { customerId: result.customer.id, err: mergeErr },
+      'Non-blocking mergeAnonymousSession failed during login',
+    )
+  }
 
   return reply.send({
     success: true,

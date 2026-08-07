@@ -288,7 +288,8 @@ describe('PersonalizationIdentityService (Push 1B Hardened)', () => {
     const signedValue =
       PersonalizationIdentityService.signVisitorToken(rawToken)
 
-    const tamperedToken = 'a' + signedValue.substring(1)
+    const tamperedToken =
+      (signedValue[0] === 'a' ? 'b' : 'a') + signedValue.substring(1)
     expect(
       PersonalizationIdentityService.verifyVisitorToken(tamperedToken),
     ).toBeNull()
