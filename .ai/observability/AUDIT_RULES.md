@@ -313,8 +313,34 @@ await logAudit({
 Adicionar o label em `apps/manager/src/app/(dashboard)/auditoria/page.tsx`:
 
 ```typescript
-const entityLabels: Record<string, string> = {
-  // ...
+// ...
   Product: 'Produto',
 }
 ```
+
+---
+
+## 12. Regras de Auditoria para Mescla de Sessão Anônima (Roadmap 029)
+
+Para operações automatizadas de mescla de carrinho/perfil anônimo pós-autenticação do cliente:
+
+- **Ordem de Execução Obrigatoriamente Pós-Commit:** O registro via `logAudit()` **DEVE** ocorrer exclusivamente após o sucesso e commit da transação `prisma.$transaction`. Transações revertidas via rollback nunca geram registros de auditoria.
+- **Formato do Registro:**
+  ```typescript
+  if (result.merged) {
+    await logAudit({
+      userId: null,
+      action: 'SYSTEM_ACTION',
+      entity: 'Customer',
+      entityId: customerId,
+      newValues: {
+        event: 'MERGE_ANONYMOUS_SESSION',
+        merged: true,
+        mergedItemCount: result.mergedItemCount,
+      },
+      req,
+    })
+  }
+  ```
+- **Campos Proibidos:** O registro jamais conterá valores de cookies (`vt_visitor`), tokens crus, hashes (`visitorKeyHash`), JWTs ou headers de autorização.
+

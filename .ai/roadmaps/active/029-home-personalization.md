@@ -55,10 +55,12 @@ Implementar a personalização determinística e transparente da página inicial
 - **Escopo:** Criação deste roadmap em `active/`, atualização do índice em `.ai/roadmaps/INDEX.md`, execução e diagnóstico da baseline do Quality Gate (`pnpm verify`).
 - **Artefatos:** `.ai/roadmaps/active/029-home-personalization.md`, `.ai/roadmaps/INDEX.md`.
 
-### Push 1 — Identidade Anônima e Isolamento do Carrinho
-- **Escopo:** Modelo `PersonalizationProfile`, cookie assinado `vt_visitor`, hash HMAC-SHA-256, remoção de `default-guest-session`, merge pós-login `POST /customer/merge-anonymous-session`.
+### Push 1 — Identidade Anônima e Isolamento do Carrinho `[CONCLUÍDO NO CÓDIGO - AGUARDANDO AUDITORIA HUMANA]`
+- **Escopo:** Modelo `PersonalizationProfile`, cookie assinado `vt_visitor` (HMAC-SHA-256), hashing `visitorKeyHash`, exclusão de `default-guest-session`, merge transacional/idempotente `POST /customer/merge-anonymous-session` com isolamento `Serializable`, retry loop para conflitos de serialização (`P2034`/`P2002`), auditoria pós-commit, constraints PostgreSQL (XOR e índices parciais de carrinho ativo).
+- **Status:** Push 1 implementado — aguardando auditoria humana.
 
-### Push 2 — Fronteira Canônica do Catálogo e Oferta Real
+### Push 2 — Fronteira Canônica do Catálogo e Oferta Real `[BLOQUEADO]`
+- **Status:** Push 2 bloqueado até aprovação humana explícita do Push 1.
 - **Escopo:** Extração de fronteira interna reutilizável no `PublicDiscoveryService`, correção da regra de oferta real (`promotionalPrice < price`), eliminação de duplicação HTTP interna.
 
 ### Push 3 — Eventos, Histórico, Merge e Privacidade

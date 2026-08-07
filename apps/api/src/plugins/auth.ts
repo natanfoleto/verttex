@@ -137,59 +137,64 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
   app.decorate(
     'authenticateCustomer',
     async function (request: FastifyRequest) {
+      let token: string | undefined = request.cookies.customer_access_token
+
+      if (!token && request.headers.authorization) {
+        const parts = request.headers.authorization.split(' ')
+        if (parts.length === 2 && parts[0] === 'Bearer') {
+          token = parts[1]
+        }
+      }
+
+      if (!token) {
+        throw new AppError('UNAUTHORIZED', 'Não autenticado', 401)
+      }
+
+      let decoded: { sub: string; actorType: string; sessionId: string }
       try {
-        let token: string | undefined = request.cookies.customer_access_token
-
-        if (!token && request.headers.authorization) {
-          const parts = request.headers.authorization.split(' ')
-          if (parts.length === 2 && parts[0] === 'Bearer') {
-            token = parts[1]
-          }
-        }
-
-        if (!token) {
-          throw new AppError('UNAUTHORIZED', 'Não autenticado', 401)
-        }
-
-        const decoded = app.jwt.verify<{
+        decoded = app.jwt.verify<{
           sub: string
           actorType: string
           sessionId: string
         }>(token)
+      } catch {
+        throw new AppError(
+          'UNAUTHORIZED',
+          'Token JWT inválido ou expirado',
+          401,
+        )
+      }
 
-        if (decoded.actorType !== 'customer') {
-          throw new AppError(
-            'UNAUTHORIZED',
-            'Token inválido para este contexto',
-            401,
-          )
-        }
+      if (decoded.actorType !== 'customer') {
+        throw new AppError(
+          'UNAUTHORIZED',
+          'Token inválido para este contexto',
+          401,
+        )
+      }
 
-        const session = await prisma.customerSession.findUnique({
-          where: { id: decoded.sessionId },
-          include: { customer: true },
-        })
+      // Infrastructure query: PostgreSQL errors are NOT caught here and will propagate cleanly as 500!
+      const session = await prisma.customerSession.findUnique({
+        where: { id: decoded.sessionId },
+        include: { customer: true },
+      })
 
-        if (
-          !session ||
-          session.revokedAt ||
-          session.expiresAt < new Date() ||
-          session.customer.status !== 'active'
-        ) {
-          throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
-        }
-
-        request.customerPayload = {
-          id: session.customer.id,
-          name: session.customer.name,
-          email: session.customer.email,
-          sessionId: session.id,
-        }
-        request.customer = request.customerPayload
-      } catch (err) {
-        if (err instanceof AppError) throw err
+      if (
+        !session ||
+        session.revokedAt ||
+        session.expiresAt < new Date() ||
+        session.customer.status !== 'active'
+      ) {
         throw new AppError('UNAUTHORIZED', 'Sessão inválida ou expirada', 401)
       }
+
+      request.customerPayload = {
+        id: session.customer.id,
+        name: session.customer.name,
+        email: session.customer.email,
+        sessionId: session.id,
+      }
+      request.customer = request.customerPayload
     },
   )
 })

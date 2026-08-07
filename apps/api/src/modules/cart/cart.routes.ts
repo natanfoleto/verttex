@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 
+import { AppError } from '../../shared/errors/app-error'
 import {
   addItemToCartController,
   applyCouponController,
@@ -20,22 +21,27 @@ import {
 export async function cartRoutes(app: FastifyInstance) {
   const typedApp = app.withTypeProvider<ZodTypeProvider>()
 
-  // Classified optional customer auth hook (Requirement 3)
+  // Classified optional customer auth hook (G3 spec)
   const optionalAuth = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       await app.authenticateCustomer(req, reply)
     } catch (err) {
-      // 1. If explicit Authorization header (Bearer) was sent and failed -> throw 401
+      // 1. If err is an infrastructure or unexpected error (not AppError 401), propagate it!
+      if (!(err instanceof AppError) || err.statusCode !== 401) {
+        throw err
+      }
+
+      // 2. If client sent an explicit Authorization header (Bearer) and failed -> return 401
       if (req.headers.authorization) {
         throw err
       }
 
-      // 2. If customer_access_token cookie was sent but is invalid/expired -> clear cookie and continue as visitor
+      // 3. If customer_access_token cookie was sent but is invalid/expired -> clear cookie and continue as visitor
       if (req.cookies.customer_access_token) {
         reply.clearCookie('customer_access_token', { path: '/' })
       }
 
-      // 3. Absence of credentials or cleared cookie -> continue as visitor
+      // 4. Absence of credentials or cleared cookie -> continue as visitor
     }
   }
 

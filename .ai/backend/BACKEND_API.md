@@ -224,6 +224,26 @@ Authorization is always **double-validated**: frontend for UX, backend for secur
 
 - **Referência Canônica Completa:** Consulte [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](../domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md) para detalhes técnicos de ranking, projeção `ProductSearchDocument`, facetas e normalização.
 
+### 5.1 Customer Personalization & Anonymous Merge API (Roadmap 029)
+
+| Method | Path                                   | Auth     | Description                                                                              |
+| ------ | -------------------------------------- | -------- | ---------------------------------------------------------------------------------------- |
+| POST   | `/customer/merge-anonymous-session`    | Customer | Mescla carrinho anônimo do visitante no carrinho do cliente autenticado e rotaciona o cookie `vt_visitor`. |
+
+- **Origem Exclusiva de Identidade:** O `customerId` é derivado unicamente da sessão JWT autenticada. A identidade anônima é derivada unicamente do cookie assinado `vt_visitor`. Qualquer ID recebido no body/query/header é ignorado.
+- **Contrato de Resposta (200 OK):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "success": true,
+      "merged": true,
+      "mergedItemCount": 3
+    }
+  }
+  ```
+- **Garantias Transacionais:** Executa em transação Prisma com nível de isolamento `Serializable`, retry loop para conflitos de concorrência (`P2034`/`P2002` em índices parciais de carrinho/perfil), auditoria pós-commit (`SYSTEM_ACTION`) e emissão de novo cookie `vt_visitor` assinado.
+
 ---
 
 ## 6. Global Plugins & Configurations

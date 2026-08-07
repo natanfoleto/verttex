@@ -1,5 +1,6 @@
 import crypto from 'node:crypto'
 
+import { Prisma } from '@prisma/client'
 import { apiEnv } from '@verttex/env/api'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
@@ -23,6 +24,34 @@ export interface ResolvedIdentity {
   isCustomer: boolean
   customerId?: string
   rawToken?: string
+}
+
+function isRetryableMergeConflict(error: unknown): boolean {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    // Transaction failed due to write conflict or deadlock in Serializable isolation mode
+    if (error.code === 'P2034') {
+      return true
+    }
+
+    // Unique constraint violation
+    if (error.code === 'P2002') {
+      const meta = error.meta as { target?: string | string[] } | undefined
+      if (!meta?.target) return false
+
+      const targets = Array.isArray(meta.target) ? meta.target : [meta.target]
+      const retryableTargets = new Set([
+        'customerId',
+        'visitorKeyHash',
+        'carts_unique_active_customer_id',
+        'carts_unique_active_session_id',
+        'personalization_profiles_customerId_key',
+        'personalization_profiles_visitorKeyHash_key',
+      ])
+
+      return targets.some((t) => retryableTargets.has(t))
+    }
+  }
+  return false
 }
 
 export class PersonalizationIdentityService {
@@ -192,8 +221,8 @@ export class PersonalizationIdentityService {
 
   /**
    * Merges an anonymous session into a logged-in customer profile safely, transactionally and idempotently.
-   * Atomically claims identity using deleteMany(count === 1) and upsert for customer profile serialisation.
-   * Transaction returns { merged: boolean, mergedItemCount: number }.
+   * Runs inside a full transaction with Serializable isolation level and bounded retry loop.
+   * Post-commit audit log is executed OUTSIDE transaction strictly after commit.
    */
   static async mergeAnonymousSession(
     customerId: string,
@@ -206,70 +235,95 @@ export class PersonalizationIdentityService {
 
     if (rawToken) {
       const visitorKeyHash = this.hashVisitorTokenForStorage(rawToken)
+      const MAX_ATTEMPTS = 3
 
-      result = await prisma.$transaction(async (tx) => {
-        const now = new Date()
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        try {
+          result = await prisma.$transaction(
+            async (tx) => {
+              const now = new Date()
 
-        // 1. Locate visitor profile by hash to obtain ID and check validity
-        const visitorProfile = await tx.personalizationProfile.findUnique({
-          where: { visitorKeyHash },
-        })
+              // 1. Locate visitor profile by hash to obtain ID and check validity
+              const visitorProfile = await tx.personalizationProfile.findUnique(
+                {
+                  where: { visitorKeyHash },
+                },
+              )
 
-        if (
-          !visitorProfile ||
-          visitorProfile.customerId ||
-          (visitorProfile.expiresAt && visitorProfile.expiresAt <= now)
-        ) {
-          return { merged: false, mergedItemCount: 0 }
-        }
+              if (
+                !visitorProfile ||
+                visitorProfile.customerId ||
+                (visitorProfile.expiresAt && visitorProfile.expiresAt <= now)
+              ) {
+                return { merged: false, mergedItemCount: 0 }
+              }
 
-        // 2. Atomic claim via deleteMany with strict conditions
-        const deleted = await tx.personalizationProfile.deleteMany({
-          where: {
-            id: visitorProfile.id,
-            visitorKeyHash,
-            customerId: null,
-            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-          },
-        })
+              // 2. Atomic claim via deleteMany with strict conditions
+              const deleted = await tx.personalizationProfile.deleteMany({
+                where: {
+                  id: visitorProfile.id,
+                  visitorKeyHash,
+                  customerId: null,
+                  OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+                },
+              })
 
-        if (deleted.count !== 1) {
-          return { merged: false, mergedItemCount: 0 }
-        }
+              if (deleted.count !== 1) {
+                return { merged: false, mergedItemCount: 0 }
+              }
 
-        // 3. Establish/update customer profile inside tx BEFORE cart manipulation (serialisation point)
-        await tx.personalizationProfile.upsert({
-          where: { customerId },
-          create: {
-            customerId,
-            personalizationEnabled: true,
-            lastSeenAt: now,
-          },
-          update: {
-            lastSeenAt: now,
-          },
-        })
+              // 3. Establish/update customer profile inside tx BEFORE cart manipulation (serialisation point)
+              await tx.personalizationProfile.upsert({
+                where: { customerId },
+                create: {
+                  customerId,
+                  personalizationEnabled: true,
+                  lastSeenAt: now,
+                },
+                update: {
+                  lastSeenAt: now,
+                },
+              })
 
-        // 4. Sync guest cart inside tx (marks cart completed even when empty)
-        const { mergedItemCount } =
-          await CartService.syncAnonymousCartToCustomer(
-            tx,
-            customerId,
-            visitorProfile.id,
+              // 4. Sync guest cart inside tx (marks cart completed even when empty)
+              const { mergedItemCount } =
+                await CartService.syncAnonymousCartToCustomer(
+                  tx,
+                  customerId,
+                  visitorProfile.id,
+                )
+
+              return { merged: true, mergedItemCount }
+            },
+            {
+              isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+            },
           )
 
-        // 5. Audit log (sanitized, no tokens, no cookies)
+          // Transaction committed successfully! Break out of retry loop.
+          break
+        } catch (error) {
+          if (!isRetryableMergeConflict(error) || attempt === MAX_ATTEMPTS) {
+            throw error
+          }
+        }
+      }
+
+      // Audit ONLY AFTER successful commit (outside transaction!)
+      if (result.merged) {
         await logAudit({
           userId: null,
-          action: 'MERGE_ANONYMOUS_SESSION',
+          action: 'SYSTEM_ACTION',
           entity: 'Customer',
           entityId: customerId,
-          newValues: { merged: true, mergedItemCount },
+          newValues: {
+            event: 'MERGE_ANONYMOUS_SESSION',
+            merged: true,
+            mergedItemCount: result.mergedItemCount,
+          },
           req,
         })
-
-        return { merged: true, mergedItemCount }
-      })
+      }
     } else {
       // Ensure customer profile exists via upsert even when no visitor cookie present
       await prisma.personalizationProfile.upsert({

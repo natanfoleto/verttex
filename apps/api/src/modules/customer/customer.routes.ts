@@ -39,6 +39,7 @@ export async function customerRoutes(app: FastifyInstance) {
             data: z.object({
               success: z.literal(true),
               merged: z.boolean(),
+              mergedItemCount: z.number(),
             }),
           }),
         },
