@@ -1,5 +1,16 @@
 # RELATÓRIO DE CERTIFICAÇÃO E AUDITORIA CONSOLIDADA — PUSH 1 — ROADMAP 028
 
+> [!WARNING]
+> **ERRATA / INVALIDAÇÃO POSTERIOR:** A conclusão de aprovação contida neste relatório histórico (`PUSH_1F_EVIDENCE.md`) foi posteriormente **invalidada** devido a:
+> 1. Histórico de migrations não comparado adequadamente com a tabela `_prisma_migrations`;
+> 2. Testes tautológicos na suíte do `db:clean` (que testavam mocks em vez de chamar a orquestração real `cleanDatabase()`);
+> 3. Provas incompletas do fluxo de login e cadastro;
+> 4. Divergência documental (Roadmap 029 vs documentação de domínio);
+> 5. Links locais com esquema `file://`;
+> 6. Ausência de isolamento real em relação ao Push 2.
+>
+> As evidências oficiais e definitivas da recertificação do Push 1 encontram-se em `PUSH_1G_EVIDENCE.md`.
+
 ---
 
 ## 1. Identificação do Ambiente e Baselines

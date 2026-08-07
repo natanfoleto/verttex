@@ -211,26 +211,53 @@ export async function cleanDatabase() {
   // 2. Dynamically import Prisma and dependencies ONLY AFTER guard validation passes
   const { prisma } = await import('../src/infrastructure/database/prisma.js')
   const { hashPassword } = await import('../src/shared/utils/crypto.js')
-  const { clearReturnsStore } = await import(
-    '../src/modules/returns/returns.service.js'
-  )
+  const { clearReturnsStore } =
+    await import('../src/modules/returns/returns.service.js')
 
   try {
     console.log('🧹 Limpando o banco de dados...')
 
-    // Busca todas as tabelas no schema public
-    const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
-      SELECT tablename FROM pg_tables WHERE schemaname='public'
-    `
-
-    for (const { tablename } of tables) {
-      if (tablename === '_prisma_migrations') continue
-      try {
-        await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${tablename}" CASCADE;`)
-      } catch (err) {
-        console.warn(`Erro ao limpar tabela ${tablename}:`, err)
-      }
-    }
+    // Delete in reverse dependency order respecting FK constraints (no raw SQL)
+    await prisma.stockMovement.deleteMany()
+    await prisma.stockReservation.deleteMany()
+    await prisma.orderItemLot.deleteMany()
+    await prisma.orderItem.deleteMany()
+    await prisma.cartCoupon.deleteMany()
+    await prisma.cartItem.deleteMany()
+    await prisma.order.deleteMany()
+    await prisma.cart.deleteMany()
+    await prisma.coupon.deleteMany()
+    await prisma.stockTransfer.deleteMany()
+    await prisma.stockItem.deleteMany()
+    await prisma.inventoryLocation.deleteMany()
+    await prisma.productLot.deleteMany()
+    await prisma.productSearchDocument.deleteMany()
+    await prisma.productVariationValue.deleteMany()
+    await prisma.productVariation.deleteMany()
+    await prisma.productMedia.deleteMany()
+    await prisma.product.deleteMany()
+    await prisma.productOptionValue.deleteMany()
+    await prisma.productOption.deleteMany()
+    await prisma.personalizationProfile.deleteMany()
+    await prisma.customerSession.deleteMany()
+    await prisma.customerPasswordResetToken.deleteMany()
+    await prisma.customerAddress.deleteMany()
+    await prisma.customer.deleteMany()
+    await prisma.storeUser.deleteMany()
+    await prisma.carouselBanner.deleteMany()
+    await prisma.marketplaceSettings.deleteMany()
+    await prisma.file.deleteMany()
+    await prisma.brand.deleteMany()
+    await prisma.category.deleteMany()
+    await prisma.store.deleteMany()
+    await prisma.auditLog.deleteMany()
+    await prisma.revokedToken.deleteMany()
+    await prisma.userPasswordResetToken.deleteMany()
+    await prisma.userPermission.deleteMany()
+    await prisma.rolePermission.deleteMany()
+    await prisma.user.deleteMany()
+    await prisma.permission.deleteMany()
+    await prisma.role.deleteMany()
 
     // Limpa o registro em memória de devoluções/trocas
     clearReturnsStore()
@@ -271,7 +298,8 @@ export async function cleanDatabase() {
         {
           name: 'Produtor / Fornecedor Parceiro',
           key: 'supplier',
-          description: 'Gestão do catálogo próprio, estoques da loja e remessas',
+          description:
+            'Gestão do catálogo próprio, estoques da loja e remessas',
           isSystem: true,
         },
         {
@@ -322,7 +350,13 @@ export async function cleanDatabase() {
   }
 }
 
-cleanDatabase().catch((e) => {
-  console.error('❌ Erro ao executar a limpeza do banco:', e?.message || e)
-  process.exit(1)
-})
+// Only auto-execute when invoked directly via CLI (e.g., pnpm db:clean)
+if (
+  process.argv[1] &&
+  (process.argv[1].endsWith('clean.ts') || process.argv[1].endsWith('clean.js'))
+) {
+  cleanDatabase().catch((e) => {
+    console.error('❌ Erro ao executar a limpeza do banco:', e?.message || e)
+    process.exit(1)
+  })
+}

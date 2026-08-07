@@ -57,11 +57,10 @@ Implementar a personalização determinística e transparente da página inicial
 
 ### Push 1 — Identidade Anônima e Isolamento do Carrinho `[CONCLUÍDO E CERTIFICADO]`
 - **Escopo:** Modelo `PersonalizationProfile`, cookie assinado `vt_visitor` (HMAC-SHA-256), hashing `visitorKeyHash`, exclusão de `default-guest-session`, merge transacional/idempotente `POST /customer/merge-anonymous-session` com isolamento `Serializable`, retry loop para conflitos de serialização (`P2034`/`P2002`), auditoria pós-commit, Check Constraints XOR no PostgreSQL (`personalization_profiles_xor_identity_check` e `carts_xor_owner_check`), índices parciais de carrinho ativo, proteção estrita do `db:clean` (allowlist exata) e testes de integração HTTP reais por `app.inject()`.
-- **Status:** Concluído, auditado e certificado em 2026-08-07. SHA-base: `71b19a57c27493d7c2fe3401e7554cbd2bf56117`. Referência de Evidências: [`PUSH_1F_EVIDENCE.md`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/PUSH_1F_EVIDENCE.md).
+- **Status:** Concluído, recertificado e auditado na branch `fix/roadmap-028-push1-final` a partir do SHA `2954d292fa36e42a07d9e2905bbb332e9396bbbe`. Referência de Evidências: `PUSH_1G_EVIDENCE.md`.
 
-### Push 2 — Fronteira Canônica do Catálogo e Oferta Real `[LIBERADO — PRÓXIMO]`
-- **Status:** Push 2 liberado para início (não iniciado nesta rodada).
-- **Escopo:** Extração de fronteira interna reutilizável no `PublicDiscoveryService`, correção da regra de oferta real (`promotionalPrice < price`), eliminação de duplicação HTTP interna.
+### Push 2 — Fronteira Canônica do Catálogo e Oferta Real `[NÃO AVALIADO NESTA BRANCH — AGUARDANDO AUTORIZAÇÃO]`
+- **Status:** Implementado antecipadamente na branch `main` (commit `b0ac3d1`). Não auditado, não avaliado e não certificado nesta branch corretiva. Aguarda autorização formal após conclusão do Push 1.
 
 ### Push 3 — Eventos, Histórico, Merge e Privacidade
 - **Escopo:** Modelos `ProductInteraction` e `RecentlyViewedProduct`, rotas de registro de eventos públicos/servidor, opt-out e purge de histórico, `PersonalizationRetentionService`.

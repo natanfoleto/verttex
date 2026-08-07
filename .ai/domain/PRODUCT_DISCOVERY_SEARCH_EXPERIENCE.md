@@ -2,10 +2,10 @@
 
 > **Módulo:** `apps/api/src/modules/catalog` & `apps/marketplace`  
 > **Status:** `certified`  
-> **Localização:** [`.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md)  
+> **Localização:** `.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`
 > **Baselines de Referência Histórica:**
-> - **Product Discovery Engine:** [`0f9d52d6e02e606ed2e625508a91e7919a0fae63`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.service.ts)
-> - **Search Experience Certificada:** [`69c7416ba35c50b73f8b8dd36eebc61686b7ba9c`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/search/marketplace-search.tsx)
+> - **Product Discovery Engine:** [`0f9d52d6e02e606ed2e625508a91e7919a0fae63`]`apps/api/src/modules/catalog/discovery.service.ts`
+> - **Search Experience Certificada:** [`69c7416ba35c50b73f8b8dd36eebc61686b7ba9c`]`apps/marketplace/src/components/search/marketplace-search.tsx`
 
 ---
 
@@ -71,18 +71,18 @@ Search Experience Integration
 
 ### 3.1 Camada Frontend (`apps/marketplace`)
 
-- **[`MarketplaceHeader`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/layout/marketplace-header.tsx):** Renderiza a barra superior do Marketplace, integrando o componente de busca com alinhamento responsivo em breakpoint `56rem`.
-- **[`MarketplaceSearch`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/search/marketplace-search.tsx):** Componente combobox unificado (desktop/mobile) responsável por capturar o input, gerenciar foco, teclas de atalho (`ArrowDown`, `ArrowUp`, `Enter`, `Escape`, `Tab`), reatividade do dropdown e formatação visual dos destaques.
-- **[`recent-searches.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/lib/recent-searches.ts) & [`useRecentSearches`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/hooks/use-recent-searches.ts):** Gerenciador do histórico local de buscas sob a chave `verttex:search:recent:v1`.
-- **[`useSearchSuggestions`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/hooks/use-search-suggestions.ts):** Hook TanStack Query que consome `/public/catalog/search-suggestions`, integrado com `AbortSignal` e tempo de `staleTime: 60s`.
-- **[`ProductDiscoveryView`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/products/product-discovery-view.tsx):** View da página `/busca` responsável por exibir produtos, barra lateral de facetas, ordenação e estado de busca vazia.
+- **[`MarketplaceHeader`]`apps/marketplace/src/components/layout/marketplace-header.tsx`:** Renderiza a barra superior do Marketplace, integrando o componente de busca com alinhamento responsivo em breakpoint `56rem`.
+- **[`MarketplaceSearch`]`apps/marketplace/src/components/search/marketplace-search.tsx`:** Componente combobox unificado (desktop/mobile) responsável por capturar o input, gerenciar foco, teclas de atalho (`ArrowDown`, `ArrowUp`, `Enter`, `Escape`, `Tab`), reatividade do dropdown e formatação visual dos destaques.
+- **[`recent-searches.ts`]`apps/marketplace/src/lib/recent-searches.ts` & [`useRecentSearches`]`apps/marketplace/src/hooks/use-recent-searches.ts`:** Gerenciador do histórico local de buscas sob a chave `verttex:search:recent:v1`.
+- **[`useSearchSuggestions`]`apps/marketplace/src/hooks/use-search-suggestions.ts`:** Hook TanStack Query que consome `/public/catalog/search-suggestions`, integrado com `AbortSignal` e tempo de `staleTime: 60s`.
+- **[`ProductDiscoveryView`]`apps/marketplace/src/components/products/product-discovery-view.tsx`:** View da página `/busca` responsável por exibir produtos, barra lateral de facetas, ordenação e estado de busca vazia.
 
 ### 3.2 Camada Backend (`apps/api`)
 
-- **[`catalog.routes.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/catalog.routes.ts) & [`catalog.controller.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/catalog.controller.ts):** Expõem as rotas públicas `/public/catalog/discover` e `/public/catalog/search-suggestions`.
-- **[`SearchSuggestionsService`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/search-suggestions.service.ts):** Executa a busca rápida de termos candidatos via `ProductSearchDocument`, projetando os nomes originais em maiúsculas/minúsculas/acentos das entidades `Product`, `Category`, `Brand`, `Store` e `ProductOptionValue`.
-- **[`discovery.service.ts` (`PublicDiscoveryService`)](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.service.ts):** Motor completo do Product Discovery responsável por parsing de parâmetros, ordenação textual/comercial, facetas disjuntivas, paginação e checagem de estoque comercial (FEFO).
-- **[`product-search-index.service.ts` (`ProductSearchIndexService`)](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/product-search-index.service.ts):** Serviço encarregado da normalização universal `normalizeSearchText()` e manutenção da projeção `ProductSearchDocument`.
+- **[`catalog.routes.ts`]`apps/api/src/modules/catalog/catalog.routes.ts` & [`catalog.controller.ts`]`apps/api/src/modules/catalog/catalog.controller.ts`:** Expõem as rotas públicas `/public/catalog/discover` e `/public/catalog/search-suggestions`.
+- **[`SearchSuggestionsService`]`apps/api/src/modules/catalog/search-suggestions.service.ts`:** Executa a busca rápida de termos candidatos via `ProductSearchDocument`, projetando os nomes originais em maiúsculas/minúsculas/acentos das entidades `Product`, `Category`, `Brand`, `Store` e `ProductOptionValue`.
+- **[`discovery.service.ts` (`PublicDiscoveryService`)]`apps/api/src/modules/catalog/discovery.service.ts`:** Motor completo do Product Discovery responsável por parsing de parâmetros, ordenação textual/comercial, facetas disjuntivas, paginação e checagem de estoque comercial (FEFO).
+- **[`product-search-index.service.ts` (`ProductSearchIndexService`)]`apps/api/src/modules/catalog/product-search-index.service.ts`:** Serviço encarregado da normalização universal `normalizeSearchText()` e manutenção da projeção `ProductSearchDocument`.
 
 ---
 
@@ -112,7 +112,7 @@ Dentro do `PublicDiscoveryService`, após passar pelo Controller, o termo é uni
 | **Attributes** (`attributesNormalized` — Atributos e Opções) | `100` | `110` |
 | **Description** (`descriptionNormalized`) | `50` | `60` |
 
-> **Fonte Única de Verdade:** Todos os cálculos utilizam a constante exported `SEARCH_FIELD_WEIGHTS` em [`discovery.service.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.service.ts). É proibido reintroduzir números mágicos hardcoded.
+> **Fonte Única de Verdade:** Todos os cálculos utilizam a constante exported `SEARCH_FIELD_WEIGHTS` em [`discovery.service.ts`]`apps/api/src/modules/catalog/discovery.service.ts`. É proibido reintroduzir números mágicos hardcoded.
 
 ### 4.4 Incidente Documentado: Regressão do Peso de Contexto (200 → 300)
 - **Ocorrência:** Durante uma limpeza de ESLint/tipagem, a função `calculateProductRelevance` teve o peso de `context` alterado inadvertidamente de `200` para `300`.
@@ -125,7 +125,7 @@ Dentro do `PublicDiscoveryService`, após passar pelo Controller, o termo é uni
 ## 5. Algoritmo de Normalização e Projeção (`ProductSearchDocument`)
 
 ### 5.1 Especificação de `normalizeSearchText()`
-Toda comparação textual no sistema de busca utiliza a mesma transformação em [`product-search-index.service.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/product-search-index.service.ts):
+Toda comparação textual no sistema de busca utiliza a mesma transformação em [`product-search-index.service.ts`]`apps/api/src/modules/catalog/product-search-index.service.ts`:
 1. Decomposição Unicode NFD (`normalize('NFD')`).
 2. Remoção de diacríticos/acentos (`replace(/[\u0300-\u036f]/g, '')`).
 3. Conversão para minúsculas (`toLowerCase()`).
@@ -246,7 +246,7 @@ A tabela `product_search_documents` funciona como um índice secundário de busc
 ## 11. Tooling & Estratégia de Quality Gate Canônico
 
 ### 11.1 Integridade dos Scripts do Monorepo
-Fica estritamente proibido que scripts de teste ou lint alterem arquivos versionados (`tsconfig.json`, `package.json`). Os testes do Marketplace utilizam a transformação JSX via OXC no [`vitest.config.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/vitest.config.ts), mantendo `"jsx": "preserve"` no `tsconfig.json`.
+Fica estritamente proibido que scripts de teste ou lint alterem arquivos versionados (`tsconfig.json`, `package.json`). Os testes do Marketplace utilizam a transformação JSX via OXC no [`vitest.config.ts`]`apps/marketplace/vitest.config.ts`, mantendo `"jsx": "preserve"` no `tsconfig.json`.
 
 ### 11.2 Execução do Quality Gate (`pnpm verify`)
 A validação oficial de qualquer alteração deve seguir a sequência não-mutante:
@@ -270,7 +270,7 @@ pnpm build && git diff --exit-code
 
 ### 1. A busca por texto retorna o catálogo inteiro ou produtos incorretos
 - **Causa Provável:** Falha no unboxing do parâmetro de busca (`q` vs `search` vs `query`).
-- **Verificação:** Inspecionar `PublicDiscoveryService` em [`discovery.service.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/src/modules/catalog/discovery.service.ts). Garantir que `canonicalSearch` seja extraído corretamente.
+- **Verificação:** Inspecionar `PublicDiscoveryService` em [`discovery.service.ts`]`apps/api/src/modules/catalog/discovery.service.ts`. Garantir que `canonicalSearch` seja extraído corretamente.
 
 ### 2. Erro do Prisma ao buscar por SKU ou código de barras
 - **Causa Provável:** Tentativa de consultar `Product.sku` em vez de `ProductVariation.sku`.
@@ -282,7 +282,7 @@ pnpm build && git diff --exit-code
 
 ### 4. Tecla Enter executa uma sugestão antiga após digitação rápida
 - **Causa Provável:** Ausência de checagem do estado pendente de debounce.
-- **Verificação:** Inspecionar `MarketplaceSearch` em [`marketplace-search.tsx`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/components/search/marketplace-search.tsx) e validar `isQueryPending = normQuery !== normDebounced`.
+- **Verificação:** Inspecionar `MarketplaceSearch` em [`marketplace-search.tsx`]`apps/marketplace/src/components/search/marketplace-search.tsx` e validar `isQueryPending = normQuery !== normDebounced`.
 
 ### 5. Botões de remover recente disparam a busca do produto
 - **Causa Provável:** Falta de `e.stopPropagation()` no handler de clique do botão.
@@ -290,7 +290,7 @@ pnpm build && git diff --exit-code
 
 ### 6. Erro no console do navegador: "SecurityError: Access to localStorage is denied"
 - **Causa Provável:** Navegador em modo anônimo estrito ou suporte a cookies de terceiros desativado.
-- **Verificação:** Inspecionar [`recent-searches.ts`](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/marketplace/src/lib/recent-searches.ts) e garantir que o bloco `try/catch` retorne um array vazio fallback sem estourar exceção.
+- **Verificação:** Inspecionar [`recent-searches.ts`]`apps/marketplace/src/lib/recent-searches.ts` e garantir que o bloco `try/catch` retorne um array vazio fallback sem estourar exceção.
 
 ---
 
