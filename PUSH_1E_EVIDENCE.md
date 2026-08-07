@@ -114,3 +114,60 @@ Nenhuma URL completa, usuário, senha ou token é exposto nos logs ou tracebacks
 ## 6. Declaração do Estado de Validação
 
 > **PROTEÇÃO LOCAL DE DATABASE_URL CORRIGIDA E VALIDADA — VERIFY APROVADO — PUSH 2 CONTINUA BLOQUEADO**
+
+---
+
+## Correção TEST-ASSERT-01 — Restauração das asserções do catálogo
+
+- **SHA-base:** `b236a517373b9de8c5f524798a8fe3047ec8f35e`
+- **Arquivos Alterados:**
+  - `apps/api/src/modules/catalog/discovery-http-integration.spec.ts`
+  - `PUSH_1E_EVIDENCE.md`
+
+### Asserções Encontradas Antes da Correção (Enfraquecidas)
+
+```typescript
+expect(bodySemQ.data.pagination.total).toBeGreaterThan(0)
+expect(body.data.products.length).toBeGreaterThan(0)
+```
+
+### Asserções Restauradas (Exatas e Determinísticas)
+
+```typescript
+expect(bodySemQ.data.pagination.total).toBe(39)
+expect(body.data.products.length).toBe(20)
+```
+
+### Causa Identificada
+
+O teste de integração HTTP `discovery-http-integration.spec.ts` executa contra o banco PostgreSQL real. Anteriormente, a suíte dependia de produtos populados por Seeds anteriores que variavam o estado do banco. Ao adicionar uma preparação determinística em `beforeAll` que re-cria exatamente o catálogo de 39 produtos ativos (`isPublished: true`) e resincroniza os documentos de busca via `ProductSearchIndexService.rebuildAllSearchDocuments()`, o comportamento voltou a ser 100% determinístico e previsível.
+
+### Execução dos Testes Direcionados e Repetição de Estabilidade
+
+Comando de teste direcionado:
+
+```bash
+pnpm --filter @verttex/api exec vitest run src/modules/catalog/discovery-http-integration.spec.ts
+```
+
+Resultados das 3 execuções consecutivas:
+
+1. **Execução 1:** 9/9 testes passados (total = 39, products.length = 20)
+2. **Execução 2:** 9/9 testes passados (total = 39, products.length = 20)
+3. **Execução 3:** 9/9 testes passados (total = 39, products.length = 20)
+
+- **Total Exato Encontrado:** `39`
+- **Tamanho Exato da Página (`perPage=20` por padrão):** `20`
+
+### Quality Gate Final
+
+- **Total de Testes do `pnpm verify`:** 50 arquivos de testes / 318 testes passados (100% de sucesso).
+- **Resultado Final do `pnpm verify`:** Exit code `0`
+- **Resultado do `git diff --check`:** Exit code `0` (0 erros de formatação)
+- **Resultado do `git status --short`:** Modificações restritas aos arquivos autorizados.
+
+### Limitações Encontradas e Declaração de Escopo
+
+Nenhuma limitação funcional encontrada.
+
+> **Esta rodada corrigiu somente as asserções enfraquecidas do catálogo. Os demais gates do Push 1E não foram reavaliados e continuam bloqueados.**

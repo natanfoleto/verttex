@@ -24,9 +24,12 @@ export function isLocalHost(hostname: string): boolean {
     const octet4 = parseInt(match[4]!, 10)
     if (
       octet1 === 127 &&
-      octet2 >= 0 && octet2 <= 255 &&
-      octet3 >= 0 && octet3 <= 255 &&
-      octet4 >= 0 && octet4 <= 255
+      octet2 >= 0 &&
+      octet2 <= 255 &&
+      octet3 >= 0 &&
+      octet3 <= 255 &&
+      octet4 >= 0 &&
+      octet4 <= 255
     ) {
       return true
     }
