@@ -1,4 +1,4 @@
-import '@verttex/env/api'
+import type { PrismaClient } from '@prisma/client'
 
 import { assertSafeLocalDatabaseUrl } from '../src/shared/utils/db-guard.js'
 
@@ -204,11 +204,11 @@ const permissionsData = [
   },
 ]
 
-export type PrismaClientFactory = () => Promise<any>
+export type PrismaClientFactory = () => Promise<Record<string, unknown>>
 
 export async function defaultPrismaClientFactory() {
   const { prisma } = await import('../src/infrastructure/database/prisma.js')
-  return prisma
+  return prisma as unknown as Record<string, unknown>
 }
 
 export async function cleanDatabase(options?: {
@@ -219,12 +219,13 @@ export async function cleanDatabase(options?: {
 
   // 2. Dynamically import Prisma and dependencies ONLY AFTER guard validation passes
   const getPrisma = options?.prismaClientFactory ?? defaultPrismaClientFactory
-  const prisma = await getPrisma()
+  const prisma = (await getPrisma()) as unknown as PrismaClient
   const { hashPassword } = await import('../src/shared/utils/crypto.js')
   const { clearReturnsStore } =
     await import('../src/modules/returns/returns.service.js')
 
   let cleanupError: unknown = null
+  let disconnectError: unknown = null
 
   try {
     console.log('🧹 Limpando o banco de dados...')
@@ -368,13 +369,17 @@ export async function cleanDatabase(options?: {
       if (cleanupError) {
         console.error('Falha adicional ao encerrar a conexão.')
       } else {
-        throw disconnectErr
+        disconnectError = disconnectErr
       }
     }
   }
 
   if (cleanupError) {
     throw cleanupError
+  }
+
+  if (disconnectError) {
+    throw disconnectError
   }
 }
 

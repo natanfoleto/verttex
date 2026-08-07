@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+
 import { describe, expect, it, vi } from 'vitest'
 
 import { assertSafeLocalDatabaseUrl, isLocalHost } from './db-guard'
@@ -243,9 +244,7 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     expect(cliExitCode).not.toBe(0)
     const combinedOutput = `${cliStdout}\n${cliStderr}`
 
-    expect(combinedOutput).toContain(
-      'Falha ao executar a limpeza do banco.',
-    )
+    expect(combinedOutput).toContain('Falha ao executar a limpeza do banco.')
     expect(combinedOutput).not.toContain('usuario-secreto')
     expect(combinedOutput).not.toContain('senha-secreta')
     expect(combinedOutput).not.toContain('host-secreto')
@@ -253,9 +252,13 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
   })
 
   it('18. Testes com sentinelas comprovam que credenciais e mensagens de erros arbitrários nunca são impressos em stdout/stderr/console em nenhum cenário', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {})
 
     const sentinelSecret = 'SENHA_NAO_PODE_APARECER_SECRET_12345'
     const secretUrl = `postgresql://usuario-secreto:${sentinelSecret}@host-secreto/banco`
