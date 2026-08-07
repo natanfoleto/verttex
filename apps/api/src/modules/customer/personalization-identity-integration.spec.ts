@@ -762,8 +762,23 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
     const body = res.json()
     expect(body.success).toBe(true)
     const customerId = body.data.customer.id
+    const accessToken = body.data.accessToken
+    expect(accessToken).toBeDefined()
 
-    // 3. Confirm anonymous cart is completed and items are transferred to customer's active cart
+    // 3. Perform subsequent call to real protected endpoint GET /auth/customers/me using returned credential
+    const meRes = await app.inject({
+      method: 'GET',
+      url: '/auth/customers/me',
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+
+    expect(meRes.statusCode).toBe(200)
+    const meBody = meRes.json()
+    expect(meBody.success).toBe(true)
+    expect(meBody.data.id).toBe(customerId)
+    expect(meBody.data.email).toBe(regEmail)
+
+    // 4. Confirm anonymous cart is completed and items are transferred to customer's active cart
     const completedGuestCart = await prisma.cart.findUnique({
       where: { id: guestCart.id },
     })
@@ -778,11 +793,11 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
     expect(customerCart?.items[0]?.quantity).toBe(3)
   })
 
-  it('executes cart merge through real POST /auth/customers/login HTTP endpoint', async () => {
+  it('executes cart merge through real POST /auth/customers/login HTTP endpoint and authenticates against protected GET /auth/customers/me', async () => {
     // 1. Pre-register customer
     const loginEmail = `http-login-${Date.now()}@example.com`
     const passwordHash = await hashPassword('Password123!')
-    await prisma.customer.create({
+    const createdCustomer = await prisma.customer.create({
       data: {
         name: 'HTTP Login Customer',
         email: loginEmail,
@@ -830,8 +845,24 @@ describe('Personalization Identity Real PostgreSQL & Redis Integration Suite (Pu
     const body = res.json()
     expect(body.success).toBe(true)
     const customerId = body.data.customer.id
+    const accessToken = body.data.accessToken
+    expect(customerId).toBe(createdCustomer.id)
+    expect(accessToken).toBeDefined()
 
-    // 4. Confirm anonymous cart is completed and items are transferred to customer's active cart
+    // 4. Perform subsequent call to real protected endpoint GET /auth/customers/me using returned credential
+    const meRes = await app.inject({
+      method: 'GET',
+      url: '/auth/customers/me',
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+
+    expect(meRes.statusCode).toBe(200)
+    const meBody = meRes.json()
+    expect(meBody.success).toBe(true)
+    expect(meBody.data.id).toBe(createdCustomer.id)
+    expect(meBody.data.email).toBe(loginEmail)
+
+    // 5. Confirm anonymous cart is completed and items are transferred to customer's active cart
     const completedGuestCart = await prisma.cart.findUnique({
       where: { id: guestCart.id },
     })

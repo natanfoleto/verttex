@@ -1,5 +1,19 @@
 # EVIDÊNCIAS DE RECERTIFICAÇÃO DEFINITIVA — PUSH 1 — ROADMAP 028
 
+> [!WARNING]
+> **ERRATA / INVALIDAÇÃO POSTERIOR (RODADA H):** A conclusão de aprovação contida neste relatório histórico (`PUSH_1G_EVIDENCE.md`) referente ao commit `873167762499ed53229cbd410fdc0a86b596bba5` foi posteriormente **invalidada** devido a:
+> 1. Teste de `$disconnect()` que não observava desconexão real no bloco `finally`;
+> 2. Autenticação testada via endpoint sem requisição subsequente com credencial a um endpoint protegido real;
+> 3. Alteração do catálogo fora do escopo com `$executeRaw` TRUNCATE;
+> 4. Inventário incompleto de arquivos;
+> 5. Markdown corrompido (`]` seguido de backtick);
+> 6. Cronologia inconsistente do Roadmap 029 (anterior à sua dependência Roadmap 027);
+> 7. Ausência de separação auditável entre checksums pré e pós-reset;
+> 8. Afirmação genérica sobre Redis sem detalhamento dos testes consumidores;
+> 9. Ausência de declaração sobre checks externos no commit.
+>
+> As evidências autoritativas e definitivas da recertificação do Push 1 encontram-se em `PUSH_1H_EVIDENCE.md`.
+
 ---
 
 ## 1. Identificação da Branch e Baselines

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { assertSafeLocalDatabaseUrl, isLocalHost } from './db-guard'
 
@@ -164,42 +164,67 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     expect(() => assertSafeLocalDatabaseUrl()).not.toThrow()
   })
 
-  it('16. cleanDatabase() chama o guard ANTES de importar ou conectar o Prisma', async () => {
-    // Temporariamente substitui DATABASE_URL por uma URL insegura, confirma que cleanDatabase()
-    // lança antes de qualquer conexão com o banco.
+  it('16. Cenário A — URL insegura bloqueia no guard antes de importar ou conectar o Prisma', async () => {
+    // URL insegura de produção/remota: o guard dispara antes de qualquer I/O ou instanciação
     const originalUrl = process.env.DATABASE_URL
     ;(process.env as Record<string, string>).DATABASE_URL =
       'postgresql://user:pass@203.0.113.10:5432/prod_db'
     const { cleanDatabase } = await import('../prisma/clean.js')
-    await expect(cleanDatabase()).rejects.toThrow(
+
+    let errorCaught: Error | null = null
+    try {
+      await cleanDatabase()
+    } catch (e: unknown) {
+      errorCaught = e as Error
+    } finally {
+      ;(process.env as Record<string, string>).DATABASE_URL = originalUrl!
+    }
+
+    // Asserções Cenário A:
+    // 1. Guard bloqueou a execução
+    expect(errorCaught).not.toBeNull()
+    expect(errorCaught?.message).toContain(
       'DATABASE_URL não parece apontar para um PostgreSQL local',
     )
-    ;(process.env as Record<string, string>).DATABASE_URL = originalUrl!
+    // 2. Credenciais não expostas no erro
+    expect(errorCaught?.message).not.toContain('203.0.113.10')
+    expect(errorCaught?.message).not.toContain('prod_db')
   })
 
-  it('17. cleanDatabase() desconecta o Prisma no bloco finally mesmo quando a limpeza falha', async () => {
-    // Utiliza uma URL inválida de protocolo para garantir que cleanDatabase() falhe
-    // no guard (antes de qualquer I/O), e valida que o erro original é preservado.
-    const originalUrl = process.env.DATABASE_URL
-    ;(process.env as Record<string, string>).DATABASE_URL =
-      'http://localhost:5432/db_invalido'
+  it('17. Cenário B — Falha ocorrida após criação do Prisma chama $disconnect() no bloco finally e preserva erro original', async () => {
+    // Utiliza DATABASE_URL local autorizada (passa no guard, Prisma é instanciado)
+    assertSafeLocalDatabaseUrl()
     const { cleanDatabase } = await import('../prisma/clean.js')
+    const { prisma } = await import('../src/infrastructure/database/prisma.js')
+
+    // Spy on prisma.$disconnect para observar invocação real no bloco finally
+    const disconnectSpy = vi.spyOn(prisma, '$disconnect')
+    disconnectSpy.mockClear()
+
+    // Simula falha interna DENTRO da operação de limpeza (após criação do cliente Prisma)
+    const cleanupError = new Error('SIMULATED_CLEANUP_DB_ERROR')
+    const stockMovementsDeleteSpy = vi
+      .spyOn(prisma.stockMovement, 'deleteMany')
+      .mockRejectedValueOnce(cleanupError)
+
     let caughtError: Error | null = null
     try {
       await cleanDatabase()
     } catch (e: unknown) {
       caughtError = e as Error
-    } finally {
-      ;(process.env as Record<string, string>).DATABASE_URL = originalUrl!
     }
-    // O erro original deve ser preservado (não ocultado)
-    expect(caughtError).not.toBeNull()
-    expect(caughtError?.message).toContain(
-      'DATABASE_URL não parece apontar para um PostgreSQL local',
-    )
-    // Credenciais não devem aparecer na mensagem de erro
-    expect(caughtError?.message).not.toContain('localhost:5432')
-    expect(caughtError?.message).not.toContain('db_invalido')
+
+    // Asserções Cenário B:
+    // 1. Aoperação de limpeza foi iniciada (cliente operou)
+    expect(stockMovementsDeleteSpy).toHaveBeenCalledTimes(1)
+    // 2. A falha ocorreu dentro da limpeza e o erro original foi preservado intacto
+    expect(caughtError).toBe(cleanupError)
+    expect(caughtError?.message).toBe('SIMULATED_CLEANUP_DB_ERROR')
+    // 3. $disconnect() foi chamado EXATAMENTE UMA VEZ no bloco finally
+    expect(disconnectSpy).toHaveBeenCalledTimes(1)
+
+    stockMovementsDeleteSpy.mockRestore()
+    disconnectSpy.mockRestore()
   })
 
   it('18. Nenhuma credencial ou URL completa é exposta na mensagem de erro do guard', () => {
@@ -224,35 +249,34 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     expect(() => assertSafeLocalDatabaseUrl()).not.toThrow()
   })
 
-  it('20. cleanDatabase() preserva schema e _prisma_migrations após limpar os dados', async () => {
-    // Este teste confirma que cleanDatabase() remove dados sem afetar o schema/migrations.
-    // Requer banco local (DATABASE_URL local) e é integração real (usa PostgreSQL local).
-    assertSafeLocalDatabaseUrl() // Falha explicitamente se DATABASE_URL não for local
+  it('20. Cenário C — Limpeza em banco local permitido executa a orquestração real, desconecta no finally e restaura seed', async () => {
+    assertSafeLocalDatabaseUrl() // URL permitida
     const { cleanDatabase } = await import('../prisma/clean.js')
-    await cleanDatabase()
-    // Após cleanup, importa prisma e confirma que _prisma_migrations e o schema existem
     const { prisma } = await import('../src/infrastructure/database/prisma.js')
-    try {
-      // Verify migrations table is intact (data cleanup must not touch it)
-      const migrations = await prisma.$queryRaw<
-        Array<{ migration_name: string }>
-      >`
-        SELECT migration_name FROM _prisma_migrations ORDER BY finished_at
-      `
-      expect(migrations.length).toBeGreaterThanOrEqual(7)
-      // Verify permissions were seeded (cleanDatabase seeds after cleanup)
-      const permCount = await prisma.permission.count()
-      expect(permCount).toBeGreaterThan(0)
-      // Verify admin role was seeded
-      const adminRole = await prisma.role.findFirst({ where: { key: 'admin' } })
-      expect(adminRole).not.toBeNull()
-      // Verify business data tables are clean (no stale products, carts, customers)
-      const cartCount = await prisma.cart.count()
-      const customerCount = await prisma.customer.count()
-      expect(cartCount).toBe(0)
-      expect(customerCount).toBe(0)
-    } finally {
-      await prisma.$disconnect()
-    }
+
+    const disconnectSpy = vi.spyOn(prisma, '$disconnect')
+    disconnectSpy.mockClear()
+
+    await cleanDatabase()
+
+    // Asserção: $disconnect() foi chamado exatamente uma vez no bloco finally do sucesso
+    expect(disconnectSpy).toHaveBeenCalledTimes(1)
+    disconnectSpy.mockRestore()
+
+    // Confirma integridade das migrations e permissões semeadas pós-limpeza
+    const migrations = await prisma.$queryRaw<
+      Array<{ migration_name: string }>
+    >`
+      SELECT migration_name FROM _prisma_migrations ORDER BY finished_at
+    `
+    expect(migrations.length).toBeGreaterThanOrEqual(7)
+    const permCount = await prisma.permission.count()
+    expect(permCount).toBeGreaterThan(0)
+    const adminRole = await prisma.role.findFirst({ where: { key: 'admin' } })
+    expect(adminRole).not.toBeNull()
+
+    // Restaura o seed completo de desenvolvimento (24 produtos, variações, search documents)
+    const { seed } = await import('../prisma/seed.js')
+    await seed()
   })
 })

@@ -5,62 +5,12 @@ import {
 } from 'fastify-type-provider-zod'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { prisma } from '../../infrastructure/database/prisma'
 import { catalogRoutes } from './catalog.routes'
-import { ProductSearchIndexService } from './product-search-index.service'
-
-async function seedDeterministicSuggestionsDataset() {
-  await prisma.$executeRaw`TRUNCATE TABLE product_search_documents, product_variations, products, categories, stores, brands CASCADE`
-
-  const store = await prisma.store.create({
-    data: {
-      name: 'Loja Teste Sugestões',
-      slug: 'loja-teste-sugestoes',
-      status: 'active',
-    },
-  })
-
-  const category = await prisma.category.create({
-    data: {
-      name: 'Mel e Derivados',
-      slug: 'mel-e-derivados-sug',
-    },
-  })
-
-  const pMel = await prisma.product.create({
-    data: {
-      storeId: store.id,
-      categoryId: category.id,
-      name: 'Mel Silvestre Artesanal 500g',
-      slug: 'mel-silvestre-artesanal-500g',
-      shortDescription: 'Mel natural de florada silvestre',
-      status: 'active',
-      isPublished: true,
-    },
-  })
-  await ProductSearchIndexService.syncProductSearchDocument(pMel.id)
-
-  const pCachaca = await prisma.product.create({
-    data: {
-      storeId: store.id,
-      categoryId: category.id,
-      name: 'Cachaça Artesanal Envelhecida 750ml',
-      slug: 'cachaca-artesanal-envelhecida-750ml',
-      shortDescription:
-        'Cachaça de alambique envelhecida em barril de carvalho',
-      status: 'active',
-      isPublished: true,
-    },
-  })
-  await ProductSearchIndexService.syncProductSearchDocument(pCachaca.id)
-}
 
 describe('GET /public/catalog/search-suggestions HTTP Real Integration Tests', () => {
   let app: FastifyInstance
 
   beforeAll(async () => {
-    await seedDeterministicSuggestionsDataset()
-
     app = Fastify({ logger: false })
     app.setValidatorCompiler(validatorCompiler)
     app.setSerializerCompiler(serializerCompiler)

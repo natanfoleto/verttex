@@ -4,7 +4,7 @@
 > **Prioridade:** `high`  
 > **Dependências:** Roadmap 027 (Product Discovery & Product Listing Engine)  
 > **Módulo:** `apps/api/src/modules/catalog` & `apps/marketplace/src/components/search`  
-> **Data de Conclusão:** 2026-07-23  
+> **Data de Conclusão:** 2026-08-06
 > **Caminho:** `.ai/roadmaps/completed/029-search-experience.md`  
 > **Referência Técnica Canônica:** [PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md](../../domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md)
 

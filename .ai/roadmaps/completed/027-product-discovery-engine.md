@@ -43,7 +43,7 @@ A navegação pública deixará de depender de uma página genérica `/produtos`
   }
   ```
 
-- **Serviço de Normalização & Sincronização:** `ProductSearchIndexService` em [product-search-index.service.ts]`apps/api/src/modules/catalog/product-search-index.service.ts` executa a normalização universal (`normalizeSearchText()`) e upserts via `prisma.productSearchDocument.upsert()`.
+- **Serviço de Normalização & Sincronização:** `ProductSearchIndexService` em `apps/api/src/modules/catalog/product-search-index.service.ts` executa a normalização universal (`normalizeSearchText()`) e upserts via `prisma.productSearchDocument.upsert()`.
 
 ### 2. Unidade de Resultado e Facetas por Produto Distinto
 

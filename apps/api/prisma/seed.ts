@@ -1,7 +1,7 @@
 import { prisma } from '../src/infrastructure/database/prisma.js'
-import { hashPassword } from '../src/shared/utils/crypto.js'
 import { ProductSearchIndexService } from '../src/modules/catalog/product-search-index.service.js'
 import { isValidGtin } from '../src/shared/utils/barcode-validator.js'
+import { hashPassword } from '../src/shared/utils/crypto.js'
 
 const permissionsData = [
   // Users module
@@ -769,7 +769,7 @@ async function main() {
                 storeId: opts.store.id,
                 variationId: variation.id,
                 lotId: lot.id,
-                locationId: locationId,
+                locationId,
               },
             },
             update: { physicalQuantity: lotInfo.quantity },
@@ -777,7 +777,7 @@ async function main() {
               storeId: opts.store.id,
               variationId: variation.id,
               lotId: lot.id,
-              locationId: locationId,
+              locationId,
               physicalQuantity: lotInfo.quantity,
               reservedQuantity: 0,
             },
@@ -788,7 +788,7 @@ async function main() {
           where: {
             storeId: opts.store.id,
             variationId: variation.id,
-            locationId: locationId,
+            locationId,
             lotId: null,
           },
         })
@@ -804,7 +804,7 @@ async function main() {
               storeId: opts.store.id,
               variationId: variation.id,
               lotId: null,
-              locationId: locationId,
+              locationId,
               physicalQuantity: varData.stockQuantity,
               reservedQuantity: 0,
             },
@@ -1450,11 +1450,20 @@ async function main() {
   }
 }
 
-main()
-  .catch((e) => {
-    console.error('❌ Seed failed:', e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+export async function seed() {
+  await main()
+}
+
+if (
+  process.argv[1] &&
+  (process.argv[1].endsWith('seed.ts') || process.argv[1].endsWith('seed.js'))
+) {
+  main()
+    .catch((e) => {
+      console.error('❌ Seed failed:', e)
+      process.exit(1)
+    })
+    .finally(async () => {
+      await prisma.$disconnect()
+    })
+}

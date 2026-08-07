@@ -4,8 +4,8 @@
 > **Status:** `certified`  
 > **Localização:** `.ai/domain/PRODUCT_DISCOVERY_SEARCH_EXPERIENCE.md`
 > **Baselines de Referência Histórica:**
-> - **Product Discovery Engine:** [`0f9d52d6e02e606ed2e625508a91e7919a0fae63`]`apps/api/src/modules/catalog/discovery.service.ts`
-> - **Search Experience Certificada:** [`69c7416ba35c50b73f8b8dd36eebc61686b7ba9c`]`apps/marketplace/src/components/search/marketplace-search.tsx`
+> - **Product Discovery Engine:** `apps/api/src/modules/catalog/discovery.service.ts` (`0f9d52d6e02e606ed2e625508a91e7919a0fae63`)
+> - **Search Experience Certificada:** `apps/marketplace/src/components/search/marketplace-search.tsx` (`69c7416ba35c50b73f8b8dd36eebc61686b7ba9c`)
 
 ---
 
