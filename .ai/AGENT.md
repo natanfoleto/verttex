@@ -11,16 +11,16 @@ Bem-vindo! Este documento define as regras obrigatórias de conduta, a hierarqui
 
 Antes de iniciar a análise ou alteração de qualquer código, você **DEVE** ler os documentos na seguinte ordem estrita:
 
-1. [`.ai/README.md`]`.ai/README.md` — Índice geral e estrutura de toda a documentação
-2. [`.ai/AGENT.md`]`.ai/AGENT.md` (este documento) — Regras de conduta e diretrizes gerais da IA
-3. Regras obrigatórias de segurança em [`.ai/security/AI_SECURITY_RULES.md`]`.ai/security/AI_SECURITY_RULES.md`
-4. [`.ai/roadmaps/INDEX.md`]`.ai/roadmaps/INDEX.md` — Índice oficial dos roadmaps
+1. [`.ai/README.md`](README.md) — Índice geral e estrutura de toda a documentação
+2. [`.ai/AGENT.md`](AGENT.md) (este documento) — Regras de conduta e diretrizes gerais da IA
+3. Regras obrigatórias de segurança em [`.ai/security/AI_SECURITY_RULES.md`](security/AI_SECURITY_RULES.md)
+4. [`.ai/roadmaps/INDEX.md`](roadmaps/INDEX.md) — Índice oficial dos roadmaps
 5. Roadmap ativo em `.ai/roadmaps/active/` (quando existir)
-6. Arquitetura aplicável em [`.ai/architecture/ARCHITECTURE.md`]`.ai/architecture/ARCHITECTURE.md`
-7. Regras de domínio aplicáveis em [`.ai/domain/BUSINESS_RULES.md`]`.ai/domain/BUSINESS_RULES.md`, [`.ai/domain/PERMISSIONS.md`]`.ai/domain/PERMISSIONS.md` e [`.ai/domain/WORKFLOWS.md`]`.ai/domain/WORKFLOWS.md`
-8. Documentação específica de [`.ai/backend/BACKEND_API.md`]`.ai/backend/BACKEND_API.md` ou [`.ai/frontend/FRONTEND_UI.md`]`.ai/frontend/FRONTEND_UI.md`
-9. Documentos de observabilidade em [`.ai/observability/AUDIT_RULES.md`]`.ai/observability/AUDIT_RULES.md`
-10. Taxonomia de armazenamento e uploads no R2 em [`.ai/storage/R2_UPLOADS.md`]`.ai/storage/R2_UPLOADS.md`
+6. Arquitetura aplicável em [`.ai/architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)
+7. Regras de domínio aplicáveis em [`.ai/domain/BUSINESS_RULES.md`](domain/BUSINESS_RULES.md), [`.ai/domain/PERMISSIONS.md`](domain/PERMISSIONS.md) e [`.ai/domain/WORKFLOWS.md`](domain/WORKFLOWS.md)
+8. Documentação específica de [`.ai/backend/BACKEND_API.md`](backend/BACKEND_API.md) ou [`.ai/frontend/FRONTEND_UI.md`](frontend/FRONTEND_UI.md)
+9. Documentos de observabilidade em [`.ai/observability/AUDIT_RULES.md`](observability/AUDIT_RULES.md)
+10. Taxonomia de armazenamento e uploads no R2 em [`.ai/storage/R2_UPLOADS.md`](storage/R2_UPLOADS.md)
 
 ---
 

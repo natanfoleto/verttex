@@ -55,11 +55,11 @@ Implementar a personalização determinística e transparente da página inicial
 - **Escopo:** Criação deste roadmap em `active/`, atualização do índice em `.ai/roadmaps/INDEX.md`, execução e diagnóstico da baseline do Quality Gate (`pnpm verify`).
 - **Status:** Concluído em 2026-08-06.
 
-### Push 1 — Identidade Anônima e Isolamento do Carrinho `[CONCLUÍDO E CERTIFICADO NA RODADA H]`
+### Push 1 — Identidade Anônima e Isolamento do Carrinho `[CONCLUÍDO, CORRIGIDO E CERTIFICADO]`
 - **Escopo:** Modelo `PersonalizationProfile`, cookie assinado `vt_visitor` (HMAC-SHA-256), hashing `visitorKeyHash`, exclusão de `default-guest-session`, merge transacional/idempotente `POST /customer/merge-anonymous-session` com isolamento `Serializable`, retry loop para conflitos de serialização (`P2034`/`P2002`), auditoria pós-commit, Check Constraints XOR no PostgreSQL (`personalization_profiles_xor_identity_check` e `carts_xor_owner_check`), índices parciais de carrinho ativo, proteção estrita do `db:clean` (allowlist exata) e testes de integração HTTP reais por `app.inject()`.
-- **Status:** Concluído, recertificado e auditado na Rodada H na branch `fix/roadmap-028-push1-final` a partir do SHA `873167762499ed53229cbd410fdc0a86b596bba5`. Referência de Evidências: `PUSH_1H_EVIDENCE.md`.
+- **Status:** Concluído, recertificado e auditado na Rodada I na branch `fix/roadmap-028-push1-final` a partir do SHA `04acd6f834739ab7cf85e8a8e1de0eb88000f7d6`. Referência de Evidências: `PUSH_1I_EVIDENCE.md`.
 
-### Push 2 — Fronteira Canônica do Catálogo e Oferta Real `[NÃO AVALIADO NESTA BRANCH — AGUARDANDO AUTORIZAÇÃO]`
+### Push 2 — Fronteira Canônica do Catálogo e Oferta Real `[NÃO AVALIADO — AGUARDANDO AUTORIZAÇÃO]`
 - **Status:** Implementado antecipadamente na branch `main` (commit `b0ac3d1`). Não auditado, não avaliado e não certificado nesta branch corretiva. Aguarda autorização formal após conclusão do Push 1.
 
 ### Push 3 — Eventos, Histórico, Merge e Privacidade

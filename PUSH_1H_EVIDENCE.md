@@ -1,5 +1,14 @@
 # EVIDÊNCIAS DE RECERTIFICAÇÃO DEFINITIVA DA RODADA H — PUSH 1 — ROADMAP 028
 
+> [!WARNING]
+> **ERRATA / INVALIDAÇÃO POSTERIOR (RODADA I):** A conclusão de aprovação contida neste relatório histórico (`PUSH_1H_EVIDENCE.md`) referente ao commit `04acd6f834739ab7cf85e8a8e1de0eb88000f7d6` foi posteriormente **invalidada** pelos bloqueadores identificados na Rodada I:
+> 1. Invocação de `$disconnect()` no bloco `finally` que não garantia a preservação do erro original de limpeza caso a desconexão também falhasse;
+> 2. Testes funcionais contendo uso indevido de `$queryRaw` na suíte de isolamento do banco;
+> 3. Links Markdown com sintaxe corrompida (`]` seguido de backtick);
+> 4. Inconsistência no caminho e data de atualização do índice do Roadmap 029.
+>
+> As evidências autoritativas e definitivas da recertificação do Push 1 encontram-se em `PUSH_1I_EVIDENCE.md`.
+
 ---
 
 ## 1. Identificação do Ambiente e Baselines

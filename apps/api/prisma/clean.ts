@@ -214,6 +214,8 @@ export async function cleanDatabase() {
   const { clearReturnsStore } =
     await import('../src/modules/returns/returns.service.js')
 
+  let cleanupError: unknown = null
+
   try {
     console.log('🧹 Limpando o banco de dados...')
 
@@ -345,8 +347,25 @@ export async function cleanDatabase() {
     console.log(`- Email: ${adminUser.email}`)
     console.log('- Senha: admin123')
     console.log(`- Cargo: ${adminRole.name} (${adminRole.key})`)
+  } catch (err) {
+    cleanupError = err
   } finally {
-    await prisma.$disconnect()
+    try {
+      await prisma.$disconnect()
+    } catch (disconnectErr) {
+      if (cleanupError) {
+        console.error(
+          '⚠️ Erro secundário ignorado no $disconnect():',
+          (disconnectErr as Error)?.message || disconnectErr,
+        )
+      } else {
+        throw disconnectErr
+      }
+    }
+  }
+
+  if (cleanupError) {
+    throw cleanupError
   }
 }
 
