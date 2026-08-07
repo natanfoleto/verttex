@@ -123,6 +123,7 @@ Nenhuma URL completa, usuário, senha ou token é exposto nos logs ou tracebacks
 - **Arquivos Alterados:**
   - `apps/api/src/modules/catalog/discovery-http-integration.spec.ts`
   - `PUSH_1E_EVIDENCE.md`
+  - `apps/api/test/db-guard.ts` (Formatação incidental pelo linter da IDE)
 
 ### Asserções Encontradas Antes da Correção (Enfraquecidas)
 
@@ -171,3 +172,90 @@ Resultados das 3 execuções consecutivas:
 Nenhuma limitação funcional encontrada.
 
 > **Esta rodada corrigiu somente as asserções enfraquecidas do catálogo. Os demais gates do Push 1E não foram reavaliados e continuam bloqueados.**
+
+---
+
+## Correção TEST-CONCURRENCY-01 — Serialização dos testes da API
+
+- **Branch:** `main`
+- **SHA-base real:** `b7c525ba7d52f87f6bb95e60327884e6f6eab8e3`
+- **Arquivos Alterados:**
+  - `apps/api/vitest.config.ts`
+  - `PUSH_1E_EVIDENCE.md`
+
+### Causa da Disputa entre Testes
+
+Testes de integração (como `discovery-http-integration.spec.ts`) realizam a limpeza de tabelas no banco PostgreSQL real através de instruções `TRUNCATE TABLE ... CASCADE`. Quando o Vitest executa arquivos de teste em paralelo (comportamento padrão), um arquivo pode truncar a base enquanto outro arquivo está efetuando leituras ou inserções concorrentes no mesmo banco.
+
+### Configuração de Serialização Aplicada
+
+No arquivo [apps/api/vitest.config.ts](file:///Users/natanfoleto/Desktop/prefeitura/verttex/apps/api/vitest.config.ts):
+
+- **Configuração Anterior:**
+  ```typescript
+  export default defineConfig({
+    test: {
+      setupFiles: ['./test/setup.ts'],
+    },
+  })
+  ```
+- **Configuração Final:**
+  ```typescript
+  export default defineConfig({
+    test: {
+      setupFiles: ['./test/setup.ts'],
+      fileParallelism: false,
+    },
+  })
+  ```
+
+Com `fileParallelism: false`, a execução de arquivos da API ocorre em modo estritamente sequencial (`Arquivo A termina → Arquivo B começa`), eliminando concorrência e race conditions entre arquivos de teste que acessam a mesma base PostgreSQL local.
+
+### Resultado da Inspeção por `.concurrent`
+
+- **Comando:** `rg -n "(describe|test|it)\.concurrent" apps/api`
+- **Resultado:** 0 ocorrências encontradas. Nenhuma marcação `.concurrent` ativa em testes de integração da API.
+
+### Preservação das Asserções Exatas do Catálogo
+
+- `expect(total).toBe(39)` — Preservada sem alteração.
+- `expect(products.length).toBe(20)` — Preservada sem alteração.
+
+### Teste Direcionado do Catálogo
+
+- **Comando:** `pnpm --filter @verttex/api exec vitest run src/modules/catalog/discovery-http-integration.spec.ts`
+- **Resultado:** 9/9 testes passados (Exit code: 0, total = 39, products.length = 20).
+
+### Três Execuções Consecutivas da Suíte Completa da API
+
+```text
+Execução 1:
+Comando: pnpm --filter api test
+Quantidade de arquivos: 50 passed (50)
+Quantidade de testes: 318 passed (318)
+Exit code: 0
+
+Execução 2:
+Comando: pnpm --filter api test
+Quantidade de arquivos: 50 passed (50)
+Quantidade de testes: 318 passed (318)
+Exit code: 0
+
+Execução 3:
+Comando: pnpm --filter api test
+Quantidade de arquivos: 50 passed (50)
+Quantidade de testes: 318 passed (318)
+Exit code: 0
+```
+
+### Quality Gate Final
+
+- **Resultado do `pnpm verify`:** Exit code `0` (50 arquivos de teste / 318 testes passados, 0 erros no lint, typecheck e build de todos os workspaces).
+- **Resultado de `git diff --check`:** Exit code `0` (0 erros de formatação).
+- **Resultado de `git status --short`:** Modificações restritas aos arquivos de escopo.
+
+### Limitações Encontradas e Declaração de Escopo
+
+Nenhuma limitação funcional encontrada.
+
+> **Esta rodada eliminou somente a concorrência entre arquivos de teste da API. Os demais gates do Push 1E não foram reavaliados e continuam bloqueados.**
