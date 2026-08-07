@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { prisma } from '../../infrastructure/database/prisma'
 import { ReturnsService } from './returns.service'
 
+const auditorActor = { id: 'user-auditor', role: 'admin' }
+const adminActor = { id: 'user-1', role: 'admin' }
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     order: {
@@ -91,7 +94,7 @@ describe('ReturnsService', () => {
 
       // Step 2: Receive into compulsory quarantine
       const quarantined = await ReturnsService.receiveReturnInQuarantine(
-        'user-auditor',
+        auditorActor,
         ret.id,
         { notes: 'Armazenado na câmara fria 2 de quarentena' },
       )
@@ -108,7 +111,7 @@ describe('ReturnsService', () => {
 
       // Step 3: Inspect and release for sale
       const inspected = await ReturnsService.inspectAndReleaseQuarantine(
-        'user-auditor',
+        auditorActor,
         ret.id,
         {
           decision: 'APPROVED_FOR_SALE',
@@ -148,10 +151,10 @@ describe('ReturnsService', () => {
         variationId: 'var-3',
       } as unknown as Awaited<ReturnType<typeof prisma.orderItem.findUnique>>)
 
-      await ReturnsService.receiveReturnInQuarantine('user-auditor', ret.id, {})
+      await ReturnsService.receiveReturnInQuarantine(auditorActor, ret.id, {})
 
       const inspected = await ReturnsService.inspectAndReleaseQuarantine(
-        'user-auditor',
+        auditorActor,
         ret.id,
         {
           decision: 'DISCARD_DAMAGE',
@@ -193,7 +196,7 @@ describe('ReturnsService', () => {
         paymentStatus: 'refunded',
       } as unknown as Awaited<ReturnType<typeof prisma.order.update>>)
 
-      const result = await ReturnsService.processRefund('user-1', ret.id, {
+      const result = await ReturnsService.processRefund(adminActor, ret.id, {
         amount: 89.9,
         reason: 'Reembolso Pix realizado',
       })

@@ -1,6 +1,10 @@
 import { Prisma } from '@prisma/client'
 
 import { prisma } from '../../infrastructure/database/prisma'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import { DateRangeQueryInput, ExportReportsQueryInput } from './reports.schemas'
 
@@ -8,14 +12,19 @@ export class ReportsService {
   /**
    * Calculates total sales revenue, order count, and average ticket size.
    */
-  static async getSalesSummary(query: DateRangeQueryInput) {
+  static async getSalesSummary(
+    query: DateRangeQueryInput,
+    actor: StoreAccessActor,
+  ) {
     const whereCondition: Prisma.OrderWhereInput = {
       status: { in: ['PAID', 'CONFIRMED', 'SHIPPED', 'DELIVERED'] },
     }
 
-    if (query.storeId) {
-      whereCondition.storeId = query.storeId
-    }
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(
+      actor,
+      query.storeId,
+    )
+    if (storeFilter) whereCondition.storeId = storeFilter
 
     if (query.startDate || query.endDate) {
       whereCondition.createdAt = {}
@@ -40,7 +49,11 @@ export class ReportsService {
       orderCount > 0 ? Number((totalRevenue / orderCount).toFixed(2)) : 0
 
     return {
-      storeId: query.storeId || 'ALL_STORES',
+      storeId:
+        query.storeId ||
+        (StoreAccessPolicy.hasGlobalAccess(actor)
+          ? 'ALL_STORES'
+          : 'ALL_ACCESSIBLE_STORES'),
       orderCount,
       totalRevenue: Number(totalRevenue.toFixed(2)),
       averageTicket,
@@ -50,15 +63,22 @@ export class ReportsService {
   /**
    * Calculates top selling products and classifies into ABC Curve (A: 80%, B: 15%, C: 5%).
    */
-  static async getTopProductsAndAbc(query: DateRangeQueryInput) {
+  static async getTopProductsAndAbc(
+    query: DateRangeQueryInput,
+    actor: StoreAccessActor,
+  ) {
     const whereCondition: Prisma.OrderItemWhereInput = {
       order: {
         status: { in: ['PAID', 'CONFIRMED', 'SHIPPED', 'DELIVERED'] },
       },
     }
 
-    if (query.storeId && whereCondition.order) {
-      whereCondition.order.storeId = query.storeId
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(
+      actor,
+      query.storeId,
+    )
+    if (storeFilter && whereCondition.order) {
+      whereCondition.order.storeId = storeFilter
     }
 
     const items = await prisma.orderItem.findMany({
@@ -123,7 +143,11 @@ export class ReportsService {
     })
 
     return {
-      storeId: query.storeId || 'ALL_STORES',
+      storeId:
+        query.storeId ||
+        (StoreAccessPolicy.hasGlobalAccess(actor)
+          ? 'ALL_STORES'
+          : 'ALL_ACCESSIBLE_STORES'),
       totalProducts: abcProducts.length,
       grandTotalRevenue: Number(grandTotalRevenue.toFixed(2)),
       products: abcProducts,
@@ -133,14 +157,19 @@ export class ReportsService {
   /**
    * Generates inventory losses report aggregated by discard reason (Damage vs Expiration).
    */
-  static async getInventoryLossesReport(query: DateRangeQueryInput) {
+  static async getInventoryLossesReport(
+    query: DateRangeQueryInput,
+    actor: StoreAccessActor,
+  ) {
     const whereCondition: Prisma.StockMovementWhereInput = {
       type: { in: ['DAMAGE_DISCARD', 'EXPIRATION_DISCARD'] },
     }
 
-    if (query.storeId) {
-      whereCondition.storeId = query.storeId
-    }
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(
+      actor,
+      query.storeId,
+    )
+    if (storeFilter) whereCondition.storeId = storeFilter
 
     const movements = await prisma.stockMovement.findMany({
       where: whereCondition,
@@ -161,7 +190,11 @@ export class ReportsService {
       .reduce((sum, m) => sum + m.quantity, 0)
 
     return {
-      storeId: query.storeId || 'ALL_STORES',
+      storeId:
+        query.storeId ||
+        (StoreAccessPolicy.hasGlobalAccess(actor)
+          ? 'ALL_STORES'
+          : 'ALL_ACCESSIBLE_STORES'),
       totalDiscardedQuantity: damageTotal + expirationTotal,
       byReason: {
         damageDiscard: damageTotal,
@@ -174,14 +207,20 @@ export class ReportsService {
   /**
    * Exports consolidated report in CSV or JSON format with audit logging.
    */
-  static async exportReport(userId: string, query: ExportReportsQueryInput) {
-    const sales = await this.getSalesSummary({ storeId: query.storeId })
-    const losses = await this.getInventoryLossesReport({
-      storeId: query.storeId,
-    })
+  static async exportReport(
+    actor: StoreAccessActor,
+    query: ExportReportsQueryInput,
+  ) {
+    const sales = await this.getSalesSummary({ storeId: query.storeId }, actor)
+    const losses = await this.getInventoryLossesReport(
+      {
+        storeId: query.storeId,
+      },
+      actor,
+    )
 
     await logAudit({
-      userId,
+      userId: actor.id,
       action: 'REPORT_EXPORT',
       entity: 'Report',
       newValues: { format: query.format, storeId: query.storeId },

@@ -3,6 +3,10 @@ import { FastifyRequest } from 'fastify'
 
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import { LotsService } from '../lots/lots.service'
 import {
@@ -45,6 +49,49 @@ export function resolveStockMode(
 }
 
 export class StockService {
+  private static async assertInventoryReferencesBelongToStore(input: {
+    storeId: string
+    variationId: string
+    locationIds: string[]
+    lotId?: string | null
+  }) {
+    const uniqueLocationIds = [...new Set(input.locationIds)]
+    const [variation, locationCount, lot] = await Promise.all([
+      prisma.productVariation.findFirst({
+        where: {
+          id: input.variationId,
+          storeId: input.storeId,
+          deletedAt: null,
+        },
+        select: { id: true },
+      }),
+      prisma.inventoryLocation.count({
+        where: {
+          id: { in: uniqueLocationIds },
+          storeId: input.storeId,
+        },
+      }),
+      input.lotId
+        ? prisma.productLot.findFirst({
+            where: { id: input.lotId, storeId: input.storeId },
+            select: { id: true },
+          })
+        : Promise.resolve(null),
+    ])
+
+    if (
+      !variation ||
+      locationCount !== uniqueLocationIds.length ||
+      (input.lotId && !lot)
+    ) {
+      throw new AppError(
+        'NOT_FOUND',
+        'Variação, lote ou localização não encontrados nesta loja',
+        404,
+      )
+    }
+  }
+
   static resolveStockMode(
     product: {
       stockMode?: string | null
@@ -67,9 +114,12 @@ export class StockService {
    */
   static async receiveStock(
     body: ReceiveStockBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
+    await StoreAccessPolicy.assertStoreAccess(actor, body.storeId)
+
     const variation = await prisma.productVariation.findFirst({
       where: { id: body.variationId, deletedAt: null },
       include: {
@@ -99,7 +149,19 @@ export class StockService {
 
     // Get or create default inventory location
     let locationId = body.locationId
-    if (!locationId) {
+    if (locationId) {
+      const location = await prisma.inventoryLocation.findFirst({
+        where: { id: locationId, storeId: body.storeId },
+        select: { id: true },
+      })
+      if (!location) {
+        throw new AppError(
+          'NOT_FOUND',
+          'Localização de estoque não encontrada nesta loja',
+          404,
+        )
+      }
+    } else {
       const defaultLoc = await prisma.inventoryLocation.upsert({
         where: {
           storeId_code: {
@@ -481,9 +543,18 @@ export class StockService {
    */
   static async adjustStock(
     body: AdjustStockBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
+    await StoreAccessPolicy.assertStoreAccess(actor, body.storeId)
+    await this.assertInventoryReferencesBelongToStore({
+      storeId: body.storeId,
+      variationId: body.variationId,
+      lotId: body.lotId,
+      locationIds: [body.locationId],
+    })
+
     const stockItem = await prisma.stockItem.findFirst({
       where: {
         storeId: body.storeId,
@@ -550,9 +621,12 @@ export class StockService {
    */
   static async discardExpiredStock(
     body: DiscardExpiredStockBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
+    await StoreAccessPolicy.assertStoreAccess(actor, body.storeId)
+
     const stockItem = await prisma.stockItem.findFirst({
       where: {
         storeId: body.storeId,
@@ -613,9 +687,18 @@ export class StockService {
    */
   static async transferStock(
     body: TransferStockBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
+    await StoreAccessPolicy.assertStoreAccess(actor, body.storeId)
+    await this.assertInventoryReferencesBelongToStore({
+      storeId: body.storeId,
+      variationId: body.variationId,
+      lotId: body.lotId,
+      locationIds: [body.sourceLocationId, body.targetLocationId],
+    })
+
     const sourceItem = await prisma.stockItem.findFirst({
       where: {
         storeId: body.storeId,
@@ -700,13 +783,20 @@ export class StockService {
   /**
    * List Stock Movements History
    */
-  static async listStockMovements(query: ListStockMovementsQuery) {
+  static async listStockMovements(
+    query: ListStockMovementsQuery,
+    actor: StoreAccessActor,
+  ) {
     const page = Math.max(1, query.page || 1)
     const perPage = Math.max(1, Math.min(100, query.perPage || 20))
     const skip = (page - 1) * perPage
 
     const where: Prisma.StockMovementWhereInput = {}
-    if (query.storeId) where.storeId = query.storeId
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(
+      actor,
+      query.storeId,
+    )
+    if (storeFilter) where.storeId = storeFilter
     if (query.variationId) where.variationId = query.variationId
 
     if (query.search) {

@@ -9,17 +9,22 @@ import {
 } from './lots.schemas'
 import { LotsService } from './lots.service'
 
+function getActor(request: FastifyZodRequest) {
+  const actor = request.userPayload
+  if (!actor) {
+    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
+  }
+  return actor
+}
+
 export async function createLotController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const userId = request.userPayload?.id
-  if (!userId) {
-    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
-  }
+  const actor = getActor(request)
 
   const body = request.body as CreateLotBody
-  const result = await LotsService.createLot(body, userId, request)
+  const result = await LotsService.createLot(body, actor, request)
 
   return reply.status(201).send({
     success: true,
@@ -31,8 +36,9 @@ export async function listLotsController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
+  const actor = getActor(request)
   const query = request.query as ListLotsQuery
-  const result = await LotsService.listLots(query)
+  const result = await LotsService.listLots(query, actor)
 
   return reply.send({
     success: true,
@@ -44,8 +50,9 @@ export async function getLotDetailsController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
+  const actor = getActor(request)
   const params = request.params as { lotId: string }
-  const lot = await LotsService.getLotDetails(params.lotId)
+  const lot = await LotsService.getLotDetails(params.lotId, actor)
 
   return reply.send({
     success: true,
@@ -57,10 +64,7 @@ export async function updateLotStatusController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const userId = request.userPayload?.id
-  if (!userId) {
-    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
-  }
+  const actor = getActor(request)
 
   const params = request.params as { lotId: string }
   const body = request.body as UpdateLotStatusBody
@@ -68,7 +72,7 @@ export async function updateLotStatusController(
   const result = await LotsService.updateLotStatus(
     params.lotId,
     body,
-    userId,
+    actor,
     request,
   )
 

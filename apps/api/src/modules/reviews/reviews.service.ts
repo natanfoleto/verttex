@@ -1,4 +1,9 @@
 import { prisma } from '../../infrastructure/database/prisma'
+import { AppError } from '../../shared/errors/app-error'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import {
   AnswerQuestionInput,
@@ -34,6 +39,23 @@ const reviewsStore = new Map<string, ReviewRecord>()
 const questionsStore = new Map<string, QuestionRecord>()
 
 export class ReviewsService {
+  private static async assertProductAccess(
+    actor: StoreAccessActor,
+    productId: string,
+  ) {
+    if (StoreAccessPolicy.hasGlobalAccess(actor)) return
+
+    const product = await prisma.product.findFirst({
+      where: { id: productId, deletedAt: null },
+      select: { storeId: true },
+    })
+    if (!product) {
+      throw new AppError('NOT_FOUND', 'Produto não encontrado', 404)
+    }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, product.storeId)
+  }
+
   /**
    * Submits a product review if the customer has a verified delivered purchase.
    */
@@ -136,7 +158,7 @@ export class ReviewsService {
    * Merchant/Seller answers a product question.
    */
   static async answerQuestion(
-    userId: string,
+    actor: StoreAccessActor,
     questionId: string,
     input: AnswerQuestionInput,
   ) {
@@ -144,6 +166,9 @@ export class ReviewsService {
     if (!question) {
       throw new Error('Pergunta não encontrada')
     }
+
+    await this.assertProductAccess(actor, question.productId)
+    const userId = actor.id
 
     question.answer = input.answer
     question.answeredBy = userId
@@ -164,7 +189,7 @@ export class ReviewsService {
    * Moderates a review by hiding or showing it.
    */
   static async moderateReview(
-    userId: string,
+    actor: StoreAccessActor,
     reviewId: string,
     input: ModerateReviewInput,
   ) {
@@ -172,6 +197,9 @@ export class ReviewsService {
     if (!review) {
       throw new Error('Avaliação não encontrada')
     }
+
+    await this.assertProductAccess(actor, review.productId)
+    const userId = actor.id
 
     review.isHidden = input.isHidden
     review.moderationReason = input.reason

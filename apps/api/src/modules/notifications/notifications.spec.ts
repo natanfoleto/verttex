@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { prisma } from '../../infrastructure/database/prisma'
 import { NotificationsService } from './notifications.service'
 
+const adminActor = { id: 'user-admin', role: 'admin' }
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     productLot: {
@@ -33,7 +35,7 @@ describe('NotificationsService', () => {
       expect(created.isRead).toBe(false)
 
       const list = await NotificationsService.listUserNotifications(
-        'user-test-1',
+        { id: 'user-test-1', role: 'admin' },
         {
           unreadOnly: false,
         },
@@ -51,7 +53,7 @@ describe('NotificationsService', () => {
       )
 
       const updated = await NotificationsService.markAsRead(
-        'user-test-2',
+        { id: 'user-test-2', role: 'admin' },
         created.id,
       )
       expect(updated.isRead).toBe(true)
@@ -80,9 +82,12 @@ describe('NotificationsService', () => {
       ] as unknown as Awaited<ReturnType<typeof prisma.productLot.findMany>>)
 
       // First run: should trigger alerts for both lots
-      const firstCheck = await NotificationsService.checkLotExpirations({
-        storeId: 'store-1',
-      })
+      const firstCheck = await NotificationsService.checkLotExpirations(
+        {
+          storeId: 'store-1',
+        },
+        adminActor,
+      )
 
       expect(firstCheck.scannedLots).toBe(2)
       expect(firstCheck.newAlertsCount).toBe(2)
@@ -94,9 +99,12 @@ describe('NotificationsService', () => {
       ).toBe(true)
 
       // Second run: deduplication should prevent generating duplicate alerts for the same bracket
-      const secondCheck = await NotificationsService.checkLotExpirations({
-        storeId: 'store-1',
-      })
+      const secondCheck = await NotificationsService.checkLotExpirations(
+        {
+          storeId: 'store-1',
+        },
+        adminActor,
+      )
 
       expect(secondCheck.newAlertsCount).toBe(0)
     })

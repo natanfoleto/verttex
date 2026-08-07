@@ -1,11 +1,20 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
+import { AppError } from '../../shared/errors/app-error'
 import {
   cancelOrderBodySchema,
   checkoutBodySchema,
   listOrdersQuerySchema,
 } from './orders.schemas'
 import { OrdersService } from './orders.service'
+
+function getActor(req: FastifyRequest) {
+  const actor = req.userPayload
+  if (!actor) {
+    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
+  }
+  return actor
+}
 
 export class OrdersController {
   static async checkout(req: FastifyRequest, reply: FastifyReply) {
@@ -25,6 +34,7 @@ export class OrdersController {
   }
 
   static async listManagerOrders(req: FastifyRequest, reply: FastifyReply) {
+    const actor = getActor(req)
     const query = (req.query || {}) as {
       status?: string
       search?: string
@@ -32,7 +42,7 @@ export class OrdersController {
       limit?: string
       perPage?: string
     }
-    const result = await OrdersService.listManagerOrders(query)
+    const result = await OrdersService.listManagerOrders(query, actor)
     return reply.send({
       success: true,
       data: result.data,

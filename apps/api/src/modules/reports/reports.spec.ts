@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { prisma } from '../../infrastructure/database/prisma'
 import { ReportsService } from './reports.service'
 
+const adminActor = { id: 'user-admin', role: 'admin' }
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     order: {
@@ -34,9 +36,12 @@ describe('ReportsService', () => {
         { totalAmount: 300.0 },
       ] as unknown as Awaited<ReturnType<typeof prisma.order.findMany>>)
 
-      const summary = await ReportsService.getSalesSummary({
-        storeId: 'store-1',
-      })
+      const summary = await ReportsService.getSalesSummary(
+        {
+          storeId: 'store-1',
+        },
+        adminActor,
+      )
 
       expect(summary.orderCount).toBe(3)
       expect(summary.totalRevenue).toBe(600.0)
@@ -70,9 +75,12 @@ describe('ReportsService', () => {
         },
       ] as unknown as Awaited<ReturnType<typeof prisma.orderItem.findMany>>)
 
-      const abc = await ReportsService.getTopProductsAndAbc({
-        storeId: 'store-1',
-      })
+      const abc = await ReportsService.getTopProductsAndAbc(
+        {
+          storeId: 'store-1',
+        },
+        adminActor,
+      )
 
       expect(abc.totalProducts).toBe(3)
       expect(abc.grandTotalRevenue).toBe(1000.0)
@@ -91,9 +99,12 @@ describe('ReportsService', () => {
         { type: 'EXPIRATION_DISCARD', quantity: 2 },
       ] as unknown as Awaited<ReturnType<typeof prisma.stockMovement.findMany>>)
 
-      const losses = await ReportsService.getInventoryLossesReport({
-        storeId: 'store-1',
-      })
+      const losses = await ReportsService.getInventoryLossesReport(
+        {
+          storeId: 'store-1',
+        },
+        adminActor,
+      )
 
       expect(losses.totalDiscardedQuantity).toBe(12)
       expect(losses.byReason.damageDiscard).toBe(3)
@@ -111,7 +122,7 @@ describe('ReportsService', () => {
         { type: 'EXPIRATION_DISCARD', quantity: 4 },
       ] as unknown as Awaited<ReturnType<typeof prisma.stockMovement.findMany>>)
 
-      const result = await ReportsService.exportReport('user-admin', {
+      const result = await ReportsService.exportReport(adminActor, {
         format: 'csv',
         storeId: 'store-1',
       })

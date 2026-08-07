@@ -14,7 +14,7 @@ Este documento funciona como a fonte única da verdade para o backlog de **Débi
 | :----------- | :------------------------------------------------- | :------------------------- | :---------- | :--------- | :--------- | :--------------------------------------------- |
 | **DEBT-001** | Uso de Tags `<img>` Nativas em vez de `next/image` | Frontend / Infraestrutura  | Marketplace | `LOW`      | `LOW`      | `ACCEPTED` (Mantido por custo/recursos Vercel) |
 | **DEBT-002** | Estado volátil nos módulos 020–024                 | Persistência               | API         | `CRITICAL` | `HIGH`     | `OPEN`                                         |
-| **DEBT-003** | Escopo de loja incompleto fora do módulo Stores    | Autorização / Multi-tenant | API         | `CRITICAL` | `CRITICAL` | `OPEN`                                         |
+| **DEBT-003** | Escopo de loja incompleto fora do módulo Stores    | Autorização / Multi-tenant | API         | `CRITICAL` | `CRITICAL` | `RESOLVED` (2026-08-07)                        |
 | **DEBT-004** | Discovery processa candidatos e facetas em memória | Performance                | API         | `HIGH`     | `HIGH`     | `OPEN`                                         |
 | **DEBT-005** | Ausência de testes automatizados no Manager        | Testes                     | Manager     | `HIGH`     | `HIGH`     | `OPEN`                                         |
 | **DEBT-006** | Taxonomia de permissões e seed divergentes         | Autorização                | Auth / API  | `HIGH`     | `HIGH`     | `OPEN`                                         |
@@ -52,7 +52,10 @@ Este documento funciona como a fonte única da verdade para o backlog de **Débi
 - **Descrição:** `requireStoreAccess()` protege rotas de lojas, mas produtos, lotes, estoque e associações de mídia não aplicam uniformemente o mesmo boundary por `storeId`/entidade relacionada.
 - **Impacto:** um usuário não administrador com permissão funcional pode alcançar recursos de outra loja se conhecer identificadores válidos.
 - **Recomendação:** introduzir policy central de acesso a loja e aplicá-la a listagem, leitura e mutações de todo recurso tenant-scoped, com testes negativos entre duas lojas.
-- **Status:** `OPEN` — bloqueador de produção.
+- **Resolução:** `StoreAccessPolicy` tornou-se a autoridade central para escopo global do administrador, vínculo ativo em `StoreUser`, filtragem automática de listagens e negação por loja explícita. A policy foi aplicada em Stores, produtos, lotes, estoque, arquivos, relatórios, pedidos do Manager, devoluções, expedição, moderação e checagem/notificações de validade. Referências compostas de estoque e mídia também são validadas contra a mesma loja.
+- **Evidência automatizada:** `apps/api/src/tenant-isolation.spec.ts` cobre duas lojas e testa filtragem de listagens, parâmetros explícitos, recursos resolvidos por ID e mutações indiretas. Os testes dos serviços afetados usam ator explícito; não existe fallback silencioso de `userId` para escopo global. `pnpm verify` passou em 2026-08-07 com API 345/345, Marketplace 32/32 e build completo.
+- **Limite:** esta resolução trata o boundary de loja. A taxonomia e a cobertura de permissões funcionais continuam acompanhadas separadamente em `DEBT-006`.
+- **Status:** `RESOLVED` em 2026-08-07.
 
 ### DEBT-004 — Product Discovery com Processamento em Memória
 

@@ -63,8 +63,8 @@ Roles are **not rigid enums** in code. The system must support new roles in the 
 
 - Can view and edit store data
 - Can assist suppliers
-- Store routes currently require an active `StoreUser` link for non-admin users.
-- The same store-scope policy is not yet applied uniformly to every tenant-scoped module; see `DEBT-003` in `.ai/technical-debt/TECHNICAL_DEBT.md`.
+- Tenant-scoped routes and services require an active `StoreUser` link for non-admin users.
+- Listings are restricted to linked stores even when no `storeId` is provided; explicit and entity-derived stores are denied when the link is absent or inactive.
 
 ### 3.3 Supplier
 
@@ -109,8 +109,10 @@ Holding a functional permission is **not sufficient**. The system must also veri
 Authorization is composed of: **Functional permission + Store scope**
 
 - **Admin**: global scope across all stores
-- **Employee**: store-linked on Store routes; cross-module enforcement remains incomplete (`DEBT-003`)
+- **Employee**: limited to actively linked stores across tenant-scoped modules
 - **Supplier**: limited to linked stores only
+
+The canonical boundary is implemented by `StoreAccessPolicy`. Route middleware delegates to the same policy, while services enforce it again when the store is obtained from a body, query, list filter or related entity ID.
 
 ---
 

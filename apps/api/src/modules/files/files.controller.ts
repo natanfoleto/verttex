@@ -2,21 +2,25 @@ import { FastifyReply } from 'fastify'
 
 import { FastifyZodRequest } from '../../@types/fastify'
 import { AppError } from '../../shared/errors/app-error'
-import { UploadService } from '../../shared/services/upload.service'
 import { FinalizeUploadParams, RequestUploadBody } from './files.schemas'
 import { FilesService } from './files.service'
+
+function getActor(request: FastifyZodRequest) {
+  const actor = request.userPayload
+  if (!actor) {
+    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
+  }
+  return actor
+}
 
 export async function requestUploadController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const userId = request.userPayload?.id
-  if (!userId) {
-    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
-  }
+  const actor = getActor(request)
 
   const body = request.body as RequestUploadBody
-  const result = await FilesService.requestUpload(body, userId, request)
+  const result = await FilesService.requestUpload(body, actor, request)
 
   return reply.status(201).send({
     success: true,
@@ -28,10 +32,7 @@ export async function directUploadController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const userId = request.userPayload?.id
-  if (!userId) {
-    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
-  }
+  const actor = getActor(request)
 
   const data = await request.file()
   if (!data) {
@@ -69,8 +70,8 @@ export async function directUploadController(
       buffer,
       purpose,
       storeId,
-      userId,
     },
+    actor,
     request,
   )
 
@@ -84,13 +85,10 @@ export async function finalizeUploadController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
-  const userId = request.userPayload?.id
-  if (!userId) {
-    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
-  }
+  const actor = getActor(request)
 
   const params = request.params as FinalizeUploadParams
-  const result = await FilesService.finalizeUpload(params, userId, request)
+  const result = await FilesService.finalizeUpload(params, actor, request)
 
   return reply.send({
     success: true,
@@ -102,8 +100,9 @@ export async function getFileController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
+  const actor = getActor(request)
   const params = request.params as { fileId: string }
-  const file = await FilesService.getFile(params.fileId)
+  const file = await FilesService.getFile(params.fileId, actor)
   if (!file) {
     throw new AppError('NOT_FOUND', 'Arquivo não encontrado', 404)
   }
@@ -118,8 +117,9 @@ export async function deleteFileController(
   request: FastifyZodRequest,
   reply: FastifyReply,
 ) {
+  const actor = getActor(request)
   const params = request.params as { fileId: string }
-  await UploadService.deleteFile(params.fileId)
+  await FilesService.deleteFile(params.fileId, actor, request)
 
   return reply.send({
     success: true,

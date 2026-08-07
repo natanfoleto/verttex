@@ -8,6 +8,7 @@ import { ProductsService } from './products.service'
 // Tracks IDs of products created during tests so they can be cleaned up after each test
 const createdProductIds: string[] = []
 const createdFileIds: string[] = []
+const asAdmin = (id: string) => ({ id, role: 'admin' })
 
 describe('Products & Catalog Service', () => {
   afterEach(async () => {
@@ -54,7 +55,7 @@ describe('Products & Catalog Service', () => {
         variations: [],
         mediaFileIds: [],
       },
-      adminUser.id,
+      asAdmin(adminUser.id),
     )
 
     createdProductIds.push(product.id)
@@ -97,13 +98,13 @@ describe('Products & Catalog Service', () => {
         variations: [],
         mediaFileIds: [],
       },
-      adminUser.id,
+      asAdmin(adminUser.id),
     )
 
     createdProductIds.push(product.id)
 
     await expect(
-      ProductsService.publishProduct(product.id, adminUser.id),
+      ProductsService.publishProduct(product.id, asAdmin(adminUser.id)),
     ).rejects.toThrow('imagem principal aprovada')
   })
 
@@ -126,7 +127,7 @@ describe('Products & Catalog Service', () => {
           variations: [],
           mediaFileIds: [],
         },
-        'user-id-not-used',
+        asAdmin('user-id-not-used'),
       ),
     ).rejects.toThrow('Use a ação de publicação')
   })
@@ -179,7 +180,7 @@ describe('Products & Catalog Service', () => {
           mediaFileIds: [file.id],
           mainMediaFileId: file.id,
         },
-        adminUser.id,
+        asAdmin(adminUser.id),
       ),
     ).rejects.toThrow('imagem aprovada e vinculada à mesma loja')
   })
@@ -235,14 +236,14 @@ describe('Products & Catalog Service', () => {
         mediaFileIds: [file.id],
         mainMediaFileId: file.id,
       },
-      adminUser.id,
+      asAdmin(adminUser.id),
     )
 
     createdProductIds.push(product.id)
 
     const published = await ProductsService.publishProduct(
       product.id,
-      adminUser.id,
+      asAdmin(adminUser.id),
     )
     expect(published.isPublished).toBe(true)
   })
@@ -274,12 +275,12 @@ describe('Products & Catalog Service', () => {
         variations: [],
         mediaFileIds: [],
       },
-      adminUser.id,
+      asAdmin(adminUser.id),
     )
 
     createdProductIds.push(product.id)
 
-    await ProductsService.archiveProduct(product.id, adminUser.id)
+    await ProductsService.archiveProduct(product.id, asAdmin(adminUser.id))
 
     const archivedInDb = await prisma.product.findUnique({
       where: { id: product.id },

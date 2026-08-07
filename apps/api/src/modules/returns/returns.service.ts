@@ -1,4 +1,8 @@
 import { prisma } from '../../infrastructure/database/prisma'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import {
   ProcessRefundInput,
@@ -36,18 +40,27 @@ export function clearReturnsStore() {
 }
 
 export class ReturnsService {
-  static async listReturns(query?: {
-    page?: string | number
-    limit?: string | number
-    perPage?: string | number
-  }) {
+  static async listReturns(
+    actor: StoreAccessActor,
+    query: {
+      page?: string | number
+      limit?: string | number
+      perPage?: string | number
+    } = {},
+  ) {
     const page = Math.max(1, Number(query?.page) || 1)
     const perPage = Math.max(
       1,
       Math.min(100, Number(query?.perPage || query?.limit) || 10),
     )
 
-    const list = Array.from(returnsStore.values())
+    const accessibleStoreIds =
+      await StoreAccessPolicy.getAccessibleStoreIds(actor)
+    const list = Array.from(returnsStore.values()).filter(
+      (record) =>
+        accessibleStoreIds === null ||
+        accessibleStoreIds.includes(record.storeId),
+    )
     const total = list.length
     const skip = (page - 1) * perPage
     const paginatedList = list.slice(skip, skip + perPage)
@@ -140,7 +153,7 @@ export class ReturnsService {
    * Receives returned item into compulsory sanitary quarantine.
    */
   static async receiveReturnInQuarantine(
-    userId: string,
+    actor: StoreAccessActor,
     returnId: string,
     input: QuarantineEntryInput,
   ) {
@@ -148,6 +161,9 @@ export class ReturnsService {
     if (!record) {
       throw new Error('Solicitação de devolução não encontrada')
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, record.storeId)
+    const userId = actor.id
 
     record.status = 'QUARANTINED'
     record.quarantineNotes = input.notes
@@ -188,7 +204,7 @@ export class ReturnsService {
    * Performs sanitary inspection and releases or discards quarantined items.
    */
   static async inspectAndReleaseQuarantine(
-    userId: string,
+    actor: StoreAccessActor,
     returnId: string,
     input: QuarantineReleaseInput,
   ) {
@@ -196,6 +212,9 @@ export class ReturnsService {
     if (!record) {
       throw new Error('Solicitação de devolução não encontrada')
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, record.storeId)
+    const userId = actor.id
 
     if (record.status !== 'QUARANTINED') {
       throw new Error(
@@ -248,7 +267,7 @@ export class ReturnsService {
    * Processes customer refund for approved return.
    */
   static async processRefund(
-    userId: string,
+    actor: StoreAccessActor,
     returnId: string,
     input: ProcessRefundInput,
   ) {
@@ -256,6 +275,9 @@ export class ReturnsService {
     if (!record) {
       throw new Error('Solicitação de devolução não encontrada')
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, record.storeId)
+    const userId = actor.id
 
     record.status = 'REFUNDED'
     record.refundAmount = input.amount

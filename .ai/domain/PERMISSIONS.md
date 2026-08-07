@@ -177,11 +177,13 @@ Functional permission (e.g., stores.read) AND store-level access (user is linked
 
 ### Scope by Role
 
-| Role       | Store Scope                                                                   |
-| ---------- | ----------------------------------------------------------------------------- |
-| `admin`    | Global — all stores                                                           |
-| `employee` | Verificar no guard do módulo; a política global ainda precisa ser formalizada |
-| `supplier` | Limited — linked stores only                                                  |
+| Role       | Store Scope                           |
+| ---------- | ------------------------------------- |
+| `admin`    | Global — all stores                   |
+| `employee` | Limited — actively linked stores only |
+| `supplier` | Limited — actively linked stores only |
+
+`StoreAccessPolicy` is the canonical boundary. It restricts unfiltered list queries to accessible store IDs, validates explicit `storeId` values and checks the store resolved from related resources before reads or mutations. This scope is composed with, and does not replace, functional CASL permissions. Taxonomy differences remain tracked in `DEBT-006`.
 
 ### StoreUser
 

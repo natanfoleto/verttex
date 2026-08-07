@@ -4,6 +4,8 @@ import { prisma } from '../../infrastructure/database/prisma'
 import { quoteShippingSchema } from './shipping.schemas'
 import { ShippingService } from './shipping.service'
 
+const adminActor = { id: 'user-1', role: 'admin' }
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     order: {
@@ -78,10 +80,14 @@ describe('ShippingService', () => {
         status: 'SHIPPED',
       } as unknown as Awaited<ReturnType<typeof prisma.order.update>>)
 
-      const result = await ShippingService.dispatchOrder('user-1', 'order-10', {
-        trackingCode: 'TRK123456BR',
-        carrierName: 'Loggi Climatizada',
-      })
+      const result = await ShippingService.dispatchOrder(
+        adminActor,
+        'order-10',
+        {
+          trackingCode: 'TRK123456BR',
+          carrierName: 'Loggi Climatizada',
+        },
+      )
 
       expect(result.status).toBe('SHIPPED')
       expect(prisma.stockReservation.update).toHaveBeenCalledWith({
@@ -127,7 +133,7 @@ describe('ShippingService', () => {
       } as unknown as Awaited<ReturnType<typeof prisma.order.findUnique>>)
 
       await expect(
-        ShippingService.dispatchOrder('user-1', 'order-11', {
+        ShippingService.dispatchOrder(adminActor, 'order-11', {
           trackingCode: 'TRK999999BR',
           carrierName: 'Express',
         }),
@@ -148,7 +154,10 @@ describe('ShippingService', () => {
         status: 'DELIVERED',
       } as unknown as Awaited<ReturnType<typeof prisma.order.update>>)
 
-      const result = await ShippingService.markAsDelivered('user-1', 'order-12')
+      const result = await ShippingService.markAsDelivered(
+        adminActor,
+        'order-12',
+      )
 
       expect(result.status).toBe('DELIVERED')
       expect(prisma.order.update).toHaveBeenCalledWith({

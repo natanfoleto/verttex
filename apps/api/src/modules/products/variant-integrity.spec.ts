@@ -4,6 +4,8 @@ import { prisma } from '../../infrastructure/database/prisma'
 import { isValidGtin } from '../../shared/utils/barcode-validator'
 import { ProductsService } from './products.service'
 
+const adminActor = { id: 'user-1', role: 'admin' }
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     store: {
@@ -90,7 +92,7 @@ describe('Variant Integrity & GTIN Validation Tests (Fase 1)', () => {
             price: 50.0,
             barcode: '1234567890123', // invalid GTIN checksum
           } as Parameters<typeof ProductsService.createProduct>[0],
-          'user-1',
+          adminActor,
         ),
       ).rejects.toThrow('Código de barras GTIN/EAN inválido')
     })
@@ -130,7 +132,7 @@ describe('Variant Integrity & GTIN Validation Tests (Fase 1)', () => {
               },
             ],
           } as unknown as Parameters<typeof ProductsService.createProduct>[0],
-          'user-1',
+          adminActor,
         ),
       ).rejects.toThrow('Combinação de opções duplicada encontrada')
     })

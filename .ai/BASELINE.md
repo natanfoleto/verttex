@@ -4,7 +4,7 @@
 > **Branch de trabalho:** `main`  
 > **SHA de origem da consolidação:** `d09e635ef8c9ede5907cc51219db8b39cd6ac256`  
 > **Roadmap ativo:** 028 — Home Personalizada, Ofertas Reais e Recomendações  
-> **Quality gate da baseline corrigida:** PASS em 2026-08-07 para o conteúdo consolidado (`lint`, `typecheck`, 372/372 testes e `build`)
+> **Quality gate da baseline corrigida:** PASS em 2026-08-07 para o conteúdo consolidado e a resolução do `DEBT-003` (`lint`, `typecheck`, 377/377 testes e `build`)
 
 Este documento é o painel resumido do estado atual. Ele não substitui os documentos de domínio; aponta qual implementação e qual nível de maturidade devem ser considerados durante planejamento, revisão e aprovação.
 
@@ -27,19 +27,19 @@ Este documento é o painel resumido do estado atual. Ele não substitui os docum
 
 ## 3. Maturidade dos módulos
 
-| Área                                         | Estado                                 | Limite atual                                                                                                                           |
-| :------------------------------------------- | :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth, usuários, cargos e lojas               | implementado                           | Requer alinhar a política documental de CASL com exceções de escopo administrativo.                                                    |
-| Catálogo, lotes, estoque, carrinho e pedidos | implementado                           | Publicação canônica e elegibilidade de mídia foram endurecidas e recertificadas; escopo multi-loja transversal continua em `DEBT-003`. |
-| Uploads R2                                   | hardening recertificado nesta baseline | Decodificação real, MIME, 5 MB durante streaming, limite de pixels, reprocessamento sem metadados, checksum e dimensões.               |
-| Product Discovery                            | implementado                           | Ranking, facetas, ordenação e paginação final têm processamento em memória; não há benchmark PostgreSQL real com SLO.                  |
-| Pagamentos                                   | protótipo                              | Sem gateway real; idempotência de webhook em memória.                                                                                  |
-| Frete                                        | protótipo                              | Cotação simulada e sem integração com transportadora.                                                                                  |
-| Devoluções                                   | protótipo                              | Estado do fluxo em memória.                                                                                                            |
-| Avaliações e perguntas                       | protótipo                              | Estado em memória.                                                                                                                     |
-| Notificações                                 | protótipo                              | Estado e desduplicação em memória, com registros demonstrativos.                                                                       |
-| Relatórios                                   | implementado                           | Agregações são feitas em memória após consultas Prisma.                                                                                |
-| Home personalizada                           | não implementada                       | A Home provisória mostra apenas dados reais e não afirma personalização até os Pushes 3–5.                                             |
+| Área                                         | Estado                                 | Limite atual                                                                                                             |
+| :------------------------------------------- | :------------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
+| Auth, usuários, cargos e lojas               | implementado                           | Requer alinhar a política documental de CASL com exceções de escopo administrativo.                                      |
+| Catálogo, lotes, estoque, carrinho e pedidos | implementado                           | Publicação e mídia foram endurecidas; o boundary multi-loja transversal foi centralizado e o `DEBT-003` está resolvido.  |
+| Uploads R2                                   | hardening recertificado nesta baseline | Decodificação real, MIME, 5 MB durante streaming, limite de pixels, reprocessamento sem metadados, checksum e dimensões. |
+| Product Discovery                            | implementado                           | Ranking, facetas, ordenação e paginação final têm processamento em memória; não há benchmark PostgreSQL real com SLO.    |
+| Pagamentos                                   | protótipo                              | Sem gateway real; idempotência de webhook em memória.                                                                    |
+| Frete                                        | protótipo                              | Cotação simulada e sem integração com transportadora.                                                                    |
+| Devoluções                                   | protótipo                              | Estado do fluxo em memória.                                                                                              |
+| Avaliações e perguntas                       | protótipo                              | Estado em memória.                                                                                                       |
+| Notificações                                 | protótipo                              | Estado e desduplicação em memória, com registros demonstrativos.                                                         |
+| Relatórios                                   | implementado                           | Agregações são feitas em memória após consultas Prisma.                                                                  |
+| Home personalizada                           | não implementada                       | A Home provisória mostra apenas dados reais e não afirma personalização até os Pushes 3–5.                               |
 
 ## 4. Testes e evidências
 
@@ -47,7 +47,7 @@ Este documento é o painel resumido do estado atual. Ele não substitui os docum
 - Uma evidência só certifica o snapshot exato de conteúdo em que foi produzida.
 - Contagem estática de arquivos ou blocos de teste não prova aprovação.
 - A conclusão de qualquer correção exige `pnpm verify` e registro factual do resultado.
-- Evidência atual: `pnpm verify` PASS em 2026-08-07; API 340/340, Marketplace 32/32, total 372/372. O resultado certifica este conjunto de alterações e perde validade se o conteúdo for modificado.
+- Evidência atual: `pnpm verify` PASS em 2026-08-07; API 345/345, Marketplace 32/32, total 377/377. O resultado certifica este conjunto de alterações e perde validade se o conteúdo for modificado.
 
 ## 5. Fontes relacionadas
 

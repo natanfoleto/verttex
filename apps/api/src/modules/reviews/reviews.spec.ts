@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { prisma } from '../../infrastructure/database/prisma'
 import { ReviewsService } from './reviews.service'
 
+const merchantActor = { id: 'user-merchant', role: 'admin' }
+const managerActor = { id: 'user-manager', role: 'admin' }
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     order: {
@@ -66,7 +69,7 @@ describe('ReviewsService', () => {
       )
 
       const answered = await ReviewsService.answerQuestion(
-        'user-merchant',
+        merchantActor,
         q.id,
         {
           answer:
@@ -93,7 +96,7 @@ describe('ReviewsService', () => {
       })
 
       const moderated = await ReviewsService.moderateReview(
-        'user-manager',
+        managerActor,
         review.id,
         {
           isHidden: true,

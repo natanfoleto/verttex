@@ -106,6 +106,14 @@ The `@verttex/auth` package concentrates:
 - `defineAbilityFor(user)` function
 - Shared helpers for both backend guards and frontend `<Can>` components
 
+Store authorization is a second, independent boundary implemented by `StoreAccessPolicy` in the API. Administrators receive global scope; every other management actor is restricted to active `StoreUser` links. Services apply the policy to list filters, explicit `storeId` input and stores derived from related resource IDs. `requireStoreAccess()` delegates to this same policy for parameterized Store routes.
+
+Effective authorization for tenant resources is therefore:
+
+```
+functional permission (CASL) AND store scope (StoreAccessPolicy)
+```
+
 > **Note**: The current state of `@verttex/auth` is aligned with Phase 1 specification (`admin`, `employee`, `supplier` and full permission subjects).
 
 See `.ai/domain/PERMISSIONS.md` for the full permissions reference.

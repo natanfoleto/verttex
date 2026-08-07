@@ -106,14 +106,14 @@ Anônimo → POST /auth/users/reset-password { token, newPassword }
 
 ### STRIDE
 
-| Ameaça                                           | Categoria     | Controle Atual                          | Gap                                            |
-| :----------------------------------------------- | :------------ | :-------------------------------------- | :--------------------------------------------- |
-| IDOR — acesso a objeto de outro usuário          | **E**levation | Ownership check em principais endpoints | ⚠️ Cobertura parcial — revisar todos endpoints |
-| BFLA — chamar endpoint de admin sem permissão    | **E**levation | `requirePermission` + CASL              | ✅                                             |
-| Mass assignment de `role` via body               | **E**levation | `role` derivado do token, não do body   | ✅                                             |
-| Cross-tenant: usuário de loja A acessando loja B | **E**levation | `requireStoreAccess`                    | ⚠️ Cobertura a verificar                       |
-| Bypass via alteração de ID na URL                | **E**levation | Ownership check                         | ⚠️ Parcial                                     |
-| Escalada por manipulação de permissões           | **E**levation | Auditoria de permissões                 | ✅ Auditado                                    |
+| Ameaça                                           | Categoria     | Controle Atual                           | Gap                                            |
+| :----------------------------------------------- | :------------ | :--------------------------------------- | :--------------------------------------------- |
+| IDOR — acesso a objeto de outro usuário          | **E**levation | Ownership check em principais endpoints  | ⚠️ Cobertura parcial — revisar todos endpoints |
+| BFLA — chamar endpoint de admin sem permissão    | **E**levation | `requirePermission` + CASL               | ✅                                             |
+| Mass assignment de `role` via body               | **E**levation | `role` derivado do token, não do body    | ✅                                             |
+| Cross-tenant: usuário de loja A acessando loja B | **E**levation | `StoreAccessPolicy` + testes com 2 lojas | ✅ Boundary transversal aplicado               |
+| Bypass via alteração de ID na URL                | **E**levation | Ownership check                          | ⚠️ Parcial                                     |
+| Escalada por manipulação de permissões           | **E**levation | Auditoria de permissões                  | ✅ Auditado                                    |
 
 ---
 

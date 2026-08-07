@@ -68,7 +68,7 @@ O VERTTEX NF adota o modelo de defesa em profundidade. A falha de uma camada nã
 | CASL para autorização              | ✅ Implementado | [`@verttex/auth`](../../packages/auth)                                                 | `defineAbilityFor(user)`                                 |
 | `requirePermission` middleware     | ✅ Implementado | [`require-permission.ts`](../../apps/api/src/shared/middlewares/require-permission.ts) |                                                          |
 | Ownership check em nível de objeto | ⚠️ Parcial      | —                                                                                      | Implementado nos principais endpoints; revisar listagens |
-| Validação de escopo de loja        | ⚠️ Parcial      | —                                                                                      | `requireStoreAccess` existe mas cobertura a verificar    |
+| Validação de escopo de loja        | ✅ Implementado | [`store-access.policy.ts`](../../apps/api/src/shared/policies/store-access.policy.ts)  | Policy central em listagens, leituras e mutações         |
 | Negação por padrão                 | ✅ Implementado | —                                                                                      | CASL nega por padrão                                     |
 
 ### Camada 6 — Regras de Negócio

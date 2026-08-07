@@ -2,6 +2,10 @@ import { Prisma } from '@prisma/client'
 
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import { ProductsService } from '../products/products.service'
 import { StockService } from '../stock/stock.service'
@@ -504,13 +508,16 @@ export class OrdersService {
     })
   }
 
-  static async listManagerOrders(query: {
-    status?: string
-    search?: string
-    page?: string | number
-    limit?: string | number
-    perPage?: string | number
-  }) {
+  static async listManagerOrders(
+    query: {
+      status?: string
+      search?: string
+      page?: string | number
+      limit?: string | number
+      perPage?: string | number
+    },
+    actor: StoreAccessActor,
+  ) {
     const page = Math.max(1, Number(query.page) || 1)
     const perPage = Math.max(
       1,
@@ -519,6 +526,8 @@ export class OrdersService {
     const skip = (page - 1) * perPage
 
     const where: Prisma.OrderWhereInput = {}
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(actor)
+    if (storeFilter) where.storeId = storeFilter
     if (query.status && query.status !== 'ALL') {
       where.status = query.status
     }

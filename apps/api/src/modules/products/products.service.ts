@@ -3,6 +3,10 @@ import { FastifyRequest } from 'fastify'
 
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { UploadService } from '../../shared/services/upload.service'
 import { logAudit } from '../../shared/utils/audit'
 import { isValidGtin } from '../../shared/utils/barcode-validator'
@@ -74,7 +78,7 @@ export class ProductsService {
   /**
    * List products with pagination, store isolation and filters
    */
-  static async listProducts(query: ProductListQuery) {
+  static async listProducts(query: ProductListQuery, actor: StoreAccessActor) {
     const {
       storeId,
       categoryId,
@@ -91,7 +95,11 @@ export class ProductsService {
       deletedAt: null,
     }
 
-    if (storeId) where.storeId = storeId
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(
+      actor,
+      storeId,
+    )
+    if (storeFilter) where.storeId = storeFilter
     if (categoryId) where.categoryId = categoryId
     if (brandId) where.brandId = brandId
     if (status && status !== 'all') where.status = status
@@ -160,12 +168,13 @@ export class ProductsService {
   /**
    * Get single product by ID or slug
    */
-  static async getProduct(idOrSlug: string, storeId?: string) {
+  static async getProduct(idOrSlug: string, actor: StoreAccessActor) {
     const where: Prisma.ProductWhereInput = {
       deletedAt: null,
       OR: [{ id: idOrSlug }, { slug: idOrSlug }],
     }
-    if (storeId) where.storeId = storeId
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(actor)
+    if (storeFilter) where.storeId = storeFilter
 
     const product = await prisma.product.findFirst({
       where,
@@ -218,9 +227,11 @@ export class ProductsService {
    */
   static async createProduct(
     body: CreateProductBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
+
     if (body.isPublished) {
       throw new AppError(
         'VALIDATION_ERROR',
@@ -228,6 +239,8 @@ export class ProductsService {
         400,
       )
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, body.storeId)
 
     // 1. Verify Store exists
     const store = await prisma.store.findFirst({
@@ -482,7 +495,7 @@ export class ProductsService {
       () => {},
     )
 
-    return this.getProduct(product.id)
+    return this.getProduct(product.id, actor)
   }
 
   /**
@@ -491,9 +504,10 @@ export class ProductsService {
   static async updateProduct(
     id: string,
     body: UpdateProductBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
     const existing = await prisma.product.findFirst({
       where: { id, deletedAt: null },
     })
@@ -501,6 +515,8 @@ export class ProductsService {
     if (!existing) {
       throw new AppError('NOT_FOUND', 'Produto não encontrado', 404)
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, existing.storeId)
 
     if (body.isPublished && !existing.isPublished) {
       throw new AppError(
@@ -668,7 +684,7 @@ export class ProductsService {
       () => {},
     )
 
-    return this.getProduct(id)
+    return this.getProduct(id, actor)
   }
 
   /**
@@ -676,10 +692,11 @@ export class ProductsService {
    */
   static async publishProduct(
     id: string,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
-    const product = await this.getProduct(id)
+    const userId = actor.id
+    const product = await this.getProduct(id, actor)
 
     // Readiness Validation Rules:
     // 1. Store active
@@ -764,7 +781,7 @@ export class ProductsService {
       () => {},
     )
 
-    return this.getProduct(id)
+    return this.getProduct(id, actor)
   }
 
   /**
@@ -772,9 +789,10 @@ export class ProductsService {
    */
   static async archiveProduct(
     id: string,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
     const existing = await prisma.product.findFirst({
       where: { id, deletedAt: null },
     })
@@ -782,6 +800,8 @@ export class ProductsService {
     if (!existing) {
       throw new AppError('NOT_FOUND', 'Produto não encontrado', 404)
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, existing.storeId)
 
     await prisma.product.update({
       where: { id },

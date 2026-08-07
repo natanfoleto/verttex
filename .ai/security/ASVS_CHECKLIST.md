@@ -60,7 +60,7 @@
 | 4.1.1 | Negação por padrão                          | 1     | ✅     | CASL                                                 |
 | 4.1.2 | Verificação de permissão em todas as rotas  | 1     | ⚠️     | Parcial — nem todas as rotas têm `requirePermission` |
 | 4.1.3 | Verificação de ownership em nível de objeto | 1     | ⚠️     | Parcial — VULN não documentada ainda                 |
-| 4.2.1 | Validação de multi-tenant                   | 1     | ⚠️     | Parcial                                              |
+| 4.2.1 | Validação de multi-tenant                   | 1     | ✅     | Policy central + testes negativos entre duas lojas   |
 | 4.3.2 | Interface admin com autenticação separada   | 2     | ✅     | `actorType: 'user'` separado de customer             |
 
 ---

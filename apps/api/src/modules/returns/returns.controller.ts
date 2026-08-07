@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
+import { AppError } from '../../shared/errors/app-error'
 import {
   processRefundSchema,
   quarantineEntrySchema,
@@ -8,16 +9,25 @@ import {
 } from './returns.schemas'
 import { ReturnsService } from './returns.service'
 
+function getActor(req: FastifyRequest) {
+  const actor = req.userPayload
+  if (!actor) {
+    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
+  }
+  return actor
+}
+
 export async function listReturnsController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
+  const actor = getActor(req)
   const query = (req.query || {}) as {
     page?: string
     limit?: string
     perPage?: string
   }
-  const result = await ReturnsService.listReturns(query)
+  const result = await ReturnsService.listReturns(actor, query)
   return reply.status(200).send({
     success: true,
     data: result.data,
@@ -42,12 +52,12 @@ export async function receiveReturnInQuarantineController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const userId = req.userPayload?.id || 'system'
+  const actor = getActor(req)
   const { returnId } = req.params as { returnId: string }
   const body = quarantineEntrySchema.parse(req.body || {})
 
   const result = await ReturnsService.receiveReturnInQuarantine(
-    userId,
+    actor,
     returnId,
     body,
   )
@@ -61,12 +71,12 @@ export async function inspectAndReleaseQuarantineController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const userId = req.userPayload?.id || 'system'
+  const actor = getActor(req)
   const { returnId } = req.params as { returnId: string }
   const body = quarantineReleaseSchema.parse(req.body)
 
   const result = await ReturnsService.inspectAndReleaseQuarantine(
-    userId,
+    actor,
     returnId,
     body,
   )
@@ -80,11 +90,11 @@ export async function processRefundController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const userId = req.userPayload?.id || 'system'
+  const actor = getActor(req)
   const { returnId } = req.params as { returnId: string }
   const body = processRefundSchema.parse(req.body)
 
-  const result = await ReturnsService.processRefund(userId, returnId, body)
+  const result = await ReturnsService.processRefund(actor, returnId, body)
   return reply.status(200).send({
     success: true,
     data: result,

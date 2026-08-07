@@ -4,6 +4,7 @@ import { FastifyRequest } from 'fastify'
 import { AuthenticatedUserPayload } from '../../@types/fastify'
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import { StoreAccessPolicy } from '../../shared/policies/store-access.policy'
 import { UploadService } from '../../shared/services/upload.service'
 import { logAudit } from '../../shared/utils/audit'
 import { ProductSearchIndexService } from '../catalog/product-search-index.service'
@@ -47,6 +48,27 @@ export class StoresService {
       )
     }
 
+    if (data.logoFileId) {
+      const logoFile = await prisma.file.findFirst({
+        where: {
+          id: data.logoFileId,
+          userId: userPayload.id,
+          storeId: null,
+          purpose: 'store_logo',
+          status: 'approved',
+          deletedAt: null,
+        },
+        select: { id: true },
+      })
+      if (!logoFile) {
+        throw new AppError(
+          'VALIDATION_ERROR',
+          'O arquivo de logo não pertence ao usuário ou não está elegível',
+          400,
+        )
+      }
+    }
+
     return prisma.$transaction(async (tx) => {
       const store = await tx.store.create({
         data: {
@@ -69,6 +91,13 @@ export class StoresService {
           isActive: true,
         },
       })
+
+      if (data.logoFileId) {
+        await tx.file.update({
+          where: { id: data.logoFileId },
+          data: { storeId: store.id },
+        })
+      }
 
       await logAudit({
         userId: userPayload.id,
@@ -103,15 +132,8 @@ export class StoresService {
       where.status = query.status
     }
 
-    // Scoped access: non-admin users only see linked stores
-    if (userPayload.role !== 'admin') {
-      where.users = {
-        some: {
-          userId: userPayload.id,
-          isActive: true,
-        },
-      }
-    }
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(userPayload)
+    if (storeFilter) where.id = storeFilter
 
     const [total, stores] = await Promise.all([
       prisma.store.count({ where }),
@@ -182,6 +204,26 @@ export class StoresService {
 
     if (!previousStore) {
       throw new AppError('NOT_FOUND', 'Loja não encontrada', 404)
+    }
+
+    if (data.logoFileId) {
+      const logoFile = await prisma.file.findFirst({
+        where: {
+          id: data.logoFileId,
+          purpose: 'store_logo',
+          status: 'approved',
+          deletedAt: null,
+          storeId,
+        },
+        select: { id: true },
+      })
+      if (!logoFile) {
+        throw new AppError(
+          'VALIDATION_ERROR',
+          'O arquivo de logo não pertence a esta loja ou não está elegível',
+          400,
+        )
+      }
     }
 
     let newSlug: string | undefined

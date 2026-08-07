@@ -113,6 +113,8 @@ The API has two distinct authentication contexts. Tokens are **not interchangeab
 
 Authorization is always **double-validated**: frontend for UX, backend for security.
 
+`requireStoreAccess()` delegates to the central `StoreAccessPolicy`. Tenant-scoped services also call this policy directly because many stores are supplied in query/body data or are discovered only after resolving a product, lot, file, order, return, review or stock entity. List endpoints without `storeId` receive an automatic accessible-store filter; an administrator is the only actor with a global filter.
+
 ---
 
 ## 5. API Routes

@@ -1,19 +1,12 @@
 import { FastifyRequest } from 'fastify'
 
-import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../errors/app-error'
+import { StoreAccessPolicy } from '../policies/store-access.policy'
 
 export function requireStoreAccess(storeIdParam: string = 'storeId') {
   return async function (request: FastifyRequest) {
     if (!request.userPayload) {
       throw new AppError('UNAUTHORIZED', 'Não autenticado', 401)
-    }
-
-    const { role, id: userId } = request.userPayload
-
-    // Admin users have global access to all stores
-    if (role === 'admin') {
-      return
     }
 
     const params = request.params as Record<string, string>
@@ -27,17 +20,6 @@ export function requireStoreAccess(storeIdParam: string = 'storeId') {
       )
     }
 
-    const storeUser = await prisma.storeUser.findUnique({
-      where: {
-        storeId_userId: {
-          storeId,
-          userId,
-        },
-      },
-    })
-
-    if (!storeUser || !storeUser.isActive) {
-      throw new AppError('FORBIDDEN', 'Você não possui acesso a esta loja', 403)
-    }
+    await StoreAccessPolicy.assertStoreAccess(request.userPayload, storeId)
   }
 }

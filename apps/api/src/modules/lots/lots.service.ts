@@ -3,6 +3,10 @@ import { FastifyRequest } from 'fastify'
 
 import { prisma } from '../../infrastructure/database/prisma'
 import { AppError } from '../../shared/errors/app-error'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import {
   CreateLotBody,
@@ -72,9 +76,12 @@ export class LotsService {
    */
   static async createLot(
     body: CreateLotBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
+    await StoreAccessPolicy.assertStoreAccess(actor, body.storeId)
+
     // Validate manufacturing vs expiration dates
     if (body.manufacturingDate && body.expirationDate) {
       const mfg = new Date(body.manufacturingDate)
@@ -94,6 +101,26 @@ export class LotsService {
     })
     if (!product) {
       throw new AppError('NOT_FOUND', 'Produto não encontrado na loja', 404)
+    }
+
+    if (body.variationId) {
+      const variation = await prisma.productVariation.findFirst({
+        where: {
+          id: body.variationId,
+          productId: body.productId,
+          storeId: body.storeId,
+          deletedAt: null,
+        },
+        select: { id: true },
+      })
+
+      if (!variation) {
+        throw new AppError(
+          'NOT_FOUND',
+          'Variação não encontrada para este produto e loja',
+          404,
+        )
+      }
     }
 
     // Check unique lot per (store, product, variation, lotNumber)
@@ -157,7 +184,7 @@ export class LotsService {
   /**
    * List lots with pagination, status and expiration condition filters
    */
-  static async listLots(query: ListLotsQuery) {
+  static async listLots(query: ListLotsQuery, actor: StoreAccessActor) {
     const {
       storeId,
       productId,
@@ -171,7 +198,11 @@ export class LotsService {
     const skip = (page - 1) * limit
 
     const where: Prisma.ProductLotWhereInput = {}
-    if (storeId) where.storeId = storeId
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(
+      actor,
+      storeId,
+    )
+    if (storeFilter) where.storeId = storeFilter
     if (productId) where.productId = productId
     if (variationId) where.variationId = variationId
     if (status !== 'all') where.status = status
@@ -267,7 +298,7 @@ export class LotsService {
   /**
    * Get Lot details
    */
-  static async getLotDetails(lotId: string) {
+  static async getLotDetails(lotId: string, actor: StoreAccessActor) {
     const lot = await prisma.productLot.findUnique({
       where: { id: lotId },
       include: {
@@ -297,6 +328,8 @@ export class LotsService {
       throw new AppError('NOT_FOUND', 'Lote não encontrado', 404)
     }
 
+    await StoreAccessPolicy.assertStoreAccess(actor, lot.storeId)
+
     const expAnalysis = LotsService.calculateExpirationCondition(
       lot.expirationDate,
       lot.product.minDeliveryShelfLifeDays || 15,
@@ -315,9 +348,10 @@ export class LotsService {
   static async updateLotStatus(
     lotId: string,
     body: UpdateLotStatusBody,
-    userId: string,
+    actor: StoreAccessActor,
     req?: FastifyRequest,
   ) {
+    const userId = actor.id
     const lot = await prisma.productLot.findUnique({
       where: { id: lotId },
     })
@@ -325,6 +359,8 @@ export class LotsService {
     if (!lot) {
       throw new AppError('NOT_FOUND', 'Lote não encontrado', 404)
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, lot.storeId)
 
     const previousStatus = lot.status
     const updatedLot = await prisma.productLot.update({

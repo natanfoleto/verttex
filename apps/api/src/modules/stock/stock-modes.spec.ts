@@ -5,6 +5,8 @@ import { LotsService } from '../lots/lots.service'
 import type { ReceiveStockBody } from './stock.schemas'
 import { resolveStockMode, StockService } from './stock.service'
 
+const adminActor = { id: 'user-1', role: 'admin' }
+
 vi.mock('../../infrastructure/database/prisma', () => ({
   prisma: {
     productVariation: {
@@ -93,7 +95,7 @@ describe('Stock Control Modes & Lot Tracking Tests (Fase 2)', () => {
           variationId: 'var-not-tracked',
           lots: [{ quantity: 10 }],
         } as unknown as ReceiveStockBody,
-        'user-1',
+        adminActor,
       )
 
       expect(result.message).toContain('NOT_TRACKED')
@@ -121,7 +123,7 @@ describe('Stock Control Modes & Lot Tracking Tests (Fase 2)', () => {
             variationId: 'var-exp-req',
             lots: [{ lotNumber: 'LOTE-100', quantity: 5 }], // missing expirationDate
           } as unknown as ReceiveStockBody,
-          'user-1',
+          adminActor,
         ),
       ).rejects.toThrow(
         'Data de validade é obrigatória para produtos no modo BATCH_WITH_EXPIRATION',
@@ -157,7 +159,7 @@ describe('Stock Control Modes & Lot Tracking Tests (Fase 2)', () => {
           variationId: 'var-batch',
           lots: [{ quantity: 20 }], // no lotNumber provided
         } as unknown as ReceiveStockBody,
-        'user-1',
+        adminActor,
       )
 
       expect(res.success).toBe(true)

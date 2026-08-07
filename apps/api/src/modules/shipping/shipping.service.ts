@@ -1,4 +1,8 @@
 import { prisma } from '../../infrastructure/database/prisma'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import {
   DispatchOrderInput,
@@ -54,7 +58,7 @@ export class ShippingService {
    * transitioning order to SHIPPED, and logging StockMovement DISPATCH.
    */
   static async dispatchOrder(
-    userId: string,
+    actor: StoreAccessActor,
     orderId: string,
     input: DispatchOrderInput,
   ) {
@@ -73,6 +77,9 @@ export class ShippingService {
     if (!order) {
       throw new Error('Pedido não encontrado')
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, order.storeId)
+    const userId = actor.id
 
     if (order.status !== 'PAID' && order.status !== 'CONFIRMED') {
       throw new Error(
@@ -157,7 +164,7 @@ export class ShippingService {
    * Updates tracking event for an order.
    */
   static async updateTracking(
-    userId: string,
+    actor: StoreAccessActor,
     orderId: string,
     input: UpdateTrackingInput,
   ) {
@@ -168,6 +175,9 @@ export class ShippingService {
     if (!order) {
       throw new Error('Pedido não encontrado')
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, order.storeId)
+    const userId = actor.id
 
     await logAudit({
       userId,
@@ -188,7 +198,7 @@ export class ShippingService {
   /**
    * Marks an order as DELIVERED.
    */
-  static async markAsDelivered(userId: string, orderId: string) {
+  static async markAsDelivered(actor: StoreAccessActor, orderId: string) {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
     })
@@ -196,6 +206,9 @@ export class ShippingService {
     if (!order) {
       throw new Error('Pedido não encontrado')
     }
+
+    await StoreAccessPolicy.assertStoreAccess(actor, order.storeId)
+    const userId = actor.id
 
     if (order.status !== 'SHIPPED') {
       throw new Error(

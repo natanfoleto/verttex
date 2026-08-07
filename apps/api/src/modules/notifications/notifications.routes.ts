@@ -19,6 +19,7 @@ export async function notificationsRoutes(app: FastifyInstance) {
   typedApp.get(
     '/',
     {
+      preHandler: [app.authenticateUser],
       schema: {
         tags: ['Notifications'],
         summary: 'Listar notificações do usuário',
@@ -32,6 +33,7 @@ export async function notificationsRoutes(app: FastifyInstance) {
   typedApp.patch(
     '/:id/read',
     {
+      preHandler: [app.authenticateUser],
       schema: {
         tags: ['Notifications'],
         summary: 'Marcar notificação como lida',
@@ -45,6 +47,7 @@ export async function notificationsRoutes(app: FastifyInstance) {
   typedApp.post(
     '/expiration-check',
     {
+      preHandler: [app.authenticateUser],
       schema: {
         tags: ['Notifications'],
         summary:

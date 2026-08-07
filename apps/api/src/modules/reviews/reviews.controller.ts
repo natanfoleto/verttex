@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
+import { AppError } from '../../shared/errors/app-error'
 import {
   answerQuestionSchema,
   createQuestionSchema,
@@ -7,6 +8,14 @@ import {
   moderateReviewSchema,
 } from './reviews.schemas'
 import { ReviewsService } from './reviews.service'
+
+function getActor(req: FastifyRequest) {
+  const actor = req.userPayload
+  if (!actor) {
+    throw new AppError('UNAUTHORIZED', 'Usuário não autenticado', 401)
+  }
+  return actor
+}
 
 export async function createReviewController(
   req: FastifyRequest,
@@ -52,11 +61,11 @@ export async function answerQuestionController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const userId = req.userPayload?.id || 'system'
+  const actor = getActor(req)
   const { questionId } = req.params as { questionId: string }
   const body = answerQuestionSchema.parse(req.body)
 
-  const result = await ReviewsService.answerQuestion(userId, questionId, body)
+  const result = await ReviewsService.answerQuestion(actor, questionId, body)
   return reply.status(200).send({
     success: true,
     data: result,
@@ -67,11 +76,11 @@ export async function moderateReviewController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const userId = req.userPayload?.id || 'system'
+  const actor = getActor(req)
   const { reviewId } = req.params as { reviewId: string }
   const body = moderateReviewSchema.parse(req.body)
 
-  const result = await ReviewsService.moderateReview(userId, reviewId, body)
+  const result = await ReviewsService.moderateReview(actor, reviewId, body)
   return reply.status(200).send({
     success: true,
     data: result,

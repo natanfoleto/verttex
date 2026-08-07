@@ -1,4 +1,8 @@
 import { prisma } from '../../infrastructure/database/prisma'
+import {
+  StoreAccessActor,
+  StoreAccessPolicy,
+} from '../../shared/policies/store-access.policy'
 import { logAudit } from '../../shared/utils/audit'
 import {
   ExpirationCheckInput,
@@ -12,6 +16,7 @@ interface NotificationItem {
   message: string
   type: 'TRANSACTIONAL' | 'EXPIRATION_ALERT' | 'SECURITY' | 'SYSTEM'
   isRead: boolean
+  storeId?: string
   metadata?: Record<string, unknown>
   createdAt: Date
 }
@@ -68,6 +73,7 @@ export class NotificationsService {
     message: string,
     type: NotificationItem['type'] = 'TRANSACTIONAL',
     metadata?: Record<string, unknown>,
+    storeId?: string,
   ) {
     const id = `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`
     const notification: NotificationItem = {
@@ -77,6 +83,7 @@ export class NotificationsService {
       message,
       type,
       isRead: false,
+      storeId,
       metadata,
       createdAt: new Date(),
     }
@@ -89,17 +96,26 @@ export class NotificationsService {
    * Lists notifications for a specific user.
    */
   static async listUserNotifications(
-    userId: string,
+    actor: StoreAccessActor,
     query: ListNotificationsQueryInput,
   ) {
+    const accessibleStoreIds =
+      await StoreAccessPolicy.getAccessibleStoreIds(actor)
+    const canSee = (notification: NotificationItem) =>
+      notification.userId === actor.id ||
+      (StoreAccessPolicy.hasGlobalAccess(actor) &&
+        notification.userId === 'system-manager') ||
+      (Boolean(notification.storeId) &&
+        (accessibleStoreIds === null ||
+          accessibleStoreIds.includes(notification.storeId!)))
+
     const userNotifications = Array.from(notificationsStore.values())
-      .filter((n) => n.userId === userId || n.userId === 'system-manager')
+      .filter(canSee)
       .filter((n) => (query.unreadOnly ? !n.isRead : true))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
     const unreadCount = Array.from(notificationsStore.values()).filter(
-      (n) =>
-        (n.userId === userId || n.userId === 'system-manager') && !n.isRead,
+      (notification) => canSee(notification) && !notification.isRead,
     ).length
 
     return {
@@ -111,9 +127,18 @@ export class NotificationsService {
   /**
    * Marks a notification as read.
    */
-  static async markAsRead(userId: string, notificationId: string) {
+  static async markAsRead(actor: StoreAccessActor, notificationId: string) {
     const notification = notificationsStore.get(notificationId)
-    if (!notification || notification.userId !== userId) {
+    if (!notification) {
+      throw new Error('Notificação não encontrada ou não pertence ao usuário')
+    }
+
+    if (notification.storeId) {
+      await StoreAccessPolicy.assertStoreAccess(actor, notification.storeId)
+    } else if (
+      notification.userId !== actor.id &&
+      !StoreAccessPolicy.hasGlobalAccess(actor)
+    ) {
       throw new Error('Notificação não encontrada ou não pertence ao usuário')
     }
 
@@ -126,9 +151,16 @@ export class NotificationsService {
    * (180, 90, 60, 30, 15, 7, 1 day, and EXPIRED <= 0).
    * Prevents duplicate alerts via `triggeredAlerts` set.
    */
-  static async checkLotExpirations(input: ExpirationCheckInput) {
+  static async checkLotExpirations(
+    input: ExpirationCheckInput,
+    actor: StoreAccessActor,
+  ) {
+    const storeFilter = await StoreAccessPolicy.resolveStoreFilter(
+      actor,
+      input.storeId,
+    )
     const lots = await prisma.productLot.findMany({
-      where: input.storeId ? { storeId: input.storeId } : {},
+      where: storeFilter ? { storeId: storeFilter } : {},
       include: {
         product: true,
       },
@@ -169,7 +201,7 @@ export class NotificationsService {
 
             // Broadcast notification to store managers / system
             const alert = await this.createNotification(
-              'system-manager',
+              `store:${lot.storeId}`,
               title,
               message,
               'EXPIRATION_ALERT',
@@ -180,6 +212,7 @@ export class NotificationsService {
                 expirationDate: lot.expirationDate,
                 bracketDay: bracket,
               },
+              lot.storeId,
             )
 
             generatedAlerts.push(alert)
