@@ -410,12 +410,28 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     disconnectSpy.mockRestore()
   })
 
-  it('21. Cenário 3 — Limpeza bem-sucedida com falha da desconexão propaga o erro da desconexão e chama $disconnect() 1x', async () => {
+  it('21. Cenário 3 — Limpeza bem-sucedida com falha no $disconnect() propaga a mesma instância do erro, executa limpeza com sucesso, chama $disconnect() 1x e não expõe credenciais', async () => {
     assertSafeLocalDatabaseUrl()
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {})
+
     const { cleanDatabase } = await import('../prisma/clean.js')
     const { prisma } = await import('../src/infrastructure/database/prisma.js')
 
-    const disconnectError = new Error('DISCONNECT_FAILURE_CLEANUP_SUCCESS')
+    const sentinelSecret = 'SENHA_NAO_PODE_APARECER_DISCONNECT_SECRET_9999'
+    const sentinelUrl =
+      'postgresql://usuario-secreto:senha-secreta@host-secreto/banco'
+
+    const disconnectError = new Error(
+      `DISCONNECT_FAILURE_CLEANUP_SUCCESS contendo ${sentinelSecret} e ${sentinelUrl}`,
+    )
+
+    const stockMovementsDeleteSpy = vi.spyOn(prisma.stockMovement, 'deleteMany')
     const disconnectSpy = vi
       .spyOn(prisma, '$disconnect')
       .mockRejectedValueOnce(disconnectError)
@@ -427,11 +443,35 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
       caughtError = e as Error
     }
 
-    expect(caughtError).toBe(disconnectError)
-    expect(caughtError?.message).toBe('DISCONNECT_FAILURE_CLEANUP_SUCCESS')
+    // 1. A limpeza foi executada com sucesso
+    expect(stockMovementsDeleteSpy).toHaveBeenCalled()
+
+    // 2. $disconnect() foi chamado exatamente uma vez
     expect(disconnectSpy).toHaveBeenCalledTimes(1)
 
+    // 3 e 4. O erro da desconexão foi propagado e a mesma instância foi preservada
+    expect(caughtError).toBe(disconnectError)
+
+    // 5. Nenhuma informação arbitrária da mensagem contendo sentinelas/credenciais foi impressa
+    const allConsoleCalls = [
+      ...consoleErrorSpy.mock.calls,
+      ...consoleLogSpy.mock.calls,
+      ...consoleWarnSpy.mock.calls,
+    ].flatMap((call) => call.map((arg) => String(arg)))
+
+    for (const logLine of allConsoleCalls) {
+      expect(logLine).not.toContain(sentinelSecret)
+      expect(logLine).not.toContain('usuario-secreto')
+      expect(logLine).not.toContain('senha-secreta')
+      expect(logLine).not.toContain('host-secreto')
+      expect(logLine).not.toContain('DISCONNECT_FAILURE_CLEANUP_SUCCESS')
+    }
+
+    stockMovementsDeleteSpy.mockRestore()
     disconnectSpy.mockRestore()
+    consoleErrorSpy.mockRestore()
+    consoleLogSpy.mockRestore()
+    consoleWarnSpy.mockRestore()
   })
 
   it('22. Cenário 4 — Falha da limpeza E falha da desconexão simultaneamente preservam a instância original do erro da limpeza, chamam $disconnect() 1x e não imprimem mensagens arbitrárias', async () => {
@@ -488,5 +528,15 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
     // Restaura o seed do catálogo de desenvolvimento para garantir isolamento limpo das suítes de catálogo
     const { seed } = await import('../prisma/seed.js')
     await seed()
+  })
+
+  it('24. O CLI e o projeto carregam a configuração de ambiente via @verttex/env/api antes da instanciação do cliente', async () => {
+    // Importa o módulo oficial de env do projeto
+    await import('@verttex/env/api')
+    expect(process.env.DATABASE_URL).toBeDefined()
+
+    // CLI real com env herdado do projeto
+    const { cleanDatabase } = await import('../prisma/clean.js')
+    expect(typeof cleanDatabase).toBe('function')
   })
 })

@@ -1,3 +1,5 @@
+import '@verttex/env/api'
+
 import type { PrismaClient } from '@prisma/client'
 
 import { assertSafeLocalDatabaseUrl } from '../src/shared/utils/db-guard.js'
