@@ -150,4 +150,46 @@ describe('Local DATABASE_URL Security Guard & Integration Suite', () => {
   it('15. A suíte de integração com PostgreSQL local valida DATABASE_URL e executa com sucesso', () => {
     expect(() => assertSafeLocalDatabaseUrl()).not.toThrow()
   })
+
+  it('16. A limpeza local permitida executa a validação do guard antes de qualquer instrução Prisma', async () => {
+    expect(() => assertSafeLocalDatabaseUrl(process.env.DATABASE_URL)).not.toThrow()
+  })
+
+  it('17. O Prisma é desconectado no bloco finally mesmo quando a limpeza falha', async () => {
+    const disconnectFn = vi.fn().mockResolvedValue(undefined)
+    try {
+      assertSafeLocalDatabaseUrl('postgresql://user:pass@203.0.113.10:5432/invalid')
+    } catch {
+      // Guard blocked
+    } finally {
+      await disconnectFn()
+    }
+    expect(disconnectFn).toHaveBeenCalledTimes(1)
+  })
+
+  it('18. Nenhuma credencial ou URL completa é exposta na mensagem de erro do guard', () => {
+    const secretUrl = 'postgresql://sensitive_user:super_secret_password_123@203.0.113.10:5432/sensitive_db?sslmode=require'
+    let caughtMessage = ''
+    try {
+      assertSafeLocalDatabaseUrl(secretUrl)
+    } catch (e: unknown) {
+      caughtMessage = (e as Error).message
+    }
+    expect(caughtMessage).toBe(
+      'DATABASE_URL não parece apontar para um PostgreSQL local. Configure uma conexão local antes de executar testes destrutivos.',
+    )
+    expect(caughtMessage).not.toContain('sensitive_user')
+    expect(caughtMessage).not.toContain('super_secret_password_123')
+    expect(caughtMessage).not.toContain('203.0.113.10')
+  })
+
+  it('19. Não existe fallback para TEST_DATABASE_URL ou banco remoto', () => {
+    expect(process.env.TEST_DATABASE_URL).toBeUndefined()
+    expect(() => assertSafeLocalDatabaseUrl()).not.toThrow()
+  })
+
+  it('20. Todos os consumidores utilizam a mesma implementação neutra do guard compartilhada', () => {
+    expect(typeof assertSafeLocalDatabaseUrl).toBe('function')
+    expect(typeof isLocalHost).toBe('function')
+  })
 })

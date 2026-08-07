@@ -1,6 +1,6 @@
-import { prisma } from '../src/infrastructure/database/prisma.js'
-import { hashPassword } from '../src/shared/utils/crypto.js'
-import { clearReturnsStore } from '../src/modules/returns/returns.service.js'
+import '@verttex/env/api'
+
+import { assertSafeLocalDatabaseUrl } from '../src/shared/utils/db-guard.js'
 
 const permissionsData = [
   // Users module
@@ -204,115 +204,125 @@ const permissionsData = [
   },
 ]
 
-async function main() {
-  console.log('🧹 Limpando o banco de dados...')
+export async function cleanDatabase() {
+  // 1. Validate DATABASE_URL BEFORE instantiating Prisma or connecting
+  assertSafeLocalDatabaseUrl()
 
-  // Busca todas as tabelas no schema public
-  const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
-    SELECT tablename FROM pg_tables WHERE schemaname='public'
-  `
+  // 2. Dynamically import Prisma and dependencies ONLY AFTER guard validation passes
+  const { prisma } = await import('../src/infrastructure/database/prisma.js')
+  const { hashPassword } = await import('../src/shared/utils/crypto.js')
+  const { clearReturnsStore } = await import(
+    '../src/modules/returns/returns.service.js'
+  )
 
-  for (const { tablename } of tables) {
-    if (tablename === '_prisma_migrations') continue
-    try {
-      await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${tablename}" CASCADE;`)
-    } catch (err) {
-      console.warn(`Erro ao limpar tabela ${tablename}:`, err)
+  try {
+    console.log('🧹 Limpando o banco de dados...')
+
+    // Busca todas as tabelas no schema public
+    const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
+      SELECT tablename FROM pg_tables WHERE schemaname='public'
+    `
+
+    for (const { tablename } of tables) {
+      if (tablename === '_prisma_migrations') continue
+      try {
+        await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${tablename}" CASCADE;`)
+      } catch (err) {
+        console.warn(`Erro ao limpar tabela ${tablename}:`, err)
+      }
     }
+
+    // Limpa o registro em memória de devoluções/trocas
+    clearReturnsStore()
+
+    console.log(
+      '✨ Banco de dados e armazenamento de devoluções limpos com sucesso!',
+    )
+
+    console.log('🔑 Semeando permissões do sistema...')
+    const createdPermissions = await Promise.all(
+      permissionsData.map((perm) =>
+        prisma.permission.create({
+          data: perm,
+        }),
+      ),
+    )
+
+    console.log('🛡️ Criando cargos essenciais do sistema...')
+    const adminRole = await prisma.role.create({
+      data: {
+        name: 'Administrador Global',
+        key: 'admin',
+        description:
+          'Acesso total a todas as funcionalidades e configurações do ecossistema',
+        isSystem: true,
+      },
+    })
+
+    await prisma.role.createMany({
+      data: [
+        {
+          name: 'Operador de Logística & Estoque',
+          key: 'employee',
+          description:
+            'Controle de recebimento, movimentações FEFO e quarentena sanitária',
+          isSystem: true,
+        },
+        {
+          name: 'Produtor / Fornecedor Parceiro',
+          key: 'supplier',
+          description: 'Gestão do catálogo próprio, estoques da loja e remessas',
+          isSystem: true,
+        },
+        {
+          name: 'Gerente de Loja',
+          key: 'store_manager',
+          description:
+            'Gestão operacional e financeira de uma loja parceira específica',
+          isSystem: true,
+        },
+        {
+          name: 'Auditor Sanitário',
+          key: 'auditor',
+          description:
+            'Acesso de leitura e exportação para fiscalização sanitária e compliance',
+          isSystem: true,
+        },
+      ],
+    })
+
+    console.log('🔗 Vinculando todas as permissões ao cargo Admin...')
+    await prisma.rolePermission.createMany({
+      data: createdPermissions.map((perm) => ({
+        roleId: adminRole.id,
+        permissionId: perm.id,
+      })),
+    })
+
+    console.log('👤 Criando usuário Administrador único...')
+    const adminPasswordHash = await hashPassword('admin123')
+
+    const adminUser = await prisma.user.create({
+      data: {
+        name: 'Administrador Verttex',
+        email: 'admin@verttexloja.com.br',
+        passwordHash: adminPasswordHash,
+        roleId: adminRole.id,
+        status: 'active',
+      },
+    })
+
+    console.log('👤 Único Usuário Registrado:')
+    console.log(`- Nome:  ${adminUser.name}`)
+    console.log(`- Email: ${adminUser.email}`)
+    console.log('- Senha: admin123')
+    console.log(`- Cargo: ${adminRole.name} (${adminRole.key})`)
+  } finally {
+    await prisma.$disconnect()
   }
-
-  // Limpa o registro em memória de devoluções/trocas
-  clearReturnsStore()
-
-  console.log(
-    '✨ Banco de dados e armazenamento de devoluções limpos com sucesso!',
-  )
-
-  console.log('🔑 Semeando permissões do sistema...')
-  const createdPermissions = await Promise.all(
-    permissionsData.map((perm) =>
-      prisma.permission.create({
-        data: perm,
-      }),
-    ),
-  )
-
-  console.log('🛡️ Criando cargos essenciais do sistema...')
-  const adminRole = await prisma.role.create({
-    data: {
-      name: 'Administrador Global',
-      key: 'admin',
-      description:
-        'Acesso total a todas as funcionalidades e configurações do ecossistema',
-      isSystem: true,
-    },
-  })
-
-  await prisma.role.createMany({
-    data: [
-      {
-        name: 'Operador de Logística & Estoque',
-        key: 'employee',
-        description:
-          'Controle de recebimento, movimentações FEFO e quarentena sanitária',
-        isSystem: true,
-      },
-      {
-        name: 'Produtor / Fornecedor Parceiro',
-        key: 'supplier',
-        description: 'Gestão do catálogo próprio, estoques da loja e remessas',
-        isSystem: true,
-      },
-      {
-        name: 'Gerente de Loja',
-        key: 'store_manager',
-        description:
-          'Gestão operacional e financeira de uma loja parceira específica',
-        isSystem: true,
-      },
-      {
-        name: 'Auditor Sanitário',
-        key: 'auditor',
-        description:
-          'Acesso de leitura e exportação para fiscalização sanitária e compliance',
-        isSystem: true,
-      },
-    ],
-  })
-
-  console.log('🔗 Vinculando todas as permissões ao cargo Admin...')
-  await prisma.rolePermission.createMany({
-    data: createdPermissions.map((perm) => ({
-      roleId: adminRole.id,
-      permissionId: perm.id,
-    })),
-  })
-
-  console.log('👤 Criando usuário Administrador único...')
-  const adminPasswordHash = await hashPassword('admin123')
-
-  const adminUser = await prisma.user.create({
-    data: {
-      name: 'Administrador Verttex',
-      email: 'admin@verttexloja.com.br',
-      passwordHash: adminPasswordHash,
-      roleId: adminRole.id,
-      status: 'active',
-    },
-  })
-
-  console.log('👤 Único Usuário Registrado:')
-  console.log(`- Nome:  ${adminUser.name}`)
-  console.log(`- Email: ${adminUser.email}`)
-  console.log('- Senha: admin123')
-  console.log(`- Cargo: ${adminRole.name} (${adminRole.key})`)
 }
 
-main()
-  .catch((e) => {
-    console.error('❌ Erro ao executar a limpeza do banco:', e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+cleanDatabase().catch((e) => {
+  console.error('❌ Erro ao executar a limpeza do banco:', e?.message || e)
+  process.exit(1)
+})
